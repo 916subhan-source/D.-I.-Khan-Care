@@ -2,7 +2,7 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://lasting-temp-trailers-sally.trycloudflare.com/api/v1';
+const CLOUDFLARE_TUNNEL_DEFAULT = 'https://louisiana-vintage-terminal-information.trycloudflare.com/api/v1';
 
 const getApiBase = () => {
   const envBase = (import.meta as any).env?.VITE_API_BASE;

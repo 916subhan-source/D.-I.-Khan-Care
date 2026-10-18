@@ -4893,22 +4893,16 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
               </span>
             </div>
 
-            {/* Mobile-Friendly Micro Trust Badges (Static on small screens <768px to eliminate layout shift) */}
-            <div className="flex md:hidden flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-clinic-200/60 text-[11px] font-medium text-slate-700">
-              <span className="inline-flex items-center gap-1.5 bg-white/95 px-3 py-1 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
-                Live Hospital Sync
-              </span>
-              <span className="inline-flex items-center gap-1.5 bg-white/95 px-3 py-1 rounded-lg border border-slate-200/90 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-clinic-700" />
-                Zero Waiting Queue
-              </span>
+            {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
+            <div className="block lg:hidden mt-4 pt-3 border-t border-clinic-200/60 max-w-sm">
+              <Hero3DPass isStatic={true} />
             </div>
           </div>
         </div>
 
-        {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop & Tablet) ── */}
-        <div className="absolute right-4 sm:right-8 lg:right-14 xl:right-22 top-6 sm:top-8 lg:top-10 z-20 pointer-events-auto hidden md:block">
+        {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop >= 1024px) ── */}
+        {/* Anchored in bottom-right corner below patient's shoulder line, completely clear of both faces */}
+        <div className="absolute right-6 sm:right-8 lg:right-10 xl:right-16 bottom-14 lg:bottom-16 xl:bottom-20 z-20 pointer-events-auto hidden lg:block">
           <Hero3DPass />
         </div>
 

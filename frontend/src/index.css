@@ -1,0 +1,355 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base Resets ────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900;
+    font-family: 'Inter', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    line-height: 1.25;
+  }
+
+  input, select, textarea, button {
+    font-family: inherit;
+  }
+}
+
+/* ─── Component Utilities ────────────────────────────── */
+@layer components {
+
+  /* ── Premium Buttons ── */
+  .btn-primary {
+    @apply w-full py-2.5 px-4 font-semibold text-sm rounded-md transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-clinic-500 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed text-white
+           shadow-md hover:shadow-lg active:scale-[0.98];
+    background: linear-gradient(135deg, #1a6359 0%, #143d38 100%);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #1e776b 0%, #1a6359 100%);
+  }
+
+  .btn-secondary {
+    @apply py-2 px-4 border border-clinic-300 text-clinic-800 hover:bg-clinic-50
+           font-semibold text-sm rounded-md transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-clinic-400 focus:ring-offset-1
+           shadow-sm hover:shadow-md;
+  }
+
+  .btn-ghost {
+    @apply py-1.5 px-3 text-clinic-700 hover:bg-clinic-50 font-medium text-sm
+           rounded transition-all duration-150;
+  }
+
+  .btn-danger {
+    @apply py-2 px-4 border border-danger-300 text-danger-600 hover:bg-danger-50
+           font-semibold text-sm rounded-md transition-all duration-200 shadow-sm;
+  }
+
+  /* ── Status Pills ── */
+  .pill {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold tracking-wide;
+  }
+  .pill-verified   { @apply pill bg-paid-50 text-paid-700 border border-paid-200; }
+  .pill-spotlight  { @apply pill bg-amber-50 text-amber-700 border border-amber-200; }
+  .pill-active     { @apply pill bg-paid-50 text-paid-700 border border-paid-200; }
+  .pill-confirmed  { @apply pill bg-teal-50 text-teal-700 border border-teal-200; }
+  .pill-pending    { @apply pill bg-amber-50 text-amber-700 border border-amber-200; }
+  .pill-progress   { @apply pill bg-clinic-700 text-white; }
+  .pill-paid       { @apply pill bg-paid-50 text-paid-700 border border-paid-200; }
+  .pill-pendcash   { @apply pill bg-amber-50 text-amber-700 border border-amber-200; }
+  .pill-rejected   { @apply pill bg-danger-100 text-danger-600 border border-danger-200; }
+  .pill-revoked    { @apply pill bg-danger-100 text-danger-600 border border-danger-200; }
+  .pill-hold       { @apply pill bg-amber-50 text-amber-700 border border-amber-200; }
+  .pill-closed     { @apply pill bg-danger-100 text-danger-600 border border-danger-300; }
+  .pill-draft      { @apply pill bg-slate-100 text-slate-600 border border-slate-200; }
+
+  /* ── Info / Alert Boxes ── */
+  .box-info    { @apply p-3.5 rounded-md bg-clinic-50 border border-clinic-200 text-clinic-900 text-xs leading-relaxed; }
+  .box-warning { @apply p-3.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed; }
+  .box-error   { @apply p-3.5 rounded-md bg-danger-50 border border-danger-200 text-danger-700 text-xs leading-relaxed; }
+  .box-dark    { @apply p-3.5 rounded-md bg-slate-900 border border-slate-700 text-white text-xs; }
+
+  /* ── Premium Cards ── */
+  .card {
+    @apply bg-white rounded-md border border-slate-100 shadow-card;
+  }
+  .card-hover {
+    @apply card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300;
+  }
+  .card-glass {
+    @apply rounded-md border border-white/60 shadow-card;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+  }
+
+  /* ── Premium Form Fields ── */
+  .field-input {
+    @apply w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm
+           bg-white text-slate-900 placeholder:text-slate-400
+           focus:outline-none focus:ring-2 focus:ring-clinic-400 focus:border-clinic-400
+           transition-all duration-150 shadow-sm;
+  }
+  .field-label { @apply block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase; }
+
+  /* ── Avatar Circle ── */
+  .avatar {
+    @apply flex-shrink-0 w-10 h-10 rounded-md bg-gradient-to-br from-clinic-100 to-clinic-200 text-clinic-800
+           flex items-center justify-center font-bold text-sm uppercase shadow-sm;
+  }
+  .avatar-lg {
+    @apply flex-shrink-0 w-14 h-14 rounded-md bg-gradient-to-br from-clinic-100 to-clinic-200 text-clinic-900
+           flex items-center justify-center font-bold text-lg uppercase shadow-sm;
+  }
+
+  /* ── Premium Sidebar ── */
+  .portal-sidebar {
+    @apply fixed top-0 left-0 h-screen w-[224px] flex flex-col z-40;
+    background: #0D1927;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  }
+  .portal-content {
+    @apply ml-[224px] min-h-screen bg-slate-50;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-slate-300
+           rounded-md transition-all duration-150;
+  }
+  .sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    @apply text-white;
+  }
+  .sidebar-link-active {
+    @apply flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-white rounded-md transition-all duration-150;
+    background: #165b53;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  /* ── KPI Metric Cards ── */
+  .kpi-card {
+    @apply card p-5 flex flex-col gap-2 relative overflow-hidden;
+  }
+  .kpi-card-accent {
+    @apply rounded-md p-5 flex flex-col gap-2 relative overflow-hidden border shadow-md;
+  }
+  .kpi-label { @apply text-xs font-semibold uppercase tracking-widest; }
+  .kpi-value { @apply text-3xl font-extrabold leading-none; font-family: 'Outfit', sans-serif; }
+  .kpi-sub   { @apply text-xs mt-0.5; }
+
+  /* ── Premium Table ── */
+  .data-table { @apply w-full text-sm; }
+  .data-table th {
+    @apply text-left text-[11px] font-bold text-slate-400 uppercase tracking-widest
+           pb-3 border-b border-slate-100;
+  }
+  .data-table td { @apply py-3.5 border-b border-slate-50/80 text-slate-700 align-middle; }
+  .data-table tr:last-child td { @apply border-b-0; }
+  .data-table tr:hover td { @apply bg-slate-50/60; }
+
+  /* ── Realtime Live Badge ── */
+  .realtime-live {
+    @apply flex items-center gap-1.5 text-xs font-bold text-emerald-700 uppercase tracking-wide;
+  }
+  .realtime-dot {
+    @apply w-2 h-2 rounded-full bg-emerald-500;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    animation: realtime-pulse 2s ease-in-out infinite;
+  }
+
+  /* ── Slot Button States ── */
+  .slot-available {
+    @apply py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200
+           bg-white text-slate-700 hover:border-clinic-400 hover:bg-clinic-50 hover:shadow-sm
+           transition-all duration-150 cursor-pointer text-center;
+  }
+  .slot-selected {
+    @apply py-2.5 px-2 rounded-xl text-xs font-bold border-2 border-clinic-600
+           text-white text-center shadow-md;
+    background: linear-gradient(135deg, #1a6359, #143d38);
+  }
+  .slot-held {
+    @apply py-2.5 px-2 rounded-xl text-xs font-semibold border border-amber-200
+           bg-amber-50 text-amber-700 text-center cursor-not-allowed;
+  }
+  .slot-booked {
+    @apply py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-100
+           bg-slate-50 text-slate-400 text-center cursor-not-allowed;
+  }
+  .slot-blocked {
+    @apply py-2.5 px-2 rounded-xl text-xs font-semibold border border-slate-200
+           bg-slate-100 text-slate-400 text-center cursor-not-allowed;
+  }
+
+  /* ── Date Tab (booking date strip) ── */
+  .date-tab {
+    @apply flex flex-col items-center py-2.5 px-3.5 rounded-xl border border-slate-200
+           bg-white text-slate-600 hover:border-clinic-300 hover:bg-clinic-50 hover:shadow-sm
+           transition-all duration-150 cursor-pointer min-w-[65px] text-center;
+  }
+  .date-tab-active {
+    @apply date-tab border-2 border-clinic-700 text-clinic-900 shadow-md;
+    background: linear-gradient(135deg, #f0faf8, #d9f2ed);
+  }
+
+  /* ── OTP Input Box ── */
+  .otp-box {
+    @apply w-12 h-14 text-center text-xl font-bold border border-slate-200
+           rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2
+           focus:ring-clinic-400 focus:border-clinic-400 transition-all shadow-sm;
+    font-family: 'Outfit', sans-serif;
+  }
+  .otp-box-error {
+    @apply otp-box border-danger-400 focus:ring-danger-300;
+  }
+
+  /* ── Section header ── */
+  .section-title { @apply text-xl font-bold text-slate-900; font-family: 'Outfit', sans-serif; }
+  .section-sub   { @apply text-xs font-medium text-slate-500 mt-0.5; }
+
+  /* ── Breadcrumb ── */
+  .breadcrumb { @apply text-xs text-slate-400 font-medium flex items-center gap-1.5; }
+  .breadcrumb-sep { @apply text-slate-300; }
+
+  /* ── Premium Top Bar ── */
+  .portal-topbar {
+    @apply h-14 border-b border-slate-100 px-8 flex items-center justify-between bg-white/80;
+    backdrop-filter: blur(12px);
+  }
+
+  /* ── Chip Filter Tabs ── */
+  .chip-group {
+    @apply inline-flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/80;
+  }
+  .chip {
+    @apply px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer;
+    @apply text-slate-500 hover:text-slate-800 hover:bg-white/80;
+  }
+  .chip-active {
+    @apply px-3.5 py-1.5 rounded-lg text-xs font-bold text-white shadow-sm transition-all duration-200;
+    background: linear-gradient(135deg, #1a6359, #143d38);
+  }
+
+  /* ── Table Row Hover Highlight ── */
+  .appt-row {
+    @apply transition-colors duration-150 hover:bg-clinic-50/40;
+  }
+  .appt-row-active {
+    @apply bg-gradient-to-r from-clinic-50 to-transparent border-l-2 border-l-clinic-600;
+  }
+}
+
+/* ─── Global Overrides ───────────────────────────────── */
+@layer utilities {
+  .font-heading { font-family: 'Outfit', 'Inter', system-ui, sans-serif; }
+
+  /* Premium scrollbar */
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+  /* White/8 utility for sidebar links */
+  .nav-link-hover:hover { background-color: rgba(255,255,255,0.08); }
+
+  /* Glass effect */
+  .glass {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Gradient text */
+  .text-gradient-clinic {
+    background: linear-gradient(135deg, #1a6359, #45b3a6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #b45309, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Decorative mesh/pattern background for login pages */
+  .bg-mesh-clinic {
+    background-color: #143d38;
+    background-image:
+      radial-gradient(at 40% 20%, rgba(69,179,166,0.18) 0px, transparent 50%),
+      radial-gradient(at 80% 80%, rgba(26,99,89,0.25) 0px, transparent 50%),
+      radial-gradient(at 10% 90%, rgba(12,40,36,0.4) 0px, transparent 50%);
+  }
+
+  .bg-mesh-light {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(at 30% 20%, rgba(240,250,248,0.9) 0px, transparent 60%),
+      radial-gradient(at 80% 70%, rgba(217,242,237,0.5) 0px, transparent 50%);
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* ─── Animations ─────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.8); }
+}
+@keyframes realtime-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-pulse-dot    { animation: pulse-dot 2s ease-in-out infinite; }
+.animate-fade-in      { animation: fade-in 0.25s ease-out; }
+.animate-slide-up     { animation: slide-up 0.35s ease-out; }
+.animate-slide-right  { animation: slide-in-right 0.3s ease-out; }
+.animate-scale-in     { animation: scale-in 0.2s ease-out; }
+.animate-float        { animation: float 3s ease-in-out infinite; }

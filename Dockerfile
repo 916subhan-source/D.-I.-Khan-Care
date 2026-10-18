@@ -33,9 +33,8 @@ COPY backend/ ./backend/
 # Copy Built Frontend Distribution from Stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Setup persistent data directory for SQLite / media
-RUN mkdir -p /app/data
-ENV DATABASE_URL="sqlite+aiosqlite:////app/data/dikhan_care.db"
+# Setup database file
+ENV DATABASE_URL="sqlite+aiosqlite:///./dikhan_care.db"
 ENV PORT=8000
 ENV ENVIRONMENT=production
 ENV DEBUG=False

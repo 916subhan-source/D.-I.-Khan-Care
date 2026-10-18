@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     # Cloudinary image storage
     CLOUDINARY_URL: str = ""
     
+    # Public Frontend Base URL for email notifications (tracking, review, desk)
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://dikhan-doctor-appointment.pages.dev")
+    
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

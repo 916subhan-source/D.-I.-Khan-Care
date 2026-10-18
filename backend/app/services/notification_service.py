@@ -225,7 +225,7 @@ class NotificationService:
             slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "Scheduled"
             slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Upcoming"
 
-            portal_url = "http://localhost:5173/assistant"
+            portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
 
             if assistant_emails:
                 subject = f"[DI Khan Care] New Booking Request: {appt.patient_name} - Slip #{appt.slip_number}"
@@ -287,7 +287,7 @@ class NotificationService:
                 # If doctor has no assistant assigned yet, alert the doctor directly
                 doc_email = appt.doctor.user.email if (appt.doctor and appt.doctor.user) else None
                 if doc_email and "@" in doc_email:
-                    doc_portal_url = "http://localhost:5173/doctor"
+                    doc_portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/doctor"
                     subject = f"🔔 New Booking Request: {appt.patient_name} - Slip #{appt.slip_number}"
                     html = f"""
                     <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
@@ -332,7 +332,7 @@ class NotificationService:
             if patient_email:
                 pat_subject = f"[DI Khan Care] Booking Request Received: {doc_name} (Slip #{appt.slip_number})"
                 fee_val = appt.payment.amount if appt.payment else "1000"
-                track_url = f"http://localhost:5173/track?slip={appt.slip_number}"
+                track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number}"
                 pat_html = f"""
                 <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                     <div style="background-color: #0284c7; padding: 20px; color: white; text-align: center;">
@@ -386,8 +386,8 @@ class NotificationService:
             slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "Scheduled"
             slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Upcoming"
 
-            desk_url = "http://localhost:5173/assistant"
-            track_url = f"http://localhost:5173/track?slip={appt.slip_number}"
+            desk_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
+            track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number}"
 
             # 1. Email for Assistant
             subject_assistant = f"[DI Khan Care] Appointment Confirmed: Slip #{appt.slip_number} - {appt.patient_name}"
@@ -502,8 +502,8 @@ class NotificationService:
             assistant_emails = await self.get_assistant_emails_for_doctor(db, appt.doctor_id)
             doc_name = appt.doctor.user.full_name if appt.doctor and appt.doctor.user else "Doctor"
 
-            desk_url = "http://localhost:5173/assistant"
-            track_url = f"http://localhost:5173/track?slip={appt.slip_number or ''}"
+            desk_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
+            track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
 
             subject_assistant = f"[DI Khan Care] Appointment Cancelled: Slip #{appt.slip_number or 'N/A'} - {appt.patient_name}"
             assistant_html = f"""
@@ -564,7 +564,7 @@ class NotificationService:
                             <a href="{track_url}" style="background-color: #0284c7; color: white; padding: 11px 22px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block; margin-right: 8px;">
                                 🔍 Check Visit Status Online
                             </a>
-                            <a href="http://localhost:5173" style="background-color: #059669; color: white; padding: 11px 22px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block;">
+                            <a href="{settings.FRONTEND_URL.rstrip('/')}" style="background-color: #059669; color: white; padding: 11px 22px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block;">
                                 📅 Book Another Appointment
                             </a>
                         </div>
@@ -590,8 +590,8 @@ class NotificationService:
             slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "1 Hour"
             slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Today"
 
-            desk_url = "http://localhost:5173/assistant"
-            track_url = f"http://localhost:5173/track?slip={appt.slip_number}"
+            desk_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
+            track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number}"
 
             # 1. Reminder for Assistant
             subject_assistant = f"[DI Khan Care] 1-Hour Reminder: {appt.patient_name} with {doc_name} at {slot_time_str} (Slip #{appt.slip_number})"
@@ -685,9 +685,9 @@ class NotificationService:
             display_doc = raw_name if (raw_name.lower().startswith("dr.") or raw_name.lower().startswith("dr ")) else f"Dr. {raw_name}"
             slot_date_str = format_pkt_date(appt.slot.start_time) if (appt.slot and appt.slot.start_time) else format_pkt_date(appt.created_at)
             slot_time_str = format_pkt_time(appt.slot.start_time) if (appt.slot and appt.slot.start_time) else format_pkt_time(appt.created_at)
-            review_url = f"http://localhost:5173/?doctor_id={appt.doctor_id}&review=1&slip={appt.slip_number or ''}"
-            track_url = f"http://localhost:5173/track?slip={appt.slip_number or ''}"
-            desk_url = "http://localhost:5173/assistant"
+            review_url = f"{settings.FRONTEND_URL.rstrip('/')}/?doctor_id={appt.doctor_id}&review=1&slip={appt.slip_number or ''}"
+            track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
+            desk_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
 
             subject_patient = f"[DI Khan Care] Visit Completed: {display_doc} on {slot_date_str} at {slot_time_str} - Leave a Review"
             patient_html = f"""

@@ -56,6 +56,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
+import Hero3DPass from './components/Hero3DPass';
 
 interface DoctorData {
   id: string;
@@ -4906,40 +4907,9 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
           </div>
         </div>
 
-        {/* ── Subtle Anti-Gravity Floating Glassmorphic Trust Cards (Desktop & Tablet) ── */}
-        {/* Badge A (Upper Corner): Live Hospital Sync */}
-        <div className="absolute right-6 sm:right-10 lg:right-14 xl:right-20 top-5 sm:top-7 lg:top-8 z-20 pointer-events-auto hidden md:block select-none">
-          <div className="antigravity-badge-a antigravity-glass flex items-center gap-3 px-3.5 py-2.5 rounded-2xl cursor-default">
-            <div className="relative flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-50/90 border border-emerald-200/80 shrink-0 shadow-2xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E]" />
-              <span className="absolute w-4 h-4 rounded-full bg-[#22C55E]/30 animate-ping" />
-            </div>
-            <div>
-              <div className="text-[12px] font-bold text-slate-900 tracking-tight leading-none flex items-center gap-1.5">
-                Live Hospital Sync
-              </div>
-              <div className="text-[10.5px] font-semibold text-emerald-800 tracking-wide mt-1 leading-none">
-                Verified Counter Tokens
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Badge B (Lower Corner): Instant Token */}
-        <div className="absolute right-8 sm:right-14 lg:right-20 xl:right-32 bottom-28 sm:bottom-32 lg:bottom-36 z-20 pointer-events-auto hidden md:block select-none">
-          <div className="antigravity-badge-b antigravity-glass flex items-center gap-3 px-3.5 py-2.5 rounded-2xl cursor-default">
-            <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-clinic-100/90 border border-clinic-200/90 text-clinic-800 shrink-0 shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-clinic-700" />
-            </div>
-            <div>
-              <div className="text-[12px] font-bold text-slate-900 tracking-tight leading-none flex items-center gap-1.5">
-                Instant Token
-              </div>
-              <div className="text-[10.5px] font-medium text-slate-600 tracking-wide mt-1 leading-none">
-                Zero Waiting Queue
-              </div>
-            </div>
-          </div>
+        {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop & Tablet) ── */}
+        <div className="absolute right-4 sm:right-8 lg:right-14 xl:right-22 top-6 sm:top-8 lg:top-10 z-20 pointer-events-auto hidden md:block">
+          <Hero3DPass />
         </div>
 
         {/* ── Unified Horizontal Search Bar docked: exactly half on image banner, half on below section ── */}

@@ -354,58 +354,50 @@
 .animate-scale-in     { animation: scale-in 0.2s ease-out; }
 .animate-float        { animation: float 3s ease-in-out infinite; }
 
-/* ─── Hero Anti-Gravity Floating Micro-Animations ────────────────────────── */
-@keyframes antigravity-float-a {
+/* ─── 3D Timothy Ricks-Style Glassmorphic Pass & Interactive Tilt ────────── */
+@keyframes antigravity-pass-float {
   0%, 100% {
-    transform: translate3d(0, 0px, 0) rotate(0deg);
+    transform: translate3d(0, 0px, 0px) rotateX(10deg) rotateY(-12deg) rotateZ(-2deg);
   }
-  50% {
-    transform: translate3d(0, -6px, 0) rotate(0.85deg);
+  33% {
+    transform: translate3d(0, -8px, 14px) rotateX(11.2deg) rotateY(-10deg) rotateZ(-1.4deg);
   }
-}
-
-@keyframes antigravity-float-b {
-  0%, 100% {
-    transform: translate3d(0, 0px, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(0, 5px, 0) rotate(-0.75deg);
+  66% {
+    transform: translate3d(0, 7px, 6px) rotateX(8.8deg) rotateY(-13.5deg) rotateZ(-2.6deg);
   }
 }
 
-.antigravity-badge-a {
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  animation: antigravity-float-a 6.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+.perspective-1200 {
+  perspective: 1200px;
+  -webkit-perspective: 1200px;
 }
 
-.antigravity-badge-b {
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  animation: antigravity-float-b 7.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-  animation-delay: 1.5s;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+.preserve-3d {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
-.antigravity-badge-a:hover,
-.antigravity-badge-b:hover {
-  transform: translate3d(0, -3px, 0) scale(1.02);
-  box-shadow: 0 16px 32px -8px rgba(15, 74, 62, 0.12), 0 4px 12px -2px rgba(15, 74, 62, 0.06);
+.glass-pass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.16) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.75);
+  border-left: 1px solid rgba(255, 255, 255, 0.75);
+  border-bottom: 1px solid rgba(15, 74, 62, 0.16);
+  border-right: 1px solid rgba(15, 74, 62, 0.16);
+  box-shadow: 
+    0 25px 50px -12px rgba(15, 74, 62, 0.22),
+    0 0 1px 1px rgba(255, 255, 255, 0.4) inset,
+    0 8px 20px -4px rgba(15, 74, 62, 0.08);
 }
 
-.antigravity-glass {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 12px 24px -6px rgba(15, 74, 62, 0.08), 0 4px 10px -2px rgba(15, 74, 62, 0.04);
+.glass-pass-idle {
+  animation: antigravity-pass-float 7.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .antigravity-badge-a,
-  .antigravity-badge-b {
+  .glass-pass-idle {
     animation: none !important;
-    transform: none !important;
+    transform: rotateX(8deg) rotateY(-10deg) !important;
   }
 }

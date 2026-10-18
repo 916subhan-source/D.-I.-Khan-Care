@@ -357,13 +357,13 @@
 /* ─── 3D Timothy Ricks-Style Glassmorphic Pass & Interactive Tilt ────────── */
 @keyframes antigravity-pass-float {
   0%, 100% {
-    transform: translate3d(0, 0px, 0px) rotateX(2deg) rotateY(-2deg) rotateZ(0deg) scale3d(0.80, 0.80, 0.80);
+    transform: translate3d(0, 0px, 0px) rotateX(3deg) rotateY(-7deg) rotateZ(-1deg) scale3d(0.80, 0.80, 0.80);
   }
   33% {
-    transform: translate3d(0, -4px, 5px) rotateX(2.6deg) rotateY(-1.2deg) rotateZ(0.3deg) scale3d(0.80, 0.80, 0.80);
+    transform: translate3d(0, -4px, 5px) rotateX(3.6deg) rotateY(-5.8deg) rotateZ(-0.5deg) scale3d(0.80, 0.80, 0.80);
   }
   66% {
-    transform: translate3d(0, 4px, 2px) rotateX(1.4deg) rotateY(-2.6deg) rotateZ(-0.3deg) scale3d(0.80, 0.80, 0.80);
+    transform: translate3d(0, 4px, 2px) rotateX(2.2deg) rotateY(-8.2deg) rotateZ(-1.5deg) scale3d(0.80, 0.80, 0.80);
   }
 }
 
@@ -397,6 +397,6 @@
 @media (prefers-reduced-motion: reduce) {
   .glass-pass-idle {
     animation: none !important;
-    transform: rotateX(2deg) rotateY(-2deg) scale3d(0.80, 0.80, 0.80) !important;
+    transform: rotateX(3deg) rotateY(-7deg) scale3d(0.80, 0.80, 0.80) !important;
   }
 }

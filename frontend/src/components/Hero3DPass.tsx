@@ -12,10 +12,10 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
   const [transformStyle, setTransformStyle] = useState<string>('');
 
-  // Resting 3D tilt coordinates (rotateX: 2deg, rotateY: -2deg)
-  const defaultRotX = 2;
-  const defaultRotY = -2;
-  const defaultRotZ = 0;
+  // Resting 3D tilt coordinates (rotateX: 3deg, rotateY: -7deg)
+  const defaultRotX = 3;
+  const defaultRotY = -7;
+  const defaultRotZ = -1;
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (isStatic || !cardRef.current) return;
@@ -27,11 +27,11 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
     const normX = (x / rect.width) * 2 - 1;
     const normY = (y / rect.height) * 2 - 1;
 
-    // Dynamic rotation mapping (range: -10deg to +10deg with 0.82 scale)
-    const rotY = normX * 10 - 2;
-    const rotX = -normY * 10 + 2;
+    // Dynamic rotation mapping (range: -12deg to +12deg with 0.82 scale)
+    const rotY = normX * 10 - 7;
+    const rotX = -normY * 10 + 3;
 
-    setTransformStyle(`rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) rotateZ(0deg) scale3d(0.83, 0.83, 0.83)`);
+    setTransformStyle(`rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) rotateZ(-0.5deg) scale3d(0.83, 0.83, 0.83)`);
     setGlare({
       x: Math.round((x / rect.width) * 100),
       y: Math.round((y / rect.height) * 100),

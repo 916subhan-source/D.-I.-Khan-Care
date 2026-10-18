@@ -357,13 +357,13 @@
 /* ─── 3D Timothy Ricks-Style Glassmorphic Pass & Interactive Tilt ────────── */
 @keyframes antigravity-pass-float {
   0%, 100% {
-    transform: translate3d(0, 0px, 0px) rotateX(6deg) rotateY(-8deg) rotateZ(-1deg) scale3d(0.90, 0.90, 0.90);
+    transform: translate3d(0, 0px, 0px) rotateX(4deg) rotateY(0deg) rotateZ(0deg) scale3d(0.82, 0.82, 0.82);
   }
   33% {
-    transform: translate3d(0, -6px, 10px) rotateX(7.2deg) rotateY(-6.5deg) rotateZ(-0.5deg) scale3d(0.90, 0.90, 0.90);
+    transform: translate3d(0, -5px, 8px) rotateX(4.8deg) rotateY(1deg) rotateZ(0.4deg) scale3d(0.82, 0.82, 0.82);
   }
   66% {
-    transform: translate3d(0, 5px, 4px) rotateX(5deg) rotateY(-9.5deg) rotateZ(-1.5deg) scale3d(0.90, 0.90, 0.90);
+    transform: translate3d(0, 5px, 3px) rotateX(3.2deg) rotateY(-1deg) rotateZ(-0.4deg) scale3d(0.82, 0.82, 0.82);
   }
 }
 
@@ -378,17 +378,17 @@
 }
 
 .glass-pass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.16) 100%);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-top: 1px solid rgba(255, 255, 255, 0.75);
-  border-left: 1px solid rgba(255, 255, 255, 0.75);
-  border-bottom: 1px solid rgba(15, 74, 62, 0.16);
-  border-right: 1px solid rgba(15, 74, 62, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.22) 100%);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  border-top: 1px solid rgba(255, 255, 255, 0.85);
+  border-left: 1px solid rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(15, 74, 62, 0.20);
+  border-right: 1px solid rgba(15, 74, 62, 0.20);
   box-shadow: 
-    0 25px 50px -12px rgba(15, 74, 62, 0.22),
-    0 0 1px 1px rgba(255, 255, 255, 0.4) inset,
-    0 8px 20px -4px rgba(15, 74, 62, 0.08);
+    0 22px 45px -12px rgba(15, 74, 62, 0.20),
+    0 0 1px 1.5px rgba(255, 255, 255, 0.5) inset,
+    0 6px 16px -3px rgba(15, 74, 62, 0.08);
 }
 
 .glass-pass-idle {
@@ -398,6 +398,6 @@
 @media (prefers-reduced-motion: reduce) {
   .glass-pass-idle {
     animation: none !important;
-    transform: rotateX(8deg) rotateY(-10deg) !important;
+    transform: rotateX(4deg) rotateY(0deg) scale3d(0.82, 0.82, 0.82) !important;
   }
 }

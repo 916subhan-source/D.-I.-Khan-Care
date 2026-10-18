@@ -4901,8 +4901,14 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
         </div>
 
         {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop >= 1024px) ── */}
-        {/* Anchored in bottom-right corner below patient's shoulder line, completely clear of both faces */}
-        <div className="absolute right-6 sm:right-8 lg:right-10 xl:right-16 bottom-14 lg:bottom-16 xl:bottom-20 z-20 pointer-events-auto hidden lg:block">
+        {/* Positioned neatly on the clinic wall in the middle space between doctor and patient faces */}
+        <div 
+          className="absolute z-10 pointer-events-auto hidden lg:block -translate-x-1/2 select-none"
+          style={{
+            left: '64%',
+            top: '15%'
+          }}
+        >
           <Hero3DPass />
         </div>
 

@@ -149,18 +149,12 @@ async def get_queue(
         query = query.where(Appointment.status == status_filter)
 
     if not include_archived:
-        # Hide all past closed consultations before today by default in Pakistan Standard Time (UTC+5)
+        # Hide all past consultations before today by default in Pakistan Standard Time (UTC+5)
         now_pkt = datetime.now(timezone(timedelta(hours=5)))
         today_start_pkt = datetime(now_pkt.year, now_pkt.month, now_pkt.day, 0, 0, 0, tzinfo=timezone(timedelta(hours=5)))
         today_start_utc = today_start_pkt.astimezone(timezone.utc)
-        closed_statuses = ["COMPLETED", "CANCELLED", "REJECTED", "completed", "cancelled", "rejected"]
         appt_time = func.coalesce(DoctorSlot.start_time, Appointment.created_at)
-        query = query.where(
-            or_(
-                ~Appointment.status.in_(closed_statuses),
-                appt_time >= today_start_utc
-            )
-        )
+        query = query.where(appt_time >= today_start_utc)
 
 
     query = query.order_by(Appointment.created_at.desc())

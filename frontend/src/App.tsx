@@ -6298,11 +6298,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   // Filtered queue items (Calling sequence by Time & Token when active, else newest submissions)
   const filteredQueue = useMemo(() => {
     const list = queue.filter(item => {
-      // Hide past closed consultations when includeArchived is false
+      // Hide past consultations when includeArchived is false
       if (!includeArchived) {
         const itemDate = getApptDateStrGlobal(item);
-        const isClosed = item.status === 'COMPLETED' || item.status === 'CANCELLED' || item.status === 'REJECTED';
-        if (isClosed && itemDate < pktTodayYmd) {
+        if (itemDate && itemDate < pktTodayYmd) {
           return false;
         }
       }
@@ -6332,7 +6331,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       if (timeA !== timeB) return timeB - timeA;
       return String(b.id || '').localeCompare(String(a.id || ''));
     });
-  }, [queue, searchQuery, statusFilter, callingOrderActive, pktTodayYmd, callingShiftInfo]);
+  }, [queue, searchQuery, statusFilter, callingOrderActive, pktTodayYmd, callingShiftInfo, includeArchived]);
 
 
   useEffect(() => {
@@ -8828,11 +8827,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   // Filter appointments according to selected timeframe, status, and search query
   const filteredAppts = useMemo(() => {
     return appointments.filter(a => {
-      // 0. Hide past closed consultations when includeArchived is false
-      if (!includeArchived && timeframe === 'all') {
+      // 0. Hide past consultations when includeArchived is false
+      if (!includeArchived) {
         const itemDate = getApptDateStrGlobal(a) || getApptDateStr(a);
-        const isClosed = a.status === 'COMPLETED' || a.status === 'CANCELLED' || a.status === 'REJECTED';
-        if (isClosed && itemDate < activeTodayStr) {
+        if (itemDate && itemDate < activeTodayStr) {
           return false;
         }
       }
@@ -8865,7 +8863,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
       return true;
     });
-  }, [appointments, timeframe, activeTodayStr, weekStartStr, weekEndStr, monthPrefix, apptStatusFilter, apptSearch]);
+  }, [appointments, timeframe, activeTodayStr, weekStartStr, weekEndStr, monthPrefix, apptStatusFilter, apptSearch, includeArchived]);
 
   const docCallingShiftInfo = useMemo(() => {
     return getDoctorCallingShiftInfo(doctorProfile, activeTodayStr, appointments);

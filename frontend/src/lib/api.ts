@@ -42,7 +42,11 @@ export const getApiBase = () => {
       return trimmed;
     }
 
-    if (isCloudflarePages || isHttps) {
+    if (isCloudflarePages) {
+      return '/api/v1';
+    }
+
+    if (isHttps) {
       return CLOUDFLARE_TUNNEL_DEFAULT;
     }
   }

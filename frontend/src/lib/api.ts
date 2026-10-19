@@ -2,25 +2,37 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://louisiana-vintage-terminal-information.trycloudflare.com/api/v1';
+const CLOUDFLARE_TUNNEL_DEFAULT = 'https://over-retrieval-studied-happiness.trycloudflare.com/api/v1';
 
-const getApiBase = () => {
-  const envBase = (import.meta as any).env?.VITE_API_BASE;
-  if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
-    return envBase.trim().replace(/\/+$/, '');
-  }
-  // If hosted on Cloudflare Pages (or custom domain), route requests via Cloudflare Tunnel
+export const getApiBase = () => {
   if (typeof window !== 'undefined') {
+    const isHttps = window.location.protocol === 'https:';
     const isCloudflarePages = window.location.hostname.includes('pages.dev');
     const customTunnel = localStorage.getItem('cf_tunnel_url');
     if (customTunnel && customTunnel.trim().length > 0) {
       return customTunnel.trim().replace(/\/+$/, '');
     }
-    if (isCloudflarePages) {
+
+    const envBase = (import.meta as any).env?.VITE_API_BASE;
+    if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
+      const trimmed = envBase.trim().replace(/\/+$/, '');
+      // When app is accessed over HTTPS (e.g. Cloudflare Pages), browser blocks http:// localhost calls as Mixed Content
+      if (isHttps && trimmed.startsWith('http://')) {
+        return CLOUDFLARE_TUNNEL_DEFAULT;
+      }
+      return trimmed;
+    }
+
+    if (isCloudflarePages || isHttps) {
       return CLOUDFLARE_TUNNEL_DEFAULT;
     }
   }
-  return '/api/v1';
+
+  const envBase = (import.meta as any).env?.VITE_API_BASE;
+  if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
+    return envBase.trim().replace(/\/+$/, '');
+  }
+  return 'http://127.0.0.1:8000/api/v1';
 };
 
 export const API_BASE = getApiBase();
@@ -73,7 +85,8 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     }
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const apiBase = getApiBase();
+  const response = await fetch(`${apiBase}${endpoint}`, {
     ...options,
     headers,
   });

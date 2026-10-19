@@ -2,15 +2,34 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://over-retrieval-studied-happiness.trycloudflare.com/api/v1';
+const CLOUDFLARE_TUNNEL_DEFAULT = 'https://total-announced-routers-syntax.trycloudflare.com/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {
+    // Check if a new tunnel URL was provided via query param, e.g. ?cf_tunnel=https://...
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryTunnel = urlParams.get('cf_tunnel') || urlParams.get('tunnel');
+      if (queryTunnel && queryTunnel.trim().length > 0) {
+        let clean = queryTunnel.trim().replace(/\/+$/, '');
+        if (!clean.endsWith('/api/v1')) {
+          clean += '/api/v1';
+        }
+        localStorage.setItem('cf_tunnel_url', clean);
+      }
+    } catch {
+      // Ignore URL parsing errors
+    }
+
     const isHttps = window.location.protocol === 'https:';
     const isCloudflarePages = window.location.hostname.includes('pages.dev');
     const customTunnel = localStorage.getItem('cf_tunnel_url');
     if (customTunnel && customTunnel.trim().length > 0) {
-      return customTunnel.trim().replace(/\/+$/, '');
+      let clean = customTunnel.trim().replace(/\/+$/, '');
+      if (!clean.endsWith('/api/v1')) {
+        clean += '/api/v1';
+      }
+      return clean;
     }
 
     const envBase = (import.meta as any).env?.VITE_API_BASE;

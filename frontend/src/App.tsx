@@ -2721,11 +2721,8 @@ function DoctorProfileAndBookingView({
     if (!doctor?.id) return;
     try {
       setLoadingReviews(true);
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/doctors/${doctor.id}/reviews`);
-      if (res.ok) {
-        const data = await res.json();
-        setReviewsSummary(data);
-      }
+      const data = await apiFetch<any>(`/doctors/${doctor.id}/reviews`);
+      setReviewsSummary(data);
     } catch (err) {
       console.error('Error fetching reviews:', err);
     } finally {
@@ -2763,8 +2760,7 @@ function DoctorProfileAndBookingView({
     setReviewError('');
     setIsCheckingEligibility(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/doctors/${doctor.id}/check-eligibility?identifier=${encodeURIComponent(ident)}`);
-      const data = await res.json();
+      const data = await apiFetch<any>(`/doctors/${doctor.id}/check-eligibility?identifier=${encodeURIComponent(ident)}`);
       setEligibilityData(data);
 
       if (data.can_review && data.completed_appointments.length > 0) {
@@ -2828,9 +2824,8 @@ function DoctorProfileAndBookingView({
 
     try {
       setIsSubmittingReview(true);
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/doctors/${doctor.id}/reviews`, {
+      await apiFetch<any>(`/doctors/${doctor.id}/reviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           identifier: cleanIdent,
           appointment_id: selectedAppointmentId || undefined,
@@ -2839,11 +2834,6 @@ function DoctorProfileAndBookingView({
           tags: reviewSelectedTags.join(','),
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.detail || 'Could not submit review.');
-      }
 
       setReviewSuccessMsg('Your verified patient review has been published successfully!');
       await fetchDoctorReviews();

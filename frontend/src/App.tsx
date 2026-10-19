@@ -853,15 +853,102 @@ function StaffLoginSplitView({
     onLogin(email, password);
   };
 
+  const roleVisuals = {
+    doctor: {
+      sidebarBg: 'bg-[#0c2823]',
+      badgeBorder: 'border-emerald-500/40 text-emerald-300',
+      badgeText: 'DOCTOR WORKSPACE • PMDC VERIFIED',
+      heading: (
+        <>
+          Verified PMDC Specialists.<br />Precision clinical care.
+        </>
+      ),
+      subheading: 'Access your live patient queue, consultation records, and daily counter fee reconciliations across Dera Ismail Khan.',
+      image: '/dr_ayesha_khan.jpg',
+      alt: 'D.I. Khan PMDC Doctor Consultation Suite',
+      captionTitle: 'Dr. Ayesha Khan Consultation Room',
+      captionBadge: 'PMDC Specialist',
+      gradientOverlay: 'from-[#0c2823]/85',
+      bullets: [
+        { title: 'Live Token Consultation Queue', desc: 'Call patients in order, review check-in timestamps, and sync room status.' },
+        { title: 'Clinical Notes & Counter Slips', desc: 'Maintain digital visit history and print official medical verification slips.' },
+        { title: 'Direct Fee Reconciliation', desc: 'Live visibility into verified reception cash collection and clinic earnings.' },
+      ],
+      portalTitle: 'Doctor Portal Login',
+      portalSub: 'Verified PMDC Medical Practitioners',
+      tag: 'PMDC Verified',
+      tagColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      icon: Stethoscope,
+      accentColor: '#143d38'
+    },
+    assistant: {
+      sidebarBg: 'bg-[#082928]',
+      badgeBorder: 'border-teal-500/40 text-teal-300',
+      badgeText: 'ASSISTANT WORKSPACE • RECEPTION DESK',
+      heading: (
+        <>
+          Front Desk & Reception.<br />Zero-wait counter queues.
+        </>
+      ),
+      subheading: 'A unified workstation for clinic reception teams across D.I. Khan to issue walk-in tokens, collect cash fees, and triage waiting patients.',
+      image: '/assistant_reception_desk.jpg',
+      alt: 'D.I. Khan Clinic Reception & Token Counter Desk',
+      captionTitle: 'Al-Shifa Clinic Front Desk',
+      captionBadge: 'Counter Token Desk',
+      gradientOverlay: 'from-[#082928]/80',
+      bullets: [
+        { title: '1-Click Walk-in Counter Tokens', desc: 'Generate digital slips with automated sequential queue numbering.' },
+        { title: 'Cash Collection & Immediate Slips', desc: 'Verify physical cash collected at the desk with instant digital receipts.' },
+        { title: 'Live Doctor Room Status Sync', desc: 'See which doctor is consulting, who is next, and communicate queue delays.' },
+      ],
+      portalTitle: 'Assistant Reception Desk',
+      portalSub: 'Clinic Front-Desk & Cash Queue Management',
+      tag: 'Front Desk',
+      tagColor: 'bg-teal-50 text-teal-700 border-teal-200',
+      icon: Receipt,
+      accentColor: '#0a3834'
+    },
+    admin: {
+      sidebarBg: 'bg-[#0a1120]',
+      badgeBorder: 'border-cyan-500/40 text-cyan-300',
+      badgeText: 'ADMIN PLATFORM CONSOLE • ROOT AUDIT',
+      heading: (
+        <>
+          Platform Governance.<br />Audit & System Security.
+        </>
+      ),
+      subheading: 'Enterprise administration for clinic licensing, PMDC doctor onboarding, staff access control, and immutable audit logs.',
+      image: '/developer_studio_coding.jpg',
+      alt: 'Core Operations Center & Admin Governance',
+      captionTitle: 'Operations & Security Console',
+      captionBadge: 'Root Operations',
+      gradientOverlay: 'from-[#0a1120]/80',
+      bullets: [
+        { title: 'Doctor & Clinic Verification', desc: 'Review PMDC certificates, approve specialist accounts, and oversee clinics.' },
+        { title: 'System Telemetry & Database Health', desc: 'Monitor real-time PostgreSQL connection pools, latency, and background workers.' },
+        { title: 'Immutable RBAC & Audit Trail', desc: 'Full activity logging, staff credential oversight, and emergency security locks.' },
+      ],
+      portalTitle: 'Platform Security Console',
+      portalSub: 'Root Administration & Audit Governance',
+      tag: 'Root Access',
+      tagColor: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+      icon: Terminal,
+      accentColor: '#0e1f38'
+    }
+  };
+
+  const visual = roleVisuals[currentRole];
+  const IconComponent = visual.icon;
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden animate-fade-in">
-      {/* ── Left Sidebar / Green Panel ─────────────────────── */}
-      <div className="w-full lg:w-[480px] xl:w-[530px] bg-[#0c2823] flex flex-col justify-between p-8 sm:p-10 lg:p-12 relative overflow-hidden text-white flex-shrink-0">
+      {/* ── Left Sidebar / Role-Themed Panel ─────────────────────── */}
+      <div className={`w-full lg:w-[480px] xl:w-[530px] ${visual.sidebarBg} flex flex-col justify-between p-8 sm:p-10 lg:p-12 relative overflow-hidden text-white flex-shrink-0 transition-colors duration-500`}>
         <div>
           {/* Brand header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-8 h-8 rounded-md bg-teal-400 flex items-center justify-center text-[#0c2823] shadow-md flex-shrink-0 font-bold">
-              <Stethoscope className="w-4.5 h-4.5" />
+              <IconComponent className="w-4.5 h-4.5" />
             </div>
             <div>
               <div className="text-white font-extrabold text-sm tracking-wide" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -875,59 +962,52 @@ function StaffLoginSplitView({
 
           {/* Badge */}
           <div className="mb-5">
-            <span className="inline-block px-3 py-1 rounded-full border border-teal-500/40 text-teal-300 text-[10px] font-bold tracking-widest uppercase">
-              {currentRole === 'admin' ? 'ADMIN PLATFORM CONSOLE' : 'STAFF WORKSPACE'}
+            <span className={`inline-block px-3 py-1 rounded-full border ${visual.badgeBorder} text-[10px] font-bold tracking-widest uppercase`}>
+              {visual.badgeText}
             </span>
-
           </div>
 
           {/* Large Heading */}
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            Better organised care.<br />One clinic at a time.
+            {visual.heading}
           </h1>
           <p className="text-teal-100/70 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-            A shared rhythm for doctors and reception teams across Dera Ismail Khan.
+            {visual.subheading}
           </p>
 
-          {/* Image Box */}
-          <div className="relative rounded-lg overflow-hidden border border-teal-500/20 shadow-xl mb-7 bg-[#09201c] aspect-[16/10] group">
+          {/* Role-Specific Image Box */}
+          <div className="relative rounded-lg overflow-hidden border border-white/15 shadow-xl mb-7 bg-black/30 aspect-[16/10] group">
             <img
-              src="/clinic_staff_workspace.jpg"
-              alt="D.I. Khan Clinic Reception & Doctor Consultation"
+              src={visual.image}
+              alt={visual.alt}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0c2823]/70 via-transparent to-transparent pointer-events-none" />
+            <div className={`absolute inset-0 bg-gradient-to-t ${visual.gradientOverlay} via-transparent to-transparent pointer-events-none`} />
             <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] text-white/95">
-              <span className="font-semibold drop-shadow-sm flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Shifa Clinic &bull; D.I. Khan
+              <span className="font-semibold drop-shadow-sm flex items-center gap-1.5 truncate pr-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                <span className="truncate">{visual.captionTitle}</span>
               </span>
-              <span className="text-[10px] text-teal-200/90 bg-black/40 px-2 py-0.5 rounded backdrop-blur-xs">
-                Reception Desk
+              <span className="text-[10px] text-white/90 bg-black/60 px-2 py-0.5 rounded backdrop-blur-xs flex-shrink-0 border border-white/10 font-medium">
+                {visual.captionBadge}
               </span>
             </div>
           </div>
 
-          {/* 3 Value Propositions */}
+          {/* 3 Role-Specific Value Propositions */}
           <div className="space-y-4">
-            <div>
-              <p className="text-white font-bold text-xs">A dependable clinic schedule</p>
-              <p className="text-teal-100/70 text-[11px] leading-relaxed mt-0.5">Keep shifts, closures and available slots in one place.</p>
-            </div>
-            <div>
-              <p className="text-white font-bold text-xs">A desk that stays in sync</p>
-              <p className="text-teal-100/70 text-[11px] leading-relaxed mt-0.5">Review requests, issue slips and collect cash at reception.</p>
-            </div>
-            <div>
-              <p className="text-white font-bold text-xs">Clear access. Clear records.</p>
-              <p className="text-teal-100/70 text-[11px] leading-relaxed mt-0.5">Role-specific tools with an accountable activity trail.</p>
-            </div>
+            {visual.bullets.map((b, idx) => (
+              <div key={idx}>
+                <p className="text-white font-bold text-xs">{b.title}</p>
+                <p className="text-teal-100/70 text-[11px] leading-relaxed mt-0.5">{b.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Footnote */}
-        <div className="mt-8 pt-4 border-t border-teal-500/20 text-[10px] text-teal-300/60 font-medium">
-          Concept preview &middot; Clinics and accounts are illustrative.
+        <div className="mt-8 pt-4 border-t border-white/10 text-[10px] text-teal-300/60 font-medium">
+          D.I. Khan Care Official Healthcare Network &middot; Verified Staff Workspace.
         </div>
       </div>
 
@@ -948,17 +1028,42 @@ function StaffLoginSplitView({
 
         {/* Main form area */}
         <div className="max-w-md w-full mx-auto my-auto py-4">
-          {/* Mint icon badge */}
+          {/* Role icon badge */}
           <div className="w-10 h-10 rounded-md bg-[#e6f7f3] border border-[#b2e7db] flex items-center justify-center text-clinic-700 mb-5 shadow-2xs">
-            <Stethoscope className="w-5 h-5 text-clinic-700" />
+            <IconComponent className="w-5 h-5 text-clinic-700" />
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
             Welcome back.
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-6 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-5 leading-relaxed">
             Sign in with your staff credentials. Patients use passwordless booking and tracking instead.
           </p>
+
+          {/* Role Identity Preview Card with Avatar Image */}
+          <div className="mb-5 p-3 rounded-lg border border-slate-200/90 bg-slate-50/80 flex items-center gap-3.5 shadow-2xs">
+            <div className="relative flex-shrink-0">
+              <img
+                src={visual.image}
+                alt={visual.portalTitle}
+                className="w-12 h-12 rounded-lg object-cover border border-slate-300/80 shadow-xs"
+              />
+              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-400/40" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-bold text-slate-900 truncate">
+                  {visual.portalTitle}
+                </h3>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${visual.tagColor}`}>
+                  {visual.tag}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                {visual.portalSub}
+              </p>
+            </div>
+          </div>
 
           {/* Role Selector: Doctor vs Assistant ONLY (Admin is separated strictly to /admin) */}
           {currentRole !== 'admin' ? (
@@ -966,38 +1071,48 @@ function StaffLoginSplitView({
               <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                 Select your role
               </label>
-              <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-md border border-slate-200/80 gap-1 text-xs">
+              <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-lg border border-slate-200/80 gap-1 text-xs">
                 <button
                   type="button"
                   onClick={() => onSwitchRole?.('doctor')}
-                  className={`py-2 rounded font-semibold transition-all cursor-pointer ${
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${
                     currentRole === 'doctor'
-                      ? 'bg-white text-slate-900 shadow-xs font-bold'
+                      ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  Doctor
+                  <img
+                    src="/dr_ayesha_khan.jpg"
+                    alt="Doctor"
+                    className="w-5 h-5 rounded-full object-cover border border-emerald-400 flex-shrink-0"
+                  />
+                  <span>Doctor</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => onSwitchRole?.('assistant')}
-                  className={`py-2 rounded font-semibold transition-all cursor-pointer ${
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${
                     currentRole === 'assistant'
-                      ? 'bg-white text-slate-900 shadow-xs font-bold'
+                      ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  Assistant
+                  <img
+                    src="/assistant_reception_desk.jpg"
+                    alt="Assistant"
+                    className="w-5 h-5 rounded-full object-cover border border-teal-400 flex-shrink-0"
+                  />
+                  <span>Assistant Desk</span>
                 </button>
               </div>
             </div>
           ) : (
-            <div className="mb-5 p-3 bg-slate-900 text-white rounded-md flex items-center justify-between text-xs shadow-xs">
+            <div className="mb-5 p-3 bg-slate-900 text-white rounded-lg flex items-center justify-between text-xs shadow-xs border border-slate-800">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                 <span className="font-bold">System Administrator Access</span>
               </div>
-              <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300 border border-slate-700">
+              <span className="text-[10px] font-mono bg-slate-800 px-2 py-0.5 rounded text-cyan-300 border border-slate-700">
                 /admin
               </span>
             </div>
@@ -1150,7 +1265,7 @@ function StaffLoginSplitView({
               type="submit"
               disabled={loginLoading}
               className="w-full py-3 px-5 text-white font-bold text-sm rounded-md shadow-sm hover:shadow-md transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-              style={{ background: '#143d38' }}
+              style={{ background: visual.accentColor }}
             >
               {loginLoading ? (
                 <>

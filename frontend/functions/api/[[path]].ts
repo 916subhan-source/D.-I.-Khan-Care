@@ -25,7 +25,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  const backendBase = context.env.BACKEND_URL || 'https://e18d367e9e1130.lhr.life';
+  const backendBase = context.env.BACKEND_URL || 'https://e0ca0c70150435.lhr.life';
   const url = new URL(context.request.url);
   const targetUrl = `${backendBase.replace(/\/+$/, '')}${url.pathname}${url.search}`;
 

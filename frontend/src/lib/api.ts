@@ -2,7 +2,7 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://e18d367e9e1130.lhr.life/api/v1';
+const CLOUDFLARE_TUNNEL_DEFAULT = 'https://e0ca0c70150435.lhr.life/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {

@@ -2,7 +2,7 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://7c6c9138646ce2.lhr.life/api/v1';
+const CLOUDFLARE_TUNNEL_DEFAULT = 'https://cdbe181bbb80de.lhr.life/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {
@@ -21,11 +21,23 @@ export const getApiBase = () => {
       // Ignore URL parsing errors
     }
 
+    // Clean up known stale/expired tunnel URLs from previous sessions
+    const customTunnel = localStorage.getItem('cf_tunnel_url');
+    if (customTunnel && (customTunnel.includes('7c6c9138646ce2') || customTunnel.includes('loca.lt') || customTunnel.includes('pinggy'))) {
+      localStorage.removeItem('cf_tunnel_url');
+    }
+
     const isHttps = window.location.protocol === 'https:';
     const isCloudflarePages = window.location.hostname.includes('pages.dev');
-    const customTunnel = localStorage.getItem('cf_tunnel_url');
-    if (customTunnel && customTunnel.trim().length > 0) {
-      let clean = customTunnel.trim().replace(/\/+$/, '');
+
+    // On Cloudflare Pages, always use the relative edge proxy /api/v1 for 100% reliability
+    if (isCloudflarePages) {
+      return '/api/v1';
+    }
+
+    const activeTunnel = localStorage.getItem('cf_tunnel_url');
+    if (activeTunnel && activeTunnel.trim().length > 0) {
+      let clean = activeTunnel.trim().replace(/\/+$/, '');
       if (!clean.endsWith('/api/v1')) {
         clean += '/api/v1';
       }
@@ -35,15 +47,10 @@ export const getApiBase = () => {
     const envBase = (import.meta as any).env?.VITE_API_BASE;
     if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
       const trimmed = envBase.trim().replace(/\/+$/, '');
-      // When app is accessed over HTTPS (e.g. Cloudflare Pages), browser blocks http:// localhost calls as Mixed Content
       if (isHttps && trimmed.startsWith('http://')) {
         return CLOUDFLARE_TUNNEL_DEFAULT;
       }
       return trimmed;
-    }
-
-    if (isCloudflarePages) {
-      return '/api/v1';
     }
 
     if (isHttps) {

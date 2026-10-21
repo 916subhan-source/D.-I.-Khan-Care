@@ -2,7 +2,7 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://total-announced-routers-syntax.trycloudflare.com/api/v1';
+const CLOUDFLARE_TUNNEL_DEFAULT = 'https://7c6c9138646ce2.lhr.life/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {
@@ -118,7 +118,21 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     let errorMsg = 'An unexpected error occurred';
     try {
       const errData = await response.json();
-      errorMsg = errData.detail || errorMsg;
+      if (typeof errData.detail === 'string') {
+        errorMsg = errData.detail;
+      } else if (Array.isArray(errData.detail)) {
+        errorMsg = errData.detail
+          .map((item: any) => {
+            const field = Array.isArray(item.loc) ? item.loc[item.loc.length - 1] : '';
+            const fieldLabel = field ? `${String(field).replace(/_/g, ' ')}: ` : '';
+            return `${fieldLabel}${item.msg || JSON.stringify(item)}`;
+          })
+          .join('; ');
+      } else if (errData.detail && typeof errData.detail === 'object') {
+        errorMsg = errData.detail.message || errData.detail.msg || JSON.stringify(errData.detail);
+      } else if (errData.message && typeof errData.message === 'string') {
+        errorMsg = errData.message;
+      }
     } catch {
       errorMsg = response.statusText || errorMsg;
     }

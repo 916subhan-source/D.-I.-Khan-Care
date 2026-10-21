@@ -2,6 +2,15 @@ interface Env {
   BACKEND_URL?: string;
 }
 
+type PagesFunction<T = Record<string, unknown>> = (context: {
+  request: Request;
+  env: T;
+  params: Record<string, string | string[]>;
+  waitUntil: (promise: Promise<unknown>) => void;
+  next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
+  data: Record<string, unknown>;
+}) => Response | Promise<Response>;
+
 export const onRequest: PagesFunction<Env> = async (context) => {
   // Handle CORS preflight
   if (context.request.method === 'OPTIONS') {
@@ -16,7 +25,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  const backendBase = context.env.BACKEND_URL || 'https://total-announced-routers-syntax.trycloudflare.com';
+  const backendBase = context.env.BACKEND_URL || 'https://7c6c9138646ce2.lhr.life';
   const url = new URL(context.request.url);
   const targetUrl = `${backendBase.replace(/\/+$/, '')}${url.pathname}${url.search}`;
 

@@ -6975,15 +6975,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   // ── Doctor Selection Screen ────────────────────────────────────────────────
   if (portalView === 'select') {
     return (
-      <div className="min-h-screen bg-slate-50 p-6 sm:p-8">
-        <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 md:p-8">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
           {/* Sub-nav */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>Select Doctor Desk</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>Select Doctor Desk</h2>
               <p className="text-xs text-slate-500 mt-0.5">Select a doctor to open their live reception queue and cash register</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
               <RealtimeLive />
               <button
                 type="button"
@@ -7125,41 +7125,44 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       />
       <div className="portal-content flex-1">
         {/* Top breadcrumb bar */}
-        <div className="h-12 border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="h-12 border-b border-slate-200 px-3 sm:px-8 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex-shrink-0"
               aria-label="Open navigation menu"
             >
               <Menu className="w-4 h-4" />
             </button>
-            <span className="text-xs text-slate-500 truncate max-w-[170px] sm:max-w-none">
-              Assistant portal / {deskTab === 'pos' ? 'POS / Walk-In Counter' : deskTab === 'schedule' ? 'Schedule & Slots' : 'Live desk'}
+            <span className="text-xs text-slate-500 truncate max-w-[130px] sm:max-w-none">
+              Assistant / {deskTab === 'pos' ? 'POS Counter' : deskTab === 'schedule' ? 'Schedule' : 'Live desk'}
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <RealtimeLive />
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+            <div className="hidden sm:block">
+              <RealtimeLive />
+            </div>
             <button
               type="button"
               onClick={() => {
                 setDeskTab('pos');
                 fetchPosDays(selectedDoctorId);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-xs ${
                 deskTab === 'pos'
                   ? 'bg-emerald-700 text-white shadow-sm ring-2 ring-emerald-300'
                   : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
               }`}
               title="Open POS / Walk-in patient booking desk"
             >
-              <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
-              <span>+ POS Walk-In</span>
+              <PlusCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+              <span className="hidden sm:inline">+ POS Walk-In</span>
+              <span className="sm:hidden">+ POS</span>
             </button>
             {myDoctors.length > 0 && (
-              <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-semibold">Doctor:</span>
+              <div className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-xl border border-slate-200 max-w-[130px] sm:max-w-none">
+                <span className="text-[10px] sm:text-[11px] text-slate-500 font-semibold hidden sm:inline">Doctor:</span>
                 <select
                   value={selectedDoctorId || currentDoctor?.doctor_id || ''}
                   onChange={(e) => {
@@ -7170,7 +7173,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     fetchAsstSlots(newId);
                     fetchPosDays(newId);
                   }}
-                  className="text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer"
+                  className="text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer truncate max-w-[110px] sm:max-w-none"
                 >
                   {myDoctors.map(d => (
                     <option key={d.doctor_id} value={d.doctor_id}>
@@ -7183,17 +7186,17 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-xs text-rose-600 hover:text-rose-800 font-semibold ml-1 cursor-pointer flex items-center gap-1 hover:underline"
+              className="text-xs text-rose-600 hover:text-rose-800 font-semibold cursor-pointer flex items-center gap-1 hover:underline flex-shrink-0"
               title="Sign out of Assistant Desk"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Sign out</span>
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
         </div>
-        <div className="p-8 space-y-6">
-          {/* Sub-nav tabs (inside content area) */}
-          <div className="flex items-center gap-1 border-b border-slate-100">
+        <div className="p-3 sm:p-5 md:p-8 space-y-4 sm:space-y-6">
+          {/* Sub-nav tabs (inside content area) — smooth swipeable on mobile */}
+          <div className="flex items-center gap-1 border-b border-slate-100 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap">
             {[
               ['queue', 'Live desk'],
               ['pos', 'POS / Walk-In Desk'],
@@ -7205,7 +7208,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               <button
                 key={tab}
                 onClick={() => setDeskTab(tab as any)}
-                className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${deskTab === tab ? 'border-clinic-700 text-clinic-700 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700'
+                className={`px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${deskTab === tab ? 'border-clinic-700 text-clinic-700 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700'
                   }`}
               >
                 {label}
@@ -7214,9 +7217,9 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           </div>
 
           {/* Header heading */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>
                 {currentDoctor?.doctor_name} &mdash; Reception Desk
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -7226,7 +7229,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
             <button
               onClick={() => fetchQueue(selectedDoctorId)}
               disabled={loading}
-              className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
+              className="self-start sm:self-auto px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Refreshing Queue...' : 'Refresh Queue'}</span>
@@ -7234,28 +7237,28 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider">Awaiting Slip</p>
-              <p className="text-3xl font-bold text-amber-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{pendingCount}</p>
-              <p className="text-[11px] text-amber-600 mt-0.5">Need assistant approval</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+            <div className="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs font-semibold text-amber-700 uppercase tracking-wider">Awaiting Slip</p>
+              <p className="text-2xl sm:text-3xl font-bold text-amber-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{pendingCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-amber-600 mt-0.5">Need assistant approval</p>
             </div>
-            <div className="bg-clinic-50/60 border border-clinic-200/80 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-clinic-700 uppercase tracking-wider">Confirmed &amp; Queued</p>
-              <p className="text-3xl font-bold text-clinic-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{confirmedCount}</p>
-              <p className="text-[11px] text-clinic-600 mt-0.5">Digital slips issued</p>
+            <div className="bg-clinic-50/60 border border-clinic-200/80 rounded-2xl p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs font-semibold text-clinic-700 uppercase tracking-wider">Confirmed &amp; Queued</p>
+              <p className="text-2xl sm:text-3xl font-bold text-clinic-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{confirmedCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-clinic-600 mt-0.5">Digital slips issued</p>
             </div>
-            <div className="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Paid at Cash Desk</p>
-              <p className="text-3xl font-bold text-emerald-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{paidCount}</p>
-              <p className="text-[11px] text-emerald-600 mt-0.5">Cash collected</p>
+            <div className="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs font-semibold text-emerald-700 uppercase tracking-wider">Paid at Cash Desk</p>
+              <p className="text-2xl sm:text-3xl font-bold text-emerald-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{paidCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-emerald-600 mt-0.5">Cash collected</p>
             </div>
-            <div className="bg-slate-900 text-white rounded-2xl p-4">
-              <p className="text-xs font-semibold text-clinic-400 uppercase tracking-wider">Total Shift Cash</p>
-              <p className="text-3xl font-bold text-white mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>
+            <div className="bg-slate-900 text-white rounded-2xl p-3 sm:p-4">
+              <p className="text-[11px] sm:text-xs font-semibold text-clinic-400 uppercase tracking-wider">Total Shift Cash</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>
                 {formatCurrency(totalRevenue)}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Reconciliation ledger</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Reconciliation ledger</p>
             </div>
           </div>
 
@@ -7276,8 +7279,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {deskTab === 'queue' && (
             <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
               {/* Table controls */}
-              <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="relative flex-1 max-w-sm">
+              <div className="p-3 sm:p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                <div className="relative flex-1 max-w-sm w-full">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
@@ -7287,13 +7290,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-clinic-400"
                   />
                 </div>
-                {/* Filter pills */}
-                <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Filter pills — swipeable scroll strip on mobile */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
                   {(['ALL', 'PENDING', 'CONFIRMED', 'PAID'] as const).map(f => (
                     <button
                       key={f}
                       onClick={() => setStatusFilter(f)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${statusFilter === f
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex-shrink-0 ${statusFilter === f
                           ? 'bg-clinic-700 text-white'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
@@ -7305,7 +7308,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <button
                     type="button"
                     onClick={() => setIncludeArchived(!includeArchived)}
-                    className={`ml-1 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${
                       includeArchived
                         ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
                         : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -7323,7 +7326,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       setCallingOrderActive(next);
                       localStorage.setItem('asst_calling_order', String(next));
                     }}
-                    className={`ml-1 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border ${
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${
                       callingOrderActive
                         ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm ring-1 ring-emerald-400'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -7331,18 +7334,18 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     title="Arrange appointments in live calling sequence (Today's Time & Token order). Completed visits automatically move down."
                   >
                     <Clock className="w-3.5 h-3.5" />
-                    <span>{callingOrderActive ? '⏱️ Calling Order: Active' : '⏱️ Arrange Calling Order'}</span>
+                    <span>{callingOrderActive ? '⏱️ Calling: ON' : '⏱️ Calling Order'}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => fetchQueue(selectedDoctorId)}
                     disabled={loading}
-                    className="ml-1 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60 shadow-sm"
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60 shadow-sm whitespace-nowrap flex-shrink-0"
                     title="Refresh live patient queue"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${loading ? 'animate-spin' : ''}`} />
-                    <span>Refresh Queue</span>
+                    <span>Refresh</span>
                   </button>
                 </div>
               </div>
@@ -7399,7 +7402,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               )}
 
               {/* Queue table */}
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto touch-scroll">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
@@ -7730,21 +7733,21 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     Manage consultation shifts, timing intervals, and individual slot availability for this clinic.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => fetchAsstSlots(selectedDoctorId)}
                     disabled={asstSlotsLoading}
-                    className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition-all"
+                    className="flex-1 sm:flex-none justify-center px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition-all"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${asstSlotsLoading ? 'animate-spin' : ''}`} />
-                    <span>{asstSlotsLoading ? 'Loading Slots...' : 'Refresh Slots'}</span>
+                    <span>{asstSlotsLoading ? 'Loading...' : 'Refresh Slots'}</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveShift}
                     disabled={asstSavingShift}
-                    className="px-4 py-1.5 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition-all"
+                    className="flex-1 sm:flex-none justify-center px-4 py-1.5 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition-all"
                   >
                     {asstSavingShift ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                     <span>{asstSavingShift ? 'Saving...' : 'Save Shift Timings'}</span>
@@ -7770,7 +7773,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-8 space-y-6">
                   {/* Operating Shift Hours Card */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <h4 className="font-bold text-slate-900 text-sm">Operating Shift Hours & Schedule</h4>
@@ -8185,7 +8188,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       : `No slots found matching the selected filter criteria.`}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto max-h-[30rem]">
+                  <div className="overflow-x-auto touch-scroll max-h-[30rem]">
                     <table className="w-full text-xs">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left">
@@ -8463,7 +8466,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   {/* Left 5 cols: Current appointment + Safeguards */}
                   <div className="lg:col-span-5 space-y-6">
                     {/* Current appointment card */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
                       <div className="flex items-start justify-between">
                         <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                           Current appointment
@@ -8519,7 +8522,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
 
                     {/* Safeguards box */}
-                    <div className="bg-clinic-50/70 border border-clinic-100 rounded-2xl p-6 shadow-sm space-y-3">
+                    <div className="bg-clinic-50/70 border border-clinic-100 rounded-2xl p-4 sm:p-6 shadow-sm space-y-3">
                       <h4 className="font-bold text-clinic-900 text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
                         Rescheduling safeguards
                       </h4>
@@ -8547,7 +8550,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   {/* Right 7 cols: Alternate availability + Review the change */}
                   <div className="lg:col-span-7 space-y-6">
                     {/* Check alternate availability from real database slots */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                           <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -8741,7 +8744,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
 
                     {/* Review the change & save */}
-                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
                       <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                         Review &amp; Confirm Reschedule
                       </h3>
@@ -8877,13 +8880,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           )}
 
           {deskTab === 'cash' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b pb-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
                 <div>
                   <h3 className="font-bold text-slate-900 text-base">Cash Collection Ledger</h3>
                   <p className="text-xs text-slate-500">Itemized cash payments recorded at this clinic's reception desk today.</p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <span className="text-xs text-slate-500 uppercase tracking-wider block">Total Recorded</span>
                   <span className="text-2xl font-bold text-emerald-700" style={{ fontFamily: 'Outfit,sans-serif' }}>
                     {formatCurrency(totalRevenue)}
@@ -8895,7 +8898,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <p className="text-xs text-slate-400 py-6 text-center">No cash transactions recorded for this session yet.</p>
                 ) : (
                   queue.filter(q => q.payment_status === 'PAID').map(q => (
-                    <div key={q.id} className="py-3 flex items-center justify-between text-xs">
+                    <div key={q.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                       <div>
                         <span className="font-bold text-slate-800">{q.patient_name}</span>
                         <span className="text-slate-400 ml-2 font-mono">SLIP #{q.slip_number || '---'}</span>
@@ -8914,7 +8917,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
           {/* ── Tab: All Records ── */}
           {deskTab === 'all' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
               <h3 className="font-bold text-slate-900 text-base mb-1">All Patient Encounters</h3>
               <p className="text-xs text-slate-500 mb-4">Complete history of visits scheduled with {currentDoctor?.doctor_name}.</p>
               <div className="divide-y divide-slate-100">
@@ -8927,7 +8930,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <div className="py-8 text-center text-xs text-slate-400">No records found.</div>
                 ) : (
                   queue.map(q => (
-                    <div key={q.id} className="py-3 flex items-center justify-between text-xs">
+                    <div key={q.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                       <div>
                         <span className="font-bold text-slate-900">{q.patient_name}</span>
                         <span className="text-slate-500 ml-2">{q.patient_phone}</span>
@@ -8948,7 +8951,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {deskTab === 'pos' && (
             <div className="space-y-6">
               {/* POS Header Banner */}
-              <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-2xl p-4 sm:p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-[11px] font-bold uppercase tracking-wider">
@@ -8965,12 +8968,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     Register walk-in or telephone patients directly. Appointments booked from this desk are <strong>automatically confirmed</strong> with immediate Token # assignment and payment recording.
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => fetchPosDays(selectedDoctorId)}
                     disabled={posLoadingDays}
-                    className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                    className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${posLoadingDays ? 'animate-spin' : ''}`} />
                     <span>Refresh Slots</span>
@@ -8978,7 +8981,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <button
                     type="button"
                     onClick={() => setDeskTab('queue')}
-                    className="px-4 py-2 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
+                    className="flex-1 sm:flex-none justify-center px-4 py-2 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <span>View Live Queue ({queue.length})</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -9014,7 +9017,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* ── Left Column: Step 1: Date & Slot Selection ── */}
                 <div className="lg:col-span-7 space-y-4">
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div>
                         <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2" style={{ fontFamily: 'Outfit,sans-serif' }}>
@@ -9038,7 +9041,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <label className="text-xs font-bold text-slate-700 block mb-2">
                         Choose Visit Day:
                       </label>
-                      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none touch-scroll -mx-1 px-1 sm:mx-0 sm:px-0 flex-nowrap">
                         {posDays.map(day => {
                           const isSelected = (selectedPosDate || (posDays[0] && posDays[0].date)) === day.date;
                           const isOff = Boolean(day.is_off_day);
@@ -9177,7 +9180,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                 {/* ── Right Column: Step 2: Patient Info & Billing Card ── */}
                 <div className="lg:col-span-5 space-y-4">
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5">
                     <div className="border-b border-slate-100 pb-3">
                       <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2" style={{ fontFamily: 'Outfit,sans-serif' }}>
                         <User className="w-4 h-4 text-emerald-600" />
@@ -9442,7 +9445,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {/* ── POS Success Thermal Slip / Receipt Modal ── */}
           {posSuccessReceipt && (
             <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 relative">
+              <div className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 shadow-2xl border border-slate-200 space-y-4 relative">
                 <button
                   type="button"
                   onClick={() => setPosSuccessReceipt(null)}
@@ -10656,33 +10659,33 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       />
       <div className="portal-content flex-1">
         {/* Top breadcrumb bar */}
-        <div className="portal-topbar sticky top-0 z-30 px-4 sm:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="portal-topbar sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex-shrink-0"
               aria-label="Open navigation menu"
             >
               <Menu className="w-4 h-4" />
             </button>
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest hidden sm:inline">Doctor Portal</span>
             <ChevronRight className="w-3 h-3 text-slate-300 hidden sm:inline" />
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest truncate max-w-[120px] sm:max-w-none">
               {activePortalTab === 'overview' ? 'Overview' : activePortalTab === 'schedule' ? 'Schedule & Slots' : activePortalTab === 'assistants' ? 'Assistants' : 'Clinic Profile'}
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => loadDoctorData()}
               disabled={loadingAppointments}
-              className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-card"
+              className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-card"
               title="Refresh clinic appointments and live queue"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 ${loadingAppointments ? 'animate-spin' : ''}`} />
-              <span>{loadingAppointments ? 'Refreshing...' : 'Refresh'}</span>
+              <span className="hidden sm:inline">{loadingAppointments ? 'Refreshing...' : 'Refresh'}</span>
             </button>
-            <div className="flex items-center gap-2 pl-3 border-l border-slate-100">
+            <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-100">
               <div className="w-7 h-7 rounded-lg overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100 shadow-xs">
                 <img
                   src={getDoctorProfileImage({
@@ -10694,27 +10697,27 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   className="w-full h-full object-cover object-top"
                 />
               </div>
-              <span className="text-xs text-slate-700 font-semibold">Dr. {doctorName.replace(/^Dr\.\s*/i, '')}</span>
+              <span className="text-xs text-slate-700 font-semibold hidden md:inline">Dr. {doctorName.replace(/^Dr\.\s*/i, '')}</span>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-xs text-slate-400 hover:text-rose-600 font-medium transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50"
+              className="text-xs text-slate-400 hover:text-rose-600 font-medium transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50 flex-shrink-0"
             >
               Sign out
             </button>
           </div>
         </div>
 
-        <div className="p-8 space-y-6">
-          {/* Portal sub-nav — Premium pill tabs */}
-          <div className="flex items-center gap-1 pb-1">
-            <div className="flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
+        <div className="p-3 sm:p-5 md:p-8 space-y-4 sm:space-y-6">
+          {/* Portal sub-nav — Premium pill tabs with horizontal swipe on mobile */}
+          <div className="flex items-center gap-1 pb-1 overflow-x-auto scrollbar-none touch-scroll flex-nowrap">
+            <div className="flex items-center gap-1 bg-slate-100/80 p-1 sm:p-1.5 rounded-2xl border border-slate-200/60 flex-nowrap">
               {([['overview', 'Overview'], ['schedule', 'Schedule & Slots'], ['assistants', 'Assistants Desk'], ['profile', 'Clinic Profile']] as const).map(([tab, label]) => (
                 <button
                   key={tab}
                   onClick={() => setActivePortalTab(tab as any)}
-                  className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
                     activePortalTab === tab
                       ? 'text-white shadow-md'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-white/70'
@@ -10725,29 +10728,29 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </button>
               ))}
             </div>
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto items-center gap-3 hidden sm:flex">
               <RealtimeLive />
-              <span className="text-xs text-slate-400 font-medium hidden sm:block">{doctorProfile?.clinic_address || 'Clinic'}</span>
+              <span className="text-xs text-slate-400 font-medium">{doctorProfile?.clinic_address || 'Clinic'}</span>
             </div>
           </div>
 
           {/* ── Overview Tab ── */}
           {activePortalTab === 'overview' && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Premium Header */}
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.\s*/i, '')}</span>.
                   </h2>
-                  <p className="text-sm text-slate-400 mt-1 font-medium">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1 font-medium">
                     {todayStr} &middot; Live operational overview
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-auto">
                   <button
                     onClick={() => setActivePortalTab('schedule')}
-                    className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
+                    className="px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
                   >
                     Manage schedule
                   </button>
@@ -10755,19 +10758,19 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* Sub bar: Realtime + 4 Timeframe Filter Buttons */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1">
                 <div className="flex items-center gap-2">
                   <RealtimeLive />
                   <span className="text-xs text-slate-500 font-medium">
                     {doctorProfile?.clinic_address || 'Rehmat Polyclinic · Circular Road'}
                   </span>
                 </div>
-                {/* 4 Timeframe Filter Buttons: Today, This Week, This Month, All */}
-                <div className="inline-flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 flex-wrap">
+                {/* 4 Timeframe Filter Buttons: Today, This Week, This Month, All (swipeable scroll strip on mobile) */}
+                <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => setTimeframe('today')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${timeframe === 'today'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'today'
                         ? 'bg-clinic-700 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
@@ -10783,7 +10786,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <button
                     type="button"
                     onClick={() => setTimeframe('week')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${timeframe === 'week'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'week'
                         ? 'bg-clinic-700 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
@@ -10799,7 +10802,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <button
                     type="button"
                     onClick={() => setTimeframe('month')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${timeframe === 'month'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'month'
                         ? 'bg-clinic-700 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
@@ -10815,7 +10818,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <button
                     type="button"
                     onClick={() => setTimeframe('all')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${timeframe === 'all'
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'all'
                         ? 'bg-clinic-700 text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
@@ -10832,9 +10835,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* 5 Top KPI Cards: Dynamic Income + Operational Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
                 {/* 1. Clinic Income (PAID) Card — Accent Green */}
-                <div className="col-span-2 md:col-span-1 lg:col-span-2 rounded-2xl p-6 relative overflow-hidden shadow-kpi-accent border border-emerald-200/80"
+                <div className="col-span-2 md:col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-kpi-accent border border-emerald-200/80"
                   style={{ background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)' }}
                 >
                   {/* Decorative glow orb */}
@@ -10851,7 +10854,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         {timeframe === 'today' ? 'Today' : timeframe === 'week' ? 'This Week' : timeframe === 'month' ? 'This Month' : 'All Time'}
                       </span>
                     </div>
-                    <p className="text-4xl font-extrabold text-white mt-2 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mt-2 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
                       {formatCurrency(currentTimeframeIncome)}
                     </p>
                     <div className="mt-3 flex items-center justify-between">
@@ -10934,8 +10937,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* Filter Toolbar: Search Bar + Status Chips */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-50" style={{ background: 'linear-gradient(180deg, #f8fafc, #ffffff)' }}>
-                  <div className="relative flex-1 max-w-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3.5 sm:px-5 py-3 border-b border-slate-50" style={{ background: 'linear-gradient(180deg, #f8fafc, #ffffff)' }}>
+                  <div className="relative flex-1 w-full sm:max-w-xs">
                     <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
@@ -10955,13 +10958,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1 overflow-x-auto text-xs">
+                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none touch-scroll flex-nowrap pb-1 -mx-3 px-3 sm:mx-0 sm:px-0 sm:pb-0 text-xs w-full sm:w-auto">
                     {(['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const).map(st => (
                       <button
                         key={st}
                         type="button"
                         onClick={() => setApptStatusFilter(st)}
-                        className={`px-3 py-1.5 rounded-lg font-semibold text-[11px] transition-all whitespace-nowrap ${apptStatusFilter === st
+                        className={`px-3 py-1.5 rounded-lg font-semibold text-[11px] transition-all whitespace-nowrap flex-shrink-0 ${apptStatusFilter === st
                             ? 'text-white shadow-sm'
                             : 'text-slate-500 hover:bg-slate-100/80'
                           }`}
@@ -10975,7 +10978,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     <button
                       type="button"
                       onClick={() => setIncludeArchived(!includeArchived)}
-                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap ${
+                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${
                         includeArchived
                           ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
@@ -10993,7 +10996,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         setCallingOrderActive(next);
                         localStorage.setItem('doc_calling_order', String(next));
                       }}
-                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm ${
+                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${
                         callingOrderActive
                           ? 'bg-emerald-600 border-emerald-500 text-white ring-1 ring-emerald-300'
                           : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -11008,7 +11011,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       type="button"
                       onClick={() => loadDoctorData()}
                       disabled={loadingAppointments}
-                      className="ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60 shadow-sm"
+                      className="ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60 shadow-sm flex-shrink-0"
                       title="Refresh clinic appointments and live queue"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${loadingAppointments ? 'animate-spin' : ''}`} />
@@ -11094,7 +11097,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         );
                       })()
                     )}
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto touch-scroll">
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left bg-slate-50/50">
@@ -11503,7 +11506,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                     <div>
                       <label className="text-xs font-semibold text-slate-600 block mb-1.5">Consultation interval per slot</label>
-                      <div className="grid grid-cols-5 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                         {[5, 10, 15, 20, 30].map((mins) => (
                           <button
                             key={mins}
@@ -11520,7 +11523,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="text-xs font-semibold text-slate-600 block mb-1">Shift Windows</label>
                         <input
@@ -11833,7 +11836,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       : `No slots found matching the selected filter criteria (${slotDateFilter !== 'all' ? `Date: ${slotDatesInfo.find(i => i.date === slotDateFilter)?.label || slotDateFilter}` : ''} ${slotStatusFilter !== 'all' ? `Status: ${slotStatusFilter}` : ''}).`}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto max-h-[30rem]">
+                  <div className="overflow-x-auto touch-scroll max-h-[30rem]">
                     <table className="w-full text-xs">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left">
@@ -11995,8 +11998,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
           {/* ── Assistants Desk Tab ── */}
           {activePortalTab === 'assistants' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="font-bold text-slate-900 text-base">Linked Clinic Receptionists &amp; Assistants</h3>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -12006,7 +12009,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="button"
                   onClick={() => setShowAddAsstModal(true)}
-                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+                  className="w-full sm:w-auto justify-center px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <PlusCircle className="w-4 h-4" />
                   Add Clinic Assistant
@@ -12239,7 +12242,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
               {isEditingProfile ? (
                 <form onSubmit={handleSaveProfile} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="font-semibold text-slate-600 block mb-1">Consultation Fee (Rs.)</label>
                       <input
@@ -12262,7 +12265,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         <option value="BOTH">BOTH (Morning &amp; Evening Shifts)</option>
                       </select>
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-1 sm:col-span-2">
                       <label className="font-semibold text-slate-600 block mb-1">Clinic Address in D.I. Khan</label>
                       <textarea
                         value={editAddress}
@@ -12272,7 +12275,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white"
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-1 sm:col-span-2">
                       <label className="font-semibold text-slate-600 block mb-1">Google Maps URL</label>
                       <input
                         type="url"
@@ -12354,7 +12357,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       {/* ── Modal: Add Assistant ── */}
       {showAddAsstModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 Add New Clinic Receptionist
@@ -12414,14 +12417,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="button"
                   onClick={() => setShowAddAsstModal(false)}
-                  className="px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  className="px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={asstLoading}
-                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold shadow-sm transition-colors inline-flex items-center gap-1.5"
+                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold shadow-sm transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                 >
                   {asstLoading ? (
                     <>
@@ -12441,7 +12444,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       {/* ── Modal: Reset Assistant Password ── */}
       {resetAsstModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 animate-fade-in border border-slate-100">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-5 animate-fade-in border border-slate-100">
             {/* Header */}
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
@@ -12590,7 +12593,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       {/* ── Modal: Appointment Details / Complete Consultation ── */}
       {selectedAppt && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div>
                 <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -12598,12 +12601,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </h3>
                 <span className="text-xs text-slate-400">Slip #{selectedAppt.slip_number || `SLIP-${selectedAppt.id.slice(0, 6).toUpperCase()}`}</span>
               </div>
-              <button onClick={() => setSelectedAppt(null)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setSelectedAppt(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <span className="text-slate-400 block text-[11px]">Patient Name</span>
                 <span className="font-bold text-slate-800">{selectedAppt.patient_name || 'Walk-in Patient'}</span>
@@ -12662,31 +12665,31 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
             )}
 
-            <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-slate-100">
               {selectedAppt.status?.toUpperCase() !== 'COMPLETED' && selectedAppt.status?.toUpperCase() !== 'CANCELLED' ? (
                 <>
                   <button
                     type="button"
                     onClick={() => handleCancelAppointment(selectedAppt.id)}
-                    className="px-3 py-2 border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition-colors"
+                    className="w-full sm:w-auto px-3 py-2 border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition-colors text-center cursor-pointer"
                   >
                     Cancel Appointment
                   </button>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 justify-end w-full sm:w-auto">
                     <button
                       type="button"
                       onClick={() => setSelectedAppt(null)}
-                      className="px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                      className="flex-1 sm:flex-none px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                     >
                       Close
                     </button>
                     {selectedAppt.payment_status !== 'PAID' ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
                         <button
                           type="button"
                           disabled={Boolean(doctorMarkPaidLoading) || actionLoading}
                           onClick={() => handleDoctorMarkPaid(selectedAppt.id)}
-                          className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="flex-1 sm:flex-none px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                           title="Record cash payment at desk / consultation"
                         >
                           {doctorMarkPaidLoading === selectedAppt.id ? (
@@ -12697,7 +12700,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           ) : (
                             <>
                               <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Mark as Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
+                              <span>Mark Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
                             </>
                           )}
                         </button>
@@ -12705,7 +12708,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           type="button"
                           onClick={() => handleCompleteAppointment(selectedAppt.id, true)}
                           disabled={actionLoading}
-                          className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
+                          className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                           title="Mark fee as PAID and complete consultation in 1 click"
                         >
                           {actionLoading ? (
@@ -12726,12 +12729,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => handleCompleteAppointment(selectedAppt.id)}
                         disabled={actionLoading}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold transition-colors shadow-sm inline-flex items-center gap-1.5"
+                        className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold transition-colors shadow-sm inline-flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         {actionLoading ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                            <span>Processing completion...</span>
+                            <span>Processing...</span>
                           </>
                         ) : (
                           <span>Mark Consultation Complete</span>
@@ -12746,7 +12749,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <button
                     type="button"
                     onClick={() => setSelectedAppt(null)}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
+                    className="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
                   >
                     Close
                   </button>

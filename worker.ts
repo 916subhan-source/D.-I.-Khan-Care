@@ -57,6 +57,15 @@ export default {
       });
     }
 
+    if (url.pathname === '/api/debug-env') {
+      return new Response(JSON.stringify({
+        version: 'v-gemini-3.8-flash-debug',
+        hasGeminiKey: !!env.GEMINI_API_KEY,
+        geminiKeyPrefix: env.GEMINI_API_KEY ? env.GEMINI_API_KEY.substring(0, 5) : null,
+        envKeys: Object.keys(env || {})
+      }), { headers: corsHeaders });
+    }
+
     if (url.pathname === '/api/chatbot' || url.pathname.endsWith('/api/chatbot')) {
       if (request.method !== 'POST') {
         return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: corsHeaders });

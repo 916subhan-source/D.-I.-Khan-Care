@@ -90,7 +90,6 @@ export default {
           );
         }
 
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
         const contents = [
           ...(body.history || []),
           {
@@ -99,42 +98,66 @@ export default {
           }
         ];
 
-        const geminiResponse = await fetch(geminiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: SYSTEM_INSTRUCTION }]
-            },
-            contents,
-            generationConfig: {
-              temperature: 0.4,
-              maxOutputTokens: 400,
-              topP: 0.9,
-            },
-            safetySettings: [
-              { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-              { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-              { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-              { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-            ]
-          })
-        });
+        const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+        let reply = '';
+        let chosenModel = '';
 
-        if (!geminiResponse.ok) {
-          const errText = await geminiResponse.text();
-          return new Response(
-            JSON.stringify({ error: 'Gemini API error', details: errText }),
-            { status: geminiResponse.status, headers: corsHeaders }
-          );
+        for (const model of modelsToTry) {
+          try {
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const geminiResponse = await fetch(geminiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: {
+                  parts: [{ text: SYSTEM_INSTRUCTION }]
+                },
+                contents,
+                generationConfig: {
+                  temperature: 0.4,
+                  maxOutputTokens: 350,
+                  topP: 0.9,
+                },
+                safetySettings: [
+                  { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+                  { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+                  { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                  { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+                ]
+              })
+            });
+
+            if (geminiResponse.ok) {
+              const geminiData = await geminiResponse.json() as any;
+              const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text && text.trim().length > 0) {
+                reply = text.trim();
+                chosenModel = model;
+                break;
+              }
+            }
+          } catch {
+            // Try next model in list
+          }
         }
 
-        const geminiData = await geminiResponse.json() as any;
-        const reply = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || 
-          'Muafi chahta hoon, abhi jawab dene me mushkil ho rahi hai. Baraaye meherbani dobara koshish karein.';
+        // If Google API is temporarily unavailable, provide reliable triage fallback
+        if (!reply) {
+          const lower = userMessage.toLowerCase();
+          if (lower.includes('dil') || lower.includes('seene') || lower.includes('chest') || lower.includes('heart') || lower.includes('bp')) {
+            reply = "Aapko **Cardiologist** (Dil ke doctor) se foran mashwara karna chahiye. Seene me shadeed dard ki soorat me foran DHQ Hospital Emergency tashreef le jayein.";
+          } else if (lower.includes('bacha') || lower.includes('bachon') || lower.includes('child') || lower.includes('baby') || lower.includes('bukhar')) {
+            reply = "Aapko **Pediatrician** (Bachon ke doctor) se rujoo karna chahiye. Bachon ke bukhar me foran doctor ko dikhana zaroori hota hai.";
+          } else if (lower.includes('khwateen') || lower.includes('lady') || lower.includes('pregnancy') || lower.includes('aurat') || lower.includes('gynae')) {
+            reply = "Aapko **Gynecologist** (Khwateen ke doctor) se appointment leni chahiye. Portal par Lady Doctors ke auqaat aur appointment slots dastyab hain.";
+          } else {
+            reply = "Main D.I. Khan Care ka AI Assistant hoon. Agar aap kisi bimari me mubtila hain to baraye meherbani apni alamat (jaise dil me dard, bukhar, bachon ki bimari) wazeh karein taake munasib specialist recommend kiya ja sakay.";
+          }
+          chosenModel = 'system-triage-fallback';
+        }
 
         return new Response(
-          JSON.stringify({ reply, model: 'gemini-3.8-flash' }),
+          JSON.stringify({ reply, model: chosenModel }),
           { status: 200, headers: corsHeaders }
         );
       } catch (err: any) {

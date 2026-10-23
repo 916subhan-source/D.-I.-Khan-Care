@@ -58,6 +58,10 @@ class Doctor(Base):
     is_spotlight: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     verification_status: Mapped[str] = mapped_column(String(20), default="pending") # pending, verified, rejected
     profile_image: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    off_days: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, default="sunday") # comma-separated list of off days: e.g. "friday,sunday"
+    bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    expertise: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    experience_years: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=5)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 

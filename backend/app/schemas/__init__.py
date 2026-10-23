@@ -49,6 +49,10 @@ class DoctorBase(BaseModel):
     morning_end: str = "13:00"
     evening_start: str = "17:00"
     evening_end: str = "21:00"
+    off_days: Optional[str] = "sunday"
+    bio: Optional[str] = None
+    expertise: Optional[str] = None
+    experience_years: Optional[int] = 5
 
 class DoctorCreate(DoctorBase):
     user: UserCreate
@@ -202,6 +206,17 @@ class RescheduleRequest(BaseModel):
 # --- Cash Payment Schemas ---
 class MarkPaidRequest(BaseModel):
     notes: Optional[str] = None
+
+class POSBookingRequest(BaseModel):
+    doctor_id: str
+    slot_id: str
+    patient_name: str = Field(..., min_length=2, max_length=120)
+    patient_phone: str = Field(..., min_length=7, max_length=20)
+    patient_email: Optional[str] = None
+    notes: Optional[str] = None
+    payment_status: Optional[str] = "PENDING_CASH"  # PENDING_CASH or PAID
+    fee_amount: Optional[Decimal] = None
+    cash_tendered: Optional[Decimal] = None
 
 # --- Doctor Review Schemas ---
 class ReviewCreateRequest(BaseModel):

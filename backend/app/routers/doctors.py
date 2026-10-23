@@ -104,6 +104,10 @@ async def list_doctors(
             "is_spotlight": doc.is_spotlight,
             "verification_status": doc.verification_status,
             "profile_image": doc.profile_image if doc.profile_image else resolve_doctor_image(doc_name, doc.specialty),
+            "off_days": doc.off_days or "sunday",
+            "bio": doc.bio,
+            "expertise": doc.expertise,
+            "experience_years": doc.experience_years if doc.experience_years is not None else 5,
             "created_at": doc.created_at.isoformat()
         })
 
@@ -120,17 +124,23 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
     """
     now = utc_now()
     min_start_time = now + timedelta(minutes=45)
+
+    doc = await db.get(Doctor, doctor_id)
+    doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()] if doc else ["sunday"]
+
     cache_key = f"doctor_slots:{doctor_id}"
     cached_slots = await redis_manager.get_cache(cache_key)
     if cached_slots:
         try:
             slots_data = json.loads(cached_slots)
-            # Filter out active slot locks AND slots starting within 45 minutes of current time
+            # Filter out active slot locks AND slots starting within 45 minutes of current time AND off-days
             available_slots = []
             for s in slots_data:
                 try:
                     s_dt = datetime.fromisoformat(s["start_time"].replace("Z", "+00:00"))
                     if s_dt < min_start_time:
+                        continue
+                    if to_pkt(s_dt).strftime("%A").lower() in doc_off_days:
                         continue
                 except Exception:
                     pass
@@ -159,20 +169,23 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
             dt = dt.astimezone(timezone.utc)
         return dt.isoformat()
 
-    slots_to_cache = [
-        {
+    slots_to_cache = []
+    for s in slots:
+        # Strictly skip any slot falling on doctor's designated off days
+        pkt_time = to_pkt(s.start_time)
+        if pkt_time.strftime("%A").lower() in doc_off_days:
+            continue
+        slots_to_cache.append({
             "id": s.id,
             "doctor_id": s.doctor_id,
             "start_time": to_utc_iso(s.start_time),
             "end_time": to_utc_iso(s.end_time),
-            "slot_date": to_pkt(s.start_time).strftime("%Y-%m-%d"),
+            "slot_date": pkt_time.strftime("%Y-%m-%d"),
             "slot_date_fmt": format_pkt_date(s.start_time),
             "start_time_fmt": format_pkt_time(s.start_time),
             "end_time_fmt": format_pkt_time(s.end_time),
             "status": s.status
-        }
-        for s in slots
-    ]
+        })
 
     # Store in Redis cache for 60 seconds
     await redis_manager.set_cache(cache_key, json.dumps(slots_to_cache), ttl=60)

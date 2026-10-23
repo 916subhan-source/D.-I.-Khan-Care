@@ -25,12 +25,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  const backendBase = context.env.BACKEND_URL || 'https://e0ca0c70150435.lhr.life';
+  const backendBase = context.env.BACKEND_URL || 'https://dikhan-care-api.loca.lt';
   const url = new URL(context.request.url);
   const targetUrl = `${backendBase.replace(/\/+$/, '')}${url.pathname}${url.search}`;
 
   const forwardHeaders = new Headers(context.request.headers);
   forwardHeaders.delete('host');
+  forwardHeaders.set('bypass-tunnel-reminder', 'true');
+  forwardHeaders.set('x-pinggy-no-screen', 'true');
 
   const modifiedRequest = new Request(targetUrl, {
     method: context.request.method,

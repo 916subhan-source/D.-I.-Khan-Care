@@ -58,7 +58,11 @@ async def get_doctor_profile(
         "evening_end": doctor.evening_end or "21:00",
         "is_spotlight": doctor.is_spotlight,
         "verification_status": doctor.verification_status,
-        "profile_image": doctor.profile_image
+        "profile_image": doctor.profile_image,
+        "off_days": doctor.off_days or "sunday",
+        "bio": doctor.bio,
+        "expertise": doctor.expertise,
+        "experience_years": doctor.experience_years if doctor.experience_years is not None else 5
     }
 
 @router.post("/profile/picture")
@@ -493,6 +497,7 @@ class SlotGenerateRequest(PydanticBase):
     morning_end: Optional[str] = None
     evening_start: Optional[str] = None
     evening_end: Optional[str] = None
+    off_days: Optional[List[str]] = None
 
 @router.post("/slots/generate")
 async def generate_slots(
@@ -530,6 +535,14 @@ async def generate_slots(
     morning_end = payload.morning_end or doc.morning_end or "13:00"
     evening_start = payload.evening_start or doc.evening_start or "17:00"
     evening_end = payload.evening_end or doc.evening_end or "21:00"
+
+    # Persist and normalize off days (e.g. ["friday", "sunday"])
+    selected_off_days: List[str] = []
+    if payload.off_days is not None:
+        selected_off_days = [d.strip().lower() for d in payload.off_days if d and d.strip()]
+        doc.off_days = ",".join(selected_off_days)
+    elif doc.off_days:
+        selected_off_days = [d.strip().lower() for d in doc.off_days.split(",") if d.strip()]
 
     # Persist customized shift hours to doctor profile
     if payload.morning_start:
@@ -611,6 +624,29 @@ async def generate_slots(
     current_day = base_dt
 
     while current_day <= end_dt:
+        day_name = current_day.strftime("%A").lower()
+        if day_name in selected_off_days:
+            # Option A: Do NOT create any slots for off days! Clean up any unbooked available slots on this off-day
+            day_start_utc = current_day.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=PKT).astimezone(timezone.utc)
+            day_end_utc = current_day.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=PKT).astimezone(timezone.utc)
+            old_off_slots_res = await db.execute(
+                select(DoctorSlot).options(selectinload(DoctorSlot.appointment)).where(
+                    and_(
+                        DoctorSlot.doctor_id == doc.id,
+                        DoctorSlot.start_time >= day_start_utc,
+                        DoctorSlot.start_time <= day_end_utc,
+                        DoctorSlot.status == "available"
+                    )
+                )
+            )
+            for os in old_off_slots_res.scalars().all():
+                if os.appointment:
+                    os.appointment.slot_id = None
+                await db.delete(os)
+
+            current_day += timedelta(days=1)
+            continue
+
         for (sh, sm, eh, em) in windows:
             curr_time_pkt = current_day.replace(hour=sh, minute=sm, second=0, microsecond=0, tzinfo=PKT)
             boundary_pkt  = current_day.replace(hour=eh, minute=em, second=0, microsecond=0, tzinfo=PKT)
@@ -662,7 +698,8 @@ async def generate_slots(
     await db.commit()
     await redis_manager.clear_cache_pattern("doctors:")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
-    msg = f"Generated {slots_created} new consultation slots ({dur_mins} mins each for {shift} shift) with conflict protection!" if slots_created > 0 else "All slots for this period already exist or are booked. No duplicate slots created."
+    off_days_summary = f" (Skipped off days: {', '.join(d.capitalize() for d in selected_off_days)})" if selected_off_days else ""
+    msg = f"Generated {slots_created} new consultation slots ({dur_mins} mins each for {shift} shift){off_days_summary} with conflict protection!" if slots_created > 0 else f"Slots processed{off_days_summary}. No duplicate slots created."
     return {"status": "SUCCESS", "slots_created": slots_created, "shift": shift, "duration_minutes": dur_mins, "message": msg}
 
 
@@ -920,10 +957,57 @@ async def cancel_appointment_by_doctor(
     return {"status": "SUCCESS", "message": "Appointment cancelled and slot released to available.", "appointment_id": appt.id}
 
 
+@router.post("/appointments/{appointment_id}/mark-paid")
+async def mark_appointment_paid_by_doctor(
+    appointment_id: str,
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Allows doctor to record payment as PAID directly at consultation / calling time."""
+    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    payment_res = await db.execute(
+        select(Payment).options(selectinload(Payment.appointment)).where(Payment.appointment_id == appointment_id)
+    )
+    payment = payment_res.scalar_one_or_none()
+    if not payment or not payment.appointment or payment.appointment.doctor_id != doc.id:
+        raise HTTPException(status_code=404, detail="Payment record for this appointment not found.")
+
+    if payment.status == "PAID":
+        return {"status": "ALREADY_PAID", "message": "This consultation fee is already marked as PAID."}
+
+    old_status = payment.status
+    payment.status = "PAID"
+    payment.paid_at = datetime.now(timezone.utc)
+    payment.collected_by = current_user.id
+
+    await audit_service.log_action(
+        db=db,
+        actor_id=current_user.id,
+        action="CASH_PAYMENT_COLLECTED",
+        entity="Payment",
+        entity_id=payment.id,
+        before_value=old_status,
+        after_value=f"PAID (Amount: Rs. {payment.amount}) by Doctor #{current_user.full_name}"
+    )
+
+    await db.commit()
+    return {
+        "status": "SUCCESS",
+        "payment_status": "PAID",
+        "amount": float(payment.amount),
+        "paid_at": payment.paid_at.isoformat(),
+        "collected_by": current_user.full_name
+    }
+
+
 @router.post("/appointments/{appointment_id}/complete")
 async def complete_appointment_by_doctor(
     appointment_id: str,
     consultation_notes: Optional[str] = Query(None, description="Doctor clinical remarks or prescription notes"),
+    mark_paid: bool = Query(False, description="Auto-record payment as PAID if pending at calling/consultation"),
     current_user: User = Depends(require_roles(["DOCTOR"])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -959,11 +1043,26 @@ async def complete_appointment_by_doctor(
 
     # Governance rule: Payment must be collected at reception Cash Desk before consultation can be completed
     if not appt.payment or appt.payment.status != "PAID":
-        fee_str = f"Rs. {appt.payment.amount:,.0f}" if appt.payment else "consultation fee"
-        raise HTTPException(
-            status_code=400,
-            detail=f"Payment Pending: Patient has not paid the {fee_str} at the reception Cash Desk yet. Fee must be collected before completing consultation."
-        )
+        if mark_paid and appt.payment:
+            old_pay_status = appt.payment.status
+            appt.payment.status = "PAID"
+            appt.payment.paid_at = datetime.now(timezone.utc)
+            appt.payment.collected_by = current_user.id
+            await audit_service.log_action(
+                db=db,
+                actor_id=current_user.id,
+                action="CASH_PAYMENT_COLLECTED",
+                entity="Payment",
+                entity_id=appt.payment.id,
+                before_value=old_pay_status,
+                after_value=f"PAID (Amount: Rs. {appt.payment.amount}) upon consultation completion by Doctor #{current_user.full_name}"
+            )
+        else:
+            fee_str = f"Rs. {appt.payment.amount:,.0f}" if appt.payment else "consultation fee"
+            raise HTTPException(
+                status_code=400,
+                detail=f"Payment Pending: Patient has not paid the {fee_str} at the reception Cash Desk yet. Fee must be collected before completing consultation."
+            )
 
 
     # Restrict completion: appointment must be scheduled for today or a past date
@@ -1178,6 +1277,10 @@ class DoctorProfileUpdateRequest(PydanticBase):
     morning_end: Optional[str] = None
     evening_start: Optional[str] = None
     evening_end: Optional[str] = None
+    off_days: Optional[str] = None
+    bio: Optional[str] = None
+    expertise: Optional[str] = None
+    experience_years: Optional[int] = None
 
 @router.put("/profile")
 async def update_doctor_profile(
@@ -1185,7 +1288,7 @@ async def update_doctor_profile(
     current_user: User = Depends(require_roles(["DOCTOR"])),
     db: AsyncSession = Depends(get_db)
 ):
-    """Allows doctor to update clinic fee, shift, or clinic address."""
+    """Allows doctor to update clinic fee, shift, address, bio, expertise, or experience years."""
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
@@ -1208,6 +1311,14 @@ async def update_doctor_profile(
         doc.evening_start = payload.evening_start
     if payload.evening_end is not None:
         doc.evening_end = payload.evening_end
+    if payload.off_days is not None:
+        doc.off_days = payload.off_days
+    if payload.bio is not None:
+        doc.bio = payload.bio.strip() if payload.bio else None
+    if payload.expertise is not None:
+        doc.expertise = payload.expertise.strip() if payload.expertise else None
+    if payload.experience_years is not None:
+        doc.experience_years = int(payload.experience_years)
 
     await db.commit()
     await redis_manager.clear_cache_pattern("doctors:")
@@ -1220,5 +1331,9 @@ async def update_doctor_profile(
         "morning_start": doc.morning_start or "09:00",
         "morning_end": doc.morning_end or "13:00",
         "evening_start": doc.evening_start or "17:00",
-        "evening_end": doc.evening_end or "21:00"
+        "evening_end": doc.evening_end or "21:00",
+        "off_days": doc.off_days or "sunday",
+        "bio": doc.bio,
+        "expertise": doc.expertise,
+        "experience_years": doc.experience_years if doc.experience_years is not None else 5
     }

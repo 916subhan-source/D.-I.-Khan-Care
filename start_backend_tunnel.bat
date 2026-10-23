@@ -7,10 +7,11 @@ echo =========================================================================
 echo.
 
 cd /d "%~dp0backend"
-start "FastAPI Backend Server (Port 8000)" cmd /k "python -m uvicorn app.main:app --host 127.0.0.1 --port 8000"
+start "FastAPI Backend Server (Port 8000)" cmd /k "python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload"
 
 timeout /t 3 /nobreak >nul
 
 cd /d "%~dp0"
-echo Starting Cloudflare Tunnel...
-.\cloudflared.exe tunnel --url http://127.0.0.1:8000
+echo Starting Cloudflare Tunnel (Stable HTTP/2 Protocol)...
+.\cloudflared.exe tunnel --protocol http2 --url http://127.0.0.1:8000
+

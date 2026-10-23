@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
+import HealthChatbot from './components/HealthChatbot';
 
 interface DoctorData {
   id: string;
@@ -82,6 +83,8 @@ interface DoctorData {
   bio?: string;
   profile_image?: string;
   off_days?: string;
+  expertise?: string;
+  experience_years?: number;
 }
 
 interface SlotData {
@@ -547,7 +550,7 @@ function getSlotDateKeyGlobal(s: any): string {
         return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
       }
     }
-  } catch {}
+  } catch { }
   return '';
 }
 
@@ -590,7 +593,7 @@ function getSlotMinutesFromMidnightInPkt(slot: any): number {
         const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
         return hour * 60 + minute;
       }
-    } catch {}
+    } catch { }
   }
   return 9999;
 }
@@ -851,32 +854,32 @@ function StaffLoginSplitView({
   const usernameLabel = currentRole === 'assistant'
     ? 'Staff username'
     : currentRole === 'doctor'
-    ? 'Doctor email'
-    : 'Admin email';
+      ? 'Doctor email'
+      : 'Admin email';
 
   const usernamePlaceholder = currentRole === 'assistant'
     ? 'nida.reception'
     : currentRole === 'doctor'
-    ? 'doctor@dikhanhealth.pk'
-    : 'admin@dikhan.care';
+      ? 'doctor@dikhanhealth.pk'
+      : 'admin@dikhan.care';
 
   const submitButtonLabel = currentRole === 'assistant'
     ? 'Sign in to assistant desk'
     : currentRole === 'doctor'
-    ? 'Sign in to doctor portal'
-    : 'Sign in to platform console';
+      ? 'Sign in to doctor portal'
+      : 'Sign in to platform console';
 
   const noticeTitle = currentRole === 'assistant'
     ? 'Assistant access is scoped to linked doctors'
     : currentRole === 'doctor'
-    ? 'Doctor portal is restricted to PMDC-verified practitioners'
-    : 'Platform governance & developer console';
+      ? 'Doctor portal is restricted to PMDC-verified practitioners'
+      : 'Platform governance & developer console';
 
   const noticeSub = currentRole === 'assistant'
     ? 'Your clinic doctor creates or links your staff account. Contact the clinic owner for credential assistance.'
     : currentRole === 'doctor'
-    ? 'Access your live patient queue, manage consultation slots, and track revenue reconciliation.'
-    : 'Restricted to system administrators for credential resets, clinic verifications, and audit logging.';
+      ? 'Access your live patient queue, manage consultation slots, and track revenue reconciliation.'
+      : 'Restricted to system administrators for credential resets, clinic verifications, and audit logging.';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1105,11 +1108,10 @@ function StaffLoginSplitView({
                 <button
                   type="button"
                   onClick={() => onSwitchRole?.('doctor')}
-                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${
-                    currentRole === 'doctor'
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${currentRole === 'doctor'
                       ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
                       : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                    }`}
                 >
                   <img
                     src="/dr_ayesha_khan.jpg"
@@ -1121,11 +1123,10 @@ function StaffLoginSplitView({
                 <button
                   type="button"
                   onClick={() => onSwitchRole?.('assistant')}
-                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${
-                    currentRole === 'assistant'
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${currentRole === 'assistant'
                       ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
                       : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                    }`}
                 >
                   <img
                     src="/assistant_reception_desk.jpg"
@@ -1366,7 +1367,7 @@ export default function App() {
       if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track') {
         return hash as any;
       }
-    } catch (_) {}
+    } catch (_) { }
     return 'patient';
   };
 
@@ -1381,13 +1382,13 @@ export default function App() {
     try {
       const targetPath = newRole === 'admin' ? '/admin'
         : newRole === 'doctor' ? '/doctor'
-        : newRole === 'assistant' ? '/assistant'
-        : newRole === 'track' ? '/track'
-        : '/';
+          : newRole === 'assistant' ? '/assistant'
+            : newRole === 'track' ? '/track'
+              : '/';
       if (window.location.pathname.toLowerCase().replace(/\/+$/, '') !== targetPath.replace(/\/+$/, '')) {
         window.history.pushState(null, '', targetPath);
       }
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Listen to browser navigation (back/forward and URL changes)
@@ -1437,21 +1438,19 @@ export default function App() {
           <nav className="hidden md:flex items-center gap-1">
             <button
               onClick={() => handleSwitchRole('patient')}
-              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${
-                activeTab === 'patient'
+              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${activeTab === 'patient'
                   ? 'text-clinic-700 font-semibold bg-clinic-50'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
+                }`}
             >
               Find a doctor
             </button>
             <button
               onClick={() => handleSwitchRole('track')}
-              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${
-                activeTab === 'track'
+              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${activeTab === 'track'
                   ? 'text-clinic-700 font-semibold bg-clinic-50'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
+                }`}
             >
               Track appointment
             </button>
@@ -1672,7 +1671,7 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
           }
         })();
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   const handleTrack = async (e: React.FormEvent) => {
@@ -1848,8 +1847,8 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                     type="button"
                     onClick={() => setSelectedAppointmentId(appt.id)}
                     className={`p-3.5 rounded-xl border text-left transition-all flex items-center justify-between gap-3 ${isSelected
-                        ? 'border-[#0f766e] bg-teal-50/50 ring-2 ring-[#0f766e]/20 shadow-xs'
-                        : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50/80'
+                      ? 'border-[#0f766e] bg-teal-50/50 ring-2 ring-[#0f766e]/20 shadow-xs'
+                      : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50/80'
                       }`}
                   >
                     <div className="min-w-0">
@@ -1858,14 +1857,14 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                           {appt.doctor_name || 'Specialist Doctor'}
                         </span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${appt.status === 'COMPLETED'
-                            ? 'bg-teal-100 text-teal-800'
-                            : appt.status === 'CANCELLED' || appt.status === 'REJECTED'
-                              ? 'bg-rose-100 text-rose-800'
-                              : appt.status === 'CONFIRMED'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : appt.status === 'PENDING_ASSISTANT_APPROVAL'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-slate-100 text-slate-700'
+                          ? 'bg-teal-100 text-teal-800'
+                          : appt.status === 'CANCELLED' || appt.status === 'REJECTED'
+                            ? 'bg-rose-100 text-rose-800'
+                            : appt.status === 'CONFIRMED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : appt.status === 'PENDING_ASSISTANT_APPROVAL'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-slate-100 text-slate-700'
                           }`}>
                           {appt.status === 'COMPLETED'
                             ? 'Completed'
@@ -1915,331 +1914,330 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
           const displayTime = appointment.slot_time || formatVisitTime(appointment.slot_start || appointment.created_at);
 
           return (
-          <div className="space-y-4 animate-fade-in">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>Appointment status</h3>
-              <RealtimeLive />
-            </div>
+            <div className="space-y-4 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>Appointment status</h3>
+                <RealtimeLive />
+              </div>
 
-            {/* Status banner: Shows completed message if status is COMPLETED, else shows queue position banner */}
-            {isCompleted ? (
-              <div className="bg-gradient-to-br from-teal-900 via-slate-900 to-emerald-950 text-white rounded-2xl p-6 shadow-md relative overflow-hidden border border-emerald-500/30">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 flex items-center gap-1.5 shadow-sm">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> Consultation Completed
-                  </span>
-                  <span className="text-xs text-emerald-300 font-medium">Archived Visit</span>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <h4 className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    You have completed your appointment
-                  </h4>
-                  <p className="text-sm text-emerald-100/90 leading-relaxed font-medium">
-                    You have completed your appointment with <span className="font-bold text-white">{displayDoctor}</span> on <span className="font-bold text-white">{displayDate}</span> at <span className="font-bold text-white">{displayTime}</span>.
-                  </p>
-                </div>
-                <p className="text-xs text-emerald-200/80 leading-relaxed border-t border-white/10 pt-3 flex items-center justify-between">
-                  <span>Clinic: {appointment.clinic_address || 'D.I. Khan Care Clinic'}</span>
-                  <span className="font-mono text-emerald-300 font-semibold">Slip #{appointment.slip_number}</span>
-                </p>
-              </div>
-            ) : isCancelledOrRejected ? (
-              <div className="bg-gradient-to-br from-rose-950 via-slate-900 to-red-950 text-white rounded-2xl p-6 shadow-md relative overflow-hidden border border-rose-500/30">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-900 flex items-center gap-1.5 shadow-sm">
-                    <XCircle className="w-3.5 h-3.5 text-rose-700" /> {appointment.status === 'REJECTED' ? 'Appointment Rejected' : 'Appointment Cancelled'}
-                  </span>
-                  <span className="text-xs text-rose-300 font-medium">Status Notice</span>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <h4 className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {appointment.status === 'REJECTED'
-                      ? 'Your appointment has been rejected'
-                      : 'Your appointment has been cancelled'}
-                  </h4>
-                  <p className="text-sm text-rose-100/90 leading-relaxed font-medium">
-                    Your appointment with <span className="font-bold text-white">{displayDoctor}</span> {appointment.status === 'REJECTED' ? 'has been rejected' : 'has been cancelled'}{appointment.slot_start ? ` for ${displayDate} at ${displayTime}` : ''}.
-                  </p>
-                  {appointment.notes && (
-                    <div className="mt-2.5 p-3 rounded-xl bg-black/40 border border-white/10 text-xs text-rose-200/90 leading-relaxed">
-                      <strong className="text-white">Reason from clinic: </strong>
-                      {appointment.notes}
-                    </div>
-                  )}
-                </div>
-                <p className="text-xs text-rose-200/80 leading-relaxed border-t border-white/10 pt-3 flex items-center justify-between">
-                  <span>Clinic: {appointment.clinic_address || 'D.I. Khan Care Clinic'}</span>
-                  <span className="font-mono text-rose-300 font-semibold">Slip #{appointment.slip_number}</span>
-                </p>
-              </div>
-            ) : isPending ? (
-              <div className="bg-gradient-to-br from-amber-950 via-stone-900 to-amber-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden border border-amber-500/40">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 flex items-center gap-1.5 shadow-sm">
-                    <Clock className="w-3.5 h-3.5 text-amber-800 animate-spin" /> Pending Assistant Approval
-                  </span>
-                  <span className="text-xs text-amber-300 font-medium">Under Review</span>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <h4 className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    Assistant has not checked your request yet
-                  </h4>
-                  <p className="text-sm text-amber-100/95 leading-relaxed font-medium">
-                    Try again later. The clinic assistant has not checked your request yet. Please try after some time, or when the assistant approves your request, you will receive a message on your number{appointment.patient_phone ? ` (${appointment.patient_phone})` : ''}.
-                  </p>
-                </div>
-                <p className="text-xs text-amber-200/80 leading-relaxed border-t border-white/10 pt-3 flex items-center justify-between">
-                  <span>Doctor: {displayDoctor} &middot; {displayDate} at {displayTime}</span>
-                  <span className="font-mono text-amber-300 font-semibold">Slip #{appointment.slip_number}</span>
-                </p>
-              </div>
-            ) : (
-              <div className="bg-[#0c3b37] text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-900">
-                    Confirmed
-                  </span>
-                  <span className="text-xs text-emerald-200/80">Live Status</span>
-                </div>
-                <div className="flex items-baseline gap-4 mb-4">
-                  <span className="text-5xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {parseQueueNumberFromSlip(appointment.slip_number, appointment.token_number)}
-                  </span>
-                  <div>
-                    <p className="font-bold text-white text-base">Your queue position</p>
-                    <p className="text-xs text-emerald-200/80">
-                      Confirmed visit &middot; Please arrive 15 mins before time
+              {/* Status banner: Shows completed message if status is COMPLETED, else shows queue position banner */}
+              {isCompleted ? (
+                <div className="bg-gradient-to-br from-teal-900 via-slate-900 to-emerald-950 text-white rounded-2xl p-6 shadow-md relative overflow-hidden border border-emerald-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 flex items-center gap-1.5 shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> Consultation Completed
+                    </span>
+                    <span className="text-xs text-emerald-300 font-medium">Archived Visit</span>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <h4 className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      You have completed your appointment
+                    </h4>
+                    <p className="text-sm text-emerald-100/90 leading-relaxed font-medium">
+                      You have completed your appointment with <span className="font-bold text-white">{displayDoctor}</span> on <span className="font-bold text-white">{displayDate}</span> at <span className="font-bold text-white">{displayTime}</span>.
                     </p>
                   </div>
+                  <p className="text-xs text-emerald-200/80 leading-relaxed border-t border-white/10 pt-3 flex items-center justify-between">
+                    <span>Clinic: {appointment.clinic_address || 'D.I. Khan Care Clinic'}</span>
+                    <span className="font-mono text-emerald-300 font-semibold">Slip #{appointment.slip_number}</span>
+                  </p>
                 </div>
-                <p className="text-xs text-emerald-100/90 leading-relaxed border-t border-white/10 pt-3">
-                  Please arrive at the clinic desk before your time slot. Show your slip to receptionist.
-                </p>
-              </div>
-            )}
+              ) : isCancelledOrRejected ? (
+                <div className="bg-gradient-to-br from-rose-950 via-slate-900 to-red-950 text-white rounded-2xl p-6 shadow-md relative overflow-hidden border border-rose-500/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-900 flex items-center gap-1.5 shadow-sm">
+                      <XCircle className="w-3.5 h-3.5 text-rose-700" /> {appointment.status === 'REJECTED' ? 'Appointment Rejected' : 'Appointment Cancelled'}
+                    </span>
+                    <span className="text-xs text-rose-300 font-medium">Status Notice</span>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <h4 className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      {appointment.status === 'REJECTED'
+                        ? 'Your appointment has been rejected'
+                        : 'Your appointment has been cancelled'}
+                    </h4>
+                    <p className="text-sm text-rose-100/90 leading-relaxed font-medium">
+                      Your appointment with <span className="font-bold text-white">{displayDoctor}</span> {appointment.status === 'REJECTED' ? 'has been rejected' : 'has been cancelled'}{appointment.slot_start ? ` for ${displayDate} at ${displayTime}` : ''}.
+                    </p>
+                    {appointment.notes && (
+                      <div className="mt-2.5 p-3 rounded-xl bg-black/40 border border-white/10 text-xs text-rose-200/90 leading-relaxed">
+                        <strong className="text-white">Reason from clinic: </strong>
+                        {appointment.notes}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-rose-200/80 leading-relaxed border-t border-white/10 pt-3 flex items-center justify-between">
+                    <span>Clinic: {appointment.clinic_address || 'D.I. Khan Care Clinic'}</span>
+                    <span className="font-mono text-rose-300 font-semibold">Slip #{appointment.slip_number}</span>
+                  </p>
+                </div>
+              ) : isPending ? (
+                <div className="bg-gradient-to-br from-amber-950 via-stone-900 to-amber-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden border border-amber-500/40">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 flex items-center gap-1.5 shadow-sm">
+                      <Clock className="w-3.5 h-3.5 text-amber-800 animate-spin" /> Pending Assistant Approval
+                    </span>
+                    <span className="text-xs text-amber-300 font-medium">Under Review</span>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <h4 className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      Assistant has not checked your request yet
+                    </h4>
+                    <p className="text-sm text-amber-100/95 leading-relaxed font-medium">
+                      Try again later. The clinic assistant has not checked your request yet. Please try after some time, or when the assistant approves your request, you will receive a message on your number{appointment.patient_phone ? ` (${appointment.patient_phone})` : ''}.
+                    </p>
+                  </div>
+                  <p className="text-xs text-amber-200/80 leading-relaxed border-t border-white/10 pt-3 flex items-center justify-between">
+                    <span>Doctor: {displayDoctor} &middot; {displayDate} at {displayTime}</span>
+                    <span className="font-mono text-amber-300 font-semibold">Slip #{appointment.slip_number}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-[#0c3b37] text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-900">
+                      Confirmed
+                    </span>
+                    <span className="text-xs text-emerald-200/80">Live Status</span>
+                  </div>
+                  <div className="flex items-baseline gap-4 mb-4">
+                    <span className="text-5xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      {parseQueueNumberFromSlip(appointment.slip_number, appointment.token_number)}
+                    </span>
+                    <div>
+                      <p className="font-bold text-white text-base">Your queue position</p>
+                      <p className="text-xs text-emerald-200/80">
+                        Confirmed visit &middot; Please arrive 15 mins before time
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-emerald-100/90 leading-relaxed border-t border-white/10 pt-3">
+                    Please arrive at the clinic desk before your time slot. Show your slip to receptionist.
+                  </p>
+                </div>
+              )}
 
-            {/* Digital Slip white card */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">
-                    DIGITAL APPOINTMENT SLIP
-                  </span>
-                  <span className="text-xs font-mono font-bold text-slate-700">
-                    {appointment.slip_number}
-                  </span>
-                </div>
-                <span className={`px-2.5 py-0.5 border rounded-full text-[11px] font-semibold ${isCompleted
+              {/* Digital Slip white card */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">
+                      DIGITAL APPOINTMENT SLIP
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-700">
+                      {appointment.slip_number}
+                    </span>
+                  </div>
+                  <span className={`px-2.5 py-0.5 border rounded-full text-[11px] font-semibold ${isCompleted
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                     : isCancelledOrRejected
                       ? 'bg-rose-50 border-rose-200 text-rose-800'
                       : isPending
                         ? 'bg-amber-50 border-amber-200 text-amber-800'
                         : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                  }`}>
-                  {isCompleted
-                    ? 'Completed'
-                    : appointment.status === 'CANCELLED'
-                      ? 'Cancelled'
-                      : appointment.status === 'REJECTED'
-                        ? 'Rejected'
-                        : isPending
-                          ? 'Pending Desk Approval'
-                          : 'Approved & Issued'}
-                </span>
-              </div>
+                    }`}>
+                    {isCompleted
+                      ? 'Completed'
+                      : appointment.status === 'CANCELLED'
+                        ? 'Cancelled'
+                        : appointment.status === 'REJECTED'
+                          ? 'Rejected'
+                          : isPending
+                            ? 'Pending Desk Approval'
+                            : 'Approved & Issued'}
+                  </span>
+                </div>
 
-              <div>
-                <h4 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {appointment.patient_name || 'Patient'}
-                </h4>
-                <p className="text-xs font-semibold text-slate-800 mt-0.5">{displayDoctor}</p>
-                <p className="text-xs text-slate-500">{appointment.specialty || 'General OPD'} &middot; {appointment.clinic_address || 'D.I. Khan Care Clinic'}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-xs pt-3 border-t border-slate-100">
                 <div>
-                  <p className="text-slate-400 text-[11px]">Visit date</p>
-                  <p className="font-semibold text-slate-800">
-                    {displayDate}
-                  </p>
+                  <h4 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    {appointment.patient_name || 'Patient'}
+                  </h4>
+                  <p className="text-xs font-semibold text-slate-800 mt-0.5">{displayDoctor}</p>
+                  <p className="text-xs text-slate-500">{appointment.specialty || 'General OPD'} &middot; {appointment.clinic_address || 'D.I. Khan Care Clinic'}</p>
                 </div>
-                <div>
-                  <p className="text-slate-400 text-[11px]">Time &middot; PKT</p>
-                  <p className="font-semibold text-slate-800">
-                    {displayTime}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-slate-500 text-[11px]">{appointment.clinic_address || 'Clinic 4, Circular Road, D.I. Khan'}</p>
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {formatCurrency(appointment.fee_amount || 1000)}
-                </span>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${appointment.payment_status === 'PAID'
+                <div className="grid grid-cols-2 gap-4 text-xs pt-3 border-t border-slate-100">
+                  <div>
+                    <p className="text-slate-400 text-[11px]">Visit date</p>
+                    <p className="font-semibold text-slate-800">
+                      {displayDate}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-[11px]">Time &middot; PKT</p>
+                    <p className="font-semibold text-slate-800">
+                      {displayTime}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-slate-500 text-[11px]">{appointment.clinic_address || 'Clinic 4, Circular Road, D.I. Khan'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    {formatCurrency(appointment.fee_amount || 1000)}
+                  </span>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${appointment.payment_status === 'PAID'
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                     : 'bg-amber-50 border-amber-200 text-amber-800'
-                  }`}>
-                  {appointment.payment_status === 'PAID' ? 'Paid' : 'Pending cash'}
-                </span>
+                    }`}>
+                    {appointment.payment_status === 'PAID' ? 'Paid' : 'Pending cash'}
+                  </span>
+                </div>
+
+                {isCompleted ? (
+                  <div className="bg-emerald-50/80 border border-emerald-100 rounded-xl p-3.5 text-xs text-emerald-900 leading-relaxed">
+                    <strong className="block mb-1">✓ Consultation Concluded</strong>
+                    You have completed your appointment with {displayDoctor} on {displayDate} at {displayTime}.
+                  </div>
+                ) : isCancelledOrRejected ? (
+                  <div className="bg-rose-50/80 border border-rose-200 rounded-xl p-3.5 text-xs text-rose-900 leading-relaxed">
+                    <strong className="block mb-1 flex items-center gap-1.5 font-bold">
+                      <XCircle className="w-3.5 h-3.5 text-rose-600" /> Appointment {appointment.status === 'REJECTED' ? 'Rejected' : 'Cancelled'}
+                    </strong>
+                    Your appointment with {displayDoctor} has been {appointment.status === 'REJECTED' ? 'rejected' : 'cancelled'}.
+                    {appointment.notes && (
+                      <span className="block mt-1 text-rose-700 font-medium">Reason: {appointment.notes}</span>
+                    )}
+                    <span className="block mt-1 text-slate-500">Please book a new appointment if you still require medical consultation.</span>
+                  </div>
+                ) : isPending ? (
+                  <div className="bg-amber-50/90 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 leading-relaxed space-y-1">
+                    <strong className="block mb-1 flex items-center gap-1.5 font-bold text-amber-950">
+                      <Clock className="w-3.5 h-3.5 text-amber-700" /> Pending Assistant Approval
+                    </strong>
+                    <p>
+                      Try again later. The clinic assistant has not checked your request yet. Please try after some time, or when the assistant approves your request, you will receive a message on your number.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-clinic-50/80 border border-clinic-100 rounded-xl p-3.5 text-xs text-clinic-900 leading-relaxed">
+                    <strong className="block mb-1">Pay cash at clinic reception</strong>
+                    Show this slip on arrival. The receptionist will mark it Paid after collecting your consultation fee.
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="w-full py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <Printer className="w-3.5 h-3.5" /> Save / print digital slip
+                </button>
               </div>
 
-              {isCompleted ? (
-                <div className="bg-emerald-50/80 border border-emerald-100 rounded-xl p-3.5 text-xs text-emerald-900 leading-relaxed">
-                  <strong className="block mb-1">✓ Consultation Concluded</strong>
-                  You have completed your appointment with {displayDoctor} on {displayDate} at {displayTime}.
-                </div>
-              ) : isCancelledOrRejected ? (
-                <div className="bg-rose-50/80 border border-rose-200 rounded-xl p-3.5 text-xs text-rose-900 leading-relaxed">
-                  <strong className="block mb-1 flex items-center gap-1.5 font-bold">
-                    <XCircle className="w-3.5 h-3.5 text-rose-600" /> Appointment {appointment.status === 'REJECTED' ? 'Rejected' : 'Cancelled'}
-                  </strong>
-                  Your appointment with {displayDoctor} has been {appointment.status === 'REJECTED' ? 'rejected' : 'cancelled'}.
-                  {appointment.notes && (
-                    <span className="block mt-1 text-rose-700 font-medium">Reason: {appointment.notes}</span>
+              {/* Visit timeline */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h4 className="text-sm font-bold text-slate-900 mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  Visit timeline
+                </h4>
+                <div className="space-y-4">
+                  {(appointment.status === 'CANCELLED' || appointment.status === 'REJECTED') ? (
+                    [
+                      {
+                        title: 'Slot requested',
+                        sub: 'Reservation submitted by patient',
+                        done: true,
+                        isError: false
+                      },
+                      {
+                        title: appointment.status === 'REJECTED' ? 'Assistant Review: Rejected' : 'Appointment Cancelled',
+                        sub: appointment.notes || (appointment.status === 'REJECTED' ? 'Rejected by clinic receptionist' : 'Appointment cancelled by assistant'),
+                        done: true,
+                        isError: true
+                      }
+                    ].map((step, idx) => (
+                      <div key={step.title} className="flex items-start gap-3 relative">
+                        {idx < 1 && <div className="absolute left-2.5 top-5 w-0.5 h-6 bg-rose-200" />}
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${step.isError
+                            ? 'border-2 border-rose-500 bg-rose-50 text-rose-600'
+                            : 'border-2 border-clinic-600 bg-white text-clinic-700'
+                          }`}>
+                          {step.isError ? <span className="w-2 h-2 rounded-full bg-rose-600" /> : <span className="w-2 h-2 rounded-full bg-clinic-600" />}
+                        </div>
+                        <div>
+                          <p className={`text-xs font-bold leading-none ${step.isError ? 'text-rose-700' : 'text-slate-800'}`}>
+                            {step.title}
+                          </p>
+                          <p className="text-[11px] text-slate-500 mt-1">{step.sub}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    [
+                      {
+                        title: 'Slot held',
+                        sub: 'Temporary reservation complete',
+                        done: true,
+                        active: false
+                      },
+                      {
+                        title: 'Pending assistant approval',
+                        sub: isPending
+                          ? 'Try again later · Assistant has not checked request yet'
+                          : 'Assistant review verified',
+                        done: !isPending,
+                        active: isPending
+                      },
+                      {
+                        title: 'Confirmed',
+                        sub: appointment.status === 'CONFIRMED' || isCompleted
+                          ? 'Digital slip issued'
+                          : 'Awaiting assistant approval',
+                        done: appointment.status === 'CONFIRMED' || isCompleted,
+                        active: false
+                      },
+                      {
+                        title: 'In progress',
+                        sub: 'Doctor consultation',
+                        done: isCompleted,
+                        active: appointment.status === 'IN_CONSULTATION'
+                      },
+                      {
+                        title: 'Completed',
+                        sub: 'Consultation concluded',
+                        done: isCompleted,
+                        active: false
+                      },
+                    ].map((step, idx) => (
+                      <div key={step.title} className="flex items-start gap-3 relative">
+                        {idx < 4 && <div className={`absolute left-2.5 top-5 w-0.5 h-6 ${step.done ? 'bg-clinic-600' : 'bg-slate-200'}`} />}
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${step.done ? 'border-2 border-clinic-600 bg-white text-clinic-700' :
+                          step.active ? 'border-2 border-amber-500 bg-white text-amber-600' :
+                            'border-2 border-slate-200 bg-white text-slate-200'
+                          }`}>
+                          {step.done ? <span className="w-2 h-2 rounded-full bg-clinic-600" /> : step.active ? <span className="w-2 h-2 rounded-full bg-amber-500" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
+                        </div>
+                        <div>
+                          <p className={`text-xs font-bold leading-none ${step.done ? 'text-slate-800' : step.active ? 'text-amber-800' : 'text-slate-400'}`}>
+                            {step.title}
+                          </p>
+                          <p className="text-[11px] text-slate-400 mt-1" dangerouslySetInnerHTML={{ __html: step.sub }} />
+                        </div>
+                      </div>
+                    ))
                   )}
-                  <span className="block mt-1 text-slate-500">Please book a new appointment if you still require medical consultation.</span>
                 </div>
-              ) : isPending ? (
-                <div className="bg-amber-50/90 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 leading-relaxed space-y-1">
-                  <strong className="block mb-1 flex items-center gap-1.5 font-bold text-amber-950">
-                    <Clock className="w-3.5 h-3.5 text-amber-700" /> Pending Assistant Approval
-                  </strong>
-                  <p>
-                    Try again later. The clinic assistant has not checked your request yet. Please try after some time, or when the assistant approves your request, you will receive a message on your number.
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-clinic-50/80 border border-clinic-100 rounded-xl p-3.5 text-xs text-clinic-900 leading-relaxed">
-                  <strong className="block mb-1">Pay cash at clinic reception</strong>
-                  Show this slip on arrival. The receptionist will mark it Paid after collecting your consultation fee.
-                </div>
-              )}
+              </div>
+
+              {/* Clinic directions button */}
+              <button
+                type="button"
+                onClick={() => window.open('https://maps.google.com/?q=Dera+Ismail+Khan+Circular+Road', '_blank')}
+                className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-300 text-clinic-700 font-semibold rounded-xl text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+              >
+                <MapPin className="w-3.5 h-3.5" /> Clinic directions
+              </button>
 
               <button
                 type="button"
-                onClick={() => window.print()}
-                className="w-full py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs transition-colors flex items-center justify-center gap-2"
+                onClick={onBackToDirectory}
+                className="w-full py-2.5 text-slate-500 hover:text-slate-700 text-xs font-medium"
               >
-                <Printer className="w-3.5 h-3.5" /> Save / print digital slip
+                &larr; Back to find a doctor
               </button>
             </div>
-
-            {/* Visit timeline */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-              <h4 className="text-sm font-bold text-slate-900 mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                Visit timeline
-              </h4>
-              <div className="space-y-4">
-                {(appointment.status === 'CANCELLED' || appointment.status === 'REJECTED') ? (
-                  [
-                    {
-                      title: 'Slot requested',
-                      sub: 'Reservation submitted by patient',
-                      done: true,
-                      isError: false
-                    },
-                    {
-                      title: appointment.status === 'REJECTED' ? 'Assistant Review: Rejected' : 'Appointment Cancelled',
-                      sub: appointment.notes || (appointment.status === 'REJECTED' ? 'Rejected by clinic receptionist' : 'Appointment cancelled by assistant'),
-                      done: true,
-                      isError: true
-                    }
-                  ].map((step, idx) => (
-                    <div key={step.title} className="flex items-start gap-3 relative">
-                      {idx < 1 && <div className="absolute left-2.5 top-5 w-0.5 h-6 bg-rose-200" />}
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${
-                        step.isError
-                          ? 'border-2 border-rose-500 bg-rose-50 text-rose-600'
-                          : 'border-2 border-clinic-600 bg-white text-clinic-700'
-                      }`}>
-                        {step.isError ? <span className="w-2 h-2 rounded-full bg-rose-600" /> : <span className="w-2 h-2 rounded-full bg-clinic-600" />}
-                      </div>
-                      <div>
-                        <p className={`text-xs font-bold leading-none ${step.isError ? 'text-rose-700' : 'text-slate-800'}`}>
-                          {step.title}
-                        </p>
-                        <p className="text-[11px] text-slate-500 mt-1">{step.sub}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  [
-                    {
-                      title: 'Slot held',
-                      sub: 'Temporary reservation complete',
-                      done: true,
-                      active: false
-                    },
-                    {
-                      title: 'Pending assistant approval',
-                      sub: isPending
-                        ? 'Try again later · Assistant has not checked request yet'
-                        : 'Assistant review verified',
-                      done: !isPending,
-                      active: isPending
-                    },
-                    {
-                      title: 'Confirmed',
-                      sub: appointment.status === 'CONFIRMED' || isCompleted
-                        ? 'Digital slip issued'
-                        : 'Awaiting assistant approval',
-                      done: appointment.status === 'CONFIRMED' || isCompleted,
-                      active: false
-                    },
-                    {
-                      title: 'In progress',
-                      sub: 'Doctor consultation',
-                      done: isCompleted,
-                      active: appointment.status === 'IN_CONSULTATION'
-                    },
-                    {
-                      title: 'Completed',
-                      sub: 'Consultation concluded',
-                      done: isCompleted,
-                      active: false
-                    },
-                  ].map((step, idx) => (
-                    <div key={step.title} className="flex items-start gap-3 relative">
-                      {idx < 4 && <div className={`absolute left-2.5 top-5 w-0.5 h-6 ${step.done ? 'bg-clinic-600' : 'bg-slate-200'}`} />}
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${step.done ? 'border-2 border-clinic-600 bg-white text-clinic-700' :
-                          step.active ? 'border-2 border-amber-500 bg-white text-amber-600' :
-                            'border-2 border-slate-200 bg-white text-slate-200'
-                        }`}>
-                        {step.done ? <span className="w-2 h-2 rounded-full bg-clinic-600" /> : step.active ? <span className="w-2 h-2 rounded-full bg-amber-500" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />}
-                      </div>
-                      <div>
-                        <p className={`text-xs font-bold leading-none ${step.done ? 'text-slate-800' : step.active ? 'text-amber-800' : 'text-slate-400'}`}>
-                          {step.title}
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-1" dangerouslySetInnerHTML={{ __html: step.sub }} />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Clinic directions button */}
-            <button
-              type="button"
-              onClick={() => window.open('https://maps.google.com/?q=Dera+Ismail+Khan+Circular+Road', '_blank')}
-              className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-300 text-clinic-700 font-semibold rounded-xl text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
-            >
-              <MapPin className="w-3.5 h-3.5" /> Clinic directions
-            </button>
-
-            <button
-              type="button"
-              onClick={onBackToDirectory}
-              className="w-full py-2.5 text-slate-500 hover:text-slate-700 text-xs font-medium"
-            >
-              &larr; Back to find a doctor
-            </button>
-          </div>
           );
         })()}
       </div>
@@ -2453,8 +2451,8 @@ function DoctorProfileModal({
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition-all ${isActive
-                      ? 'border-teal-700 text-teal-800 font-bold'
-                      : 'border-transparent text-slate-500 hover:text-slate-900'
+                    ? 'border-teal-700 text-teal-800 font-bold'
+                    : 'border-transparent text-slate-500 hover:text-slate-900'
                     }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
@@ -2917,7 +2915,7 @@ function DoctorProfileAndBookingView({
           handleCheckEligibility(identToFill);
         }
       }
-    } catch (_) {}
+    } catch (_) { }
   }, [doctor?.id]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -3039,7 +3037,7 @@ function DoctorProfileAndBookingView({
         if (doctorOffDays.includes(weekdayName)) {
           return;
         }
-      } catch {}
+      } catch { }
 
       if (!map[dStr]) map[dStr] = [];
       map[dStr].push(s);
@@ -3527,7 +3525,9 @@ function DoctorProfileAndBookingView({
                 {/* Experience & Satisfaction Grid */}
                 <div className="bg-slate-50/90 rounded-2xl border border-slate-100 p-4 grid grid-cols-2 divide-x divide-slate-200 my-5">
                   <div>
-                    <div className="text-base font-black text-slate-900 font-mono">12 years</div>
+                    <div className="text-base font-black text-slate-900 font-mono">
+                      {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years} years` : '12 years'}
+                    </div>
                     <div className="text-[11px] text-slate-500 font-medium mt-0.5">Clinical experience</div>
                   </div>
                   <div className="pl-4">
@@ -3539,13 +3539,16 @@ function DoctorProfileAndBookingView({
                 {/* About your doctor */}
                 <div className="space-y-3">
                   <h3 className="font-bold text-sm text-slate-900">About your doctor</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                    {doctor.bio || 'Dr. Ayesha provides thoughtful, evidence-based care for adults, with a focus on diabetes, high blood pressure and long-term wellbeing.'}
+                  <p className="text-xs text-slate-600 leading-relaxed font-normal whitespace-pre-line">
+                    {doctor.bio || `${doctor.full_name} provides thoughtful, evidence-based care for adults, with a focus on comprehensive health, treated conditions and long-term wellbeing.`}
                   </p>
 
                   {/* Treatment Tags */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
-                    {['Diabetes care', 'Hypertension', 'General medicine'].map((tag, idx) => (
+                    {((doctor.expertise && doctor.expertise.trim())
+                      ? doctor.expertise.split(',').map((tag: string) => tag.trim()).filter(Boolean)
+                      : ['Diabetes care', 'Hypertension', 'General medicine']
+                    ).map((tag: string, idx: number) => (
                       <span key={idx} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 text-[11px] font-medium bg-slate-50">
                         {tag}
                       </span>
@@ -3755,11 +3758,10 @@ function DoctorProfileAndBookingView({
                           key={d.fullDate}
                           type="button"
                           onClick={() => setSelectedDayDate(d.fullDate)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${
-                            selectedDayDate === d.fullDate
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${selectedDayDate === d.fullDate
                               ? 'bg-[#0f766e] text-white shadow-2xs font-bold'
                               : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-800'
-                          }`}
+                            }`}
                         >
                           <span>{d.weekday} {d.dayNum}</span>
                           <span className={`text-[10px] px-1 rounded-full ${selectedDayDate === d.fullDate ? 'bg-amber-300 text-slate-900' : 'bg-teal-100 text-teal-800'}`}>
@@ -3782,8 +3784,8 @@ function DoctorProfileAndBookingView({
                         type="button"
                         onClick={() => setSelectedDayDate(day.fullDate)}
                         className={`min-w-[62px] flex-shrink-0 md:min-w-0 md:flex-shrink py-2.5 sm:py-3 px-1 rounded-2xl text-center transition-all relative ${isSelected
-                            ? 'bg-[#0f766e] text-white shadow-md ring-2 ring-[#0f766e]/30'
-                            : 'bg-white border border-slate-200 text-slate-700 hover:border-teal-400 hover:bg-teal-50/20'
+                          ? 'bg-[#0f766e] text-white shadow-md ring-2 ring-[#0f766e]/30'
+                          : 'bg-white border border-slate-200 text-slate-700 hover:border-teal-400 hover:bg-teal-50/20'
                           }`}
                       >
                         <span className={`block text-[11px] font-medium ${isSelected ? 'text-teal-100' : 'text-slate-500'}`}>
@@ -3816,8 +3818,8 @@ function DoctorProfileAndBookingView({
                       {selectedDayObj?.isOffDay
                         ? 'Clinic Closed (Weekly Off Day)'
                         : displaySlots.length > 0
-                        ? `${displaySlots.length} slots available`
-                        : '0 slots available'}
+                          ? `${displaySlots.length} slots available`
+                          : '0 slots available'}
                     </span>
                   </div>
 
@@ -3827,22 +3829,20 @@ function DoctorProfileAndBookingView({
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('all')}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
-                          selectedShiftTab === 'all'
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${selectedShiftTab === 'all'
                             ? 'bg-white text-slate-900 shadow-2xs'
                             : 'text-slate-500 hover:text-slate-800'
-                        }`}
+                          }`}
                       >
                         All Shifts ({displaySlots.length})
                       </button>
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('morning')}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${
-                          selectedShiftTab === 'morning'
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${selectedShiftTab === 'morning'
                             ? 'bg-amber-500 text-white shadow-2xs'
                             : 'text-slate-600 hover:text-amber-800'
-                        }`}
+                          }`}
                       >
                         <Sun className="w-3.5 h-3.5" />
                         Morning Shift ({morningSlots.length})
@@ -3850,11 +3850,10 @@ function DoctorProfileAndBookingView({
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('evening')}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${
-                          selectedShiftTab === 'evening'
+                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${selectedShiftTab === 'evening'
                             ? 'bg-indigo-600 text-white shadow-2xs'
                             : 'text-slate-600 hover:text-indigo-800'
-                        }`}
+                          }`}
                       >
                         <Moon className="w-3.5 h-3.5" />
                         Evening Shift ({eveningSlots.length})
@@ -3914,7 +3913,7 @@ function DoctorProfileAndBookingView({
                       <>
                         <p className="text-xs font-semibold text-slate-700">No consultation slots available for {selectedDayObj?.label}</p>
                         <p className="text-[11px] text-slate-400">
-                          {selectedShiftTab !== 'all' 
+                          {selectedShiftTab !== 'all'
                             ? `No slots found for the ${selectedShiftTab} shift. Check other shifts or dates.`
                             : 'Doctor has not scheduled slots for this date or all slots have been cleared.'}
                         </p>
@@ -3935,8 +3934,8 @@ function DoctorProfileAndBookingView({
                             setSelectedTimeSlot(slot.timeLabel);
                           }}
                           className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${isSelected
-                              ? 'bg-[#0f766e] text-white shadow-sm ring-2 ring-[#0f766e]/30'
-                              : isMorning
+                            ? 'bg-[#0f766e] text-white shadow-sm ring-2 ring-[#0f766e]/30'
+                            : isMorning
                               ? 'bg-amber-50/50 border border-amber-200/90 text-amber-950 hover:border-amber-400 hover:bg-amber-50'
                               : 'bg-indigo-50/50 border border-indigo-200/90 text-indigo-950 hover:border-indigo-400 hover:bg-indigo-50'
                             }`}
@@ -3975,8 +3974,8 @@ function DoctorProfileAndBookingView({
                       type="button"
                       onClick={() => setBookingFor('myself')}
                       className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${bookingFor === 'myself'
-                          ? 'bg-white text-slate-900 shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-900'
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
                       <User className="w-3 h-3 text-[#0f766e]" /> Myself
@@ -3985,8 +3984,8 @@ function DoctorProfileAndBookingView({
                       type="button"
                       onClick={() => setBookingFor('someone_else')}
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${bookingFor === 'someone_else'
-                          ? 'bg-white text-slate-900 shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-900'
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
                       Someone else
@@ -4134,8 +4133,8 @@ function DoctorProfileAndBookingView({
                   {isSubmitting
                     ? 'Securing your slot...'
                     : activeSlotsToDisplay.length === 0
-                    ? 'No slots available for this date'
-                    : 'Book appointment →'}
+                      ? 'No slots available for this date'
+                      : 'Book appointment →'}
                 </button>
 
                 <p className="text-[11px] text-slate-400 text-center font-normal pt-1">
@@ -4313,7 +4312,7 @@ function DoctorProfileAndBookingView({
       {showReviewsModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 p-6 md:p-7 relative max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <div>
@@ -4345,22 +4344,20 @@ function DoctorProfileAndBookingView({
               <button
                 type="button"
                 onClick={() => { setReviewModalView('list'); setReviewError(''); }}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                  reviewModalView === 'list'
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${reviewModalView === 'list'
                     ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-500 hover:text-slate-800'
-                }`}
+                  }`}
               >
                 All Reviews ({reviewsSummary?.total_reviews || 0})
               </button>
               <button
                 type="button"
                 onClick={() => { setReviewModalView('write'); setReviewError(''); }}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                  reviewModalView === 'write'
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${reviewModalView === 'write'
                     ? 'bg-[#0f766e] text-white shadow-xs'
                     : 'text-[#0f766e] hover:bg-teal-50/50'
-                }`}
+                  }`}
               >
                 <Star className={`w-3.5 h-3.5 ${reviewModalView === 'write' ? 'fill-white' : 'fill-teal-600'}`} />
                 Mark / Write Review
@@ -4383,11 +4380,10 @@ function DoctorProfileAndBookingView({
                       {[1, 2, 3, 4, 5].map((s) => (
                         <Star
                           key={s}
-                          className={`w-3.5 h-3.5 ${
-                            s <= Math.round(reviewsSummary ? reviewsSummary.average_rating : 5)
+                          className={`w-3.5 h-3.5 ${s <= Math.round(reviewsSummary ? reviewsSummary.average_rating : 5)
                               ? 'fill-amber-500 text-amber-500'
                               : 'text-slate-300'
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>
@@ -4569,16 +4565,14 @@ function DoctorProfileAndBookingView({
                               if (appt.existing_rating) setReviewRating(appt.existing_rating);
                               if (appt.existing_comment) setReviewComment(appt.existing_comment);
                             }}
-                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                              isSelected
+                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${isSelected
                                 ? 'border-[#0f766e] bg-teal-50/70 ring-1 ring-[#0f766e]'
                                 : 'border-slate-200 bg-white hover:border-slate-300'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                                isSelected ? 'border-[#0f766e] bg-[#0f766e]' : 'border-slate-300'
-                              }`}>
+                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${isSelected ? 'border-[#0f766e] bg-[#0f766e]' : 'border-slate-300'
+                                }`}>
                                 {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                               </div>
                               <div>
@@ -4636,11 +4630,10 @@ function DoctorProfileAndBookingView({
                           className="p-1 hover:scale-110 transition-transform cursor-pointer focus:outline-none"
                         >
                           <Star
-                            className={`w-6 h-6 transition-colors ${
-                              s <= (hoverRating || reviewRating)
+                            className={`w-6 h-6 transition-colors ${s <= (hoverRating || reviewRating)
                                 ? 'fill-amber-400 text-amber-400'
                                 : 'text-slate-200 fill-slate-100'
-                            }`}
+                              }`}
                           />
                         </button>
                       ))}
@@ -4681,11 +4674,10 @@ function DoctorProfileAndBookingView({
                               setReviewSelectedTags([...reviewSelectedTags, tag]);
                             }
                           }}
-                          className={`text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all cursor-pointer ${
-                            isSelected
+                          className={`text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all cursor-pointer ${isSelected
                               ? 'bg-teal-50 border-teal-400 text-[#0f766e] font-bold shadow-2xs'
                               : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                          }`}
+                            }`}
                         >
                           {isSelected ? '✓ ' : '+ '}{tag}
                         </button>
@@ -4825,7 +4817,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             setProfileDoctor(match);
           }
         }
-      } catch (_) {}
+      } catch (_) { }
     } catch (err) {
       console.error(err);
     } finally {
@@ -5002,8 +4994,11 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
     return true;
   });
 
-  const spotlightDoctors = filteredDoctors.filter(d => d.is_spotlight);
-  const regularDoctors = filteredDoctors.filter(d => !d.is_spotlight);
+  // Spotlighted doctors appear first at the top, followed by non-spotlighted doctors
+  const sortedDoctors = [...filteredDoctors].sort((a, b) => {
+    if (a.is_spotlight === b.is_spotlight) return 0;
+    return a.is_spotlight ? -1 : 1;
+  });
 
   // Group slots by date in Asia/Karachi (strictly FUTURE slots and days)
   const slotsByDate: Record<string, SlotData[]> = {};
@@ -5119,7 +5114,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             loading="eager"
           />
           {/* Broad, soft linear gradient wash matching container background (#f0f6f3) */}
-          <div 
+          <div
             className="absolute inset-y-0 left-0 w-full sm:w-1/2 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/90 sm:via-[#f0f6f3]/80 to-transparent pointer-events-none"
           />
         </div>
@@ -5165,7 +5160,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
 
         {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop >= 1024px) ── */}
         {/* Moved rightwards near patient so the bottom edge touches the subject's mouth level */}
-        <div 
+        <div
           className="absolute z-10 pointer-events-auto hidden lg:block -translate-x-1/2 select-none"
           style={{
             left: '77%',
@@ -5275,11 +5270,10 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                     setSelectedSpecialty(spec.name);
                     setQuickFilter('all');
                   }}
-                  className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${
-                    isActive
+                  className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
                       ? 'bg-clinic-800 text-white shadow-sm border border-clinic-800 font-bold'
                       : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/90 hover:border-clinic-300 hover:bg-clinic-50/50'
-                  }`}
+                    }`}
                 >
                   <span
                     className="inline-block text-xs mr-1.5 select-none transition-transform group-hover:scale-110"
@@ -5346,15 +5340,14 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             {trackedAppointment && (
               <div className="mt-4 p-4 bg-clinic-900 rounded-xl text-white space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                    trackedAppointment.status?.toUpperCase() === 'COMPLETED'
+                  <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${trackedAppointment.status?.toUpperCase() === 'COMPLETED'
                       ? 'bg-emerald-600 text-white'
                       : trackedAppointment.status?.toUpperCase() === 'CANCELLED' || trackedAppointment.status?.toUpperCase() === 'REJECTED'
                         ? 'bg-rose-600 text-white'
                         : trackedAppointment.status?.toUpperCase() === 'PENDING_ASSISTANT_APPROVAL' || trackedAppointment.status?.toUpperCase() === 'PENDING'
                           ? 'bg-amber-600 text-white'
                           : 'bg-clinic-700'
-                  }`}>
+                    }`}>
                     {trackedAppointment.status}
                   </span>
                   <RealtimeLive />
@@ -5491,11 +5484,10 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                       }
                     }
                   }}
-                  className={`px-3 py-1 rounded-full font-medium whitespace-nowrap transition-all shadow-2xs cursor-pointer ${
-                    isActive
+                  className={`px-3 py-1 rounded-full font-medium whitespace-nowrap transition-all shadow-2xs cursor-pointer ${isActive
                       ? 'bg-slate-800 text-white shadow-xs font-semibold'
                       : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80 border border-slate-200/60'
-                  }`}
+                    }`}
                 >
                   {chip.label}
                 </button>
@@ -5511,46 +5503,26 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
           </div>
         ) : (
           <>
-            {/* Spotlight doctors - 3 Column Grid */}
-            {spotlightDoctors.length > 0 && (
+            {/* Unified Doctors Grid - Spotlighted shown first */}
+            {sortedDoctors.length > 0 && (
               <div className="mb-10">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                   <div>
-                    <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                      Spotlight Specialists in D.I. Khan
+                    <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                      Verified Specialists &amp; Doctors in D.I. Khan
                     </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">PMDC-verified district specialists with verified OPD schedules</p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {sortedDoctors.length} available doctor profiles &middot; PMDC-verified specialists with active clinic schedules
+                    </p>
                   </div>
-                  <span className="text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 shadow-2xs">
-                    ★ {spotlightDoctors.length} Featured
-                  </span>
+                  {sortedDoctors.some(d => d.is_spotlight) && (
+                    <span className="self-start sm:self-auto text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80 shadow-2xs flex items-center gap-1.5">
+                      <span className="text-amber-500">★</span> Featured Specialists First
+                    </span>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {spotlightDoctors.map(doctor => (
-                    <DoctorCard
-                      key={doctor.id}
-                      doctor={doctor}
-                      onBook={openBookingModal}
-                      onProfile={setProfileDoctor}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Regular doctors - 3 Column Grid */}
-            {regularDoctors.length > 0 && (
-              <div className="mb-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                      {spotlightDoctors.length > 0 ? 'All Verified Doctors in D.I. Khan' : 'Verified Doctors in D.I. Khan'}
-                    </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">{regularDoctors.length} available profiles &middot; Sort: next available</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {regularDoctors.map(doctor => (
+                  {sortedDoctors.map(doctor => (
                     <DoctorCard
                       key={doctor.id}
                       doctor={doctor}
@@ -5580,6 +5552,18 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
           </>
         )}
       </div>
+
+      {/* ── AI Health Assistant Chatbot (Roman Urdu & English) ── */}
+      <HealthChatbot
+        doctors={doctors}
+        onBook={openBookingModal}
+        onProfile={setProfileDoctor}
+        onTrack={() => {
+          setShowTrack(true);
+          const el = document.getElementById('doctors-results-grid');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
 
       {/* ── Rich Doctor Profile View Modal ── */}
       {profileDoctor && (
@@ -5671,8 +5655,8 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                                     key={slot.id}
                                     onClick={() => setSelectedSlot(slot)}
                                     className={`py-2 rounded-lg text-[11px] font-semibold border text-center transition-all ${isSelected
-                                        ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm'
-                                        : 'bg-white text-slate-700 border-slate-200 hover:border-clinic-400 hover:bg-clinic-50'
+                                      ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm'
+                                      : 'bg-white text-slate-700 border-slate-200 hover:border-clinic-400 hover:bg-clinic-50'
                                       }`}
                                   >
                                     {fmtTime(slot.start_time)}
@@ -5769,8 +5753,8 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                             }
                           }}
                           className={`w-12 h-14 text-center text-xl font-bold border rounded-xl focus:outline-none focus:ring-2 transition-all ${otpError
-                              ? 'border-rose-400 focus:ring-rose-300 bg-rose-50'
-                              : 'border-slate-300 focus:ring-clinic-400 focus:border-clinic-400 bg-white'
+                            ? 'border-rose-400 focus:ring-rose-300 bg-rose-50'
+                            : 'border-slate-300 focus:ring-clinic-400 focus:border-clinic-400 bg-white'
                             }`}
                           style={{ fontFamily: 'Outfit,monospace' }}
                         />
@@ -5858,8 +5842,8 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
   })();
   return (
     <div className={`group relative bg-white rounded-3xl border transition-all duration-300 ease-out flex flex-col justify-between overflow-hidden ${doctor.is_spotlight
-        ? 'border-amber-200/90 shadow-md shadow-amber-50 hover:shadow-2xl hover:shadow-amber-100/60 hover:border-amber-300 hover:-translate-y-1.5 hover:scale-[1.018]'
-        : 'border-slate-200/90 shadow-sm hover:shadow-2xl hover:shadow-slate-200/70 hover:border-clinic-300 hover:-translate-y-1.5 hover:scale-[1.018]'
+      ? 'border-amber-200/90 shadow-md shadow-amber-50 hover:shadow-2xl hover:shadow-amber-100/60 hover:border-amber-300 hover:-translate-y-1.5 hover:scale-[1.018]'
+      : 'border-slate-200/90 shadow-sm hover:shadow-2xl hover:shadow-slate-200/70 hover:border-clinic-300 hover:-translate-y-1.5 hover:scale-[1.018]'
       }`}>
       {/* Subtle luxury ambient glow for spotlight cards */}
       {doctor.is_spotlight && (
@@ -6243,7 +6227,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     localStorage.removeItem('assistant_token');
     localStorage.removeItem('assistant_selected_doctor_id');
     localStorage.removeItem('token');
-    try { sessionStorage.clear(); } catch (_) {}
+    try { sessionStorage.clear(); } catch (_) { }
     setToken('');
     setMyDoctors([]);
     setSelectedDoctorId('');
@@ -6382,7 +6366,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       if (!isNaN(d.getTime())) {
         return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
       }
-    } catch {}
+    } catch { }
     return '';
   };
 
@@ -7149,11 +7133,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 setDeskTab('pos');
                 fetchPosDays(selectedDoctorId);
               }}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-xs ${
-                deskTab === 'pos'
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-xs ${deskTab === 'pos'
                   ? 'bg-emerald-700 text-white shadow-sm ring-2 ring-emerald-300'
                   : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
-              }`}
+                }`}
               title="Open POS / Walk-in patient booking desk"
             >
               <PlusCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
@@ -7297,8 +7280,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       key={f}
                       onClick={() => setStatusFilter(f)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex-shrink-0 ${statusFilter === f
-                          ? 'bg-clinic-700 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-clinic-700 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                     >
                       {f === 'ALL' ? 'All Patients' : f === 'PENDING' ? 'Pending Approval' : f === 'CONFIRMED' ? 'Confirmed' : 'Paid'}
@@ -7308,11 +7291,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <button
                     type="button"
                     onClick={() => setIncludeArchived(!includeArchived)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${
-                      includeArchived
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
                         ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
                         : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Past closed consultations from previous days are automatically hidden to keep your reception desk clean."
                   >
                     <Archive className="w-3.5 h-3.5 text-slate-500" />
@@ -7326,11 +7308,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       setCallingOrderActive(next);
                       localStorage.setItem('asst_calling_order', String(next));
                     }}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${
-                      callingOrderActive
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${callingOrderActive
                         ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm ring-1 ring-emerald-400'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
+                      }`}
                     title="Arrange appointments in live calling sequence (Today's Time & Token order). Completed visits automatically move down."
                   >
                     <Clock className="w-3.5 h-3.5" />
@@ -7445,275 +7426,274 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         const canComplete = isConfirmed && isPaid && (isCurrentActive || isTimeOccurred || isCallingStarted);
 
                         return (
-                        <tr key={item.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2.5">
-                              <InitialsAvatar name={item.patient_name || 'Patient'} size="sm" />
-                              <div>
-                                {isCurrentActive && (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider mb-1 shadow-xs animate-pulse">
-                                    📢 Now Calling · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'}
-                                  </span>
-                                )}
-                                {isNextInLineWaiting && (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-600 text-white uppercase tracking-wider mb-1 shadow-xs">
-                                    ⏱️ 1st To Call · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'} · Opens at {callingShiftInfo.callingStartTimeStr}
-                                  </span>
-                                )}
-                                {callingOrderActive && idx > 0 && isConfirmed && isToday && (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-1">
-                                    Line #{idx + 1} · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || (idx + 1)}
-                                  </span>
-                                )}
-                                <p className="font-bold text-slate-900">{item.patient_name || 'Unnamed Patient'}</p>
-
-                                <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                                  <Phone className="w-3 h-3 text-slate-400" />
-                                  {item.patient_phone || 'No phone'}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-1.5 font-bold text-slate-800 text-xs">
-                                <Calendar className="w-3.5 h-3.5 text-clinic-700 flex-shrink-0" />
-                                <span>{item.slot_date || formatSlotDateTime(item.slot_start || (item as any).start_time, item.slip_number, item.created_at).date}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-slate-500 font-medium text-[11px]">
-                                <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                                <span>{item.slot_time || formatSlotDateTime(item.slot_start || (item as any).start_time, item.slip_number, item.created_at).time}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <StatusPill status={item.status} />
-                          </td>
-                          <td className="py-3 px-4 font-mono font-semibold">
-                            {item.slip_number ? (
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                {(() => {
-                                  const isInactive = item.status === 'CANCELLED' || item.status === 'REJECTED';
-                                  const qNum = parseQueueNumberFromSlip(item.slip_number, item.token_number);
-                                  if (isInactive) {
-                                    return (
-                                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-sans font-medium">
-                                        No Queue
-                                      </span>
-                                    );
-                                  }
-                                  if (qNum) {
-                                    return (
-                                      <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold font-sans">
-                                        Token #{qNum}
-                                      </span>
-                                    );
-                                  }
-                                  return null;
-                                })()}
-                                <span className="px-2 py-0.5 rounded-lg bg-clinic-50 border border-clinic-200 text-clinic-800 text-[11px] font-bold">
-                                  #{item.slip_number}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 italic text-[11px]">Awaiting Approval</span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${item.payment_status === 'PAID' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                              }`}>
-                              {item.payment_status === 'PAID' ? '✓ PAID' : 'PENDING CASH'} ({formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)})
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-4 text-right">
-                            {/* 1. COMPLETED status chip */}
-                            {item.status === 'COMPLETED' && (
-                              <div className="flex justify-end">
-                                <span className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 inline-flex items-center gap-1.5 shadow-2xs">
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span>Completed</span>
-                                </span>
-                              </div>
-                            )}
-
-                            {/* 2. CANCELLED status chip */}
-                            {item.status === 'CANCELLED' && (
-                              <div className="flex justify-end">
-                                <span className="h-7 px-2.5 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-400 border border-slate-200 inline-flex items-center gap-1.5">
-                                  <XCircle className="w-3.5 h-3.5 text-slate-400" />
-                                  <span>Cancelled</span>
-                                </span>
-                              </div>
-                            )}
-
-                            {/* 3. REJECTED status chip */}
-                            {item.status === 'REJECTED' && (
-                              <div className="flex justify-end">
-                                <span className="h-7 px-2.5 rounded-lg text-[11px] font-medium bg-rose-50 text-rose-500 border border-rose-200 inline-flex items-center gap-1.5">
-                                  <XCircle className="w-3.5 h-3.5 text-rose-400" />
-                                  <span>Rejected</span>
-                                </span>
-                              </div>
-                            )}
-
-                            {/* 4. Active appointment: Up-and-Down 2-Tier Layout */}
-                            {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
-                              <div className="flex flex-col items-end gap-1.5">
-                                {/* Top Line: Primary Actions */}
-                                <div className="flex items-center justify-end gap-1.5">
-                                  {/* PENDING: Reject + Issue Slip */}
-                                  {(item.status === 'PENDING_ASSISTANT_APPROVAL' || item.status === 'pending') && (
-                                    <>
-                                      <button
-                                        type="button"
-                                        disabled={Boolean(appointmentActionLoading)}
-                                        onClick={() => handleReject(item.id)}
-                                        className="h-7 px-2.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 hover:border-rose-300 rounded-lg text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
-                                        title="Reject appointment request"
-                                      >
-                                        {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'reject' ? (
-                                          <>
-                                            <Loader2 className="w-3 h-3 animate-spin text-rose-600" />
-                                            <span>Rejecting...</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <X className="w-3 h-3 text-rose-500" />
-                                            <span>Reject</span>
-                                          </>
-                                        )}
-                                      </button>
-
-                                      <button
-                                        type="button"
-                                        disabled={Boolean(appointmentActionLoading)}
-                                        onClick={() => handleApprove(item.id)}
-                                        className="h-7 px-3 bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900 text-white rounded-lg text-[11px] font-bold shadow-xs hover:shadow-sm transition-all inline-flex items-center gap-1.5 disabled:opacity-50"
-                                        title="Approve and issue digital appointment slip"
-                                      >
-                                        {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'approve' ? (
-                                          <>
-                                            <Loader2 className="w-3 h-3 animate-spin text-white" />
-                                            <span>Issuing...</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                                            <span>Issue Slip</span>
-                                          </>
-                                        )}
-                                      </button>
-                                    </>
+                          <tr key={item.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-2.5">
+                                <InitialsAvatar name={item.patient_name || 'Patient'} size="sm" />
+                                <div>
+                                  {isCurrentActive && (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider mb-1 shadow-xs animate-pulse">
+                                      📢 Now Calling · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'}
+                                    </span>
                                   )}
+                                  {isNextInLineWaiting && (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-600 text-white uppercase tracking-wider mb-1 shadow-xs">
+                                      ⏱️ 1st To Call · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'} · Opens at {callingShiftInfo.callingStartTimeStr}
+                                    </span>
+                                  )}
+                                  {callingOrderActive && idx > 0 && isConfirmed && isToday && (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-1">
+                                      Line #{idx + 1} · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || (idx + 1)}
+                                    </span>
+                                  )}
+                                  <p className="font-bold text-slate-900">{item.patient_name || 'Unnamed Patient'}</p>
 
-                                  {/* CONFIRMED: Mark Paid + Complete / Upcoming Slot */}
-                                  {isConfirmed && (
-                                    <>
-                                      {item.payment_status === 'PENDING_CASH' && (
+                                  <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                                    <Phone className="w-3 h-3 text-slate-400" />
+                                    {item.patient_phone || 'No phone'}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 font-bold text-slate-800 text-xs">
+                                  <Calendar className="w-3.5 h-3.5 text-clinic-700 flex-shrink-0" />
+                                  <span>{item.slot_date || formatSlotDateTime(item.slot_start || (item as any).start_time, item.slip_number, item.created_at).date}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-slate-500 font-medium text-[11px]">
+                                  <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                  <span>{item.slot_time || formatSlotDateTime(item.slot_start || (item as any).start_time, item.slip_number, item.created_at).time}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <StatusPill status={item.status} />
+                            </td>
+                            <td className="py-3 px-4 font-mono font-semibold">
+                              {item.slip_number ? (
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  {(() => {
+                                    const isInactive = item.status === 'CANCELLED' || item.status === 'REJECTED';
+                                    const qNum = parseQueueNumberFromSlip(item.slip_number, item.token_number);
+                                    if (isInactive) {
+                                      return (
+                                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-sans font-medium">
+                                          No Queue
+                                        </span>
+                                      );
+                                    }
+                                    if (qNum) {
+                                      return (
+                                        <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold font-sans">
+                                          Token #{qNum}
+                                        </span>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+                                  <span className="px-2 py-0.5 rounded-lg bg-clinic-50 border border-clinic-200 text-clinic-800 text-[11px] font-bold">
+                                    #{item.slip_number}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-slate-400 italic text-[11px]">Awaiting Approval</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${item.payment_status === 'PAID' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                                }`}>
+                                {item.payment_status === 'PAID' ? '✓ PAID' : 'PENDING CASH'} ({formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)})
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-4 text-right">
+                              {/* 1. COMPLETED status chip */}
+                              {item.status === 'COMPLETED' && (
+                                <div className="flex justify-end">
+                                  <span className="h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 inline-flex items-center gap-1.5 shadow-2xs">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Completed</span>
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* 2. CANCELLED status chip */}
+                              {item.status === 'CANCELLED' && (
+                                <div className="flex justify-end">
+                                  <span className="h-7 px-2.5 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-400 border border-slate-200 inline-flex items-center gap-1.5">
+                                    <XCircle className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>Cancelled</span>
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* 3. REJECTED status chip */}
+                              {item.status === 'REJECTED' && (
+                                <div className="flex justify-end">
+                                  <span className="h-7 px-2.5 rounded-lg text-[11px] font-medium bg-rose-50 text-rose-500 border border-rose-200 inline-flex items-center gap-1.5">
+                                    <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                                    <span>Rejected</span>
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* 4. Active appointment: Up-and-Down 2-Tier Layout */}
+                              {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
+                                <div className="flex flex-col items-end gap-1.5">
+                                  {/* Top Line: Primary Actions */}
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    {/* PENDING: Reject + Issue Slip */}
+                                    {(item.status === 'PENDING_ASSISTANT_APPROVAL' || item.status === 'pending') && (
+                                      <>
                                         <button
                                           type="button"
                                           disabled={Boolean(appointmentActionLoading)}
-                                          onClick={() => handleMarkPaid(item.id)}
-                                          className="h-7 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
-                                          title="Record cash collection at desk"
+                                          onClick={() => handleReject(item.id)}
+                                          className="h-7 px-2.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 hover:border-rose-300 rounded-lg text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
+                                          title="Reject appointment request"
                                         >
-                                          {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'paid' ? (
+                                          {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'reject' ? (
                                             <>
-                                              <Loader2 className="w-3 h-3 animate-spin text-emerald-700" />
-                                              <span>Saving...</span>
+                                              <Loader2 className="w-3 h-3 animate-spin text-rose-600" />
+                                              <span>Rejecting...</span>
                                             </>
                                           ) : (
                                             <>
-                                              <CreditCard className="w-3 h-3 text-emerald-600" />
-                                              <span>Mark Paid</span>
+                                              <X className="w-3 h-3 text-rose-500" />
+                                              <span>Reject</span>
                                             </>
                                           )}
                                         </button>
-                                      )}
 
-                                      {canComplete ? (
                                         <button
                                           type="button"
                                           disabled={Boolean(appointmentActionLoading)}
-                                          onClick={() => handleCompleteAppointment(item.id)}
-                                          className={`h-7 px-3 text-white rounded-lg text-[11px] font-bold shadow-xs hover:shadow-sm transition-all inline-flex items-center gap-1.5 disabled:opacity-50 ${
-                                            isCurrentActive
-                                              ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 ring-2 ring-emerald-300 shadow-sm'
-                                              : 'bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900'
-                                          }`}
-                                          title="Mark consultation as completed"
+                                          onClick={() => handleApprove(item.id)}
+                                          className="h-7 px-3 bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900 text-white rounded-lg text-[11px] font-bold shadow-xs hover:shadow-sm transition-all inline-flex items-center gap-1.5 disabled:opacity-50"
+                                          title="Approve and issue digital appointment slip"
                                         >
-                                          {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
+                                          {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'approve' ? (
                                             <>
                                               <Loader2 className="w-3 h-3 animate-spin text-white" />
-                                              <span>Completing...</span>
+                                              <span>Issuing...</span>
                                             </>
                                           ) : (
                                             <>
                                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                                              <span>Complete</span>
+                                              <span>Issue Slip</span>
                                             </>
                                           )}
                                         </button>
-                                      ) : (
-                                        <span
-                                          className="h-7 px-2.5 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-flex items-center gap-1"
-                                          title="Appointment time has not arrived yet"
-                                        >
-                                          <Clock className="w-3 h-3 text-slate-400" />
-                                          <span>Upcoming Slot</span>
-                                        </span>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-
-                                {/* Bottom Line: Secondary Actions (Reschedule & Cancel) */}
-                                <div className="flex items-center justify-end gap-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setReschedItem(item);
-                                      setSelectedNewSlotId('');
-                                      setSelectedNewSlot(null);
-                                      setReschedError('');
-                                      const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
-                                      setReschedSelectedDate(initialDate);
-                                      setDeskTab('smart_resched');
-                                    }}
-                                    className="h-6 px-2 bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 hover:border-sky-300 rounded-md text-[11px] font-medium transition-all inline-flex items-center gap-1 shadow-2xs"
-                                    title="Reschedule appointment to a new slot"
-                                  >
-                                    <Clock className="w-3 h-3 text-sky-600" />
-                                    <span>Reschedule</span>
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    disabled={Boolean(appointmentActionLoading)}
-                                    onClick={() => handleCancelAppointment(item.id)}
-                                    className="h-6 px-2 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-200 rounded-md text-[11px] font-medium transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
-                                    title="Cancel appointment"
-                                  >
-                                    {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
-                                      <>
-                                        <Loader2 className="w-2.5 h-2.5 animate-spin text-rose-600" />
-                                        <span>Cancelling...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <X className="w-3 h-3 text-slate-400" />
-                                        <span>Cancel</span>
                                       </>
                                     )}
-                                  </button>
+
+                                    {/* CONFIRMED: Mark Paid + Complete / Upcoming Slot */}
+                                    {isConfirmed && (
+                                      <>
+                                        {item.payment_status === 'PENDING_CASH' && (
+                                          <button
+                                            type="button"
+                                            disabled={Boolean(appointmentActionLoading)}
+                                            onClick={() => handleMarkPaid(item.id)}
+                                            className="h-7 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-bold transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
+                                            title="Record cash collection at desk"
+                                          >
+                                            {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'paid' ? (
+                                              <>
+                                                <Loader2 className="w-3 h-3 animate-spin text-emerald-700" />
+                                                <span>Saving...</span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <CreditCard className="w-3 h-3 text-emerald-600" />
+                                                <span>Mark Paid</span>
+                                              </>
+                                            )}
+                                          </button>
+                                        )}
+
+                                        {canComplete ? (
+                                          <button
+                                            type="button"
+                                            disabled={Boolean(appointmentActionLoading)}
+                                            onClick={() => handleCompleteAppointment(item.id)}
+                                            className={`h-7 px-3 text-white rounded-lg text-[11px] font-bold shadow-xs hover:shadow-sm transition-all inline-flex items-center gap-1.5 disabled:opacity-50 ${isCurrentActive
+                                                ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 ring-2 ring-emerald-300 shadow-sm'
+                                                : 'bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900'
+                                              }`}
+                                            title="Mark consultation as completed"
+                                          >
+                                            {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
+                                              <>
+                                                <Loader2 className="w-3 h-3 animate-spin text-white" />
+                                                <span>Completing...</span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                                                <span>Complete</span>
+                                              </>
+                                            )}
+                                          </button>
+                                        ) : (
+                                          <span
+                                            className="h-7 px-2.5 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-flex items-center gap-1"
+                                            title="Appointment time has not arrived yet"
+                                          >
+                                            <Clock className="w-3 h-3 text-slate-400" />
+                                            <span>Upcoming Slot</span>
+                                          </span>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+
+                                  {/* Bottom Line: Secondary Actions (Reschedule & Cancel) */}
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReschedItem(item);
+                                        setSelectedNewSlotId('');
+                                        setSelectedNewSlot(null);
+                                        setReschedError('');
+                                        const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
+                                        setReschedSelectedDate(initialDate);
+                                        setDeskTab('smart_resched');
+                                      }}
+                                      className="h-6 px-2 bg-white hover:bg-sky-50 text-sky-700 border border-sky-200 hover:border-sky-300 rounded-md text-[11px] font-medium transition-all inline-flex items-center gap-1 shadow-2xs"
+                                      title="Reschedule appointment to a new slot"
+                                    >
+                                      <Clock className="w-3 h-3 text-sky-600" />
+                                      <span>Reschedule</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      disabled={Boolean(appointmentActionLoading)}
+                                      onClick={() => handleCancelAppointment(item.id)}
+                                      className="h-6 px-2 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-200 rounded-md text-[11px] font-medium transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
+                                      title="Cancel appointment"
+                                    >
+                                      {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
+                                        <>
+                                          <Loader2 className="w-2.5 h-2.5 animate-spin text-rose-600" />
+                                          <span>Cancelling...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <X className="w-3 h-3 text-slate-400" />
+                                          <span>Cancel</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -7788,7 +7768,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${asstShift === sh
                               ? 'bg-clinic-700 text-white shadow-sm'
                               : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                            }`}
+                              }`}
                           >
                             {sh === 'BOTH' ? 'Both Shifts' : sh}
                           </button>
@@ -7802,7 +7782,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <div className={`p-4 rounded-2xl border transition-all ${asstShift === 'MORNING' || asstShift === 'BOTH'
                         ? 'bg-amber-50/60 border-amber-200 shadow-2xs'
                         : 'bg-slate-50/70 border-slate-200 opacity-60'
-                      }`}>
+                        }`}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span className="text-base">🌅</span>
@@ -7814,7 +7794,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstShift === 'MORNING' || asstShift === 'BOTH'
                             ? 'bg-amber-100 text-amber-800'
                             : 'bg-slate-200 text-slate-600'
-                          }`}>
+                            }`}>
                             {asstShift === 'MORNING' || asstShift === 'BOTH' ? 'Active Shift' : 'Inactive'}
                           </span>
                         </div>
@@ -7854,7 +7834,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <div className={`p-4 rounded-2xl border transition-all ${asstShift === 'EVENING' || asstShift === 'BOTH'
                         ? 'bg-indigo-50/60 border-indigo-200 shadow-2xs'
                         : 'bg-slate-50/70 border-slate-200 opacity-60'
-                      }`}>
+                        }`}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
                             <span className="text-base">🌙</span>
@@ -7866,7 +7846,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstShift === 'EVENING' || asstShift === 'BOTH'
                             ? 'bg-indigo-100 text-indigo-800'
                             : 'bg-slate-200 text-slate-600'
-                          }`}>
+                            }`}>
                             {asstShift === 'EVENING' || asstShift === 'BOTH' ? 'Active Shift' : 'Inactive'}
                           </span>
                         </div>
@@ -7939,7 +7919,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all ${asstSlotInterval === mins
                                 ? 'bg-clinic-700 text-white shadow-2xs font-bold'
                                 : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                              }`}
+                                }`}
                             >
                               {mins}m
                             </button>
@@ -7964,33 +7944,30 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <button
                             type="button"
                             onClick={() => setAsstOffDays(['sunday'])}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                              asstOffDays.length === 1 && asstOffDays[0] === 'sunday'
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${asstOffDays.length === 1 && asstOffDays[0] === 'sunday'
                                 ? 'bg-clinic-700 text-white border-clinic-700'
                                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             Sun Off
                           </button>
                           <button
                             type="button"
                             onClick={() => setAsstOffDays(['friday', 'sunday'])}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                              asstOffDays.length === 2 && asstOffDays.includes('friday') && asstOffDays.includes('sunday')
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${asstOffDays.length === 2 && asstOffDays.includes('friday') && asstOffDays.includes('sunday')
                                 ? 'bg-clinic-700 text-white border-clinic-700'
                                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             Fri &amp; Sun Off
                           </button>
                           <button
                             type="button"
                             onClick={() => setAsstOffDays([])}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                              asstOffDays.length === 0
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${asstOffDays.length === 0
                                 ? 'bg-clinic-700 text-white border-clinic-700'
                                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             All 7 Days Open
                           </button>
@@ -8011,16 +7988,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     : [...prev, day.id]
                                 );
                               }}
-                              className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${
-                                isOff
+                              className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
                                   ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
                                   : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
-                              }`}
+                                }`}
                             >
                               <span className="block text-xs font-black">{day.label}</span>
-                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${
-                                isOff ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-950'
-                              }`}>
+                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${isOff ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-950'
+                                }`}>
                                 {isOff ? 'OFF' : 'OPEN'}
                               </span>
                             </button>
@@ -8258,15 +8233,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               </td>
 
                               <td className="py-3 px-5">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  slot.status === 'available'
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${slot.status === 'available'
                                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                     : slot.status === 'hold'
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                    : slot.status === 'booked'
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
-                                }`}>
+                                      ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                      : slot.status === 'booked'
+                                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                        : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  }`}>
                                   {slot.status === 'available' && '● Available'}
                                   {slot.status === 'hold' && '⏳ In Review'}
                                   {slot.status === 'booked' && '✓ Booked'}
@@ -8505,11 +8479,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <span className="text-slate-400">Consultation fee</span>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900">{formatCurrency(reschedItem.fee_amount || currentDoctor?.fee_clinic || 1000)}</span>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                              reschedItem.payment_status === 'PAID'
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${reschedItem.payment_status === 'PAID'
                                 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                                 : 'bg-amber-50 text-amber-800 border border-amber-200'
-                            }`}>
+                              }`}>
                               {reschedItem.payment_status === 'PAID' ? 'CASH PAID' : 'PENDING CASH'}
                             </span>
                           </div>
@@ -8608,11 +8581,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   setSelectedNewSlot(null);
                                   setReschedError('');
                                 }}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all text-center ${
-                                  reschedSelectedDate === info.date
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all text-center ${reschedSelectedDate === info.date
                                     ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm'
                                     : 'border-slate-200 text-slate-700 hover:bg-slate-50'
-                                }`}
+                                  }`}
                               >
                                 {info.label.split(',')[0]} ({info.count})
                               </button>
@@ -8717,17 +8689,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                           setReschedError('');
                                         }
                                       }}
-                                      className={`p-2.5 rounded-xl border text-center transition-all ${
-                                        isSelected
+                                      className={`p-2.5 rounded-xl border text-center transition-all ${isSelected
                                           ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm font-bold'
                                           : !isAvailable
-                                          ? s.status === 'booked'
-                                            ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
-                                            : s.status === 'hold'
-                                            ? 'bg-amber-50/70 border-amber-200 text-amber-800 cursor-not-allowed opacity-75'
-                                            : 'bg-rose-50 border-rose-200 text-rose-700 cursor-not-allowed opacity-60'
-                                          : 'bg-white border-slate-200 text-slate-800 hover:border-clinic-500 hover:bg-clinic-50/80 cursor-pointer'
-                                      }`}
+                                            ? s.status === 'booked'
+                                              ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                                              : s.status === 'hold'
+                                                ? 'bg-amber-50/70 border-amber-200 text-amber-800 cursor-not-allowed opacity-75'
+                                                : 'bg-rose-50 border-rose-200 text-rose-700 cursor-not-allowed opacity-60'
+                                            : 'bg-white border-slate-200 text-slate-800 hover:border-clinic-500 hover:bg-clinic-50/80 cursor-pointer'
+                                        }`}
                                     >
                                       <span className="text-xs font-semibold block">{timeLabel}</span>
                                       <span className="text-[10px] opacity-80 block mt-0.5">
@@ -8762,11 +8733,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           </p>
                         </div>
 
-                        <div className={`p-4 rounded-xl border transition-all ${
-                          selectedNewSlot
+                        <div className={`p-4 rounded-xl border transition-all ${selectedNewSlot
                             ? 'bg-clinic-50/90 border-clinic-300'
                             : 'bg-amber-50/60 border-amber-200'
-                        }`}>
+                          }`}>
                           <span className="text-[10px] uppercase tracking-wider text-clinic-700 font-bold block mb-1">
                             PROPOSED NEW SLOT
                           </span>
@@ -9054,29 +9024,27 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 setSelectedPosDate(day.date);
                                 setSelectedPosSlot(null);
                               }}
-                              className={`flex-shrink-0 px-3.5 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                                isSelected
+                              className={`flex-shrink-0 px-3.5 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
                                   ? isOff
                                     ? 'border-rose-500 bg-rose-50/80 ring-2 ring-rose-200 shadow-xs'
                                     : 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-200 shadow-xs'
                                   : isOff
                                     ? 'border-rose-200 bg-rose-50/40 hover:bg-rose-50'
                                     : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300'
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <span className={`text-xs font-bold ${isSelected ? (isOff ? 'text-rose-950' : 'text-emerald-950') : 'text-slate-800'}`}>
                                   {day.label}
                                 </span>
-                                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                                  isOff
+                                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${isOff
                                     ? 'bg-rose-100 text-rose-800 border border-rose-300'
                                     : hasOpen
                                       ? isSelected
                                         ? 'bg-emerald-600 text-white'
                                         : 'bg-emerald-100 text-emerald-800'
                                       : 'bg-slate-200 text-slate-700'
-                                }`}>
+                                  }`}>
                                   {isOff ? 'OFF DAY' : hasOpen ? `${day.available_count} open` : 'Full'}
                                 </span>
                               </div>
@@ -9143,18 +9111,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   key={s.id}
                                   type="button"
                                   onClick={() => setSelectedPosSlot(s)}
-                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
-                                    isSlotSelected
+                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${isSlotSelected
                                       ? 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-emerald-600 shadow-md ring-2 ring-emerald-300'
                                       : 'bg-white hover:bg-emerald-50/50 hover:border-emerald-300 border-slate-200 text-slate-800 shadow-2xs'
-                                  }`}
+                                    }`}
                                 >
                                   <div className="flex items-center justify-between">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold ${
-                                      isSlotSelected
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold ${isSlotSelected
                                         ? 'bg-white text-emerald-800'
                                         : 'bg-emerald-100 text-emerald-800'
-                                    }`}>
+                                      }`}>
                                       Slot #{s.daily_slot_number}
                                     </span>
                                     <span className={`text-[10px] font-semibold ${isSlotSelected ? 'text-emerald-100' : 'text-slate-400'}`}>
@@ -9281,11 +9247,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
 
                     {/* Selected Slot Recap Banner */}
-                    <div className={`p-3 rounded-xl border transition-all ${
-                      selectedPosSlot
+                    <div className={`p-3 rounded-xl border transition-all ${selectedPosSlot
                         ? 'bg-emerald-50/70 border-emerald-300'
                         : 'bg-slate-50 border-slate-200 text-slate-400'
-                    }`}>
+                      }`}>
                       <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-500 mb-0.5">
                         Selected Consultation Slot:
                       </span>
@@ -9353,11 +9318,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <button
                             type="button"
                             onClick={() => setPosPaymentMode('PENDING_CASH')}
-                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                              posPaymentMode === 'PENDING_CASH'
+                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${posPaymentMode === 'PENDING_CASH'
                                 ? 'bg-amber-50 border-amber-300 ring-1 ring-amber-400 text-amber-900'
                                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             <span className="block font-bold text-xs">Pay at Calling Time</span>
                             <span className="text-[10px] text-slate-500">Collect fee when called</span>
@@ -9365,11 +9329,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <button
                             type="button"
                             onClick={() => setPosPaymentMode('PAID')}
-                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                              posPaymentMode === 'PAID'
+                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${posPaymentMode === 'PAID'
                                 ? 'bg-emerald-50 border-emerald-300 ring-1 ring-emerald-400 text-emerald-900'
                                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             <span className="block font-bold text-xs">Paid Right Now (POS)</span>
                             <span className="text-[10px] text-slate-500">Cash collected at desk</span>
@@ -9519,11 +9482,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Payment Status:</span>
-                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
-                        posSuccessReceipt.payment_status === 'PAID'
+                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${posSuccessReceipt.payment_status === 'PAID'
                           ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-amber-100 text-amber-800'
-                      }`}>
+                        }`}>
                         {posSuccessReceipt.payment_status === 'PAID' ? '✓ PAID IN CASH' : 'PAY AT CALLING TIME'}
                       </span>
                     </div>
@@ -9694,6 +9656,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [editShift, setEditShift] = useState('BOTH');
   const [editAddress, setEditAddress] = useState('');
   const [editMapsUrl, setEditMapsUrl] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [editExpertise1, setEditExpertise1] = useState('');
+  const [editExpertise2, setEditExpertise2] = useState('');
+  const [editExpertise3, setEditExpertise3] = useState('');
+  const [editExpYears, setEditExpYears] = useState<number>(10);
   const [profileMsg, setProfileMsg] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -9746,7 +9713,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const handleSignOut = () => {
     localStorage.removeItem('doctor_token');
     localStorage.removeItem('token');
-    try { sessionStorage.clear(); } catch (_) {}
+    try { sessionStorage.clear(); } catch (_) { }
     setToken('');
     setDoctorProfile(null);
     setAppointments([]);
@@ -9798,6 +9765,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             setEditShift(profile.shift || 'BOTH');
             setEditAddress(profile.clinic_address || '');
             setEditMapsUrl(profile.google_maps_url || '');
+            setEditBio(profile.bio || '');
+            const expParts = (profile.expertise || '').split(',').map((s: string) => s.trim());
+            setEditExpertise1(expParts[0] || '');
+            setEditExpertise2(expParts[1] || '');
+            setEditExpertise3(expParts[2] || '');
+            setEditExpYears(profile.experience_years !== undefined && profile.experience_years !== null ? Number(profile.experience_years) : 10);
 
             const ms = parse24to12(profile.morning_start || '09:00');
             setMorningStartHour(ms.hour);
@@ -10552,6 +10525,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       const morning_end = format12to24(morningEndHour, morningEndMin, morningEndPeriod);
       const evening_start = format12to24(eveningStartHour, eveningStartMin, eveningStartPeriod);
       const evening_end = format12to24(eveningEndHour, eveningEndMin, eveningEndPeriod);
+      const expList = [editExpertise1.trim(), editExpertise2.trim(), editExpertise3.trim()].filter(Boolean);
+      const expertisePayload = expList.join(', ');
 
       await apiFetch('/doctor/profile', {
         method: 'PUT',
@@ -10564,7 +10539,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           morning_start,
           morning_end,
           evening_start,
-          evening_end
+          evening_end,
+          bio: editBio.trim(),
+          expertise: expertisePayload,
+          experience_years: Number(editExpYears)
         })
       });
       setProfileMsg('✓ Clinic profile updated successfully!');
@@ -10717,11 +10695,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   key={tab}
                   onClick={() => setActivePortalTab(tab as any)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
-                    activePortalTab === tab
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap flex-shrink-0 ${activePortalTab === tab
                       ? 'text-white shadow-md'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-white/70'
-                  }`}
+                    }`}
                   style={activePortalTab === tab ? { background: 'linear-gradient(135deg, #1a6359, #143d38)' } : {}}
                 >
                   {label}
@@ -10771,8 +10748,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     type="button"
                     onClick={() => setTimeframe('today')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'today'
-                        ? 'bg-clinic-700 text-white shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      ? 'bg-clinic-700 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
                   >
                     <span>Today</span>
@@ -10787,8 +10764,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     type="button"
                     onClick={() => setTimeframe('week')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'week'
-                        ? 'bg-clinic-700 text-white shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      ? 'bg-clinic-700 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
                   >
                     <span>This Week</span>
@@ -10803,8 +10780,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     type="button"
                     onClick={() => setTimeframe('month')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'month'
-                        ? 'bg-clinic-700 text-white shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      ? 'bg-clinic-700 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
                   >
                     <span>This Month</span>
@@ -10819,8 +10796,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     type="button"
                     onClick={() => setTimeframe('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'all'
-                        ? 'bg-clinic-700 text-white shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      ? 'bg-clinic-700 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                       }`}
                   >
                     <span>All</span>
@@ -10965,8 +10942,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => setApptStatusFilter(st)}
                         className={`px-3 py-1.5 rounded-lg font-semibold text-[11px] transition-all whitespace-nowrap flex-shrink-0 ${apptStatusFilter === st
-                            ? 'text-white shadow-sm'
-                            : 'text-slate-500 hover:bg-slate-100/80'
+                          ? 'text-white shadow-sm'
+                          : 'text-slate-500 hover:bg-slate-100/80'
                           }`}
                         style={apptStatusFilter === st ? { background: 'linear-gradient(135deg, #1a6359, #143d38)' } : {}}
                       >
@@ -10978,11 +10955,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     <button
                       type="button"
                       onClick={() => setIncludeArchived(!includeArchived)}
-                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${
-                        includeArchived
+                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
                           ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Past closed consultations from previous days are automatically hidden to keep your daily active queue clean."
                     >
                       <Archive className="w-3.5 h-3.5 text-slate-500" />
@@ -10996,11 +10972,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         setCallingOrderActive(next);
                         localStorage.setItem('doc_calling_order', String(next));
                       }}
-                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${
-                        callingOrderActive
+                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${callingOrderActive
                           ? 'bg-emerald-600 border-emerald-500 text-white ring-1 ring-emerald-300'
                           : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                      }`}
+                        }`}
                       title="Arrange appointments in live calling sequence (Today's Time & Token order). Completed visits automatically move down."
                     >
                       <Clock className="w-3.5 h-3.5" />
@@ -11152,120 +11127,120 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   <p className="font-bold text-slate-900">{appt.patient_name || 'Walk-in Patient'}</p>
 
                                 </td>
-                              <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px]">{appt.patient_phone || 'N/A'}</td>
-                              <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] font-semibold">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  {(() => {
-                                    const isInactive = appt.status === 'CANCELLED' || appt.status === 'REJECTED';
-                                    const qNum = parseQueueNumberFromSlip(appt.slip_number, appt.token_number);
-                                    if (isInactive) {
-                                      return (
-                                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-sans font-medium">
-                                          No Queue
-                                        </span>
-                                      );
-                                    }
-                                    if (qNum) {
-                                      return (
-                                        <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-bold font-sans">
-                                          Queue #{qNum}
-                                        </span>
-                                      );
-                                    }
-                                    return null;
-                                  })()}
-                                  <span className="text-[11px] text-slate-600 font-mono font-medium">
-                                    {appt.slip_number || `SLIP-${appt.id.slice(0, 6).toUpperCase()}`}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-3.5 px-5">
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${isDone ? 'bg-emerald-100 text-emerald-800' :
+                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px]">{appt.patient_phone || 'N/A'}</td>
+                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] font-semibold">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    {(() => {
+                                      const isInactive = appt.status === 'CANCELLED' || appt.status === 'REJECTED';
+                                      const qNum = parseQueueNumberFromSlip(appt.slip_number, appt.token_number);
+                                      if (isInactive) {
+                                        return (
+                                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-sans font-medium">
+                                            No Queue
+                                          </span>
+                                        );
+                                      }
+                                      if (qNum) {
+                                        return (
+                                          <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-bold font-sans">
+                                            Queue #{qNum}
+                                          </span>
+                                        );
+                                      }
+                                      return null;
+                                    })()}
+                                    <span className="text-[11px] text-slate-600 font-mono font-medium">
+                                      {appt.slip_number || `SLIP-${appt.id.slice(0, 6).toUpperCase()}`}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="py-3.5 px-5">
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${isDone ? 'bg-emerald-100 text-emerald-800' :
                                     isCancelled ? 'bg-rose-100 text-rose-800' :
                                       appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800' :
                                         'bg-amber-100 text-amber-800'
-                                  }`}>
-                                  {appt.status}
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-5">
-                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
-                                  }`}>
-                                  {appt.payment_status || 'PENDING'}
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-5 text-right space-x-1.5 whitespace-nowrap">
-                                {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && appt.payment_status !== 'PAID' && (
-                                  <button
-                                    type="button"
-                                    disabled={doctorMarkPaidLoading === appt.id}
-                                    onClick={() => handleDoctorMarkPaid(appt.id)}
-                                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
-                                    title="Click to record consultation fee as PAID"
-                                  >
-                                    {doctorMarkPaidLoading === appt.id ? (
-                                      <>
-                                        <Loader2 className="w-3 h-3 animate-spin text-emerald-700" />
-                                        <span>Saving...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <CreditCard className="w-3 h-3 text-emerald-600" />
-                                        <span>Mark as Paid</span>
-                                      </>
-                                    )}
-                                  </button>
-                                )}
-                                {!isDone && !isCancelled && canDoctorComplete(appt, isCurrentActive) && (
-                                  <button
-                                    type="button"
-                                    onClick={() => { setSelectedAppt(appt); }}
-                                    className={`px-3 py-1 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm ${isCurrentActive ? 'bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-300' : 'bg-clinic-700 hover:bg-clinic-800'}`}
-                                    title="Mark consultation as completed"
-                                  >
-                                    ✓ Complete
-                                  </button>
-                                )}
-                                {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && !canDoctorComplete(appt, isCurrentActive) && (
-                                  <span
-                                    className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-block align-middle"
-                                    title="Appointment time has not arrived yet. Doctor can mark as complete once scheduled slot time has passed or when patient is active."
-                                  >
-                                    Upcoming Slot
+                                    }`}>
+                                    {appt.status}
                                   </span>
-                                )}
+                                </td>
+                                <td className="py-3.5 px-5">
+                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                    }`}>
+                                    {appt.payment_status || 'PENDING'}
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-5 text-right space-x-1.5 whitespace-nowrap">
+                                  {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && appt.payment_status !== 'PAID' && (
+                                    <button
+                                      type="button"
+                                      disabled={doctorMarkPaidLoading === appt.id}
+                                      onClick={() => handleDoctorMarkPaid(appt.id)}
+                                      className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                                      title="Click to record consultation fee as PAID"
+                                    >
+                                      {doctorMarkPaidLoading === appt.id ? (
+                                        <>
+                                          <Loader2 className="w-3 h-3 animate-spin text-emerald-700" />
+                                          <span>Saving...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CreditCard className="w-3 h-3 text-emerald-600" />
+                                          <span>Mark as Paid</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  )}
+                                  {!isDone && !isCancelled && canDoctorComplete(appt, isCurrentActive) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => { setSelectedAppt(appt); }}
+                                      className={`px-3 py-1 text-white font-semibold rounded-lg text-xs transition-colors shadow-sm ${isCurrentActive ? 'bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-300' : 'bg-clinic-700 hover:bg-clinic-800'}`}
+                                      title="Mark consultation as completed"
+                                    >
+                                      ✓ Complete
+                                    </button>
+                                  )}
+                                  {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && !canDoctorComplete(appt, isCurrentActive) && (
+                                    <span
+                                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-block align-middle"
+                                      title="Appointment time has not arrived yet. Doctor can mark as complete once scheduled slot time has passed or when patient is active."
+                                    >
+                                      Upcoming Slot
+                                    </span>
+                                  )}
 
-                                {!isDone && !isCancelled && appt.status?.toUpperCase().includes('PENDING') && (
-                                  <span
-                                    className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 inline-block align-middle"
-                                    title="Awaiting reception/assistant desk approval"
-                                  >
-                                    Awaiting Desk
-                                  </span>
-                                )}
-                                {!isDone && !isCancelled && (
+                                  {!isDone && !isCancelled && appt.status?.toUpperCase().includes('PENDING') && (
+                                    <span
+                                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 inline-block align-middle"
+                                      title="Awaiting reception/assistant desk approval"
+                                    >
+                                      Awaiting Desk
+                                    </span>
+                                  )}
+                                  {!isDone && !isCancelled && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCancelAppointment(appt.id)}
+                                      className="px-2.5 py-1 border border-rose-300 hover:bg-rose-50 text-rose-700 font-semibold rounded-lg text-[11px] transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
-                                    onClick={() => handleCancelAppointment(appt.id)}
-                                    className="px-2.5 py-1 border border-rose-300 hover:bg-rose-50 text-rose-700 font-semibold rounded-lg text-[11px] transition-colors"
+                                    onClick={() => setSelectedAppt(appt)}
+                                    className="px-2.5 py-1 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors"
                                   >
-                                    Cancel
+                                    Details
                                   </button>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedAppt(appt)}
-                                  className="px-2.5 py-1 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors"
-                                >
-                                  Details
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </>
                 )}
               </div>
@@ -11317,8 +11292,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             type="button"
                             onClick={() => setSelectedShift(sh)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedShift === sh
-                                ? 'bg-clinic-700 text-white shadow-sm'
-                                : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'bg-clinic-700 text-white shadow-sm'
+                              : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
                               }`}
                           >
                             {sh === 'BOTH' ? 'Both Shifts' : sh}
@@ -11331,8 +11306,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Morning Shift Configuration */}
                       <div className={`p-4 rounded-2xl border transition-all ${selectedShift === 'MORNING' || selectedShift === 'BOTH'
-                          ? 'bg-amber-50/60 border-amber-200 shadow-2xs'
-                          : 'bg-slate-50/70 border-slate-200 opacity-60'
+                        ? 'bg-amber-50/60 border-amber-200 shadow-2xs'
+                        : 'bg-slate-50/70 border-slate-200 opacity-60'
                         }`}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
@@ -11343,8 +11318,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             </div>
                           </div>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedShift === 'MORNING' || selectedShift === 'BOTH'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-slate-200 text-slate-600'
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-slate-200 text-slate-600'
                             }`}>
                             {selectedShift === 'MORNING' || selectedShift === 'BOTH' ? 'Active Shift' : 'Inactive'}
                           </span>
@@ -11384,8 +11359,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                       {/* Evening Shift Configuration */}
                       <div className={`p-4 rounded-2xl border transition-all ${selectedShift === 'EVENING' || selectedShift === 'BOTH'
-                          ? 'bg-indigo-50/60 border-indigo-200 shadow-2xs'
-                          : 'bg-slate-50/70 border-slate-200 opacity-60'
+                        ? 'bg-indigo-50/60 border-indigo-200 shadow-2xs'
+                        : 'bg-slate-50/70 border-slate-200 opacity-60'
                         }`}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
@@ -11396,8 +11371,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             </div>
                           </div>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedShift === 'EVENING' || selectedShift === 'BOTH'
-                              ? 'bg-indigo-100 text-indigo-800'
-                              : 'bg-slate-200 text-slate-600'
+                            ? 'bg-indigo-100 text-indigo-800'
+                            : 'bg-slate-200 text-slate-600'
                             }`}>
                             {selectedShift === 'EVENING' || selectedShift === 'BOTH' ? 'Active Shift' : 'Inactive'}
                           </span>
@@ -11506,15 +11481,15 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                     <div>
                       <label className="text-xs font-semibold text-slate-600 block mb-1.5">Consultation interval per slot</label>
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                      <div className="grid grid-cols-5 gap-2">
                         {[5, 10, 15, 20, 30].map((mins) => (
                           <button
                             key={mins}
                             type="button"
                             onClick={() => setSlotInterval(mins)}
                             className={`py-2 text-xs font-semibold rounded-xl border text-center transition-all ${slotInterval === mins
-                                ? 'bg-clinic-50 border-clinic-600 text-clinic-800 font-bold shadow-sm'
-                                : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                              ? 'bg-clinic-50 border-clinic-600 text-clinic-800 font-bold shadow-sm'
+                              : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                               }`}
                           >
                             {mins} mins
@@ -11523,7 +11498,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs font-semibold text-slate-600 block mb-1">Shift Windows</label>
                         <input
@@ -11562,33 +11537,30 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           <button
                             type="button"
                             onClick={() => setDocOffDays(['sunday'])}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                              docOffDays.length === 1 && docOffDays[0] === 'sunday'
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${docOffDays.length === 1 && docOffDays[0] === 'sunday'
                                 ? 'bg-clinic-700 text-white border-clinic-700'
                                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             Sun Off
                           </button>
                           <button
                             type="button"
                             onClick={() => setDocOffDays(['friday', 'sunday'])}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                              docOffDays.length === 2 && docOffDays.includes('friday') && docOffDays.includes('sunday')
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${docOffDays.length === 2 && docOffDays.includes('friday') && docOffDays.includes('sunday')
                                 ? 'bg-clinic-700 text-white border-clinic-700'
                                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             Fri &amp; Sun Off
                           </button>
                           <button
                             type="button"
                             onClick={() => setDocOffDays([])}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${
-                              docOffDays.length === 0
+                            className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${docOffDays.length === 0
                                 ? 'bg-clinic-700 text-white border-clinic-700'
                                 : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             All 7 Days Open
                           </button>
@@ -11609,16 +11581,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                     : [...prev, day.id]
                                 );
                               }}
-                              className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${
-                                isOff
+                              className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
                                   ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
                                   : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
-                              }`}
+                                }`}
                             >
                               <span className="block text-xs font-black">{day.label}</span>
-                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${
-                                isOff ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-950'
-                              }`}>
+                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${isOff ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-950'
+                                }`}>
                                 {isOff ? 'OFF' : 'OPEN'}
                               </span>
                             </button>
@@ -11836,7 +11806,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       : `No slots found matching the selected filter criteria (${slotDateFilter !== 'all' ? `Date: ${slotDatesInfo.find(i => i.date === slotDateFilter)?.label || slotDateFilter}` : ''} ${slotStatusFilter !== 'all' ? `Status: ${slotStatusFilter}` : ''}).`}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto touch-scroll max-h-[30rem]">
+                  <div className="overflow-x-auto max-h-[30rem]">
                     <table className="w-full text-xs">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left">
@@ -11910,7 +11880,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               </td>
                               <td className="py-3 px-5">
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${slot.status === 'available' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                                    slot.status === 'hold' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
+                                  slot.status === 'hold' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
                                     slot.status === 'booked' ? 'bg-clinic-100 text-clinic-800 border border-clinic-200' :
                                       'bg-slate-100 text-slate-600 border border-slate-200'
                                   }`}>
@@ -11998,8 +11968,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
           {/* ── Assistants Desk Tab ── */}
           {activePortalTab === 'assistants' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
                   <h3 className="font-bold text-slate-900 text-base">Linked Clinic Receptionists &amp; Assistants</h3>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -12009,7 +11979,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="button"
                   onClick={() => setShowAddAsstModal(true)}
-                  className="w-full sm:w-auto justify-center px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5"
                 >
                   <PlusCircle className="w-4 h-4" />
                   Add Clinic Assistant
@@ -12115,8 +12085,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               type="button"
                               onClick={() => handleCopyPassword(pwd, asst.id)}
                               className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${isCopied
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                 }`}
                             >
                               {isCopied ? (
@@ -12242,7 +12212,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
               {isEditingProfile ? (
                 <form onSubmit={handleSaveProfile} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="font-semibold text-slate-600 block mb-1">Consultation Fee (Rs.)</label>
                       <input
@@ -12254,6 +12224,19 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       />
                     </div>
                     <div>
+                      <label className="font-semibold text-slate-600 block mb-1">Clinical Experience (Years)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={70}
+                        value={editExpYears}
+                        onChange={e => setEditExpYears(Number(e.target.value))}
+                        required
+                        placeholder="e.g. 12"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600"
+                      />
+                    </div>
+                    <div className="col-span-2 sm:col-span-1">
                       <label className="font-semibold text-slate-600 block mb-1">Clinic Shift Pattern</label>
                       <select
                         value={editShift}
@@ -12265,7 +12248,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         <option value="BOTH">BOTH (Morning &amp; Evening Shifts)</option>
                       </select>
                     </div>
-                    <div className="col-span-1 sm:col-span-2">
+                    <div className="col-span-2">
                       <label className="font-semibold text-slate-600 block mb-1">Clinic Address in D.I. Khan</label>
                       <textarea
                         value={editAddress}
@@ -12275,7 +12258,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white"
                       />
                     </div>
-                    <div className="col-span-1 sm:col-span-2">
+                    <div className="col-span-2">
                       <label className="font-semibold text-slate-600 block mb-1">Google Maps URL</label>
                       <input
                         type="url"
@@ -12284,6 +12267,59 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         placeholder="https://maps.google.com/..."
                         className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white"
                       />
+                    </div>
+                    {/* About Doctor / Diagnoses / Treated Diseases */}
+                    <div className="col-span-2">
+                      <label className="font-semibold text-slate-700 block mb-1 flex items-center justify-between">
+                        <span>About Doctor &amp; Treated Diseases / Diagnoses</span>
+                        <span className="text-[11px] text-slate-400 font-normal">Shown publicly on booking page</span>
+                      </label>
+                      <textarea
+                        value={editBio}
+                        onChange={e => setEditBio(e.target.value)}
+                        rows={3}
+                        placeholder="e.g. Dr. Babar provides thoughtful, evidence-based care for adults, with a focus on cardiology, high blood pressure, diabetes and long-term wellbeing."
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600 focus:border-transparent transition-all"
+                      />
+                    </div>
+                    {/* 3 Expertise Boxes */}
+                    <div className="col-span-2">
+                      <label className="font-semibold text-slate-700 block mb-1 flex items-center justify-between">
+                        <span>Doctor Specialties &amp; Clinical Expertise (3 Boxes)</span>
+                        <span className="text-[11px] text-slate-400 font-normal">Shown as badges to patients</span>
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Expertise 1</span>
+                          <input
+                            type="text"
+                            value={editExpertise1}
+                            onChange={e => setEditExpertise1(e.target.value)}
+                            placeholder="e.g. Cardiology"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600"
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Expertise 2</span>
+                          <input
+                            type="text"
+                            value={editExpertise2}
+                            onChange={e => setEditExpertise2(e.target.value)}
+                            placeholder="e.g. Hypertension"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600"
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Expertise 3</span>
+                          <input
+                            type="text"
+                            value={editExpertise3}
+                            onChange={e => setEditExpertise3(e.target.value)}
+                            placeholder="e.g. General Medicine"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <button
@@ -12316,6 +12352,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     <span className="font-bold text-slate-800 text-sm">{formatCurrency(doctorProfile?.fee_clinic)}</span>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <span className="text-slate-400 block text-[11px]">Clinical Experience</span>
+                    <span className="font-bold text-slate-800 text-sm">
+                      {doctorProfile?.experience_years !== undefined && doctorProfile?.experience_years !== null ? `${doctorProfile.experience_years} Years` : '12 Years'}
+                    </span>
+                  </div>
+                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <span className="text-slate-400 block text-[11px]">Operating Shift &amp; Hours</span>
                     <span className="font-bold text-slate-800 text-sm">{doctorProfile?.shift}</span>
                     <span className="text-[11px] text-clinic-700 font-medium block mt-0.5">
@@ -12334,6 +12376,29 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     <span className="text-[11px] text-slate-500 block mt-0.5">
                       Clinic is closed on these days &mdash; slots will not be generated.
                     </span>
+                  </div>
+                  {/* About Doctor Bio View */}
+                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <span className="text-slate-400 block text-[11px] font-semibold">About Doctor &amp; Treated Diseases / Diagnoses</span>
+                    <p className="text-slate-700 text-xs mt-1 leading-relaxed whitespace-pre-line">
+                      {doctorProfile?.bio || (
+                        <span className="text-slate-400 italic">No bio configured yet. Click &quot;Edit Profile Details&quot; to add a description of your treated diseases and clinical diagnoses.</span>
+                      )}
+                    </p>
+                  </div>
+                  {/* Expertise Badges View */}
+                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <span className="text-slate-400 block text-[11px] font-semibold mb-1.5">Doctor Specialties &amp; Clinical Expertise</span>
+                    <div className="flex flex-wrap gap-2">
+                      {((doctorProfile?.expertise && doctorProfile.expertise.trim())
+                        ? doctorProfile.expertise.split(',').map((t: string) => t.trim()).filter(Boolean)
+                        : ['Cardiology', 'Hypertension', 'General medicine']
+                      ).map((t: string, i: number) => (
+                        <span key={i} className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-semibold text-xs shadow-2xs">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <span className="text-slate-400 block text-[11px]">Clinic Address</span>
@@ -12357,7 +12422,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       {/* ── Modal: Add Assistant ── */}
       {showAddAsstModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 Add New Clinic Receptionist
@@ -12417,14 +12482,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="button"
                   onClick={() => setShowAddAsstModal(false)}
-                  className="px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  className="px-3.5 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={asstLoading}
-                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold shadow-sm transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold shadow-sm transition-colors inline-flex items-center gap-1.5"
                 >
                   {asstLoading ? (
                     <>
@@ -12444,7 +12509,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       {/* ── Modal: Reset Assistant Password ── */}
       {resetAsstModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-5 animate-fade-in border border-slate-100">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 animate-fade-in border border-slate-100">
             {/* Header */}
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
@@ -12593,7 +12658,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       {/* ── Modal: Appointment Details / Complete Consultation ── */}
       {selectedAppt && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div>
                 <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -12601,12 +12666,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </h3>
                 <span className="text-xs text-slate-400">Slip #{selectedAppt.slip_number || `SLIP-${selectedAppt.id.slice(0, 6).toUpperCase()}`}</span>
               </div>
-              <button onClick={() => setSelectedAppt(null)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+              <button onClick={() => setSelectedAppt(null)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <span className="text-slate-400 block text-[11px]">Patient Name</span>
                 <span className="font-bold text-slate-800">{selectedAppt.patient_name || 'Walk-in Patient'}</span>
@@ -12665,31 +12730,31 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
             )}
 
-            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-slate-100">
+            <div className="pt-2 flex items-center justify-between border-t border-slate-100">
               {selectedAppt.status?.toUpperCase() !== 'COMPLETED' && selectedAppt.status?.toUpperCase() !== 'CANCELLED' ? (
                 <>
                   <button
                     type="button"
                     onClick={() => handleCancelAppointment(selectedAppt.id)}
-                    className="w-full sm:w-auto px-3 py-2 border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition-colors text-center cursor-pointer"
+                    className="px-3 py-2 border border-rose-300 text-rose-700 hover:bg-rose-50 rounded-xl text-xs font-semibold transition-colors"
                   >
                     Cancel Appointment
                   </button>
-                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 justify-end w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setSelectedAppt(null)}
-                      className="flex-1 sm:flex-none px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                      className="px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50"
                     >
                       Close
                     </button>
                     {selectedAppt.payment_status !== 'PAID' ? (
-                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
                           disabled={Boolean(doctorMarkPaidLoading) || actionLoading}
                           onClick={() => handleDoctorMarkPaid(selectedAppt.id)}
-                          className="flex-1 sm:flex-none px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                          className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                           title="Record cash payment at desk / consultation"
                         >
                           {doctorMarkPaidLoading === selectedAppt.id ? (
@@ -12700,7 +12765,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           ) : (
                             <>
                               <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Mark Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
+                              <span>Mark as Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
                             </>
                           )}
                         </button>
@@ -12708,7 +12773,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           type="button"
                           onClick={() => handleCompleteAppointment(selectedAppt.id, true)}
                           disabled={actionLoading}
-                          className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                          className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
                           title="Mark fee as PAID and complete consultation in 1 click"
                         >
                           {actionLoading ? (
@@ -12729,12 +12794,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => handleCompleteAppointment(selectedAppt.id)}
                         disabled={actionLoading}
-                        className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold transition-colors shadow-sm inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold transition-colors shadow-sm inline-flex items-center gap-1.5"
                       >
                         {actionLoading ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                            <span>Processing...</span>
+                            <span>Processing completion...</span>
                           </>
                         ) : (
                           <span>Mark Consultation Complete</span>
@@ -12749,7 +12814,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <button
                     type="button"
                     onClick={() => setSelectedAppt(null)}
-                    className="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold"
                   >
                     Close
                   </button>
@@ -13158,7 +13223,7 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
   const handleSignOut = () => {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('token');
-    try { sessionStorage.clear(); } catch (_) {}
+    try { sessionStorage.clear(); } catch (_) { }
     setToken('');
     setDoctors([]);
     if (onSwitchRole) {
@@ -13389,8 +13454,8 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                         <button
                           onClick={() => toggleVerify(doc.id, doc.verification_status)}
                           className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${doc.verification_status === 'verified'
-                              ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                              : 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
+                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            : 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
                             }`}
                           title="Toggle verification status"
                         >
@@ -13399,8 +13464,8 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                         <button
                           onClick={() => toggleSpotlight(doc.id, doc.is_spotlight)}
                           className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${doc.is_spotlight
-                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                             }`}
                           title="Toggle spotlight directory placement"
                         >

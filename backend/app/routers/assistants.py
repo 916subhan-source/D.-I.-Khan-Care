@@ -21,8 +21,21 @@ from app.core.deps import get_current_user, require_roles
 from app.services.slip_service import slip_service
 from app.services.audit_service import audit_service
 from app.models import User, Doctor, DoctorAssistant, DoctorSlot, Appointment, Payment
-from app.schemas import AppointmentResponse, RescheduleRequest, MarkPaidRequest
-from app.core.timezone import format_pkt_date, format_pkt_time, format_pkt_ymd
+from app.schemas import AppointmentResponse, RescheduleRequest, MarkPaidRequest, POSBookingRequest
+from app.core.timezone import format_pkt_date, format_pkt_time, format_pkt_ymd, PKT, to_pkt
+
+def parse_token_from_slip_str(slip_number: Optional[str]) -> Optional[int]:
+    if not slip_number or not isinstance(slip_number, str):
+        return None
+    parts = slip_number.strip().split("-")
+    if len(parts) >= 4 and parts[3].isdigit():
+        try:
+            num = int(parts[3])
+            if 1 <= num <= 999:
+                return num
+        except ValueError:
+            pass
+    return None
 
 router = APIRouter(prefix="/assistant", tags=["Assistant Desk"])
 
@@ -89,7 +102,8 @@ async def get_linked_doctors(
             "morning_start": doc.morning_start or "09:00",
             "morning_end": doc.morning_end or "13:00",
             "evening_start": doc.evening_start or "17:00",
-            "evening_end": doc.evening_end or "21:00"
+            "evening_end": doc.evening_end or "21:00",
+            "off_days": doc.off_days or "sunday"
         }
         for doc in doctors
     ]
@@ -192,7 +206,8 @@ async def get_queue(
                 )
             ),
             "payment_status": appt.payment.status if appt.payment else "PENDING_CASH",
-            "fee_amount": float(appt.payment.amount) if appt.payment else float(appt.doctor.fee_clinic if appt.doctor else 1000.00)
+            "fee_amount": float(appt.payment.amount) if appt.payment else float(appt.doctor.fee_clinic if appt.doctor else 1000.00),
+            "token_number": parse_token_from_slip_str(appt.slip_number)
         })
     return items
 
@@ -224,7 +239,8 @@ async def approve_appointment(
             db=db,
             doctor_id=appt.doctor_id,
             visit_date=visit_date,
-            specialty=appt.doctor.specialty if appt.doctor else "General"
+            specialty=appt.doctor.specialty if appt.doctor else "General",
+            slot_id=appt.slot_id
         )
         appt.slip_number = slip_num
     else:
@@ -274,7 +290,8 @@ async def approve_appointment(
         "slot_date": format_pkt_date(appt.slot.start_time) if appt.slot and appt.slot.start_time else None,
         "slot_time": format_pkt_time(appt.slot.start_time) if appt.slot and appt.slot.start_time else None,
         "payment_status": appt.payment.status if appt.payment else "PENDING_CASH",
-        "fee_amount": appt.payment.amount if appt.payment else 1000.00
+        "fee_amount": appt.payment.amount if appt.payment else 1000.00,
+        "token_number": parse_token_from_slip_str(appt.slip_number)
     }
 
 
@@ -465,7 +482,7 @@ async def reject_appointment(
 async def mark_appointment_paid(
     appointment_id: str,
     payload: Optional[MarkPaidRequest] = None,
-    current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
+    current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN", "DOCTOR"])),
     db: AsyncSession = Depends(get_db)
 ):
     payment_res = await db.execute(
@@ -584,4 +601,282 @@ async def complete_appointment_by_assistant(
         logging.getLogger("assistants").warning(f"Notification error on complete: {notify_err}")
 
     return {"status": "SUCCESS", "message": "Consultation marked as completed.", "appointment_id": appt.id}
+
+
+@router.get("/patients/lookup")
+async def lookup_patients(
+    query: str = Query(..., min_length=2, description="Search phone number or name"),
+    current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN", "DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Fast auto-lookup for returning patients by phone or full name."""
+    clean_q = query.strip()
+    stmt = (
+        select(User)
+        .where(
+            and_(
+                User.role == "PATIENT",
+                or_(
+                    User.phone.like(f"%{clean_q}%"),
+                    User.full_name.ilike(f"%{clean_q}%")
+                )
+            )
+        )
+        .order_by(User.created_at.desc())
+        .limit(6)
+    )
+    res = await db.execute(stmt)
+    patients = res.scalars().all()
+    return [
+        {
+            "id": p.id,
+            "full_name": p.full_name,
+            "phone": p.phone,
+            "email": p.email if not (p.email or "").endswith("@dikcare.local") else None,
+            "whatsapp_number": p.whatsapp_number
+        }
+        for p in patients
+    ]
+
+
+@router.get("/slots/available-by-date")
+async def get_available_slots_by_date(
+    doctor_id: str = Query(..., description="Target doctor ID"),
+    days_ahead: int = Query(14, ge=1, le=30),
+    current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN", "DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Returns available slots for the doctor grouped by date, starting from Today up to days_ahead.
+    Each slot includes its exact chronological daily slot number (#1, #2, #3...) of that day.
+    """
+    await verify_assistant_doctor_access(current_user, doctor_id, db)
+
+    now_pkt = datetime.now(PKT)
+    today_start_pkt = datetime(now_pkt.year, now_pkt.month, now_pkt.day, 0, 0, 0, tzinfo=PKT)
+    end_date_pkt = today_start_pkt + timedelta(days=days_ahead, hours=23, minutes=59, seconds=59)
+
+    today_start_utc = today_start_pkt.astimezone(timezone.utc)
+    end_date_utc = end_date_pkt.astimezone(timezone.utc)
+
+    # Fetch ALL slots for this doctor in this range ordered by start_time ASC
+    slots_res = await db.execute(
+        select(DoctorSlot)
+        .where(
+            and_(
+                DoctorSlot.doctor_id == doctor_id,
+                DoctorSlot.start_time >= today_start_utc,
+                DoctorSlot.start_time <= end_date_utc
+            )
+        )
+        .order_by(DoctorSlot.start_time.asc())
+    )
+    all_slots = slots_res.scalars().all()
+
+    # Group all slots by date string YYYY-MM-DD
+    from collections import defaultdict
+    day_slots_map = defaultdict(list)
+    for s in all_slots:
+        d_str = to_pkt(s.start_time).strftime("%Y-%m-%d")
+        day_slots_map[d_str].append(s)
+
+    doc = await db.get(Doctor, doctor_id)
+    doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()] if doc else ["sunday"]
+
+    days_result = []
+    for day_offset in range(days_ahead + 1):
+        target_dt = today_start_pkt + timedelta(days=day_offset)
+        d_str = target_dt.strftime("%Y-%m-%d")
+        day_name = target_dt.strftime("%A").lower()
+        is_off_day = day_name in doc_off_days
+        
+        day_all_slots = day_slots_map.get(d_str, [])
+        total_slots = len(day_all_slots)
+        
+        available_slots_data = []
+        for idx, s in enumerate(day_all_slots):
+            s_pkt = to_pkt(s.start_time)
+            if s.status == "available":
+                # For today, skip slots that already passed in time
+                if day_offset == 0 and s_pkt < now_pkt:
+                    continue
+                available_slots_data.append({
+                    "id": s.id,
+                    "doctor_id": s.doctor_id,
+                    "start_time": s.start_time.isoformat(),
+                    "end_time": s.end_time.isoformat(),
+                    "start_time_fmt": format_pkt_time(s.start_time),
+                    "end_time_fmt": format_pkt_time(s.end_time),
+                    "daily_slot_number": idx + 1,
+                    "status": s.status
+                })
+
+        is_today = (day_offset == 0)
+        is_tomorrow = (day_offset == 1)
+        
+        if is_today:
+            label = "Today"
+        elif is_tomorrow:
+            label = "Tomorrow"
+        else:
+            label = target_dt.strftime("%a, %b %d")
+
+        days_result.append({
+            "date": d_str,
+            "label": label,
+            "date_fmt": format_pkt_date(target_dt),
+            "is_today": is_today,
+            "is_tomorrow": is_tomorrow,
+            "is_off_day": is_off_day,
+            "total_slots": total_slots,
+            "available_count": len(available_slots_data),
+            "slots": available_slots_data
+        })
+
+    return days_result
+
+
+@router.post("/pos/book")
+async def pos_book_appointment(
+    payload: POSBookingRequest,
+    current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    POS / Walk-In Desk direct booking by Assistant.
+    - Directly books the selected slot (today or future date).
+    - Automatically sets status = CONFIRMED (bypassing public OTP).
+    - Queue / Token number aligns directly with the daily slot number of that day (#1, #2, #3...).
+    - Handles payment (PENDING_CASH to collect upon calling, or PAID immediately).
+    """
+    await verify_assistant_doctor_access(current_user, payload.doctor_id, db)
+
+    # 1. Fetch Doctor
+    doc_res = await db.execute(
+        select(Doctor).options(selectinload(Doctor.user)).where(Doctor.id == payload.doctor_id)
+    )
+    doc = doc_res.scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor not found.")
+
+    # 2. Fetch and validate Slot
+    slot_res = await db.execute(select(DoctorSlot).where(DoctorSlot.id == payload.slot_id))
+    slot = slot_res.scalar_one_or_none()
+    if not slot or slot.doctor_id != payload.doctor_id:
+        raise HTTPException(status_code=404, detail="The selected consultation slot was not found.")
+
+    if slot.status != "available":
+        raise HTTPException(
+            status_code=400,
+            detail="The selected time slot has already been booked or is locked. Please select another slot."
+        )
+
+    # 3. Locate or create Patient User record
+    clean_phone = payload.patient_phone.strip()
+    clean_email = str(payload.patient_email).strip().lower() if payload.patient_email else ""
+
+    patient = None
+    if clean_phone:
+        p_res = await db.execute(select(User).where(User.phone == clean_phone))
+        patient = p_res.scalar_one_or_none()
+
+    if not patient and clean_email:
+        p_res = await db.execute(select(User).where(User.email == clean_email))
+        patient = p_res.scalar_one_or_none()
+
+    if not patient:
+        patient = User(
+            full_name=payload.patient_name.strip(),
+            phone=clean_phone,
+            email=clean_email if clean_email else f"patient_{clean_phone.replace('+', '')}@dikcare.local",
+            role="PATIENT",
+            status="active"
+        )
+        db.add(patient)
+        await db.flush()
+    else:
+        if clean_email and (not patient.email or patient.email.endswith("@dikcare.local")):
+            patient.email = clean_email
+
+    # 4. Mark slot as booked
+    slot.status = "booked"
+
+    # 5. Generate Slip & Token matching the daily slot sequence
+    visit_date = slot.start_time
+    slip_num = await slip_service.generate_slip_number(
+        db=db,
+        doctor_id=doc.id,
+        visit_date=visit_date,
+        specialty=doc.specialty,
+        slot_id=slot.id
+    )
+
+    # 6. Create Appointment (Status automatically CONFIRMED)
+    appt = Appointment(
+        patient_id=patient.id,
+        doctor_id=doc.id,
+        slot_id=slot.id,
+        assistant_id=current_user.id,
+        status="CONFIRMED",
+        slip_number=slip_num,
+        patient_name=payload.patient_name.strip(),
+        patient_phone=clean_phone,
+        patient_email=clean_email if clean_email else None,
+        notes=payload.notes.strip() if payload.notes else "Walk-in appointment registered at clinic desk"
+    )
+    db.add(appt)
+    await db.flush()
+
+    # 7. Create Payment record
+    fee = Decimal(str(payload.fee_amount)) if payload.fee_amount is not None else doc.fee_clinic
+    p_status = "PAID" if payload.payment_status == "PAID" else "PENDING_CASH"
+    now_utc = datetime.now(timezone.utc)
+    
+    payment = Payment(
+        appointment_id=appt.id,
+        amount=fee,
+        status=p_status,
+        paid_at=now_utc if p_status == "PAID" else None,
+        collected_by=current_user.id if p_status == "PAID" else None
+    )
+    db.add(payment)
+
+    # 8. Audit log
+    await audit_service.log_action(
+        db=db,
+        actor_id=current_user.id,
+        action="POS_WALK_IN_APPOINTMENT",
+        entity="Appointment",
+        entity_id=appt.id,
+        before_value=None,
+        after_value=f"CONFIRMED Slip: {slip_num} (Slot: {format_pkt_date(slot.start_time)} {format_pkt_time(slot.start_time)}, Payment: {p_status})"
+    )
+
+    await db.commit()
+
+    token_num = parse_token_from_slip_str(slip_num)
+
+    try:
+        from app.services.notification_service import notification_service
+        await notification_service.notify_appointment_confirmed(db, appt)
+    except Exception:
+        pass
+
+    return {
+        "status": "SUCCESS",
+        "message": f"Appointment booked and confirmed successfully! Token #{token_num}",
+        "appointment_id": appt.id,
+        "slip_number": slip_num,
+        "token_number": token_num,
+        "patient_name": appt.patient_name,
+        "patient_phone": appt.patient_phone,
+        "doctor_name": doc.user.full_name if doc.user else "Doctor",
+        "doctor_specialty": doc.specialty,
+        "clinic_address": doc.clinic_address,
+        "slot_date": format_pkt_date(slot.start_time),
+        "slot_time": format_pkt_time(slot.start_time),
+        "fee_amount": float(payment.amount),
+        "payment_status": payment.status,
+        "appointment_status": "CONFIRMED"
+    }
 

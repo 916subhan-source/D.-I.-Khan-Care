@@ -43,17 +43,16 @@ class SlipService:
         db: AsyncSession,
         doctor_id: Optional[str] = None,
         visit_date: Optional[datetime] = None,
-        specialty: Optional[str] = "General"
+        specialty: Optional[str] = "General",
+        slot_id: Optional[str] = None
     ) -> str:
         """
         Generates a human-friendly unique digital slip number:
         DIK-[SPECIALTY]-[YYYYMMDD]-[SEQ_NUM:03d]-[JITTER]
         
         Queue numbers are strictly arranged:
-        - Separate per DOCTOR
-        - Separate per VISIT DATE
-        - 1st incoming request for Doctor on Date -> Queue 001
-        - 2nd incoming request for Doctor on Date -> Queue 002 (+1)
+        - When a slot is booked, the queue/token number matches that day's slot number (#1, #2, #3...)
+        - Otherwise, sequential count per doctor per date
         """
         visit_dt = to_pkt(visit_date) or datetime.now(PKT)
         date_str = visit_dt.strftime("%Y%m%d")
@@ -68,6 +67,7 @@ class SlipService:
 
         max_seq = 0
         active_count = 0
+        daily_slot_seq: Optional[int] = None
 
         if doctor_id:
             # Calendar day boundary in UTC corresponding to PKT visit day
@@ -75,6 +75,21 @@ class SlipService:
             day_end_pkt = datetime(visit_dt.year, visit_dt.month, visit_dt.day, 23, 59, 59, 999999, tzinfo=PKT)
             day_start = day_start_pkt.astimezone(timezone.utc)
             day_end = day_end_pkt.astimezone(timezone.utc)
+
+            # If slot_id is provided, check if it matches the slot's daily sequence index
+            if slot_id:
+                slots_res = await db.execute(
+                    select(DoctorSlot.id)
+                    .where(
+                        DoctorSlot.doctor_id == doctor_id,
+                        DoctorSlot.start_time >= day_start,
+                        DoctorSlot.start_time <= day_end
+                    )
+                    .order_by(DoctorSlot.start_time.asc())
+                )
+                day_slot_ids = [r[0] for r in slots_res.all()]
+                if slot_id in day_slot_ids:
+                    daily_slot_seq = day_slot_ids.index(slot_id) + 1
 
             # Query all appointments for this doctor on this visit date
             query = (
@@ -123,7 +138,10 @@ class SlipService:
                     except ValueError:
                         pass
 
-        seq_num = max(max_seq, active_count) + 1
+        if daily_slot_seq is not None:
+            seq_num = daily_slot_seq
+        else:
+            seq_num = max(max_seq, active_count) + 1
 
         # Generate unique candidate with 2-digit jitter, retrying if duplicate collision
         jitter = random.randint(10, 99)

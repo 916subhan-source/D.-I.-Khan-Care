@@ -81,7 +81,7 @@ export default {
           );
         }
 
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
         const contents = [
           ...(body.history || []),
           {
@@ -125,7 +125,7 @@ export default {
           'Muafi chahta hoon, abhi jawab dene me mushkil ho rahi hai. Baraaye meherbani dobara koshish karein.';
 
         return new Response(
-          JSON.stringify({ reply, model: 'gemini-2.0-flash' }),
+          JSON.stringify({ reply, model: 'gemini-3.8-flash' }),
           { status: 200, headers: corsHeaders }
         );
       } catch (err: any) {

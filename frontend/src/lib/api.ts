@@ -28,10 +28,10 @@ export const getApiBase = () => {
     }
 
     const isHttps = window.location.protocol === 'https:';
-    const isCloudflarePages = window.location.hostname.includes('pages.dev');
+    const isCloudflare = window.location.hostname.includes('pages.dev') || window.location.hostname.includes('workers.dev') || (isHttps && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'));
 
-    // On Cloudflare Pages, always use the relative edge proxy /api/v1 for 100% reliability
-    if (isCloudflarePages) {
+    // On Cloudflare (Workers or Pages), always use the relative edge proxy /api/v1 for 100% reliability
+    if (isCloudflare) {
       return '/api/v1';
     }
 

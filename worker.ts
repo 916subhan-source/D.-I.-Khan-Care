@@ -1,5 +1,6 @@
 interface Env {
   GEMINI_API_KEY?: string;
+  BACKEND_URL?: string;
   ASSETS: { fetch: (request: Request) => Promise<Response> };
 }
 
@@ -131,6 +132,39 @@ export default {
         return new Response(
           JSON.stringify({ error: 'Internal server error', details: err?.message }),
           { status: 500, headers: corsHeaders }
+        );
+      }
+    }
+
+    if (url.pathname.startsWith('/api/v1')) {
+      const backendOrigin = env.BACKEND_URL || 'https://d8f56b69997f87.lhr.life';
+      const targetUrl = new URL(url.pathname + url.search, backendOrigin);
+      
+      const newHeaders = new Headers(request.headers);
+      newHeaders.set('host', new URL(backendOrigin).host);
+
+      try {
+        const backendResp = await fetch(targetUrl.toString(), {
+          method: request.method,
+          headers: newHeaders,
+          body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : undefined,
+          redirect: 'follow',
+        });
+
+        const respHeaders = new Headers(backendResp.headers);
+        respHeaders.set('Access-Control-Allow-Origin', '*');
+        respHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        respHeaders.set('Access-Control-Allow-Headers', '*');
+
+        return new Response(backendResp.body, {
+          status: backendResp.status,
+          statusText: backendResp.statusText,
+          headers: respHeaders,
+        });
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({ error: 'Backend unreachable', details: err?.message }),
+          { status: 502, headers: corsHeaders }
         );
       }
     }

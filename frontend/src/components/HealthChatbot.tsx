@@ -216,8 +216,118 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
       };
     }
 
+    // ── F. UNAVAILABLE SPECIALTIES (instant local response — no API needed) ──
+
+    // F1. ENT (Kaan, Naak, Gala)
+    const isENT = hasWord(q, [
+      'kaan', 'kan', 'ear', 'naak', 'nose', 'gala', 'throat', 'ent',
+      'kaan me dard', 'kan me dard', 'kaan ka dard', 'gala kharab', 'naak band'
+    ]);
+    if (isENT) {
+      return {
+        advice: "Aapko **ENT Specialist** (Kaan, Naak, Gala ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (ENT) is portal par available nahi hai. ENT ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'ENT (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F2. Orthopedic (Haddi, Jod, Kamar)
+    const isOrtho = hasWord(q, [
+      'haddi', 'jodon', 'jod', 'kamar', 'bone', 'ortho', 'fracture',
+      'toot gaya', 'kamar dard', 'ghutna', 'knee'
+    ]);
+    if (isOrtho) {
+      return {
+        advice: "Aapko **Orthopedic Surgeon** (Haddi/Jodon ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Orthopedic) is portal par available nahi hai. Orthopedic ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Orthopedic (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F3. Eye (Aankh)
+    const isEye = hasWord(q, [
+      'aankh', 'eye', 'nazar', 'binai', 'aankhon', 'nazar kamzor'
+    ]);
+    if (isEye) {
+      return {
+        advice: "Aapko **Eye Specialist / Ophthalmologist** (Aankhon ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Eye Specialist) is portal par available nahi hai. Aankhon ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Eye Specialist (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F4. Dental (Daant)
+    const isDental = hasWord(q, [
+      'daant', 'dant', 'teeth', 'tooth', 'dental', 'dentist', 'daanton'
+    ]);
+    if (isDental) {
+      return {
+        advice: "Aapko **Dentist** (Daanton ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Dentist) is portal par available nahi hai. Daanton ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Dentist (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F5. Dermatology (Jild/Skin)
+    const isSkin = hasWord(q, [
+      'jild', 'skin', 'daad', 'kharish', 'allergy', 'derma', 'chamra', 'dane'
+    ]);
+    if (isSkin) {
+      return {
+        advice: "Aapko **Dermatologist** (Jild/Skin ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Dermatologist) is portal par available nahi hai. Jild ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Dermatologist (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F6. Neurology (Dimagh)
+    const isNeuro = hasWord(q, [
+      'dimagh', 'brain', 'neuro', 'mirgi', 'seizure', 'sar dard', 'sar me dard'
+    ]);
+    if (isNeuro) {
+      return {
+        advice: "Aapko **Neurologist** (Dimagh/Asab ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Neurologist) is portal par available nahi hai. Dimagh ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Neurologist (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F7. Urology (Gurda/Peshab)
+    const isUrology = hasWord(q, [
+      'gurda', 'kidney', 'peshab', 'urin', 'urolog', 'pathri'
+    ]);
+    if (isUrology) {
+      return {
+        advice: "Aapko **Urologist** (Gurda/Peshab ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Urologist) is portal par available nahi hai. Gurde ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Urologist (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F8. Gastroenterology (Meda/Pait)
+    const isGastro = hasWord(q, [
+      'meda', 'pait', 'stomach', 'gas', 'hazma', 'gastro', 'ulcer', 'qabz'
+    ]);
+    if (isGastro) {
+      return {
+        advice: "Aapko **Gastroenterologist** (Meda/Pait ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Gastroenterologist) is portal par available nahi hai. Mede ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.",
+        specialty: 'Gastroenterologist (Unavailable)',
+        doctors: []
+      };
+    }
+
+    // F9. General checkup / vkeup (checkup) intent
+    const isCheckup = hasWord(q, [
+      'checkup', 'check up', 'vkeup', 'chekup', 'muaina', 'test'
+    ]);
+    if (isCheckup) {
+      // Don't handle here — let it go to Gemini for proper specialty matching
+      // unless a specialty keyword already matched above
+    }
+
     return null; // Not a procedural intent → use Gemini AI
   };
+
 
   // ── Match doctors from local database based on specialty keyword ──
   const matchDoctorsBySpecialty = (aiReply: string): { doctors: ChatbotDoctorData[]; specialty: string } => {

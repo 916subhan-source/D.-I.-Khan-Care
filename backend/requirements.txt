@@ -12,3 +12,5 @@ python-jose[cryptography]>=3.3.0
 python-multipart>=0.0.9
 requests>=2.31.0
 aiohttp>=3.9.3
+cloudinary>=1.36.0
+python-dotenv>=1.0.0

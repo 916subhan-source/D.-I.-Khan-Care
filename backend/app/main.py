@@ -58,34 +58,41 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass
     # Startup: Launch periodic 1-hour appointment reminder background runner
+    # NOTE: Only runs in non-serverless environments (Vercel serverless doesn't support long-running tasks)
     import asyncio
+    import os
     from app.core.database import AsyncSessionLocal
     from app.services.notification_service import notification_service
 
-    async def periodic_1h_reminder_loop():
-        """Periodically checks and sends 1-hour reminder notifications."""
-        while True:
-            try:
-                await asyncio.sleep(60) # Initial 1m delay, then runs every 3 minutes
-                async with AsyncSessionLocal() as session:
-                    await notification_service.check_and_send_1h_reminders(session)
-            except asyncio.CancelledError:
-                break
-            except Exception as loop_err:
-                import logging
-                logging.getLogger("reminder_loop").warning(f"Reminder loop error: {loop_err}")
-            await asyncio.sleep(180)
+    reminder_task = None
+    is_serverless = os.getenv("VERCEL", "") or os.getenv("AWS_LAMBDA_FUNCTION_NAME", "")
 
-    reminder_task = asyncio.create_task(periodic_1h_reminder_loop())
+    if not is_serverless:
+        async def periodic_1h_reminder_loop():
+            """Periodically checks and sends 1-hour reminder notifications."""
+            while True:
+                try:
+                    await asyncio.sleep(60) # Initial 1m delay, then runs every 3 minutes
+                    async with AsyncSessionLocal() as session:
+                        await notification_service.check_and_send_1h_reminders(session)
+                except asyncio.CancelledError:
+                    break
+                except Exception as loop_err:
+                    import logging
+                    logging.getLogger("reminder_loop").warning(f"Reminder loop error: {loop_err}")
+                await asyncio.sleep(180)
+
+        reminder_task = asyncio.create_task(periodic_1h_reminder_loop())
 
     yield
 
     # Shutdown: Cancel background tasks, disconnect Redis and dispose DB pool
-    reminder_task.cancel()
-    try:
-        await reminder_task
-    except asyncio.CancelledError:
-        pass
+    if reminder_task:
+        reminder_task.cancel()
+        try:
+            await reminder_task
+        except asyncio.CancelledError:
+            pass
     await redis_manager.disconnect()
     await engine.dispose()
 

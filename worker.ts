@@ -144,14 +144,38 @@ export default {
         // If Google API is temporarily unavailable, provide reliable triage fallback
         if (!reply) {
           const lower = userMessage.toLowerCase();
-          if (lower.includes('dil') || lower.includes('seene') || lower.includes('chest') || lower.includes('heart') || lower.includes('bp')) {
+
+          // ── AVAILABLE SPECIALTIES ──
+          if (lower.includes('dil') || lower.includes('seene') || lower.includes('chest') || lower.includes('heart') || lower.includes('bp') || lower.includes('blood pressure')) {
             reply = "Aapko **Cardiologist** (Dil ke doctor) se foran mashwara karna chahiye. Seene me shadeed dard ki soorat me foran DHQ Hospital Emergency tashreef le jayein.";
           } else if (lower.includes('bacha') || lower.includes('bachon') || lower.includes('child') || lower.includes('baby') || lower.includes('bukhar')) {
             reply = "Aapko **Pediatrician** (Bachon ke doctor) se rujoo karna chahiye. Bachon ke bukhar me foran doctor ko dikhana zaroori hota hai.";
           } else if (lower.includes('khwateen') || lower.includes('lady') || lower.includes('pregnancy') || lower.includes('aurat') || lower.includes('gynae')) {
             reply = "Aapko **Gynecologist** (Khwateen ke doctor) se appointment leni chahiye. Portal par Lady Doctors ke auqaat aur appointment slots dastyab hain.";
-          } else {
-            reply = "Main D.I. Khan Care ka AI Assistant hoon. Agar aap kisi bimari me mubtila hain to baraye meherbani apni alamat (jaise dil me dard, bukhar, bachon ki bimari) wazeh karein taake munasib specialist recommend kiya ja sakay.";
+          }
+          // ── UNAVAILABLE SPECIALTIES → DHQ Hospital ──
+          else if (lower.includes('kaan') || lower.includes('kan') || lower.includes('ear') || lower.includes('naak') || lower.includes('nose') || lower.includes('gala') || lower.includes('throat') || lower.includes('ent')) {
+            reply = "Aapko **ENT Specialist** (Kaan, Naak, Gala ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (ENT) is portal par available nahi hai. ENT ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('haddi') || lower.includes('jodon') || lower.includes('jod') || lower.includes('kamar') || lower.includes('bone') || lower.includes('ortho') || lower.includes('fracture')) {
+            reply = "Aapko **Orthopedic Surgeon** (Haddi/Jodon ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Orthopedic) is portal par available nahi hai. Orthopedic ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('aankh') || lower.includes('eye') || lower.includes('nazar') || lower.includes('binai')) {
+            reply = "Aapko **Eye Specialist / Ophthalmologist** (Aankhon ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Eye Specialist) is portal par available nahi hai. Aankhon ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('daant') || lower.includes('dant') || lower.includes('teeth') || lower.includes('tooth') || lower.includes('dental') || lower.includes('dentist')) {
+            reply = "Aapko **Dentist** (Daanton ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Dentist) is portal par available nahi hai. Daanton ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('jild') || lower.includes('skin') || lower.includes('daad') || lower.includes('kharish') || lower.includes('allergy') || lower.includes('derma')) {
+            reply = "Aapko **Dermatologist** (Jild/Skin ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Dermatologist) is portal par available nahi hai. Jild ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('dimagh') || lower.includes('brain') || lower.includes('neuro') || lower.includes('sar dard') || lower.includes('mirgi') || lower.includes('seizure')) {
+            reply = "Aapko **Neurologist** (Dimagh/Asab ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Neurologist) is portal par available nahi hai. Dimagh ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('gurda') || lower.includes('kidney') || lower.includes('peshab') || lower.includes('urin') || lower.includes('urolog')) {
+            reply = "Aapko **Urologist** (Gurda/Peshab ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Urologist) is portal par available nahi hai. Gurde ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('meda') || lower.includes('pait') || lower.includes('stomach') || lower.includes('gas') || lower.includes('hazma') || lower.includes('gastro') || lower.includes('ulcer')) {
+            reply = "Aapko **Gastroenterologist** (Meda/Pait ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Gastroenterologist) is portal par available nahi hai. Mede ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+          } else if (lower.includes('sugar') || lower.includes('diabetes') || lower.includes('thyroid')) {
+            reply = "Aapko **General Physician / Medicine Specialist** se milna chahiye jo sugar aur hormones ka ilaj karein. Filhaal is portal par Cardiologist aur Pediatrician mojood hain. Sugar ke makhsoos ilaj ke liye **DHQ Hospital D.I. Khan** se bhi rujoo karein.";
+          }
+          // ── GENERIC FALLBACK ──
+          else {
+            reply = "Main D.I. Khan Care ka AI Assistant hoon. Agar aap kisi bimari me mubtila hain to baraye meherbani apni alamat (jaise dil me dard, bukhar, bachon ki bimari, kaan me dard) wazeh karein taake munasib specialist recommend kiya ja sakay.";
           }
           chosenModel = 'system-triage-fallback';
         }

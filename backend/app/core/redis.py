@@ -23,10 +23,16 @@ class RedisManager:
     async def connect(self):
         """Connect to Redis or gracefully activate memory fallback for offline dev."""
         try:
+            url = settings.REDIS_URL
+            # Auto-upgrade to TLS (rediss://) for Upstash or if url uses redis:// with upstash.io
+            if "upstash.io" in url and url.startswith("redis://"):
+                url = url.replace("redis://", "rediss://", 1)
+            
             self.client = aioredis.from_url(
-                settings.REDIS_URL,
+                url,
                 decode_responses=True,
-                socket_connect_timeout=2.0
+                socket_connect_timeout=3.0,
+                socket_timeout=3.0
             )
             # Ping test
             await self.client.ping()
@@ -36,9 +42,17 @@ class RedisManager:
             self._use_fallback = True
             logger.warning(f"Redis server not reached ({e}). Using robust In-Memory fallback store.")
 
+    async def _ensure_client(self):
+        """Ensures Redis client is initialized for serverless environments."""
+        if self.client is None and not self._use_fallback:
+            await self.connect()
+
     async def disconnect(self):
         if self.client and not self._use_fallback:
-            await self.client.close()
+            try:
+                await self.client.aclose()
+            except Exception:
+                pass
 
     async def get(self, key: str) -> Optional[str]:
         """Generic get for key."""

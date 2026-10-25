@@ -6234,6 +6234,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
   const [asstSlotDateFilter, setAsstSlotDateFilter] = useState<string>('all');
   const [asstSlotStatusFilter, setAsstSlotStatusFilter] = useState<string>('all');
+  const [asstShowPastSlots, setAsstShowPastSlots] = useState<boolean>(false);
   const [asstSlotLimitCount, setAsstSlotLimitCount] = useState<number>(100);
 
   const fetchAsstSlots = async (docId: string) => {
@@ -6413,6 +6414,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     asstSlots.forEach(s => {
       const key = getAsstSlotDateKey(s);
       if (!key) return;
+      // Automatically hide dates that have already passed unless explicitly requested
+      if (!asstShowPastSlots && key < pktTodayYmd) return;
       if (!map.has(key)) {
         let label = s.slot_date_fmt || '';
         if (!label) {
@@ -6441,7 +6444,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         count: val.count,
         label: val.label
       }));
-  }, [asstSlots]);
+  }, [asstSlots, asstShowPastSlots, pktTodayYmd]);
 
   // Only upcoming dates with available slots starting at least 45 minutes in future (Smart Rescheduling)
   const futureSlotDatesInfo = useMemo(() => {
@@ -6487,18 +6490,31 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       }));
   }, [asstSlots, pktTodayYmd]);
 
+  // Visible slots for overview metrics (automatically excludes past slots unless toggled)
+  const asstVisibleSlots = useMemo(() => {
+    return asstSlots.filter(s => {
+      if (asstShowPastSlots) return true;
+      const k = getAsstSlotDateKey(s);
+      return !k || k >= pktTodayYmd;
+    });
+  }, [asstSlots, asstShowPastSlots, pktTodayYmd]);
+
   const filteredAsstSlots = useMemo(() => {
     return asstSlots.filter(s => {
+      const slotKey = getAsstSlotDateKey(s);
+      // Automatically hide slots from days that have passed unless explicitly toggled on
+      if (!asstShowPastSlots && slotKey && slotKey < pktTodayYmd) {
+        return false;
+      }
       if (asstSlotStatusFilter !== 'all' && s.status !== asstSlotStatusFilter) {
         return false;
       }
       if (asstSlotDateFilter !== 'all') {
-        const slotKey = getAsstSlotDateKey(s);
         if (slotKey !== asstSlotDateFilter) return false;
       }
       return true;
     });
-  }, [asstSlots, asstSlotDateFilter, asstSlotStatusFilter]);
+  }, [asstSlots, asstSlotDateFilter, asstSlotStatusFilter, asstShowPastSlots, pktTodayYmd]);
 
   const [reschedItem, setReschedItem] = useState<AppointmentItem | null>(null);
   const [selectedNewSlotId, setSelectedNewSlotId] = useState<string>('');
@@ -8213,27 +8229,32 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                   {/* Slot Counts Card */}
                   <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
-                    <h4 className="font-bold text-slate-900 text-sm">Slots Overview</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-slate-900 text-sm">Slots Overview</h4>
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        {asstShowPastSlots ? 'Showing all dates' : 'Upcoming dates only'}
+                      </span>
+                    </div>
                     <div className="grid grid-cols-2 gap-2 text-center">
                       <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span className="text-xl font-bold text-slate-900 block" style={{ fontFamily: 'Outfit, sans-serif' }}>{asstSlots.length}</span>
+                        <span className="text-xl font-bold text-slate-900 block" style={{ fontFamily: 'Outfit, sans-serif' }}>{asstVisibleSlots.length}</span>
                         <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Slots</span>
                       </div>
                       <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
                         <span className="text-xl font-bold text-emerald-800 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                          {asstSlots.filter(s => s.status === 'available').length}
+                          {asstVisibleSlots.filter(s => s.status === 'available').length}
                         </span>
                         <span className="text-[10px] text-emerald-600 uppercase font-semibold">Available</span>
                       </div>
                       <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-100">
                         <span className="text-xl font-bold text-blue-800 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                          {asstSlots.filter(s => s.status === 'booked').length}
+                          {asstVisibleSlots.filter(s => s.status === 'booked').length}
                         </span>
                         <span className="text-[10px] text-blue-600 uppercase font-semibold">Booked</span>
                       </div>
                       <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-100">
                         <span className="text-xl font-bold text-rose-800 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                          {asstSlots.filter(s => s.status === 'blocked').length}
+                          {asstVisibleSlots.filter(s => s.status === 'blocked').length}
                         </span>
                         <span className="text-[10px] text-rose-600 uppercase font-semibold">Blocked</span>
                       </div>
@@ -8250,7 +8271,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       Individual Slot Controls
                     </h4>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Block, unblock, or remove individual consultation slots for this doctor.
+                      Block, unblock, or remove individual consultation slots for this doctor. Past days are hidden automatically.
                     </p>
                   </div>
 
@@ -8263,10 +8284,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         onChange={e => setAsstSlotDateFilter(e.target.value)}
                         className="px-3 py-1.5 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-clinic-400"
                       >
-                        <option value="all">All Dates ({asstSlots.length} slots)</option>
+                        <option value="all">
+                          {asstShowPastSlots ? `All Dates (${asstSlots.length} slots)` : `All Upcoming Dates (${asstVisibleSlots.length} slots)`}
+                        </option>
                         {asstSlotDatesInfo.map(info => (
                           <option key={info.date} value={info.date}>
-                            {info.label} ({info.count} slots)
+                            {info.date === pktTodayYmd ? `Today: ${info.label}` : info.label} ({info.count} slots)
                           </option>
                         ))}
                       </select>
@@ -8276,7 +8299,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     <input
                       type="date"
                       value={asstSlotDateFilter === 'all' ? '' : asstSlotDateFilter}
-                      onChange={e => setAsstSlotDateFilter(e.target.value || 'all')}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val && val < pktTodayYmd) {
+                          setAsstShowPastSlots(true);
+                        }
+                        setAsstSlotDateFilter(val || 'all');
+                      }}
                       title="Jump directly to a specific calendar date"
                       className="px-2.5 py-1 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
                     />
@@ -8294,11 +8323,22 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <option value="blocked">Blocked Only</option>
                     </select>
 
-                    {(asstSlotDateFilter !== 'all' || asstSlotStatusFilter !== 'all') && (
+                    {/* Show Past Slots Toggle */}
+                    <label className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold cursor-pointer select-none px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={asstShowPastSlots}
+                        onChange={e => setAsstShowPastSlots(e.target.checked)}
+                        className="rounded border-slate-300 text-clinic-600 focus:ring-clinic-500 w-3.5 h-3.5 cursor-pointer"
+                      />
+                      <span>Show past slots</span>
+                    </label>
+
+                    {(asstSlotDateFilter !== 'all' || asstSlotStatusFilter !== 'all' || asstShowPastSlots) && (
                       <button
                         type="button"
-                        onClick={() => { setAsstSlotDateFilter('all'); setAsstSlotStatusFilter('all'); }}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+                        onClick={() => { setAsstSlotDateFilter('all'); setAsstSlotStatusFilter('all'); setAsstShowPastSlots(false); }}
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
                       >
                         Reset
                       </button>
@@ -10122,6 +10162,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [clearingSlots, setClearingSlots] = useState(false);
   const [slotDateFilter, setSlotDateFilter] = useState<string>('all');
   const [slotStatusFilter, setSlotStatusFilter] = useState<string>('all');
+  const [doctorShowPastSlots, setDoctorShowPastSlots] = useState<boolean>(false);
   const [slotLimitCount, setSlotLimitCount] = useState<number>(100);
 
   // Blackout date state
@@ -10574,12 +10615,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     return iso ? iso.split('T')[0] : '';
   };
 
-  // Distinct dates in slots for dropdown with human-friendly labels and slot counts
+  // Distinct dates in slots for dropdown with human-friendly labels and slot counts (auto-excludes past dates)
   const slotDatesInfo = useMemo(() => {
     const map = new Map<string, { date: string; label: string; count: number }>();
     slots.forEach(s => {
       const dk = getSlotDateKey(s);
       if (!dk) return;
+      // Automatically hide dates that have passed unless explicitly requested
+      if (!doctorShowPastSlots && dk < activeTodayStr) return;
       if (!map.has(dk)) {
         let label = s.slot_date_fmt || '';
         if (!label) {
@@ -10600,7 +10643,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       map.get(dk)!.count += 1;
     });
     return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
-  }, [slots]);
+  }, [slots, doctorShowPastSlots, activeTodayStr]);
 
   const slotDates = useMemo(() => slotDatesInfo.map(info => info.date), [slotDatesInfo]);
 
@@ -10611,10 +10654,24 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     }
   }, [slotDates, slotDateFilter]);
 
+  // Visible slots for metrics (excludes past dates unless toggled)
+  const doctorVisibleSlots = useMemo(() => {
+    return slots.filter(s => {
+      if (doctorShowPastSlots) return true;
+      const dk = getSlotDateKey(s);
+      return !dk || dk >= activeTodayStr;
+    });
+  }, [slots, doctorShowPastSlots, activeTodayStr]);
+
   // Filter slots for Individual Slot Controls
   const filteredSlots = useMemo(() => {
     return slots.filter(s => {
-      if (slotDateFilter !== 'all' && getSlotDateKey(s) !== slotDateFilter) {
+      const dk = getSlotDateKey(s);
+      // Automatically hide slots from days that have passed unless explicitly toggled on
+      if (!doctorShowPastSlots && dk && dk < activeTodayStr) {
+        return false;
+      }
+      if (slotDateFilter !== 'all' && dk !== slotDateFilter) {
         return false;
       }
       if (slotStatusFilter !== 'all' && (s.status || '').toLowerCase() !== slotStatusFilter.toLowerCase()) {
@@ -10622,7 +10679,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       }
       return true;
     });
-  }, [slots, slotDateFilter, slotStatusFilter]);
+  }, [slots, slotDateFilter, slotStatusFilter, doctorShowPastSlots, activeTodayStr]);
 
   const doctorSidebarNav = [
     { id: 'overview', label: 'Overview' },
@@ -12236,32 +12293,32 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       <h3 className="font-bold text-slate-900 text-sm">Slots Overview</h3>
                       <span className="text-xs text-slate-500 font-medium">
                         {slotDateFilter === 'all'
-                          ? `All Dates (${slots.length} total slots)`
+                          ? (doctorShowPastSlots ? `All Dates (${slots.length} total slots)` : `Upcoming Dates (${doctorVisibleSlots.length} total slots)`)
                           : `${slotDatesInfo.find(i => i.date === slotDateFilter)?.label || slotDateFilter} (${filteredSlots.length} matching slots)`}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
                       <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
                         <span className="text-lg font-bold text-emerald-800 block">
-                          {(slotDateFilter === 'all' ? slots : filteredSlots).filter(s => s.status === 'available').length}
+                          {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'available').length}
                         </span>
                         <span className="text-[10px] text-emerald-600 font-semibold uppercase">Available</span>
                       </div>
                       <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
                         <span className="text-lg font-bold text-amber-800 block">
-                          {(slotDateFilter === 'all' ? slots : filteredSlots).filter(s => s.status === 'hold').length}
+                          {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'hold').length}
                         </span>
                         <span className="text-[10px] text-amber-600 font-semibold uppercase">Hold / In Review</span>
                       </div>
                       <div className="p-3 bg-clinic-50 border border-clinic-200 rounded-xl">
                         <span className="text-lg font-bold text-clinic-800 block">
-                          {(slotDateFilter === 'all' ? slots : filteredSlots).filter(s => s.status === 'booked').length}
+                          {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'booked').length}
                         </span>
                         <span className="text-[10px] text-clinic-600 font-semibold uppercase">Booked</span>
                       </div>
                       <div className="p-3 bg-slate-100 border border-slate-200 rounded-xl">
                         <span className="text-lg font-bold text-slate-700 block">
-                          {(slotDateFilter === 'all' ? slots : filteredSlots).filter(s => s.status === 'blocked').length}
+                          {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'blocked').length}
                         </span>
                         <span className="text-[10px] text-slate-500 font-semibold uppercase">Blocked</span>
                       </div>
@@ -12278,7 +12335,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       Individual Slot Controls
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      Block, unblock, or delete specific slots. Booked and held slots are protected.
+                      Block, unblock, or delete specific slots. Past days are hidden automatically.
                     </p>
                   </div>
 
@@ -12291,10 +12348,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         onChange={e => setSlotDateFilter(e.target.value)}
                         className="px-3 py-1.5 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-clinic-400"
                       >
-                        <option value="all">All Dates ({slots.length} slots)</option>
+                        <option value="all">
+                          {doctorShowPastSlots ? `All Dates (${slots.length} slots)` : `All Upcoming Dates (${doctorVisibleSlots.length} slots)`}
+                        </option>
                         {slotDatesInfo.map(info => (
                           <option key={info.date} value={info.date}>
-                            {info.label} ({info.count} slots)
+                            {info.date === activeTodayStr ? `Today: ${info.label}` : info.label} ({info.count} slots)
                           </option>
                         ))}
                       </select>
@@ -12306,6 +12365,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       value={slotDateFilter === 'all' ? '' : slotDateFilter}
                       onChange={e => {
                         const val = e.target.value;
+                        if (val && val < activeTodayStr) {
+                          setDoctorShowPastSlots(true);
+                        }
                         setSlotDateFilter(val || 'all');
                       }}
                       title="Jump directly to a specific calendar date"
@@ -12325,12 +12387,23 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       <option value="blocked">Blocked Only</option>
                     </select>
 
+                    {/* Show Past Slots Toggle */}
+                    <label className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold cursor-pointer select-none px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={doctorShowPastSlots}
+                        onChange={e => setDoctorShowPastSlots(e.target.checked)}
+                        className="rounded border-slate-300 text-clinic-600 focus:ring-clinic-500 w-3.5 h-3.5 cursor-pointer"
+                      />
+                      <span>Show past slots</span>
+                    </label>
+
                     {/* Reset Button if filtered */}
-                    {(slotDateFilter !== 'all' || slotStatusFilter !== 'all') && (
+                    {(slotDateFilter !== 'all' || slotStatusFilter !== 'all' || doctorShowPastSlots) && (
                       <button
                         type="button"
-                        onClick={() => { setSlotDateFilter('all'); setSlotStatusFilter('all'); }}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+                        onClick={() => { setSlotDateFilter('all'); setSlotStatusFilter('all'); setDoctorShowPastSlots(false); }}
+                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
                       >
                         Reset Filters
                       </button>

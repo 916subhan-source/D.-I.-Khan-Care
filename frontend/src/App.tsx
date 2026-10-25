@@ -6153,6 +6153,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [selectedPosSlot, setSelectedPosSlot] = useState<PosSlotItem | null>(null);
   const [creatingEmergencySlot, setCreatingEmergencySlot] = useState<boolean>(false);
 
+  // Emergency Slot Timing Selection State
+  const [showEmergencyModal, setShowEmergencyModal] = useState<boolean>(false);
+  const [emgModalDate, setEmgModalDate] = useState<string>('');
+  const [emgHour, setEmgHour] = useState<string>('08');
+  const [emgMinute, setEmgMinute] = useState<string>('30');
+  const [emgPeriod, setEmgPeriod] = useState<'AM' | 'PM'>('PM');
+  const [emgDuration, setEmgDuration] = useState<number>(20);
+
   // Patient Registration & Phone Lookup
   const [posPatientName, setPosPatientName] = useState<string>('');
   const [posPatientPhone, setPosPatientPhone] = useState<string>('');
@@ -6869,12 +6877,36 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     }
   };
 
-  const handleCreateEmergencySlot = async (timeChoice?: string) => {
+  const openEmergencySlotModal = (preferredDate?: string) => {
+    const targetDate = preferredDate || selectedPosDate || (posDays[0] && posDays[0].date) || new Date().toISOString().split('T')[0];
+    setEmgModalDate(targetDate);
+    try {
+      const now = new Date();
+      // Pakistan Standard Time is UTC+5
+      const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes();
+      const roundedMins = Math.ceil((totalMins + 5) / 5) * 5;
+      const h24 = Math.floor(roundedMins / 60) % 24;
+      const m = roundedMins % 60;
+      const period: 'AM' | 'PM' = h24 >= 12 ? 'PM' : 'AM';
+      const displayH = h24 % 12 === 0 ? 12 : h24 % 12;
+      setEmgHour(String(displayH).padStart(2, '0'));
+      setEmgMinute(String(m).padStart(2, '0'));
+      setEmgPeriod(period);
+    } catch (_) {
+      setEmgHour('08');
+      setEmgMinute('30');
+      setEmgPeriod('PM');
+    }
+    setEmgDuration(20);
+    setShowEmergencyModal(true);
+  };
+
+  const handleCreateEmergencySlot = async (timeChoice?: string, customDuration?: number, customDate?: string) => {
     if (!selectedDoctorId) {
       setPosError('Please select a doctor first.');
       return;
     }
-    const targetDate = selectedPosDate || (posDays[0] && posDays[0].date) || new Date().toISOString().split('T')[0];
+    const targetDate = customDate || emgModalDate || selectedPosDate || (posDays[0] && posDays[0].date) || new Date().toISOString().split('T')[0];
     try {
       setCreatingEmergencySlot(true);
       setPosError('');
@@ -6882,7 +6914,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       const payload: any = {
         doctor_id: selectedDoctorId,
         visit_date: targetDate,
-        duration_minutes: 20
+        duration_minutes: customDuration || emgDuration || 20
       };
       if (timeChoice) {
         payload.time_str = timeChoice;
@@ -6928,6 +6960,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         setSelectedPosSlot(newSlot);
         setPosNotes(prev => prev ? prev : '🚨 EMERGENCY WALK-IN: Priority consultation');
         setActionMessage(`✓ Emergency Slot #${newSlot.daily_slot_number} (${newSlot.start_time_fmt}) generated for Walk-in Patient!`);
+        setShowEmergencyModal(false);
         setTimeout(() => setActionMessage(''), 6000);
       }
     } catch (err: any) {
@@ -9100,25 +9133,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <div className="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
                         <button
                           type="button"
-                          onClick={() => {
-                            if (todayItem) {
-                              setSelectedPosDate(todayItem.date);
-                            }
-                            handleCreateEmergencySlot('NOW');
-                          }}
+                          onClick={() => openEmergencySlotModal(todayItem?.date)}
                           disabled={creatingEmergencySlot}
                           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
                         >
-                          {creatingEmergencySlot ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              <span>Generating Emergency Slot...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>🚨 Generate Emergency Slot for Walk-in Patient</span>
-                            </>
-                          )}
+                          <Clock className="w-4 h-4 text-white" />
+                          <span>🚨 Select Emergency Timing for Walk-in Patient</span>
                         </button>
                       </div>
                     </div>
@@ -9219,24 +9239,18 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             <div>
                               <p className="text-xs font-bold text-rose-900">Clinic Closed on {curDay.label} ({curDay.date_fmt}) &mdash; Weekly Off Day</p>
                               <p className="text-[11px] text-rose-700 mt-1 max-w-sm mx-auto">
-                                {currentDoctor?.doctor_name} has scheduled this day as an Off Day. However, for urgent walk-in patients, you can generate an immediate emergency consultation slot below.
+                                {currentDoctor?.doctor_name} has scheduled this day as an Off Day. However, for urgent walk-in patients, you can select specific consultation timing below.
                               </p>
                             </div>
                             <div className="pt-1">
                               <button
                                 type="button"
-                                onClick={() => handleCreateEmergencySlot('NOW')}
+                                onClick={() => openEmergencySlotModal(curDay.date)}
                                 disabled={creatingEmergencySlot}
                                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                               >
-                                {creatingEmergencySlot ? (
-                                  <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Generating Emergency Slot...</span>
-                                  </>
-                                ) : (
-                                  <span>🚨 Generate Emergency Slot for Walk-in Patient</span>
-                                )}
+                                <Clock className="w-3.5 h-3.5 text-white" />
+                                <span>🚨 Select Emergency Timing for Walk-in</span>
                               </button>
                             </div>
                           </div>
@@ -9254,36 +9268,28 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 All Standard Slots Booked on {curDay.label} ({curDay.date_fmt})
                               </p>
                               <p className="text-[11px] text-amber-900/90 max-w-md mx-auto">
-                                All regular consultation slots for this date are fully booked or past. As the reception assistant, you can generate an <strong>Emergency Walk-In Slot</strong> right now for urgent patient care.
+                                All regular consultation slots for this date are fully booked or past. As the reception assistant, you can choose specific timing for an <strong>Emergency Walk-In Slot</strong> right now.
                               </p>
                             </div>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
                               <button
                                 type="button"
-                                onClick={() => handleCreateEmergencySlot('NOW')}
+                                onClick={() => openEmergencySlotModal(curDay.date)}
                                 disabled={creatingEmergencySlot}
                                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
                               >
-                                {creatingEmergencySlot ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>Creating Slot...</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span>🚨 Generate Emergency Slot (Immediate)</span>
-                                  </>
-                                )}
+                                <Clock className="w-4 h-4 text-white" />
+                                <span>🚨 Select Specific Timing (Custom Time)</span>
                               </button>
 
                               <button
                                 type="button"
-                                onClick={() => handleCreateEmergencySlot()}
+                                onClick={() => handleCreateEmergencySlot('NOW', 20, curDay.date)}
                                 disabled={creatingEmergencySlot}
                                 className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                               >
-                                <span>➕ Append After Today's Slots</span>
+                                <span>⚡ Immediate Slot (Right Now)</span>
                               </button>
                             </div>
                           </div>
@@ -9302,16 +9308,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               </span>
                               <button
                                 type="button"
-                                onClick={() => handleCreateEmergencySlot()}
+                                onClick={() => openEmergencySlotModal(curDay.date)}
                                 disabled={creatingEmergencySlot}
-                                title="Generate an extra emergency slot for a walk-in patient"
+                                title="Choose specific timing for emergency walk-in slot"
                                 className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 rounded-lg text-[11px] font-bold shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
                               >
-                                {creatingEmergencySlot ? (
-                                  <Loader2 className="w-3 h-3 animate-spin text-amber-700" />
-                                ) : (
-                                  <span>🚨 + Emergency Slot</span>
-                                )}
+                                <Clock className="w-3 h-3 text-amber-700" />
+                                <span>🚨 + Emergency Slot</span>
                               </button>
                             </div>
                           </div>
@@ -9638,6 +9641,295 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       )}
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Emergency Slot Timing Selection Modal ── */}
+          {showEmergencyModal && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+              <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-amber-200 space-y-5 relative">
+                {/* Header */}
+                <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md font-bold text-lg">
+                      🚨
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-slate-900 text-base" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                        Select Emergency Slot Timing
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Set custom consultation time &amp; duration for walk-in patient
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmergencyModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Target Date Selector */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
+                    Appointment Date:
+                  </label>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {posDays.slice(0, 5).map(d => (
+                      <button
+                        key={d.date}
+                        type="button"
+                        onClick={() => setEmgModalDate(d.date)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
+                          emgModalDate === d.date
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {d.label} ({d.date_fmt})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
+                    Quick Time Presets:
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const now = new Date();
+                        const h = (now.getUTCHours() + 5) % 24;
+                        const m = (now.getUTCMinutes() + 2) % 60;
+                        setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
+                        setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
+                        setEmgPeriod(h >= 12 ? 'PM' : 'AM');
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>⚡ Right Now</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const now = new Date();
+                        const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes() + 15;
+                        const h = Math.floor(totalMins / 60) % 24;
+                        const m = totalMins % 60;
+                        setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
+                        setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
+                        setEmgPeriod(h >= 12 ? 'PM' : 'AM');
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>⏱️ In 15 Mins</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const now = new Date();
+                        const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes() + 30;
+                        const h = Math.floor(totalMins / 60) % 24;
+                        const m = totalMins % 60;
+                        setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
+                        setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
+                        setEmgPeriod(h >= 12 ? 'PM' : 'AM');
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>⏱️ In 30 Mins</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmgHour('09');
+                        setEmgMinute('00');
+                        setEmgPeriod('AM');
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>☀️ Morning (09:00 AM)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmgHour('05');
+                        setEmgMinute('00');
+                        setEmgPeriod('PM');
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>🌙 Evening (05:00 PM)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmgHour('08');
+                        setEmgMinute('30');
+                        setEmgPeriod('PM');
+                      }}
+                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>🌙 Night (08:30 PM)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Exact Time Selection Controls (Hour : Minute : AM/PM) */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                  <label className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-amber-600" />
+                    <span>Exact Start Timing:</span>
+                  </label>
+
+                  <div className="flex items-center justify-center gap-2">
+                    {/* Hour */}
+                    <div className="flex-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        Hour
+                      </label>
+                      <select
+                        value={emgHour}
+                        onChange={e => setEmgHour(e.target.value)}
+                        className="w-full h-11 px-3 text-center text-base font-extrabold font-mono bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      >
+                        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <span className="text-2xl font-bold text-slate-400 self-end mb-2">:</span>
+
+                    {/* Minute */}
+                    <div className="flex-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        Minute
+                      </label>
+                      <select
+                        value={emgMinute}
+                        onChange={e => setEmgMinute(e.target.value)}
+                        className="w-full h-11 px-3 text-center text-base font-extrabold font-mono bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      >
+                        {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(m => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* AM / PM Segmented Control */}
+                    <div className="w-28 self-end">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                        Period
+                      </label>
+                      <div className="h-11 p-1 bg-white border border-slate-300 rounded-xl flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setEmgPeriod('AM')}
+                          className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                            emgPeriod === 'AM'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          AM
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEmgPeriod('PM')}
+                          className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                            emgPeriod === 'PM'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          PM
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Consultation Duration */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
+                    Consultation Duration:
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[15, 20, 30].map(mins => (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() => setEmgDuration(mins)}
+                        className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                          emgDuration === mins
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        {mins} Minutes {mins === 20 ? '(Standard)' : ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview Banner */}
+                <div className="p-3.5 bg-amber-50/80 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-950">
+                  <div>
+                    <span className="font-extrabold text-xs block">
+                      ⏰ Emergency Slot: {emgHour}:{emgMinute} {emgPeriod}
+                    </span>
+                    <span className="text-[11px] text-amber-800">
+                      Duration: {emgDuration} mins &bull; {posDays.find(d => d.date === emgModalDate)?.date_fmt || emgModalDate}
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-amber-200 text-amber-900 font-extrabold text-[10px] border border-amber-300">
+                    Priority Walk-In
+                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmergencyModal(false)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={creatingEmergencySlot}
+                    onClick={() => {
+                      const timeStr = `${emgHour}:${emgMinute} ${emgPeriod}`;
+                      handleCreateEmergencySlot(timeStr, emgDuration, emgModalDate);
+                    }}
+                    className="px-5 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {creatingEmergencySlot ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Generating Slot...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🚨 Create Emergency Slot at {emgHour}:{emgMinute} {emgPeriod}</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>

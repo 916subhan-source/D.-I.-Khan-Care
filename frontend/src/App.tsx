@@ -8275,10 +8275,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    {/* Date Dropdown */}
-                    <div className="flex items-center gap-1.5">
-                      <label className="text-xs text-slate-500 font-semibold">Date:</label>
+                  <div className="flex flex-col gap-2">
+                    {/* Row 1: Date Filter & Calendar Picker */}
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                      <label className="text-xs text-slate-500 font-semibold w-9 shrink-0 text-left">Date:</label>
                       <select
                         value={asstSlotDateFilter}
                         onChange={e => setAsstSlotDateFilter(e.target.value)}
@@ -8293,56 +8293,60 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           </option>
                         ))}
                       </select>
+
+                      {/* Quick date picker */}
+                      <input
+                        type="date"
+                        value={asstSlotDateFilter === 'all' ? '' : asstSlotDateFilter}
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val && val < pktTodayYmd) {
+                            setAsstShowPastSlots(true);
+                          }
+                          setAsstSlotDateFilter(val || 'all');
+                        }}
+                        title="Jump directly to a specific calendar date"
+                        className="px-2.5 py-1 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
+                      />
                     </div>
 
-                    {/* Quick date picker */}
-                    <input
-                      type="date"
-                      value={asstSlotDateFilter === 'all' ? '' : asstSlotDateFilter}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (val && val < pktTodayYmd) {
-                          setAsstShowPastSlots(true);
-                        }
-                        setAsstSlotDateFilter(val || 'all');
-                      }}
-                      title="Jump directly to a specific calendar date"
-                      className="px-2.5 py-1 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
-                    />
-
-                    {/* Status filter */}
-                    <select
-                      value={asstSlotStatusFilter}
-                      onChange={e => setAsstSlotStatusFilter(e.target.value)}
-                      className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
-                    >
-                      <option value="all">All Statuses</option>
-                      <option value="available">Available Only</option>
-                      <option value="hold">Hold Only</option>
-                      <option value="booked">Booked Only</option>
-                      <option value="blocked">Blocked Only</option>
-                    </select>
-
-                    {/* Show Past Slots Toggle */}
-                    <label className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold cursor-pointer select-none px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={asstShowPastSlots}
-                        onChange={e => setAsstShowPastSlots(e.target.checked)}
-                        className="rounded border-slate-300 text-clinic-600 focus:ring-clinic-500 w-3.5 h-3.5 cursor-pointer"
-                      />
-                      <span>Show past slots</span>
-                    </label>
-
-                    {(asstSlotDateFilter !== 'all' || asstSlotStatusFilter !== 'all' || asstShowPastSlots) && (
-                      <button
-                        type="button"
-                        onClick={() => { setAsstSlotDateFilter('all'); setAsstSlotStatusFilter('all'); setAsstShowPastSlots(false); }}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
+                    {/* Row 2: Status, Past Slots Toggle & Reset (Starts at the exact same position as first line box) */}
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                      <div className="w-9 shrink-0 hidden sm:block" aria-hidden="true" />
+                      {/* Status filter */}
+                      <select
+                        value={asstSlotStatusFilter}
+                        onChange={e => setAsstSlotStatusFilter(e.target.value)}
+                        className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
                       >
-                        Reset
-                      </button>
-                    )}
+                        <option value="all">All Statuses</option>
+                        <option value="available">Available Only</option>
+                        <option value="hold">Hold Only</option>
+                        <option value="booked">Booked Only</option>
+                        <option value="blocked">Blocked Only</option>
+                      </select>
+
+                      {/* Show Past Slots Toggle */}
+                      <label className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold cursor-pointer select-none px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={asstShowPastSlots}
+                          onChange={e => setAsstShowPastSlots(e.target.checked)}
+                          className="rounded border-slate-300 text-clinic-600 focus:ring-clinic-500 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Show past slots</span>
+                      </label>
+
+                      {(asstSlotDateFilter !== 'all' || asstSlotStatusFilter !== 'all' || asstShowPastSlots) && (
+                        <button
+                          type="button"
+                          onClick={() => { setAsstSlotDateFilter('all'); setAsstSlotStatusFilter('all'); setAsstShowPastSlots(false); }}
+                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -155,7 +155,7 @@ async def test_gemini_api():
     import os
     from datetime import datetime, timezone
 
-    api_key = os.getenv("GEMINI_API_KEY", "")
+    api_key = os.getenv("GEMINI_API_KEY", "") or getattr(settings, "GEMINI_API_KEY", "")
     if not api_key:
         return JSONResponse(
             status_code=500,
@@ -167,7 +167,7 @@ async def test_gemini_api():
                 "tested_at": datetime.now(timezone.utc).isoformat()
             }
         )
-    models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"]
+    models = ["gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.1-flash-lite", "gemini-3.8-flash"]
     payload = json.dumps({
         "contents": [{
             "role": "user",

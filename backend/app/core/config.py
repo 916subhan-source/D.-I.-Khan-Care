@@ -5,7 +5,12 @@ Loads environment variables with safe defaults for development and production.
 
 import os
 from typing import List
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+
+# Load backend/.env automatically
+backend_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env")
+load_dotenv(dotenv_path=backend_env_path, override=True)
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "D.I. Khan Doctor Appointment System"

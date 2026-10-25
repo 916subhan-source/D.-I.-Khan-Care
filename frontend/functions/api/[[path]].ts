@@ -25,7 +25,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
   }
 
-  const backendBase = context.env.BACKEND_URL || 'https://dikhan-care-api.loca.lt';
+  const backendBase = context.env.BACKEND_URL || 'https://d-i-khan-care.vercel.app';
   const url = new URL(context.request.url);
   const targetUrl = `${backendBase.replace(/\/+$/, '')}${url.pathname}${url.search}`;
 

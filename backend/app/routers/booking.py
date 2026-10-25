@@ -325,38 +325,35 @@ async def track_appointment(payload: TrackAppointmentRequest, db: AsyncSession =
             if clean_s:
                 direct_strings.add(clean_s)
 
-    # Phone digits candidates from both phone and slip inputs
+    # Phone digits candidates from both phone and slip inputs (require at least 7 digits for safety)
     phone_digits = ''.join(c for c in raw_phone if c.isdigit())
     slip_digits = ''.join(c for c in raw_slip if c.isdigit())
     digits_to_test = set()
 
     for digits in [phone_digits, slip_digits]:
-        if digits and len(digits) >= 4:
+        if digits and len(digits) >= 7:
             digits_to_test.add(digits)
-            if digits.startswith("92"):
+            if digits.startswith("92") and len(digits) >= 9:
                 digits_to_test.add(digits[2:])
                 digits_to_test.add(f"0{digits[2:]}")
-            elif digits.startswith("0"):
+            elif digits.startswith("0") and len(digits) >= 8:
                 digits_to_test.add(digits[1:])
                 digits_to_test.add(f"92{digits[1:]}")
 
     conditions = []
 
-    # 1. Slip / ID matching
+    # 1. Slip / ID matching (exact or clean slip number)
     for sc in slip_candidates:
         conditions.append(Appointment.slip_number == sc)
         conditions.append(Appointment.slip_number.ilike(f"%{sc}%"))
         conditions.append(Appointment.id == sc)
 
-    # 2. Direct string matching on patient_phone / User phone
+    # 2. Direct string matching on patient_phone / User phone (only if at least 7 chars)
     for ds in direct_strings:
-        if len(ds) >= 3:
+        if len(ds) >= 7:
             conditions.append(Appointment.patient_phone == ds)
-            conditions.append(Appointment.patient_phone.ilike(f"%{ds}%"))
             conditions.append(User.phone == ds)
-            conditions.append(User.phone.ilike(f"%{ds}%"))
             conditions.append(User.whatsapp_number == ds)
-            conditions.append(User.whatsapp_number.ilike(f"%{ds}%"))
 
     # 3. Cleaned phone digits matching in SQL (handles spaces, dashes, + in DB or user input)
     clean_patient_phone = func.replace(func.replace(func.replace(Appointment.patient_phone, ' ', ''), '-', ''), '+', '')
@@ -364,10 +361,20 @@ async def track_appointment(payload: TrackAppointmentRequest, db: AsyncSession =
     clean_user_wa = func.replace(func.replace(func.replace(User.whatsapp_number, ' ', ''), '-', ''), '+', '')
 
     for d in digits_to_test:
-        if len(d) >= 4:
+        if len(d) >= 7:
+            conditions.append(clean_patient_phone == d)
             conditions.append(clean_patient_phone.like(f"%{d}%"))
+            conditions.append(clean_user_phone == d)
             conditions.append(clean_user_phone.like(f"%{d}%"))
+            conditions.append(clean_user_wa == d)
             conditions.append(clean_user_wa.like(f"%{d}%"))
+
+    # Critical Security & Correctness: Never run query if no valid filter criteria were provided!
+    if not conditions:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Slip number or mobile number does not match any appointment."
+        )
 
     query = select(Appointment).outerjoin(User, Appointment.patient_id == User.id)\
         .options(
@@ -375,12 +382,9 @@ async def track_appointment(payload: TrackAppointmentRequest, db: AsyncSession =
             selectinload(Appointment.patient),
             selectinload(Appointment.slot),
             selectinload(Appointment.payment)
-        )
-
-    if conditions:
-        query = query.where(or_(*conditions))
-
-    query = query.order_by(Appointment.created_at.desc())
+        )\
+        .where(or_(*conditions))\
+        .order_by(Appointment.created_at.desc())
 
     result = await db.execute(query)
     appointments = result.scalars().all()

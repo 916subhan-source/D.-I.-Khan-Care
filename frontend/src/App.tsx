@@ -1838,9 +1838,15 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
 
     const cleanPhone = phone.trim();
     const cleanSlip = slip.trim();
+    const digitsOnly = cleanPhone.replace(/\D/g, '');
 
     if (!cleanPhone && !cleanSlip) {
       setTrackError('Please enter your mobile number or digital slip number.');
+      return;
+    }
+
+    if (cleanPhone && digitsOnly.length < 7 && !cleanSlip) {
+      setTrackError('Please enter a valid mobile number (at least 7 to 11 digits, e.g. 03001234567) or your full digital slip number.');
       return;
     }
 

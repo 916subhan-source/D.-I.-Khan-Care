@@ -855,12 +855,12 @@ async def create_emergency_slot(
         action="CREATE_EMERGENCY_SLOT",
         entity="DoctorSlot",
         entity_id=emergency_slot.id,
-        meta={
+        after_value=json.dumps({
             "doctor_id": payload.doctor_id,
             "visit_date": payload.visit_date,
             "start_time": emergency_slot.start_time.isoformat(),
             "daily_slot_number": total_existing + 1
-        }
+        })
     )
 
     slot_pkt_start = to_pkt(emergency_slot.start_time)

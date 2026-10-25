@@ -55,7 +55,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   };
 
   const apiKey = context.env.GEMINI_API_KEY || atob('QVEuQWI4Uk42S1FtX0VwOXhXZ3RsODJhbGpVS21BZmpoV2tSQkpxc2JsejJ1REdyYjNCaHc=');
-  const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
+  const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`;
 
   try {
     const res = await fetch(testUrl, {
@@ -118,7 +118,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       }
     ];
 
-    const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+    const modelsToTry = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3-flash-preview', 'gemini-3.1-flash-lite', 'gemini-3.8-flash', 'gemini-3.5-flash'];
     let reply = '';
     let chosenModel = '';
 

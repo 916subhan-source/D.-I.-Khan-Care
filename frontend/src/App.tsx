@@ -9648,10 +9648,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
           {/* ── Emergency Slot Timing Selection Modal ── */}
           {showEmergencyModal && (
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-              <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-amber-200 space-y-5 relative">
-                {/* Header */}
-                <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-50 animate-fade-in">
+              <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-amber-200 overflow-hidden relative">
+                {/* Header (Pinned) */}
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between flex-shrink-0 bg-white">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md font-bold text-lg">
                       🚨
@@ -9674,239 +9674,242 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   </button>
                 </div>
 
-                {/* Target Date Selector */}
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                    Appointment Date:
-                  </label>
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                    {posDays.slice(0, 5).map(d => (
+                {/* Scrollable Body */}
+                <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5">
+                  {/* Target Date Selector */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      Appointment Date:
+                    </label>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                      {posDays.slice(0, 5).map(d => (
+                        <button
+                          key={d.date}
+                          type="button"
+                          onClick={() => setEmgModalDate(d.date)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
+                            emgModalDate === d.date
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          {d.label} ({d.date_fmt})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Presets */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      Quick Time Presets:
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       <button
-                        key={d.date}
                         type="button"
-                        onClick={() => setEmgModalDate(d.date)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
-                          emgModalDate === d.date
-                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                        }`}
+                        onClick={() => {
+                          const now = new Date();
+                          const h = (now.getUTCHours() + 5) % 24;
+                          const m = (now.getUTCMinutes() + 2) % 60;
+                          setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
+                          setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
+                          setEmgPeriod(h >= 12 ? 'PM' : 'AM');
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
                       >
-                        {d.label} ({d.date_fmt})
+                        <span>⚡ Right Now</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Quick Presets */}
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                    Quick Time Presets:
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const now = new Date();
-                        const h = (now.getUTCHours() + 5) % 24;
-                        const m = (now.getUTCMinutes() + 2) % 60;
-                        setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
-                        setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
-                        setEmgPeriod(h >= 12 ? 'PM' : 'AM');
-                      }}
-                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>⚡ Right Now</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const now = new Date();
-                        const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes() + 15;
-                        const h = Math.floor(totalMins / 60) % 24;
-                        const m = totalMins % 60;
-                        setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
-                        setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
-                        setEmgPeriod(h >= 12 ? 'PM' : 'AM');
-                      }}
-                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>⏱️ In 15 Mins</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const now = new Date();
-                        const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes() + 30;
-                        const h = Math.floor(totalMins / 60) % 24;
-                        const m = totalMins % 60;
-                        setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
-                        setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
-                        setEmgPeriod(h >= 12 ? 'PM' : 'AM');
-                      }}
-                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>⏱️ In 30 Mins</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmgHour('09');
-                        setEmgMinute('00');
-                        setEmgPeriod('AM');
-                      }}
-                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>☀️ Morning (09:00 AM)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmgHour('05');
-                        setEmgMinute('00');
-                        setEmgPeriod('PM');
-                      }}
-                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>🌙 Evening (05:00 PM)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmgHour('08');
-                        setEmgMinute('30');
-                        setEmgPeriod('PM');
-                      }}
-                      className="px-2.5 py-2 rounded-xl text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>🌙 Night (08:30 PM)</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Exact Time Selection Controls (Hour : Minute : AM/PM) */}
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-                  <label className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-amber-600" />
-                    <span>Exact Start Timing:</span>
-                  </label>
-
-                  <div className="flex items-center justify-center gap-2">
-                    {/* Hour */}
-                    <div className="flex-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                        Hour
-                      </label>
-                      <select
-                        value={emgHour}
-                        onChange={e => setEmgHour(e.target.value)}
-                        className="w-full h-11 px-3 text-center text-base font-extrabold font-mono bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const now = new Date();
+                          const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes() + 15;
+                          const h = Math.floor(totalMins / 60) % 24;
+                          const m = totalMins % 60;
+                          setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
+                          setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
+                          setEmgPeriod(h >= 12 ? 'PM' : 'AM');
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
                       >
-                        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                    </div>
+                        <span>⏱️ In 15 Mins</span>
+                      </button>
 
-                    <span className="text-2xl font-bold text-slate-400 self-end mb-2">:</span>
-
-                    {/* Minute */}
-                    <div className="flex-1">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                        Minute
-                      </label>
-                      <select
-                        value={emgMinute}
-                        onChange={e => setEmgMinute(e.target.value)}
-                        className="w-full h-11 px-3 text-center text-base font-extrabold font-mono bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const now = new Date();
+                          const totalMins = (now.getUTCHours() + 5) * 60 + now.getUTCMinutes() + 30;
+                          const h = Math.floor(totalMins / 60) % 24;
+                          const m = totalMins % 60;
+                          setEmgHour(String(h % 12 === 0 ? 12 : h % 12).padStart(2, '0'));
+                          setEmgMinute(String(Math.floor(m / 5) * 5).padStart(2, '0'));
+                          setEmgPeriod(h >= 12 ? 'PM' : 'AM');
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
                       >
-                        {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                    </div>
+                        <span>⏱️ In 30 Mins</span>
+                      </button>
 
-                    {/* AM / PM Segmented Control */}
-                    <div className="w-28 self-end">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                        Period
-                      </label>
-                      <div className="h-11 p-1 bg-white border border-slate-300 rounded-xl flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setEmgPeriod('AM')}
-                          className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                            emgPeriod === 'AM'
-                              ? 'bg-amber-600 text-white shadow-xs'
-                              : 'text-slate-600 hover:bg-slate-100'
-                          }`}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmgHour('09');
+                          setEmgMinute('00');
+                          setEmgPeriod('AM');
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>☀️ Morning (09:00 AM)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmgHour('05');
+                          setEmgMinute('00');
+                          setEmgPeriod('PM');
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>🌙 Evening (05:00 PM)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmgHour('08');
+                          setEmgMinute('30');
+                          setEmgPeriod('PM');
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 text-left transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>🌙 Night (08:30 PM)</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Exact Time Selection Controls (Hour : Minute : AM/PM) */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2.5">
+                    <label className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-amber-600" />
+                      <span>Exact Start Timing:</span>
+                    </label>
+
+                    <div className="flex items-center justify-center gap-2">
+                      {/* Hour */}
+                      <div className="flex-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Hour
+                        </label>
+                        <select
+                          value={emgHour}
+                          onChange={e => setEmgHour(e.target.value)}
+                          className="w-full h-10 px-2 text-center text-sm font-extrabold font-mono bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
                         >
-                          AM
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEmgPeriod('PM')}
-                          className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                            emgPeriod === 'PM'
-                              ? 'bg-amber-600 text-white shadow-xs'
-                              : 'text-slate-600 hover:bg-slate-100'
-                          }`}
+                          {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(h => (
+                            <option key={h} value={h}>{h}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <span className="text-xl font-bold text-slate-400 self-end mb-1.5">:</span>
+
+                      {/* Minute */}
+                      <div className="flex-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Minute
+                        </label>
+                        <select
+                          value={emgMinute}
+                          onChange={e => setEmgMinute(e.target.value)}
+                          className="w-full h-10 px-2 text-center text-sm font-extrabold font-mono bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
                         >
-                          PM
-                        </button>
+                          {['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'].map(m => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* AM / PM Segmented Control */}
+                      <div className="w-28 self-end">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                          Period
+                        </label>
+                        <div className="h-10 p-1 bg-white border border-slate-300 rounded-xl flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setEmgPeriod('AM')}
+                            className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                              emgPeriod === 'AM'
+                                ? 'bg-amber-600 text-white shadow-xs'
+                                : 'text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            AM
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEmgPeriod('PM')}
+                            className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                              emgPeriod === 'PM'
+                                ? 'bg-amber-600 text-white shadow-xs'
+                                : 'text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            PM
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Consultation Duration */}
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                    Consultation Duration:
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[15, 20, 30].map(mins => (
-                      <button
-                        key={mins}
-                        type="button"
-                        onClick={() => setEmgDuration(mins)}
-                        className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                          emgDuration === mins
-                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        {mins} Minutes {mins === 20 ? '(Standard)' : ''}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Preview Banner */}
-                <div className="p-3.5 bg-amber-50/80 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-950">
+                  {/* Consultation Duration */}
                   <div>
-                    <span className="font-extrabold text-xs block">
-                      ⏰ Emergency Slot: {emgHour}:{emgMinute} {emgPeriod}
-                    </span>
-                    <span className="text-[11px] text-amber-800">
-                      Duration: {emgDuration} mins &bull; {posDays.find(d => d.date === emgModalDate)?.date_fmt || emgModalDate}
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      Consultation Duration:
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[15, 20, 30].map(mins => (
+                        <button
+                          key={mins}
+                          type="button"
+                          onClick={() => setEmgDuration(mins)}
+                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                            emgDuration === mins
+                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          {mins} Mins {mins === 20 ? '(Standard)' : ''}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Preview Banner */}
+                  <div className="p-3 bg-amber-50/90 border border-amber-300 rounded-2xl flex items-center justify-between text-xs text-amber-950">
+                    <div>
+                      <span className="font-extrabold text-xs block">
+                        ⏰ Emergency Slot: {emgHour}:{emgMinute} {emgPeriod}
+                      </span>
+                      <span className="text-[11px] text-amber-800">
+                        Duration: {emgDuration} mins &bull; {posDays.find(d => d.date === emgModalDate)?.date_fmt || emgModalDate}
+                      </span>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 font-extrabold text-[10px] border border-amber-300">
+                      Priority Walk-In
                     </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-amber-200 text-amber-900 font-extrabold text-[10px] border border-amber-300">
-                    Priority Walk-In
-                  </span>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-2">
+                {/* Footer with Action Buttons (Permanently Pinned at Bottom) */}
+                <div className="p-3.5 sm:px-5 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2.5 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => setShowEmergencyModal(false)}
-                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 border border-slate-200 bg-white transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>

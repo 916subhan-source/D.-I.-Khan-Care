@@ -9082,17 +9082,44 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 const isTodayFull = todayItem && todayItem.available_count === 0;
                 if (isTodayFull) {
                   return (
-                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start sm:items-center gap-3 shadow-xs">
-                      <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 font-bold text-base">
-                        ⚠️
+                    <div className="bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                      <div className="flex items-start sm:items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-xs">
+                          ⚠️
+                        </div>
+                        <div className="text-xs">
+                          <strong className="block font-extrabold text-amber-950 text-sm">
+                            All consultation slots for Today are fully booked!
+                          </strong>
+                          <span className="text-amber-900 mt-0.5 block">
+                            Have an urgent walk-in patient at the desk? Generate an emergency slot immediately with priority token numbering.
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex-1 text-xs">
-                        <strong className="block font-bold text-amber-900 text-sm">
-                          All consultation slots for Today are fully booked!
-                        </strong>
-                        <span className="text-amber-800">
-                          Please select an upcoming day from the calendar pills below (Tomorrow, day after, etc.) to give the patient a confirmed booking with an assigned daily token number.
-                        </span>
+
+                      <div className="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (todayItem) {
+                              setSelectedPosDate(todayItem.date);
+                            }
+                            handleCreateEmergencySlot('NOW');
+                          }}
+                          disabled={creatingEmergencySlot}
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {creatingEmergencySlot ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Generating Emergency Slot...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>🚨 Generate Emergency Slot for Walk-in Patient</span>
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   );

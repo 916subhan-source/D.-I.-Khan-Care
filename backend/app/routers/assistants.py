@@ -789,8 +789,10 @@ async def create_emergency_slot(
     duration = payload.duration_minutes if payload.duration_minutes and payload.duration_minutes > 0 else 20
 
     if payload.time_str and payload.time_str.upper() == "NOW":
-        # Immediate emergency slot starting right now (+1 min)
-        start_pkt = now_pkt + timedelta(minutes=1)
+        # Immediate emergency slot starting right now (rounded up to next clean 5-minute mark)
+        rem = now_pkt.minute % 5
+        add_mins = 5 - rem if rem != 0 else 5
+        start_pkt = (now_pkt + timedelta(minutes=add_mins)).replace(second=0, microsecond=0)
         start_utc = start_pkt.astimezone(timezone.utc)
     elif payload.time_str:
         # Custom time specified by assistant
@@ -805,18 +807,19 @@ async def create_emergency_slot(
             if ap and ap.upper() == "AM" and h == 12:
                 h = 0
             start_pkt = datetime(visit_date_obj.year, visit_date_obj.month, visit_date_obj.day, h, m, 0, tzinfo=PKT)
-            start_utc = start_pkt.astimezone(timezone.utc)
+            start_utc = start_pkt.astimezone(timezone.utc).replace(second=0, microsecond=0)
         else:
             raise HTTPException(status_code=400, detail="Invalid time format. Example: '08:00 PM'")
     else:
         # Automatic calculation:
         # If there are existing slots, place it right after the latest slot of the day
         if existing_slots:
-            latest_end_utc = max(s.end_time for s in existing_slots)
-            # If for today and latest_end is in the past, start 2 minutes from now
-            now_utc = datetime.now(timezone.utc)
+            latest_end_utc = max(s.end_time for s in existing_slots).replace(second=0, microsecond=0)
+            now_utc = datetime.now(timezone.utc).replace(second=0, microsecond=0)
             if is_today and latest_end_utc < now_utc:
-                start_utc = now_utc + timedelta(minutes=2)
+                rem = now_utc.minute % 5
+                add_mins = 5 - rem if rem != 0 else 5
+                start_utc = (now_utc + timedelta(minutes=add_mins)).replace(second=0, microsecond=0)
             else:
                 start_utc = latest_end_utc
         else:
@@ -829,12 +832,13 @@ async def create_emergency_slot(
             h = evening_start_mins // 60
             m = evening_start_mins % 60
             start_pkt = datetime(visit_date_obj.year, visit_date_obj.month, visit_date_obj.day, h, m, 0, tzinfo=PKT)
-            start_utc = start_pkt.astimezone(timezone.utc)
+            start_utc = start_pkt.astimezone(timezone.utc).replace(second=0, microsecond=0)
 
-    # 5. Prevent unique constraint collision on (doctor_id, start_time)
-    existing_starts = {s.start_time for s in existing_slots}
+    # 5. Prevent unique constraint collision on (doctor_id, start_time) with clean minute alignment
+    start_utc = start_utc.replace(second=0, microsecond=0)
+    existing_starts = {s.start_time.replace(second=0, microsecond=0) for s in existing_slots}
     while start_utc in existing_starts:
-        start_utc += timedelta(minutes=1)
+        start_utc += timedelta(minutes=duration)
 
     end_utc = start_utc + timedelta(minutes=duration)
 

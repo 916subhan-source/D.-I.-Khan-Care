@@ -193,12 +193,11 @@ export default {
     }
 
     if (url.pathname.startsWith('/api/v1')) {
-      const backendOrigin = env.BACKEND_URL || 'https://dikhan-care-api.loca.lt';
+      const backendOrigin = env.BACKEND_URL || 'https://d-i-khan-care.vercel.app';
       const targetUrl = new URL(url.pathname + url.search, backendOrigin);
       
       const newHeaders = new Headers(request.headers);
       newHeaders.set('host', new URL(backendOrigin).host);
-      newHeaders.set('bypass-tunnel-reminder', '1');
 
       try {
         const backendResp = await fetch(targetUrl.toString(), {

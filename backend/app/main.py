@@ -147,6 +147,66 @@ async def health_check():
         "version": settings.VERSION
     }
 
+@app.get("/api/v1/test-gemini")
+async def test_gemini_api():
+    """Tests the Gemini API key directly from the FastAPI backend."""
+    import urllib.request
+    import json
+    import os
+    from datetime import datetime, timezone
+
+    api_key = os.getenv("GEMINI_API_KEY", "")
+    if not api_key:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "ERROR",
+                "backend": "FastAPI (Python)",
+                "gemini_api_key_valid": False,
+                "error": "GEMINI_API_KEY environment variable is not configured on this server.",
+                "tested_at": datetime.now(timezone.utc).isoformat()
+            }
+        )
+    models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"]
+    payload = json.dumps({
+        "contents": [{
+            "role": "user",
+            "parts": [{ "text": "Salam! Confirm in one short sentence that Gemini API is working properly on FastAPI backend." }]
+        }]
+    }).encode("utf-8")
+
+    last_err = "No models reached"
+    for m in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                if text:
+                    return {
+                        "status": "SUCCESS",
+                        "backend": "FastAPI (Python)",
+                        "gemini_api_key_valid": True,
+                        "model_used": m,
+                        "ai_response": text.strip(),
+                        "message": "FastAPI backend successfully communicated with Google Gemini API!",
+                        "tested_at": datetime.now(timezone.utc).isoformat()
+                    }
+        except Exception as e:
+            last_err = str(e)
+
+    return JSONResponse(
+        status_code=502,
+        content={
+            "status": "ERROR",
+            "backend": "FastAPI (Python)",
+            "gemini_api_key_valid": False,
+            "error": last_err,
+            "tested_at": datetime.now(timezone.utc).isoformat()
+        }
+    )
+
 # Check for production frontend bundle in frontend/dist
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
 if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "assets")):

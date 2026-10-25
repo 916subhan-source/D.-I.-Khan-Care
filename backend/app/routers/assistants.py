@@ -21,7 +21,7 @@ from app.core.deps import get_current_user, require_roles
 from app.services.slip_service import slip_service
 from app.services.audit_service import audit_service
 from app.models import User, Doctor, DoctorAssistant, DoctorSlot, Appointment, Payment
-from app.schemas import AppointmentResponse, RescheduleRequest, MarkPaidRequest, POSBookingRequest
+from app.schemas import AppointmentResponse, RescheduleRequest, MarkPaidRequest, POSBookingRequest, EmergencySlotRequest
 from app.core.timezone import format_pkt_date, format_pkt_time, format_pkt_ymd, PKT, to_pkt
 
 def parse_token_from_slip_str(slip_number: Optional[str]) -> Optional[int]:
@@ -734,6 +734,153 @@ async def get_available_slots_by_date(
         })
 
     return days_result
+
+
+@router.post("/pos/emergency-slot")
+async def create_emergency_slot(
+    payload: EmergencySlotRequest,
+    current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Emergency Slot Generator for Assistant POS Desk.
+    Generates an emergency consultation slot when all standard slots are booked
+    or for urgent walk-in patients needing immediate care.
+    """
+    await verify_assistant_doctor_access(current_user, payload.doctor_id, db)
+
+    # 1. Verify Doctor
+    doc = await db.get(Doctor, payload.doctor_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor not found.")
+
+    # 2. Parse date in PKT
+    try:
+        parts = [int(p) for p in payload.visit_date.strip().split("-")]
+        visit_date_obj = datetime(parts[0], parts[1], parts[2]).date()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid visit_date format. Expected YYYY-MM-DD.")
+
+    now_pkt = datetime.now(PKT)
+    day_start_pkt = datetime(visit_date_obj.year, visit_date_obj.month, visit_date_obj.day, 0, 0, 0, tzinfo=PKT)
+    day_end_pkt = datetime(visit_date_obj.year, visit_date_obj.month, visit_date_obj.day, 23, 59, 59, 999999, tzinfo=PKT)
+
+    day_start_utc = day_start_pkt.astimezone(timezone.utc)
+    day_end_utc = day_end_pkt.astimezone(timezone.utc)
+
+    # 3. Fetch existing slots for this doctor on this day
+    slots_res = await db.execute(
+        select(DoctorSlot)
+        .where(
+            and_(
+                DoctorSlot.doctor_id == payload.doctor_id,
+                DoctorSlot.start_time >= day_start_utc,
+                DoctorSlot.start_time <= day_end_utc
+            )
+        )
+        .order_by(DoctorSlot.start_time.asc())
+    )
+    existing_slots = slots_res.scalars().all()
+    total_existing = len(existing_slots)
+
+    # 4. Calculate start_time for the emergency slot
+    is_today = (visit_date_obj == now_pkt.date())
+    duration = payload.duration_minutes if payload.duration_minutes and payload.duration_minutes > 0 else 20
+
+    if payload.time_str and payload.time_str.upper() == "NOW":
+        # Immediate emergency slot starting right now (+1 min)
+        start_pkt = now_pkt + timedelta(minutes=1)
+        start_utc = start_pkt.astimezone(timezone.utc)
+    elif payload.time_str:
+        # Custom time specified by assistant
+        time_clean = payload.time_str.strip()
+        match = re.match(r'(\d{1,2}):(\d{2})\s*(AM|PM)?', time_clean, re.I)
+        if match:
+            h = int(match.group(1))
+            m = int(match.group(2))
+            ap = match.group(3)
+            if ap and ap.upper() == "PM" and h < 12:
+                h += 12
+            if ap and ap.upper() == "AM" and h == 12:
+                h = 0
+            start_pkt = datetime(visit_date_obj.year, visit_date_obj.month, visit_date_obj.day, h, m, 0, tzinfo=PKT)
+            start_utc = start_pkt.astimezone(timezone.utc)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid time format. Example: '08:00 PM'")
+    else:
+        # Automatic calculation:
+        # If there are existing slots, place it right after the latest slot of the day
+        if existing_slots:
+            latest_end_utc = max(s.end_time for s in existing_slots)
+            # If for today and latest_end is in the past, start 2 minutes from now
+            now_utc = datetime.now(timezone.utc)
+            if is_today and latest_end_utc < now_utc:
+                start_utc = now_utc + timedelta(minutes=2)
+            else:
+                start_utc = latest_end_utc
+        else:
+            # If no slots exist for this day (e.g. off day or unconfigured day), use doctor's shift start
+            evening_start_mins = 1020  # 5:00 PM
+            if doc.evening_start:
+                m_match = re.match(r'(\d{1,2}):(\d{2})', doc.evening_start)
+                if m_match:
+                    evening_start_mins = int(m_match.group(1)) * 60 + int(m_match.group(2))
+            h = evening_start_mins // 60
+            m = evening_start_mins % 60
+            start_pkt = datetime(visit_date_obj.year, visit_date_obj.month, visit_date_obj.day, h, m, 0, tzinfo=PKT)
+            start_utc = start_pkt.astimezone(timezone.utc)
+
+    # 5. Prevent unique constraint collision on (doctor_id, start_time)
+    existing_starts = {s.start_time for s in existing_slots}
+    while start_utc in existing_starts:
+        start_utc += timedelta(minutes=1)
+
+    end_utc = start_utc + timedelta(minutes=duration)
+
+    # 6. Create the emergency slot in DB
+    emergency_slot = DoctorSlot(
+        doctor_id=payload.doctor_id,
+        start_time=start_utc,
+        end_time=end_utc,
+        status="available"
+    )
+    db.add(emergency_slot)
+    await db.commit()
+    await db.refresh(emergency_slot)
+
+    # 7. Audit log
+    await audit_service.log_action(
+        db=db,
+        actor_id=current_user.id,
+        action="CREATE_EMERGENCY_SLOT",
+        entity="DoctorSlot",
+        entity_id=emergency_slot.id,
+        meta={
+            "doctor_id": payload.doctor_id,
+            "visit_date": payload.visit_date,
+            "start_time": emergency_slot.start_time.isoformat(),
+            "daily_slot_number": total_existing + 1
+        }
+    )
+
+    slot_pkt_start = to_pkt(emergency_slot.start_time)
+    slot_pkt_end = to_pkt(emergency_slot.end_time)
+
+    return {
+        "success": True,
+        "message": f"Emergency slot #{total_existing + 1} generated successfully.",
+        "slot": {
+            "id": emergency_slot.id,
+            "doctor_id": emergency_slot.doctor_id,
+            "start_time": emergency_slot.start_time.isoformat(),
+            "end_time": emergency_slot.end_time.isoformat(),
+            "start_time_fmt": format_pkt_time(slot_pkt_start),
+            "end_time_fmt": format_pkt_time(slot_pkt_end),
+            "daily_slot_number": total_existing + 1,
+            "status": "available",
+            "is_emergency": True
+        }
+    }
 
 
 @router.post("/pos/book")

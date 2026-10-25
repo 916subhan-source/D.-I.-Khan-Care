@@ -218,6 +218,12 @@ class POSBookingRequest(BaseModel):
     fee_amount: Optional[Decimal] = None
     cash_tendered: Optional[Decimal] = None
 
+class EmergencySlotRequest(BaseModel):
+    doctor_id: str
+    visit_date: str  # YYYY-MM-DD
+    time_str: Optional[str] = None  # e.g. "08:00 PM" or "NOW"
+    duration_minutes: Optional[int] = 20
+
 # --- Doctor Review Schemas ---
 class ReviewCreateRequest(BaseModel):
     identifier: str = Field(..., min_length=3, description="Patient Phone Number or Digital Slip #")

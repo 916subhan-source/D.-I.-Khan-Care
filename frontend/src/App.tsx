@@ -6133,6 +6133,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     end_time_fmt: string;
     daily_slot_number: number;
     status: string;
+    is_emergency?: boolean;
   }
   interface PosDayItem {
     date: string;
@@ -6150,6 +6151,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [posLoadingDays, setPosLoadingDays] = useState<boolean>(false);
   const [selectedPosDate, setSelectedPosDate] = useState<string>('');
   const [selectedPosSlot, setSelectedPosSlot] = useState<PosSlotItem | null>(null);
+  const [creatingEmergencySlot, setCreatingEmergencySlot] = useState<boolean>(false);
 
   // Patient Registration & Phone Lookup
   const [posPatientName, setPosPatientName] = useState<string>('');
@@ -6867,6 +6869,75 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     }
   };
 
+  const handleCreateEmergencySlot = async (timeChoice?: string) => {
+    if (!selectedDoctorId) {
+      setPosError('Please select a doctor first.');
+      return;
+    }
+    const targetDate = selectedPosDate || (posDays[0] && posDays[0].date) || new Date().toISOString().split('T')[0];
+    try {
+      setCreatingEmergencySlot(true);
+      setPosError('');
+      const activeTok = token || localStorage.getItem('assistant_token') || '';
+      const payload: any = {
+        doctor_id: selectedDoctorId,
+        visit_date: targetDate,
+        duration_minutes: 20
+      };
+      if (timeChoice) {
+        payload.time_str = timeChoice;
+      }
+
+      const res: any = await apiFetch('/assistant/pos/emergency-slot', {
+        method: 'POST',
+        headers: activeTok ? { Authorization: `Bearer ${activeTok}` } : {},
+        body: JSON.stringify(payload)
+      });
+
+      if (res && res.slot) {
+        const newSlot: PosSlotItem = res.slot;
+        setPosDays(prevDays => {
+          const dayIndex = prevDays.findIndex(d => d.date === targetDate);
+          if (dayIndex >= 0) {
+            const updated = [...prevDays];
+            const targetDay = { ...updated[dayIndex] };
+            targetDay.slots = [...targetDay.slots, newSlot];
+            targetDay.available_count = (targetDay.available_count || 0) + 1;
+            targetDay.total_slots = (targetDay.total_slots || 0) + 1;
+            targetDay.is_off_day = false;
+            updated[dayIndex] = targetDay;
+            return updated;
+          } else {
+            return [
+              {
+                date: targetDate,
+                label: 'Emergency Walk-In',
+                date_fmt: targetDate,
+                is_today: true,
+                is_tomorrow: false,
+                total_slots: 1,
+                available_count: 1,
+                slots: [newSlot]
+              },
+              ...prevDays
+            ];
+          }
+        });
+
+        setSelectedPosDate(targetDate);
+        setSelectedPosSlot(newSlot);
+        setPosNotes(prev => prev ? prev : '🚨 EMERGENCY WALK-IN: Priority consultation');
+        setActionMessage(`✓ Emergency Slot #${newSlot.daily_slot_number} (${newSlot.start_time_fmt}) generated for Walk-in Patient!`);
+        setTimeout(() => setActionMessage(''), 6000);
+      }
+    } catch (err: any) {
+      console.error('Failed to create emergency slot:', err);
+      setPosError(err.message || 'Failed to create emergency slot.');
+    } finally {
+      setCreatingEmergencySlot(false);
+    }
+  };
+
   const handlePatientPhoneSearch = async (val: string) => {
     setPosPatientPhone(val);
     if (val.trim().length >= 3) {
@@ -6927,13 +6998,18 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       setPosSubmitting(true);
       setPosError('');
       const activeTok = token || localStorage.getItem('assistant_token') || '';
+      const cleanNotes = posNotes.trim();
+      const finalNotes = selectedPosSlot.is_emergency
+        ? (cleanNotes ? (cleanNotes.includes('EMERGENCY') ? cleanNotes : `[EMERGENCY WALK-IN] ${cleanNotes}`) : '[EMERGENCY WALK-IN] Urgent walk-in consultation')
+        : (cleanNotes || undefined);
+
       const payload = {
         doctor_id: selectedDoctorId,
         slot_id: selectedPosSlot.id,
         patient_name: posPatientName.trim(),
         patient_phone: posPatientPhone.trim(),
         patient_email: posPatientEmail.trim() || undefined,
-        notes: posNotes.trim() || undefined,
+        notes: finalNotes,
         payment_status: posPaymentMode,
         fee_amount: posFee,
         cash_tendered: posPaymentMode === 'PAID' && posCashTendered ? Number(posCashTendered) : undefined
@@ -7480,6 +7556,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   {callingOrderActive && idx > 0 && isConfirmed && isToday && (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-1">
                                       {!isShiftMatch ? `${isItemMorning ? 'Morning Shift' : 'Evening Shift'} · ` : ''}Line #{idx + 1} · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || (idx + 1)}
+                                    </span>
+                                  )}
+                                  {item.notes && item.notes.includes('EMERGENCY') && (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-rose-600 text-white uppercase tracking-wider mb-1 shadow-xs animate-pulse">
+                                      🚨 Emergency Walk-In
                                     </span>
                                   )}
                                   <p className="font-bold text-slate-900">{item.patient_name || 'Unnamed Patient'}</p>
@@ -9106,60 +9187,140 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                       if (curDay.is_off_day) {
                         return (
-                          <div className="py-10 text-center bg-rose-50/60 rounded-xl border border-dashed border-rose-200 px-4">
-                            <Calendar className="w-8 h-8 text-rose-400 mx-auto mb-2" />
-                            <p className="text-xs font-bold text-rose-900">Clinic Closed on {curDay.label} ({curDay.date_fmt}) &mdash; Weekly Off Day</p>
-                            <p className="text-[11px] text-rose-700 mt-1 max-w-sm mx-auto">
-                              {currentDoctor?.doctor_name} has scheduled this day as an Off Day. No consultation slots exist on this day. Use the <strong>Schedule &amp; Slots</strong> tab if you need to open this day.
-                            </p>
+                          <div className="py-8 text-center bg-rose-50/60 rounded-xl border border-dashed border-rose-200 px-4 space-y-3">
+                            <Calendar className="w-8 h-8 text-rose-400 mx-auto" />
+                            <div>
+                              <p className="text-xs font-bold text-rose-900">Clinic Closed on {curDay.label} ({curDay.date_fmt}) &mdash; Weekly Off Day</p>
+                              <p className="text-[11px] text-rose-700 mt-1 max-w-sm mx-auto">
+                                {currentDoctor?.doctor_name} has scheduled this day as an Off Day. However, for urgent walk-in patients, you can generate an immediate emergency consultation slot below.
+                              </p>
+                            </div>
+                            <div className="pt-1">
+                              <button
+                                type="button"
+                                onClick={() => handleCreateEmergencySlot('NOW')}
+                                disabled={creatingEmergencySlot}
+                                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                {creatingEmergencySlot ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Generating Emergency Slot...</span>
+                                  </>
+                                ) : (
+                                  <span>🚨 Generate Emergency Slot for Walk-in Patient</span>
+                                )}
+                              </button>
+                            </div>
                           </div>
                         );
                       }
 
                       if (curDay.slots.length === 0) {
                         return (
-                          <div className="py-10 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200 px-4">
-                            <Clock className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                            <p className="text-xs font-bold text-slate-700">No open slots on {curDay.label} ({curDay.date_fmt})</p>
-                            <p className="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">
-                              All slots for this day are either already booked or past. Please click another day above, or use the <strong>Schedule &amp; Slots</strong> tab to generate new slots for this date.
-                            </p>
+                          <div className="p-6 text-center bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-slate-50 rounded-2xl border-2 border-dashed border-amber-300 px-4 space-y-4">
+                            <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
+                              <AlertCircle className="w-6 h-6 text-amber-600" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-extrabold text-amber-950">
+                                All Standard Slots Booked on {curDay.label} ({curDay.date_fmt})
+                              </p>
+                              <p className="text-[11px] text-amber-900/90 max-w-md mx-auto">
+                                All regular consultation slots for this date are fully booked or past. As the reception assistant, you can generate an <strong>Emergency Walk-In Slot</strong> right now for urgent patient care.
+                              </p>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => handleCreateEmergencySlot('NOW')}
+                                disabled={creatingEmergencySlot}
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                              >
+                                {creatingEmergencySlot ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Creating Slot...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>🚨 Generate Emergency Slot (Immediate)</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleCreateEmergencySlot()}
+                                disabled={creatingEmergencySlot}
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                              >
+                                <span>➕ Append After Today's Slots</span>
+                              </button>
+                            </div>
                           </div>
                         );
                       }
 
                       return (
                         <div>
-                          <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                             <span className="text-xs font-bold text-slate-700">
                               Available Consultation Slots &bull; {curDay.label} ({curDay.date_fmt})
                             </span>
-                            <span className="text-[11px] text-emerald-700 font-semibold">
-                              {curDay.slots.length} available
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] text-emerald-700 font-semibold">
+                                {curDay.slots.length} available
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCreateEmergencySlot()}
+                                disabled={creatingEmergencySlot}
+                                title="Generate an extra emergency slot for a walk-in patient"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 rounded-lg text-[11px] font-bold shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                              >
+                                {creatingEmergencySlot ? (
+                                  <Loader2 className="w-3 h-3 animate-spin text-amber-700" />
+                                ) : (
+                                  <span>🚨 + Emergency Slot</span>
+                                )}
+                              </button>
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
                             {curDay.slots.map(s => {
                               const isSlotSelected = selectedPosSlot?.id === s.id;
+                              const isEmg = Boolean(s.is_emergency);
                               return (
                                 <button
                                   key={s.id}
                                   type="button"
                                   onClick={() => setSelectedPosSlot(s)}
-                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${isSlotSelected
-                                      ? 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-emerald-600 shadow-md ring-2 ring-emerald-300'
+                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
+                                    isSlotSelected
+                                      ? isEmg
+                                        ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white border-amber-600 shadow-md ring-2 ring-amber-300'
+                                        : 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-emerald-600 shadow-md ring-2 ring-emerald-300'
+                                      : isEmg
+                                      ? 'bg-amber-50/70 hover:bg-amber-50 border-amber-300 text-slate-900 shadow-2xs'
                                       : 'bg-white hover:bg-emerald-50/50 hover:border-emerald-300 border-slate-200 text-slate-800 shadow-2xs'
-                                    }`}
+                                  }`}
                                 >
                                   <div className="flex items-center justify-between">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold ${isSlotSelected
-                                        ? 'bg-white text-emerald-800'
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold ${
+                                      isSlotSelected
+                                        ? isEmg ? 'bg-amber-950 text-amber-200' : 'bg-white text-emerald-800'
+                                        : isEmg
+                                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
                                         : 'bg-emerald-100 text-emerald-800'
-                                      }`}>
-                                      Slot #{s.daily_slot_number}
+                                    }`}>
+                                      {isEmg ? `🚨 EMG #${s.daily_slot_number}` : `Slot #${s.daily_slot_number}`}
                                     </span>
-                                    <span className={`text-[10px] font-semibold ${isSlotSelected ? 'text-emerald-100' : 'text-slate-400'}`}>
+                                    <span className={`text-[10px] font-semibold ${
+                                      isSlotSelected ? (isEmg ? 'text-amber-100' : 'text-emerald-100') : 'text-slate-400'
+                                    }`}>
                                       Token #{s.daily_slot_number}
                                     </span>
                                   </div>
@@ -9167,7 +9328,9 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   <p className="text-xs font-bold mt-2">
                                     {s.start_time_fmt}
                                   </p>
-                                  <p className={`text-[10px] ${isSlotSelected ? 'text-emerald-100' : 'text-slate-500'}`}>
+                                  <p className={`text-[10px] ${
+                                    isSlotSelected ? (isEmg ? 'text-amber-100' : 'text-emerald-100') : (isEmg ? 'text-amber-800 font-medium' : 'text-slate-500')
+                                  }`}>
                                     to {s.end_time_fmt}
                                   </p>
                                 </button>
@@ -9283,24 +9446,36 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
 
                     {/* Selected Slot Recap Banner */}
-                    <div className={`p-3 rounded-xl border transition-all ${selectedPosSlot
-                        ? 'bg-emerald-50/70 border-emerald-300'
-                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                    <div className={`p-3 rounded-xl border transition-all ${
+                        selectedPosSlot
+                          ? selectedPosSlot.is_emergency
+                            ? 'bg-amber-50/90 border-amber-300 ring-1 ring-amber-300'
+                            : 'bg-emerald-50/70 border-emerald-300'
+                          : 'bg-slate-50 border-slate-200 text-slate-400'
                       }`}>
-                      <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-500 mb-0.5">
-                        Selected Consultation Slot:
-                      </span>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-500">
+                          Selected Consultation Slot:
+                        </span>
+                        {selectedPosSlot?.is_emergency && (
+                          <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                            🚨 Emergency Walk-In
+                          </span>
+                        )}
+                      </div>
                       {selectedPosSlot ? (
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-extrabold text-xs text-emerald-900 block">
-                              Slot #{selectedPosSlot.daily_slot_number} &bull; {selectedPosSlot.start_time_fmt} - {selectedPosSlot.end_time_fmt}
+                            <span className={`font-extrabold text-xs block ${selectedPosSlot.is_emergency ? 'text-amber-950' : 'text-emerald-900'}`}>
+                              {selectedPosSlot.is_emergency ? `🚨 Emergency Slot #${selectedPosSlot.daily_slot_number}` : `Slot #${selectedPosSlot.daily_slot_number}`} &bull; {selectedPosSlot.start_time_fmt} - {selectedPosSlot.end_time_fmt}
                             </span>
-                            <span className="text-[11px] text-emerald-700">
+                            <span className={`text-[11px] ${selectedPosSlot.is_emergency ? 'text-amber-800' : 'text-emerald-700'}`}>
                               {posDays.find(d => d.date === selectedPosDate)?.date_fmt || selectedPosDate}
                             </span>
                           </div>
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs shadow-xs">
+                          <span className={`px-2.5 py-1 rounded-lg font-mono font-bold text-xs shadow-xs ${
+                            selectedPosSlot.is_emergency ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'
+                          }`}>
                             Token #{selectedPosSlot.daily_slot_number}
                           </span>
                         </div>

@@ -438,3 +438,161 @@
   }
 }
 
+/* ─── Modern High-Contrast Dark Theme System ──────────────── */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #080d14 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Base Surfaces & Containers */
+html.dark .bg-white {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .card {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .card-glass {
+  background: rgba(15, 23, 42, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #080d14 !important;
+}
+
+html.dark .bg-slate-50\/70,
+html.dark .bg-slate-50\/60 {
+  background-color: rgba(15, 23, 42, 0.7) !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: #27354a !important;
+}
+
+/* Text Hierarchy */
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+/* Borders & Dividers */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+  border-color: #1e293b !important;
+}
+
+html.dark .divide-slate-100,
+html.dark .divide-slate-200 {
+  border-color: #1e293b !important;
+}
+
+/* Forms, Dropdowns & Date Pickers */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #131d2e !important;
+  border-color: #24354d !important;
+  color: #f8fafc !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Portal Sidebar & Layouts */
+html.dark .portal-content {
+  background-color: #080d14 !important;
+}
+
+html.dark .portal-sidebar {
+  border-right: 1px solid #1e293b !important;
+}
+
+/* Public Banner & Headers */
+html.dark .bg-\[\#eaf5ef\] {
+  background-color: #061713 !important;
+  border-color: #10382f !important;
+  color: #a7f3d0 !important;
+}
+
+html.dark .bg-\[\#f0f6f3\] {
+  background-color: #081216 !important;
+  border-color: #132726 !important;
+}
+
+/* Tables in Dark Mode */
+html.dark table thead th {
+  background-color: #131d2e !important;
+  color: #94a3b8 !important;
+  border-color: #1e293b !important;
+}
+
+html.dark table tbody tr {
+  border-color: #1e293b !important;
+}
+
+html.dark table tbody tr:hover {
+  background-color: #172338 !important;
+}
+
+/* Modals & Popups */
+html.dark .bg-white\/95,
+html.dark .bg-white\/90 {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* Quick Shift Cards & Toggles */
+html.dark .bg-amber-50\/70,
+html.dark .bg-amber-50\/60 {
+  background-color: rgba(69, 39, 4, 0.35) !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+html.dark .bg-indigo-50\/60 {
+  background-color: rgba(30, 27, 75, 0.35) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+html.dark .bg-clinic-50 {
+  background-color: rgba(20, 61, 56, 0.35) !important;
+  border-color: rgba(42, 148, 136, 0.25) !important;
+}
+
+/* Smooth Transitions for Theme Toggle */
+html {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+

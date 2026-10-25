@@ -741,6 +741,36 @@ function StatusPill({ status }: { status: string }) {
 }
 
 
+// ── Global Floating Theme Toggle Component ──────────────────────────────────────────
+function FloatingThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: () => void }) {
+  return (
+    <div className="fixed bottom-5 left-5 z-40">
+      <button
+        type="button"
+        onClick={onToggle}
+        title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl border backdrop-blur-md transition-all duration-300 cursor-pointer select-none group hover:scale-105 active:scale-95 ${
+          isDark
+            ? 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 border-slate-700/80 shadow-black/40 ring-1 ring-amber-400/20'
+            : 'bg-white/95 hover:bg-slate-50 text-slate-700 border-slate-200/90 shadow-slate-900/10'
+        }`}
+        aria-label="Toggle Light and Dark Mode"
+      >
+        <span className="p-0.5 rounded-full transition-transform group-hover:rotate-12">
+          {isDark ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-clinic-700" />
+          )}
+        </span>
+        <span className="text-[11px] font-bold tracking-wide pr-1 hidden sm:inline">
+          {isDark ? 'Light Mode' : 'Dark Mode'}
+        </span>
+      </button>
+    </div>
+  );
+}
+
 // ── Shared: Portal Sidebar Layout ────────────────────────────────────────────────────
 function PortalSidebar({
   workspaceLabel,
@@ -840,6 +870,33 @@ function PortalSidebar({
               {bottomNote}
             </div>
           )}
+
+          {/* Theme switcher inside sidebar */}
+          <button
+            type="button"
+            onClick={() => {
+              const html = document.documentElement;
+              const willBeDark = !html.classList.contains('dark');
+              if (willBeDark) {
+                html.classList.add('dark');
+                localStorage.setItem('dikhan_theme', 'dark');
+              } else {
+                html.classList.remove('dark');
+                localStorage.setItem('dikhan_theme', 'light');
+              }
+              window.dispatchEvent(new Event('theme-change'));
+            }}
+            className="flex items-center justify-between w-full py-2 px-2.5 text-xs font-semibold text-slate-300 hover:text-white bg-[#132235] hover:bg-slate-800/90 border border-slate-800/80 rounded-lg transition-all cursor-pointer"
+            title="Toggle Light / Dark mode"
+          >
+            <span className="flex items-center gap-2">
+              <span className="text-sm">🌓</span>
+              <span>Theme Mode</span>
+            </span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-clinic-400 font-mono">
+              Toggle
+            </span>
+          </button>
 
           <button
             type="button"
@@ -1404,6 +1461,40 @@ export default function App() {
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
 
+  // Global Theme Mode: Light or Dark
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('dikhan_theme');
+      if (saved) return saved === 'dark';
+      return (
+        window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+      );
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('dikhan_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('dikhan_theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  // Sync with external theme-change events (e.g. from PortalSidebar)
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    window.addEventListener('theme-change', handleThemeChange);
+    return () => window.removeEventListener('theme-change', handleThemeChange);
+  }, []);
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+
   // Sync tab with browser URL history
   const handleSwitchRole = (newRole: 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => {
     setActiveTab(newRole as any);
@@ -1434,13 +1525,28 @@ export default function App() {
 
   // Staff portals render full-screen with sidebar layout
   if (activeTab === 'assistant') {
-    return <AssistantSection onSwitchRole={handleSwitchRole} />;
+    return (
+      <>
+        <AssistantSection onSwitchRole={handleSwitchRole} />
+        <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
+      </>
+    );
   }
   if (activeTab === 'doctor') {
-    return <DoctorSection onSwitchRole={handleSwitchRole} />;
+    return (
+      <>
+        <DoctorSection onSwitchRole={handleSwitchRole} />
+        <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
+      </>
+    );
   }
   if (activeTab === 'admin') {
-    return <AdminSection onSwitchRole={handleSwitchRole} />;
+    return (
+      <>
+        <AdminSection onSwitchRole={handleSwitchRole} />
+        <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
+      </>
+    );
   }
 
   // ── Public Patient-Facing Page ──
@@ -1489,10 +1595,29 @@ export default function App() {
             >
               Staff sign in
             </button>
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="ml-2 p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center justify-center cursor-pointer border border-transparent hover:border-slate-200"
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme mode"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+            </button>
           </nav>
 
           {/* Mobile Right Action Bar (< 768px) */}
           <div className="flex md:hidden items-center gap-1.5">
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
+              aria-label="Toggle theme mode"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+            </button>
             <button
               onClick={() => handleSwitchRole('track')}
               className="px-2.5 py-1.5 text-xs font-semibold text-clinic-800 bg-clinic-50 hover:bg-clinic-100 rounded-lg transition-all"
@@ -1648,6 +1773,9 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* ── Global Floating Theme Toggle (Light / Dark) ── */}
+      <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
     </div>
   );
 }

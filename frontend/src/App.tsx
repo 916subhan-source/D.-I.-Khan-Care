@@ -380,6 +380,15 @@ function formatMinutesTo12h(mins: number): string {
   return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
 }
 
+function formatDoctorName(name?: string): string {
+  if (!name) return 'Doctor';
+  const clean = name.trim();
+  if (/^dr\.?\s+/i.test(clean)) {
+    return clean;
+  }
+  return `Dr. ${clean}`;
+}
+
 function getDoctorCallingShiftInfo(
   doc?: any,
   todayYmd?: string,
@@ -388,8 +397,32 @@ function getDoctorCallingShiftInfo(
   const currentMins = getCurrentMinutesInPkt();
   const shiftType = (doc?.shift || 'BOTH').toUpperCase();
 
-  const morningStartMins = parseTimeToMinutes(doc?.morning_start, 540); // 09:00 AM (540 mins)
-  const eveningStartMins = parseTimeToMinutes(doc?.evening_start, 1020); // 05:00 PM (1020 mins)
+  let morningStartMins = parseTimeToMinutes(doc?.morning_start, 540); // 09:00 AM (540 mins)
+  let eveningStartMins = parseTimeToMinutes(doc?.evening_start, 1020); // 05:00 PM (1020 mins)
+
+  const todayAppts = (appointments || []).filter(a => {
+    const d = getApptDateStrGlobal(a);
+    const isToday = todayYmd ? d === todayYmd : true;
+    const st = (a.status || '').toUpperCase();
+    return isToday && st !== 'CANCELLED' && st !== 'REJECTED';
+  });
+
+  const morningAppts = todayAppts.filter(a => getApptMinutesFromMidnight(a) < 840);
+  const eveningAppts = todayAppts.filter(a => getApptMinutesFromMidnight(a) >= 840);
+
+  // If earliest appointment in shift is earlier than default time, respect earliest scheduled slot
+  if (morningAppts.length > 0) {
+    const earliestMorning = Math.min(...morningAppts.map(a => getApptMinutesFromMidnight(a)));
+    if (earliestMorning > 0 && earliestMorning < morningStartMins) {
+      morningStartMins = earliestMorning;
+    }
+  }
+  if (eveningAppts.length > 0) {
+    const earliestEvening = Math.min(...eveningAppts.map(a => getApptMinutesFromMidnight(a)));
+    if (earliestEvening > 0 && earliestEvening < eveningStartMins) {
+      eveningStartMins = earliestEvening;
+    }
+  }
 
   let activeShiftType: 'MORNING' | 'EVENING' = 'MORNING';
 
@@ -398,22 +431,17 @@ function getDoctorCallingShiftInfo(
   } else if (shiftType === 'MORNING') {
     activeShiftType = 'MORNING';
   } else {
-    // Doctor works BOTH shifts (or not configured)
-    const todayAppts = (appointments || []).filter(a => {
-      const d = getApptDateStrGlobal(a);
-      const isToday = todayYmd ? d === todayYmd : true;
+    // Doctor works BOTH shifts
+    const hasIncompleteMorning = morningAppts.some(a => {
       const st = (a.status || '').toUpperCase();
-      return isToday && st !== 'CANCELLED' && st !== 'REJECTED';
+      return st !== 'COMPLETED';
     });
+    const hasAnyMorning = morningAppts.length > 0;
+    const hasAnyEvening = eveningAppts.length > 0;
 
-    const hasIncompleteMorning = todayAppts.some(a => {
-      const m = getApptMinutesFromMidnight(a);
-      const st = (a.status || '').toUpperCase();
-      return m < 840 && st !== 'COMPLETED';
-    });
-
-    // If past 2:00 PM (840) or no pending/confirmed morning visits remain
-    if (currentMins >= 840 || (!hasIncompleteMorning && currentMins >= 720)) {
+    // Switch to evening if past 2:00 PM (840), or if all morning appointments are finished,
+    // or if NO morning appointments exist today but evening appointments do exist
+    if (currentMins >= 840 || (!hasIncompleteMorning && currentMins >= 720) || (!hasAnyMorning && hasAnyEvening)) {
       activeShiftType = 'EVENING';
     } else {
       activeShiftType = 'MORNING';
@@ -7343,7 +7371,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           🟢 Live Calling Active &middot; {callingShiftInfo.shiftName} (Today: {pktTodayYmd})
                         </span>
                         <span className="text-emerald-700 hidden sm:inline">
-                          &middot; Calling started at {callingShiftInfo.callingStartTimeStr} (10 mins before Dr. {currentDoctor?.doctor_name || 'Doctor'}&apos;s {callingShiftInfo.shiftStartTimeStr} shift).
+                          &middot; Calling started at {callingShiftInfo.callingStartTimeStr} (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftStartTimeStr} shift).
                         </span>
                       </div>
                       <span className="text-[11px] font-mono bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-semibold shadow-xs">
@@ -7358,7 +7386,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           ⏳ Calling Starts at {callingShiftInfo.callingStartTimeStr}
                         </span>
                         <span className="text-amber-800">
-                          (10 mins before Dr. {currentDoctor?.doctor_name || 'Doctor'}&apos;s {callingShiftInfo.shiftName} at {callingShiftInfo.shiftStartTimeStr})
+                          (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftName} at {callingShiftInfo.shiftStartTimeStr})
                         </span>
                         <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-semibold border border-amber-200">
                           Opens in {callingShiftInfo.minutesUntilCalling} min{callingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
@@ -7420,8 +7448,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         const isConfirmed = item.status === 'CONFIRMED' || item.status === 'confirmed';
                         const isPaid = item.payment_status === 'PAID';
                         const isToday = getApptDateStrGlobal(item) === pktTodayYmd;
-                        const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isCallingStarted;
-                        const isNextInLineWaiting = callingOrderActive && idx === 0 && isConfirmed && isToday && !isCallingStarted;
+
+                        // Check shift alignment
+                        const itemMins = getApptMinutesFromMidnight(item);
+                        const isItemMorning = itemMins < 840;
+                        const isShiftMatch = (callingShiftInfo.activeShiftType === 'MORNING' && isItemMorning) ||
+                                             (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
+                        const isItemCallingEligible = isShiftMatch && isCallingStarted;
+
+                        const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isItemCallingEligible;
+                        const isNextInLineWaiting = callingOrderActive && idx === 0 && isConfirmed && isToday && !isItemCallingEligible;
                         const isTimeOccurred = isApptTimePassedGlobal(item, pktTodayYmd);
                         const canComplete = isConfirmed && isPaid && (isCurrentActive || isTimeOccurred || isCallingStarted);
 
@@ -7438,12 +7474,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   )}
                                   {isNextInLineWaiting && (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-amber-600 text-white uppercase tracking-wider mb-1 shadow-xs">
-                                      ⏱️ 1st To Call · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'} · Opens at {callingShiftInfo.callingStartTimeStr}
+                                      ⏱️ 1st To Call · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'} · {!isShiftMatch ? `${isItemMorning ? 'Morning' : 'Evening'} Shift (${item.slot_time || callingShiftInfo.shiftStartTimeStr})` : `Opens at ${callingShiftInfo.callingStartTimeStr}`}
                                     </span>
                                   )}
                                   {callingOrderActive && idx > 0 && isConfirmed && isToday && (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-1">
-                                      Line #{idx + 1} · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || (idx + 1)}
+                                      {!isShiftMatch ? `${isItemMorning ? 'Morning Shift' : 'Evening Shift'} · ` : ''}Line #{idx + 1} · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || (idx + 1)}
                                     </span>
                                   )}
                                   <p className="font-bold text-slate-900">{item.patient_name || 'Unnamed Patient'}</p>
@@ -8928,7 +8964,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       Walk-In Counter &bull; Point of Sale
                     </span>
                     <span className="text-emerald-300 text-xs font-semibold">
-                      Dr. {currentDoctor?.doctor_name}
+                      {formatDoctorName(currentDoctor?.doctor_name)}
                     </span>
                   </div>
                   <h3 className="text-xl font-bold mt-1.5" style={{ fontFamily: 'Outfit,sans-serif' }}>
@@ -9428,7 +9464,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       {currentDoctor?.clinic_address?.split(',')[0] || 'Rehmat Polyclinic'}
                     </h3>
                     <p className="text-[11px] text-slate-500">
-                      Dr. {posSuccessReceipt.doctor_name} &bull; {posSuccessReceipt.doctor_specialty}
+                      {formatDoctorName(posSuccessReceipt.doctor_name)} &bull; {posSuccessReceipt.doctor_specialty}
                     </p>
                     <p className="text-[10px] text-slate-400">
                       {posSuccessReceipt.clinic_address}
@@ -11091,8 +11127,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             const isDone = appt.status?.toUpperCase() === 'COMPLETED';
                             const isCancelled = appt.status?.toUpperCase() === 'CANCELLED';
                             const isCallingStarted = docCallingShiftInfo.isCallingStarted;
-                            const isCurrentActive = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && isCallingStarted;
-                            const isNextInLineWaiting = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && !isCallingStarted;
+                            const apptMins = getApptMinutesFromMidnight(appt);
+                            const isApptMorning = apptMins < 840;
+                            const isShiftMatch = (docCallingShiftInfo.activeShiftType === 'MORNING' && isApptMorning) ||
+                                                 (docCallingShiftInfo.activeShiftType === 'EVENING' && !isApptMorning);
+                            const isCallingEligible = isShiftMatch && isCallingStarted;
+
+                            const isCurrentActive = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && isCallingEligible;
+                            const isNextInLineWaiting = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && !isCallingEligible;
 
                             return (
                               <tr key={appt.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>

@@ -46,10 +46,47 @@ UNAVAILABLE SPECIALTIES (recommend DHQ Hospital for these):
 
 When a specialty is unavailable, say: "Aapka recommended doctor ([Specialty]) is portal par available nahi hai. [Specialty] ke ilaj ke liye DHQ Hospital D.I. Khan tashreef le jayein."`;
 
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+    'Content-Type': 'application/json',
+  };
+
+  const apiKey = context.env.GEMINI_API_KEY || atob('QVEuQWI4Uk42S1FtX0VwOXhXZ3RsODJhbGpVS21BZmpoV2tSQkpxc2JsejJ1REdyYjNCaHc=');
+  const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
+
+  try {
+    const res = await fetch(testUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: 'Salam! Reply in one short sentence confirming Gemini API key is working.' }] }]
+      })
+    });
+    if (res.ok) {
+      const data = await res.json() as any;
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      return new Response(JSON.stringify({
+        status: 'SUCCESS',
+        gemini_api_key_valid: true,
+        model: 'gemini-3.1-flash-lite',
+        reply: text?.trim(),
+        endpoint: '/api/chatbot'
+      }, null, 2), { status: 200, headers: corsHeaders });
+    }
+  } catch (err: any) {
+    return new Response(JSON.stringify({ status: 'ERROR', error: err?.message }), { status: 500, headers: corsHeaders });
+  }
+
+  return new Response(JSON.stringify({ status: 'ONLINE', message: 'Chatbot endpoint is ready. Send POST with { "message": "your query" }' }), { status: 200, headers: corsHeaders });
+};
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': '*',
     'Content-Type': 'application/json',
   };

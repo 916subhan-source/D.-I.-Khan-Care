@@ -2709,24 +2709,36 @@ function DoctorProfileModal({
                       <GraduationCap className="w-5 h-5 text-teal-700" /> Degrees & Qualifications
                     </h3>
                     <ul className="space-y-3 text-xs text-slate-700">
-                      <li className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-xs flex-shrink-0">
-                          MBBS
-                        </div>
-                        <div>
-                          <div className="font-bold text-slate-900">Bachelor of Medicine, Bachelor of Surgery (M.B.B.S)</div>
-                          <div className="text-slate-500">Khyber Medical University — PMDC Verified</div>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-xs flex-shrink-0">
-                          FCPS
-                        </div>
-                        <div>
-                          <div className="font-bold text-slate-900">Fellowship of College of Physicians & Surgeons (F.C.P.S)</div>
-                          <div className="text-slate-500">Specialized in {doctor.specialty} — CPSP Pakistan</div>
-                        </div>
-                      </li>
+                      {(doctor.qualification || 'MBBS, FCPS').split(',').map((deg: string, dIdx: number) => {
+                        const trimmed = deg.trim();
+                        if (!trimmed) return null;
+                        const isFcps = trimmed.toUpperCase().includes('FCPS');
+                        const isMbbs = trimmed.toUpperCase().includes('MBBS');
+                        const isMcps = trimmed.toUpperCase().includes('MCPS');
+                        const title = isMbbs
+                          ? 'Bachelor of Medicine, Bachelor of Surgery (M.B.B.S)'
+                          : isFcps
+                            ? 'Fellowship of College of Physicians & Surgeons (F.C.P.S)'
+                            : isMcps
+                              ? 'Membership of College of Physicians & Surgeons (M.C.P.S)'
+                              : `${trimmed} Degree / Qualification`;
+                        const institute = isMbbs
+                          ? 'Khyber Medical University — PMDC Verified'
+                          : isFcps || isMcps
+                            ? `Specialized in ${doctor.specialty} — CPSP Pakistan`
+                            : 'PMDC & Health Commission Verified Medical Qualification';
+                        return (
+                          <li key={dIdx} className="flex items-start gap-3">
+                            <div className="px-2.5 h-8 rounded-lg bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-xs flex-shrink-0 font-mono">
+                              {trimmed}
+                            </div>
+                            <div>
+                              <div className="font-bold text-slate-900">{title}</div>
+                              <div className="text-slate-500">{institute}</div>
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
 
@@ -10387,6 +10399,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [editExpertise2, setEditExpertise2] = useState('');
   const [editExpertise3, setEditExpertise3] = useState('');
   const [editExpYears, setEditExpYears] = useState<number>(10);
+  const [editQualification, setEditQualification] = useState('MBBS, FCPS');
   const [profileMsg, setProfileMsg] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -10492,6 +10505,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             setEditAddress(profile.clinic_address || '');
             setEditMapsUrl(profile.google_maps_url || '');
             setEditBio(profile.bio || '');
+            setEditQualification(profile.qualification || 'MBBS, FCPS');
             const expParts = (profile.expertise || '').split(',').map((s: string) => s.trim());
             setEditExpertise1(expParts[0] || '');
             setEditExpertise2(expParts[1] || '');
@@ -11284,10 +11298,22 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           evening_end,
           bio: editBio.trim(),
           expertise: expertisePayload,
-          experience_years: Number(editExpYears)
+          experience_years: Number(editExpYears),
+          qualification: editQualification.trim() || 'MBBS, FCPS'
         })
       });
       setProfileMsg('✓ Clinic profile updated successfully!');
+      setDoctorProfile((prev: any) => prev ? {
+        ...prev,
+        fee_clinic: Number(editFee),
+        shift: editShift,
+        clinic_address: editAddress,
+        google_maps_url: editMapsUrl,
+        bio: editBio.trim(),
+        expertise: expertisePayload,
+        experience_years: Number(editExpYears),
+        qualification: editQualification.trim() || 'MBBS, FCPS'
+      } : prev);
       setIsEditingProfile(false);
       loadDoctorData();
       setTimeout(() => setProfileMsg(''), 4000);
@@ -13001,6 +13027,20 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       />
                     </div>
                     <div className="col-span-2 sm:col-span-1">
+                      <label className="font-semibold text-slate-600 block mb-1 flex items-center justify-between">
+                        <span>Medical Degrees &amp; Qualifications</span>
+                        <span className="text-[10px] text-slate-400 font-normal">e.g. MBBS, FCPS</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={editQualification}
+                        onChange={e => setEditQualification(e.target.value)}
+                        required
+                        placeholder="e.g. MBBS, FCPS (Medicine)"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600 font-medium text-slate-800"
+                      />
+                    </div>
+                    <div className="col-span-2 sm:col-span-1">
                       <label className="font-semibold text-slate-600 block mb-1">Clinic Shift Pattern</label>
                       <select
                         value={editShift}
@@ -13110,6 +13150,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <span className="text-slate-400 block text-[11px]">Medical Specialty</span>
                     <span className="font-bold text-slate-800 text-sm">{doctorProfile?.specialty}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <span className="text-slate-400 block text-[11px]">Degrees &amp; Qualifications</span>
+                    <span className="font-bold text-clinic-800 text-sm">{doctorProfile?.qualification || 'MBBS, FCPS'}</span>
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <span className="text-slate-400 block text-[11px]">Consultation Fee</span>

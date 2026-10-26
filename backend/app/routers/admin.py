@@ -93,7 +93,8 @@ async def create_doctor_admin(
         evening_start=payload.evening_start or "17:00",
         evening_end=payload.evening_end or "21:00",
         is_spotlight=payload.is_spotlight,
-        verification_status=payload.verification_status or "verified"
+        verification_status=payload.verification_status or "verified",
+        qualification=payload.qualification or "MBBS, FCPS"
     )
     db.add(new_doctor)
     await db.flush()
@@ -147,6 +148,7 @@ async def create_doctor_admin(
         "evening_end": new_doctor.evening_end,
         "is_spotlight": new_doctor.is_spotlight,
         "verification_status": new_doctor.verification_status,
+        "qualification": new_doctor.qualification or "MBBS, FCPS",
         "created_at": new_doctor.created_at
     }
 
@@ -214,6 +216,8 @@ async def update_doctor_admin(
         doc.verification_status = payload.verification_status
     if payload.is_spotlight is not None:
         doc.is_spotlight = payload.is_spotlight
+    if payload.qualification is not None:
+        doc.qualification = payload.qualification
 
     has_cred_update = any("password" in c or "email" in c for c in changes)
     await audit_service.log_action(

@@ -53,6 +53,7 @@ class DoctorBase(BaseModel):
     bio: Optional[str] = None
     expertise: Optional[str] = None
     experience_years: Optional[int] = 5
+    qualification: Optional[str] = "MBBS, FCPS"
 
 class DoctorCreate(DoctorBase):
     user: UserCreate
@@ -92,6 +93,7 @@ class AdminDoctorCreateSchema(BaseModel):
     evening_end: str = "21:00"
     verification_status: str = "verified"
     is_spotlight: bool = False
+    qualification: Optional[str] = "MBBS, FCPS"
 
 class AdminDoctorUpdateSchema(BaseModel):
     full_name: Optional[str] = None
@@ -110,6 +112,7 @@ class AdminDoctorUpdateSchema(BaseModel):
     evening_end: Optional[str] = None
     verification_status: Optional[str] = None
     is_spotlight: Optional[bool] = None
+    qualification: Optional[str] = None
 
 
 # --- Doctor-Assistant Linking Schemas ---

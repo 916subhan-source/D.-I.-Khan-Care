@@ -108,6 +108,7 @@ async def list_doctors(
             "bio": doc.bio,
             "expertise": doc.expertise,
             "experience_years": doc.experience_years if doc.experience_years is not None else 5,
+            "qualification": doc.qualification or "MBBS, FCPS",
             "created_at": doc.created_at.isoformat()
         })
 

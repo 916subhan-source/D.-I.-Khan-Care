@@ -62,7 +62,8 @@ async def get_doctor_profile(
         "off_days": doctor.off_days or "sunday",
         "bio": doctor.bio,
         "expertise": doctor.expertise,
-        "experience_years": doctor.experience_years if doctor.experience_years is not None else 5
+        "experience_years": doctor.experience_years if doctor.experience_years is not None else 5,
+        "qualification": doctor.qualification or "MBBS, FCPS"
     }
 
 @router.post("/profile/picture")
@@ -1288,6 +1289,7 @@ class DoctorProfileUpdateRequest(PydanticBase):
     bio: Optional[str] = None
     expertise: Optional[str] = None
     experience_years: Optional[int] = None
+    qualification: Optional[str] = None
 
 @router.put("/profile")
 async def update_doctor_profile(
@@ -1295,7 +1297,7 @@ async def update_doctor_profile(
     current_user: User = Depends(require_roles(["DOCTOR"])),
     db: AsyncSession = Depends(get_db)
 ):
-    """Allows doctor to update clinic fee, shift, address, bio, expertise, or experience years."""
+    """Allows doctor to update clinic fee, shift, address, bio, expertise, experience years, or medical qualifications."""
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
@@ -1326,6 +1328,8 @@ async def update_doctor_profile(
         doc.expertise = payload.expertise.strip() if payload.expertise else None
     if payload.experience_years is not None:
         doc.experience_years = int(payload.experience_years)
+    if payload.qualification is not None:
+        doc.qualification = payload.qualification.strip() if payload.qualification else "MBBS, FCPS"
 
     await db.commit()
     await redis_manager.clear_cache_pattern("doctors:")
@@ -1342,5 +1346,6 @@ async def update_doctor_profile(
         "off_days": doc.off_days or "sunday",
         "bio": doc.bio,
         "expertise": doc.expertise,
-        "experience_years": doc.experience_years if doc.experience_years is not None else 5
+        "experience_years": doc.experience_years if doc.experience_years is not None else 5,
+        "qualification": doc.qualification or "MBBS, FCPS"
     }

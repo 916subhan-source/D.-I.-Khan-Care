@@ -6977,8 +6977,22 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
   const handleCompleteAppointment = async (id: string) => {
     const item = queue.find(q => q.id === id);
-    if (item && item.payment_status !== 'PAID') {
+    if (!item) return;
+    if (item.payment_status !== 'PAID') {
       alert(`⚠️ Payment Required: Consultation fee (${formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)}) must be collected at the Cash Desk before this visit can be marked as completed.`);
+      return;
+    }
+    const isToday = getApptDateStrGlobal(item) === pktTodayYmd;
+    const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
+    const itemMins = getApptMinutesFromMidnight(item);
+    const isItemMorning = itemMins < 840;
+    const isShiftMatch = (callingShiftInfo.activeShiftType === 'MORNING' && isItemMorning) ||
+                         (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
+    const isCallingStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
+    const isFirstActive = Boolean(callingOrderActive && queue[0]?.id === item.id && isToday && isShiftMatch && isCallingStarted);
+
+    if (!isDateTimeReached && !isFirstActive) {
+      alert('⚠️ Cannot mark consultation as completed before its scheduled date and time has arrived.');
       return;
     }
     try {
@@ -7717,8 +7731,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                         const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isItemCallingEligible;
                         const isNextInLineWaiting = callingOrderActive && idx === 0 && isConfirmed && isToday && !isItemCallingEligible;
-                        const isTimeOccurred = isApptTimePassedGlobal(item, pktTodayYmd);
-                        const canComplete = isConfirmed && isPaid && (isCurrentActive || isTimeOccurred || isCallingStarted);
+                        const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
+                        const canComplete = isConfirmed && isPaid && (isDateTimeReached || isCurrentActive);
 
                         return (
                           <tr key={item.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>
@@ -7938,7 +7952,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         ) : (
                                           <span
                                             className="h-7 px-2.5 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-flex items-center gap-1"
-                                            title="Appointment time has not arrived yet"
+                                            title="Appointment date and time has not arrived yet"
                                           >
                                             <Clock className="w-3 h-3 text-slate-400" />
                                             <span>Upcoming Slot</span>
@@ -13498,64 +13512,102 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     >
                       Close
                     </button>
-                    {selectedAppt.payment_status !== 'PAID' ? (
-                      <div className="flex items-center gap-2">
+                    {(() => {
+                      const isModalFirstActive = Boolean(callingOrderActive && displayAppts[0]?.id === selectedAppt?.id);
+                      const canModalDoctorComplete = canDoctorComplete(selectedAppt, isModalFirstActive);
+                      if (!canModalDoctorComplete) {
+                        return (
+                          <div className="flex items-center gap-2">
+                            {selectedAppt.payment_status !== 'PAID' && (
+                              <button
+                                type="button"
+                                disabled={Boolean(doctorMarkPaidLoading) || actionLoading}
+                                onClick={() => handleDoctorMarkPaid(selectedAppt.id)}
+                                className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                                title="Record cash payment at desk / consultation"
+                              >
+                                {doctorMarkPaidLoading === selectedAppt.id ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
+                                    <span>Saving...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Mark as Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                            <span
+                              className="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-flex items-center gap-1.5"
+                              title="Appointment scheduled date & time has not arrived yet"
+                            >
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              <span>Upcoming Slot</span>
+                            </span>
+                          </div>
+                        );
+                      }
+                      return selectedAppt.payment_status !== 'PAID' ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={Boolean(doctorMarkPaidLoading) || actionLoading}
+                            onClick={() => handleDoctorMarkPaid(selectedAppt.id)}
+                            className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                            title="Record cash payment at desk / consultation"
+                          >
+                            {doctorMarkPaidLoading === selectedAppt.id ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
+                                <span>Saving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Mark as Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCompleteAppointment(selectedAppt.id, true)}
+                            disabled={actionLoading}
+                            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
+                            title="Mark fee as PAID and complete consultation in 1 click"
+                          >
+                            {actionLoading ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                <span>Processing...</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                                <span>Mark Paid & Complete</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ) : (
                         <button
                           type="button"
-                          disabled={Boolean(doctorMarkPaidLoading) || actionLoading}
-                          onClick={() => handleDoctorMarkPaid(selectedAppt.id)}
-                          className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-colors shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                          title="Record cash payment at desk / consultation"
-                        >
-                          {doctorMarkPaidLoading === selectedAppt.id ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
-                              <span>Saving...</span>
-                            </>
-                          ) : (
-                            <>
-                              <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Mark as Paid ({formatCurrency(selectedAppt.fee_amount || 1000)})</span>
-                            </>
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleCompleteAppointment(selectedAppt.id, true)}
+                          onClick={() => handleCompleteAppointment(selectedAppt.id)}
                           disabled={actionLoading}
-                          className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
-                          title="Mark fee as PAID and complete consultation in 1 click"
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold transition-colors shadow-sm inline-flex items-center gap-1.5"
                         >
                           {actionLoading ? (
                             <>
                               <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                              <span>Processing...</span>
+                              <span>Processing completion...</span>
                             </>
                           ) : (
-                            <>
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                              <span>Mark Paid & Complete</span>
-                            </>
+                            <span>Mark Consultation Complete</span>
                           )}
                         </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleCompleteAppointment(selectedAppt.id)}
-                        disabled={actionLoading}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold transition-colors shadow-sm inline-flex items-center gap-1.5"
-                      >
-                        {actionLoading ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                            <span>Processing completion...</span>
-                          </>
-                        ) : (
-                          <span>Mark Consultation Complete</span>
-                        )}
-                      </button>
-                    )}
+                      );
+                    })()}
 
                   </div>
                 </>

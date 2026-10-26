@@ -1065,7 +1065,7 @@ async def complete_appointment_by_doctor(
             )
 
 
-    # Restrict completion: appointment must be scheduled for today or a past date
+    # Restrict completion: appointment must be scheduled for today or a past date AND time has arrived
     if appt.slot and appt.slot.start_time:
         slot_time = appt.slot.start_time
         if slot_time.tzinfo is None:
@@ -1079,6 +1079,13 @@ async def complete_appointment_by_doctor(
                 status_code=400,
                 detail=f"Cannot mark consultation as completed before its scheduled calendar date ({f_d}) has arrived."
             )
+        elif slot_pkt_date == now_pkt_date:
+            if slot_time > (now_utc + timedelta(minutes=15)):
+                f_t = format_pkt_time(slot_time)
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Cannot mark consultation as completed before its scheduled time slot ({f_t}) has arrived."
+                )
 
     old_status = appt.status
     appt.status = "COMPLETED"

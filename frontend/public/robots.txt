@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /doctor
+Disallow: /assistant
+
+Sitemap: https://dikhan-doctor-appointment.pages.dev/sitemap.xml

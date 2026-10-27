@@ -6893,11 +6893,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       const me: any = await apiFetch('/auth/me', {
         headers: { Authorization: `Bearer ${activeToken}` }
       });
-      if (me?.role?.toUpperCase() !== 'ASSISTANT') {
-        console.warn('Current token does not possess ASSISTANT role:', me?.role);
+      const userRole = (me?.role || '').toUpperCase();
+      if (userRole !== 'ASSISTANT' && userRole !== 'ADMIN') {
+        console.warn('Current token does not possess ASSISTANT or ADMIN role:', me?.role);
         localStorage.removeItem('assistant_token');
         setToken('');
         setMyDoctors([]);
+        setPortalView('select');
         return;
       }
 
@@ -6915,19 +6917,28 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           setPortalView('portal');
           fetchQueue(defaultDoc.doctor_id);
           fetchAsstSlots(defaultDoc.doctor_id);
+        } else {
+          setSelectedDoctorId('');
+          localStorage.removeItem('assistant_selected_doctor_id');
+          setPortalView('select');
         }
       } catch (docErr: any) {
         console.error('Failed to fetch assigned doctor desks:', docErr);
         // Do NOT kick the user out of the session if desk fetching fails or returns empty
         setMyDoctors([]);
+        setPortalView('select');
       }
     } catch (err: any) {
       console.error('Auth verification error in assistant fetchMyDoctors:', err);
       // Only clear token if an explicit 401 Unauthorized occurred on session verification
       if (err.message?.includes('401') || err.message?.toLowerCase().includes('unauthorized') || err.message?.toLowerCase().includes('invalid token')) {
         localStorage.removeItem('assistant_token');
+        localStorage.removeItem('assistant_selected_doctor_id');
         setToken('');
         setMyDoctors([]);
+        setPortalView('select');
+      } else {
+        setPortalView('select');
       }
     } finally {
       setDoctorsLoading(false);
@@ -7440,15 +7451,35 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     );
   }
 
-  // Guard against uninitialized state if doctor data is still loading
-  if (doctorsLoading || (portalView === 'portal' && myDoctors.length === 0)) {
+  // Guard against uninitialized state if doctor data is actively loading
+  if (doctorsLoading && myDoctors.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-8">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-8 text-center">
         <Loader2 className="w-10 h-10 animate-spin text-clinic-700 mb-3" />
         <h3 className="text-base font-bold text-slate-800" style={{ fontFamily: 'Outfit,sans-serif' }}>
           Opening Assistant Reception Desk...
         </h3>
         <p className="text-xs text-slate-500 mt-1">Connecting to linked doctor desks and live patient queue</p>
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem('assistant_selected_doctor_id');
+              setPortalView('select');
+              setDoctorsLoading(false);
+            }}
+            className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg shadow-2xs transition-all cursor-pointer"
+          >
+            ← View All Desks
+          </button>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="px-3 py-1.5 text-xs font-semibold bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 rounded-lg shadow-2xs transition-all cursor-pointer"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     );
   }

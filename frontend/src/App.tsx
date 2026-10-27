@@ -2568,13 +2568,13 @@ function DoctorProfileModal({
         </div>
 
         {/* Scrollable Container */}
-        <div className="overflow-y-auto flex-1 p-6 space-y-8">
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-6 sm:space-y-8">
 
           {/* Main Hero Doctor Info Header */}
-          <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-slate-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
+          <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-slate-900 text-white rounded-2xl p-4 sm:p-6 shadow-md relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-start gap-4">
-                <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-teal-400/40 flex-shrink-0 bg-slate-800">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-teal-400/40 flex-shrink-0 bg-slate-800">
                   <img
                     src={getDoctorProfileImage(doctor, 200)}
                     alt={doctor.full_name}
@@ -2593,25 +2593,25 @@ function DoctorProfileModal({
                   </div>
                 </div>
                 <div>
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h2 className="text-2xl font-bold tracking-tight text-white">{doctor.full_name}</h2>
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{doctor.full_name}</h2>
                     {doctor.verification_status === 'verified' && (
-                      <span className="bg-teal-500/20 border border-teal-400/40 text-teal-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5 text-teal-400" /> PMDC Verified
+                      <span className="bg-teal-500/20 border border-teal-400/40 text-teal-300 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400" /> PMDC Verified
                       </span>
                     )}
                   </div>
-                  <p className="text-teal-300 font-semibold text-sm mb-2">{doctor.specialty} Specialist</p>
+                  <p className="text-teal-300 font-semibold text-xs sm:text-sm mb-2">{doctor.specialty} Specialist</p>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 mb-3">
-                    <span className="flex items-center gap-1 text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                  <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs text-slate-300 mb-3">
+                    <span className="flex items-center gap-1 text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 text-[11px] sm:text-xs">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> 4.9 (128 Reviews)
                     </span>
-                    <span className="flex items-center gap-1">
-                      <GraduationCap className="w-4 h-4 text-teal-400" /> M.B.B.S, F.C.P.S ({doctor.specialty})
+                    <span className="flex items-center gap-1 text-[11px] sm:text-xs">
+                      <GraduationCap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-400" /> M.B.B.S, F.C.P.S ({doctor.specialty})
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Award className="w-4 h-4 text-teal-400" /> 10+ Years Experience
+                    <span className="flex items-center gap-1 text-[11px] sm:text-xs">
+                      <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-400" /> 10+ Years Experience
                     </span>
                   </div>
 
@@ -2638,7 +2638,7 @@ function DoctorProfileModal({
                 <div className="text-2xl font-extrabold text-teal-300">{formatCurrency(doctor.fee_clinic)}</div>
                 <button
                   onClick={onBook}
-                  className="w-full py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Calendar className="w-4 h-4" /> Book Clinic Visit
                 </button>
@@ -2646,8 +2646,8 @@ function DoctorProfileModal({
             </div>
           </div>
 
-          {/* Oladoc Sub-Navigation Tabs */}
-          <div className="border-b border-slate-200 flex flex-wrap gap-2 text-sm font-semibold">
+          {/* Oladoc Sub-Navigation Tabs — Horizontal Swipeable on Mobile */}
+          <div className="border-b border-slate-200 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-1 flex-nowrap touch-scroll text-xs sm:text-sm font-semibold -mx-1 px-1 sm:mx-0 sm:px-0">
             {[
               { id: 'reviews', label: 'Reviews (128)', icon: Star },
               { id: 'services', label: 'Services & Conditions', icon: Stethoscope },
@@ -2661,13 +2661,13 @@ function DoctorProfileModal({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition-all ${isActive
+                  className={`pb-2.5 px-3 sm:px-4 flex items-center gap-1.5 sm:gap-2 border-b-2 whitespace-nowrap flex-shrink-0 transition-all cursor-pointer ${isActive
                     ? 'border-teal-700 text-teal-800 font-bold'
                     : 'border-transparent text-slate-500 hover:text-slate-900'
                     }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
-                  {tab.label}
+                  <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
+                  <span>{tab.label}</span>
                 </button>
               );
             })}
@@ -2988,6 +2988,21 @@ function DoctorProfileModal({
             </div>
           </div>
 
+        </div>
+
+        {/* Sticky Mobile Book CTA Bar */}
+        <div className="md:hidden sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex items-center justify-between gap-3 shadow-lg z-20">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Fee</span>
+            <span className="text-base font-extrabold text-teal-800 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+          </div>
+          <button
+            onClick={onBook}
+            className="flex-1 py-2.5 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white font-bold rounded-xl text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <Calendar className="w-3.5 h-3.5 text-white" />
+            <span>Book Clinic Visit &rarr;</span>
+          </button>
         </div>
       </div>
     </div>
@@ -5826,20 +5841,20 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
 
       {/* ── Booking Modal (With Interactive OTP) ── */}
       {bookingDoctor && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 relative max-h-[92vh] overflow-y-auto animate-fade-in">
             {/* Modal header */}
-            <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+            <div className="sticky top-0 bg-white border-b border-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between rounded-t-2xl z-10">
               <div>
-                <h3 className="font-bold text-slate-900 text-lg" style={{ fontFamily: 'Outfit,sans-serif' }}>Book Clinic Visit</h3>
+                <h3 className="font-bold text-slate-900 text-base sm:text-lg" style={{ fontFamily: 'Outfit,sans-serif' }}>Book Clinic Visit</h3>
                 <p className="text-xs text-clinic-700 font-medium">{bookingDoctor.full_name} &bull; {bookingDoctor.specialty}</p>
               </div>
-              <button onClick={() => setBookingDoctor(null)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors">
+              <button onClick={() => setBookingDoctor(null)} className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Step indicator */}
               <div className="flex items-center gap-2 mb-6 text-xs">
                 <span className={`font-semibold ${!otpSent ? 'text-clinic-700' : 'text-slate-400'}`}>1 &bull; Choose slot</span>
@@ -5890,7 +5905,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                             <p className="text-[11px] font-bold text-clinic-800 mb-2 flex items-center gap-1">
                               <span>📅</span> {fmtDate(dk)}
                             </p>
-                            <div className="grid grid-cols-4 gap-1.5">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 sm:gap-2">
                               {dSlots.map(slot => {
                                 const isSelected = selectedSlot?.id === slot.id;
                                 return (
@@ -5981,7 +5996,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                     </p>
 
                     {/* 6 OTP boxes */}
-                    <div className="flex items-center justify-center gap-2 mb-4">
+                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-4">
                       {otpDigits.map((d, i) => (
                         <input
                           key={i}
@@ -5996,7 +6011,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                               (document.getElementById(`otp-${i - 1}`) as HTMLInputElement)?.focus();
                             }
                           }}
-                          className={`w-12 h-14 text-center text-xl font-bold border rounded-xl focus:outline-none focus:ring-2 transition-all ${otpError
+                          className={`w-10 sm:w-12 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold border rounded-xl focus:outline-none focus:ring-2 transition-all ${otpError
                             ? 'border-rose-400 focus:ring-rose-300 bg-rose-50'
                             : 'border-slate-300 focus:ring-clinic-400 focus:border-clinic-400 bg-white'
                             }`}
@@ -6133,13 +6148,13 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         </div>
 
         {/* Bottom doctor label on image */}
-        <div className="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between pointer-events-none">
+        <div className="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between pointer-events-none gap-2">
           {doctor.verification_status === 'verified' && (
-            <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-emerald-300 bg-slate-950/80 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-emerald-500/30 shadow-xs">
+            <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-emerald-300 bg-slate-950/80 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-emerald-500/30 shadow-xs flex-shrink-0">
               <Check className="w-3 h-3 stroke-[3] text-emerald-400" /> PMDC Verified
             </span>
           )}
-          <span className="text-[10px] sm:text-[11px] font-medium text-slate-200 bg-slate-950/80 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-white/10 ml-auto shadow-xs">
+          <span className="text-[10px] sm:text-[11px] font-medium text-slate-200 bg-slate-950/80 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-white/10 ml-auto shadow-xs truncate max-w-[140px] sm:max-w-none">
             {doctor.sub_region}, D.I. Khan
           </span>
         </div>

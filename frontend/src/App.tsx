@@ -740,6 +740,200 @@ function getDoctorProfileImage(
   return '/dr_ayesha_khan.webp';
 }
 
+// ── Shared: Doctor Real Shift, Today Availability & Next Slot Calculator ─────────────
+export interface DoctorAvailabilityInfo {
+  isAvailableToday: boolean;
+  todayBadgeText: string;
+  todayBadgeClass: string;
+  nextSlotText: string;
+  nextSlotClass: string;
+  shiftBadge: string;
+  statusText: string;
+}
+
+export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorAvailabilityInfo {
+  if (!doc) {
+    return {
+      isAvailableToday: false,
+      todayBadgeText: 'Checking Schedule',
+      todayBadgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+      nextSlotText: 'Schedule Loading',
+      nextSlotClass: 'bg-slate-400',
+      shiftBadge: 'Clinic Shift',
+      statusText: 'OPD Timing'
+    };
+  }
+
+  try {
+    const now = new Date();
+    const dayName = now.toLocaleDateString('en-US', { timeZone: 'Asia/Karachi', weekday: 'long' }).toLowerCase();
+    const hr = parseInt(now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false }), 10);
+    const min = parseInt(now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Karachi', minute: '2-digit', hour12: false }), 10);
+    const nowMins = hr * 60 + min;
+
+    const offDays = (doc.off_days || 'sunday').split(',').map((d: string) => d.trim().toLowerCase());
+    const isTodayOff = offDays.includes(dayName);
+
+    // Shift boundaries
+    const [mSh, mSm] = (doc.morning_start || '09:00').split(':').map(Number);
+    const [mEh, mEm] = (doc.morning_end || '13:00').split(':').map(Number);
+    const mStartMin = mSh * 60 + mSm;
+    const mEndMin = mEh * 60 + mEm;
+
+    const [eSh, eSm] = (doc.evening_start || '17:00').split(':').map(Number);
+    const [eEh, eEm] = (doc.evening_end || '21:00').split(':').map(Number);
+    const eStartMin = eSh * 60 + eSm;
+    const eEndMin = eEh * 60 + eEm;
+
+    const fmt12 = (h: number, m: number) => {
+      const ampm = h < 12 ? 'AM' : 'PM';
+      const h12 = h % 12 || 12;
+      return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+    };
+
+    const morningLabel = `${fmt12(mSh, mSm)} - ${fmt12(mEh, mEm)}`;
+    const eveningLabel = `${fmt12(eSh, eSm)} - ${fmt12(eEh, eEm)}`;
+
+    let shiftBadge = '';
+    const shift = (doc.shift || 'EVENING').toUpperCase();
+    if (shift === 'MORNING') {
+      shiftBadge = `Morning · ${morningLabel}`;
+    } else if (shift === 'EVENING') {
+      shiftBadge = `Evening · ${eveningLabel}`;
+    } else {
+      shiftBadge = `Both Shifts · ${fmt12(mSh, mSm)} & ${fmt12(eSh, eSm)}`;
+    }
+
+    const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const currentDayIdx = daysOfWeek.indexOf(dayName);
+    let nextOpenDay = 'Tomorrow';
+    const tomorrowDayName = daysOfWeek[(currentDayIdx + 1) % 7];
+    if (offDays.includes(tomorrowDayName)) {
+      const dayAfterTomorrow = daysOfWeek[(currentDayIdx + 2) % 7];
+      nextOpenDay = dayAfterTomorrow.charAt(0).toUpperCase() + dayAfterTomorrow.slice(1);
+    }
+
+    if (isTodayOff) {
+      const startSlot = shift === 'EVENING' ? fmt12(eSh, eSm) : fmt12(mSh, mSm);
+      return {
+        isAvailableToday: false,
+        todayBadgeText: 'Off Today (Weekly Off)',
+        todayBadgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
+        nextSlotText: `${nextOpenDay} · ${startSlot}`,
+        nextSlotClass: 'bg-rose-500',
+        shiftBadge,
+        statusText: 'Weekly Off Day'
+      };
+    }
+
+    if (shift === 'MORNING') {
+      if (nowMins < mEndMin - 20) {
+        const nextMin = Math.max(nowMins + 15, mStartMin);
+        const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
+        const nextSlotH = Math.floor(nextRoundedMin / 60);
+        const nextSlotM = nextRoundedMin % 60;
+        return {
+          isAvailableToday: true,
+          todayBadgeText: 'Available Today',
+          todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+          nextSlotClass: 'bg-emerald-500 animate-pulse',
+          shiftBadge,
+          statusText: `Open until ${fmt12(mEh, mEm)}`
+        };
+      } else {
+        return {
+          isAvailableToday: false,
+          todayBadgeText: 'Morning Shift Ended',
+          todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+          nextSlotText: `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
+          nextSlotClass: 'bg-amber-500',
+          shiftBadge,
+          statusText: 'Shift ended today'
+        };
+      }
+    }
+
+    if (shift === 'EVENING') {
+      if (nowMins < eEndMin - 20) {
+        const nextMin = Math.max(nowMins + 15, eStartMin);
+        const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
+        const nextSlotH = Math.floor(nextRoundedMin / 60);
+        const nextSlotM = nextRoundedMin % 60;
+        return {
+          isAvailableToday: true,
+          todayBadgeText: 'Available Today',
+          todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+          nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+          nextSlotClass: 'bg-emerald-500 animate-pulse',
+          shiftBadge,
+          statusText: `Open until ${fmt12(eEh, eEm)}`
+        };
+      } else {
+        return {
+          isAvailableToday: false,
+          todayBadgeText: 'Evening Shift Ended',
+          todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+          nextSlotText: `${nextOpenDay} · ${fmt12(eSh, eSm)}`,
+          nextSlotClass: 'bg-amber-500',
+          shiftBadge,
+          statusText: 'Shift ended today'
+        };
+      }
+    }
+
+    // BOTH SHIFTS
+    if (nowMins < mEndMin - 20) {
+      const nextMin = Math.max(nowMins + 15, mStartMin);
+      const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
+      const nextSlotH = Math.floor(nextRoundedMin / 60);
+      const nextSlotM = nextRoundedMin % 60;
+      return {
+        isAvailableToday: true,
+        todayBadgeText: 'Available Today (Morning)',
+        todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+        nextSlotClass: 'bg-emerald-500 animate-pulse',
+        shiftBadge,
+        statusText: `Morning shift until ${fmt12(mEh, mEm)}`
+      };
+    } else if (nowMins < eEndMin - 20) {
+      const nextMin = Math.max(nowMins + 15, eStartMin);
+      const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
+      const nextSlotH = Math.floor(nextRoundedMin / 60);
+      const nextSlotM = nextRoundedMin % 60;
+      return {
+        isAvailableToday: true,
+        todayBadgeText: 'Available Today (Evening)',
+        todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+        nextSlotClass: 'bg-emerald-500 animate-pulse',
+        shiftBadge,
+        statusText: `Evening shift until ${fmt12(eEh, eEm)}`
+      };
+    } else {
+      return {
+        isAvailableToday: false,
+        todayBadgeText: 'Both Shifts Ended',
+        todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+        nextSlotText: `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
+        nextSlotClass: 'bg-amber-500',
+        shiftBadge,
+        statusText: 'Both shifts ended today'
+      };
+    }
+  } catch {
+    return {
+      isAvailableToday: true,
+      todayBadgeText: 'Available',
+      todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+      nextSlotText: 'Upcoming Slots Available',
+      nextSlotClass: 'bg-emerald-500',
+      shiftBadge: (doc.shift || 'EVENING'),
+      statusText: 'Consultation'
+    };
+  }
+}
 
 // ── Shared: Initials Avatar ──────────────────────────────────────────────────
 function InitialsAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
@@ -5240,8 +5434,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       return nameL.includes('sadia') || nameL.includes('ayesha') || nameL.includes('fatima') || nameL.includes('amna') || nameL.includes('zainab') || nameL.includes('dr. s') || specL.includes('gyn');
     }
     if (quickFilter === 'today') {
-      const hr = parseInt(new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false }), 10);
-      return (doc.shift === 'MORNING' && hr < 13) || (doc.shift === 'EVENING' && hr < 21) || (doc.shift === 'BOTH');
+      return getDoctorAvailability(doc).isAvailableToday;
     }
     if (quickFilter === 'circular_road') {
       return doc.sub_region.toLowerCase().includes('circular') || doc.clinic_address.toLowerCase().includes('circular');
@@ -6080,25 +6273,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
 // ── Doctor Card Component (Luxurious elevated design with subtle hover zoom) ──────
 function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void }) {
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
-  // Next slot time dynamically calculated based on current clinic PKT hour
-  const nextAvail = (() => {
-    try {
-      const nowPKT = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false });
-      const hr = parseInt(nowPKT, 10);
-      if (doctor.shift === 'MORNING') {
-        return hr >= 13 ? 'Tomorrow · 09:00 AM' : 'Today · 10:00 AM';
-      }
-      if (doctor.shift === 'EVENING') {
-        return hr >= 21 ? 'Tomorrow · 05:00 PM' : 'Today · 05:20 PM';
-      }
-      // BOTH shifts
-      if (hr >= 21) return 'Tomorrow · 09:00 AM';
-      if (hr >= 13) return 'Today · 05:00 PM';
-      return 'Today · 10:00 AM';
-    } catch {
-      return doctor.shift === 'MORNING' ? 'Tomorrow · 09:00 AM' : 'Today · 05:20 PM';
-    }
-  })();
+  const avail = getDoctorAvailability(doctor);
   return (
     <div className={`group relative bg-white rounded-3xl border transition-all duration-300 ease-out flex flex-col justify-between overflow-hidden ${doctor.is_spotlight
       ? 'border-amber-200/90 shadow-md shadow-amber-50 hover:shadow-2xl hover:shadow-amber-100/60 hover:border-amber-300 hover:-translate-y-1.5 hover:scale-[1.018]'
@@ -6142,8 +6317,9 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" /> Verified Doctor
             </span>
           )}
-          <span className="text-[10px] sm:text-[11px] font-bold text-white bg-slate-900/80 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 capitalize shadow-sm">
-            {doctor.shift.charAt(0) + doctor.shift.slice(1).toLowerCase()} shift
+          <span className="text-[10px] sm:text-[11px] font-bold text-white bg-slate-900/85 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 capitalize shadow-sm inline-flex items-center gap-1.5">
+            <Clock className="w-3 h-3 text-clinic-300" />
+            <span>{avail.shiftBadge}</span>
           </span>
         </div>
 
@@ -6188,8 +6364,19 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
             </div>
           </div>
 
+          {/* Real-Time Today Availability Badge */}
+          <div className="flex items-center justify-between mb-3.5 pt-2 border-t border-slate-100">
+            <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 sm:py-1 rounded-full border shadow-2xs ${avail.todayBadgeClass}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${avail.isAvailableToday ? 'bg-emerald-600 animate-pulse' : 'bg-amber-600'}`} />
+              {avail.todayBadgeText}
+            </span>
+            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">
+              {avail.statusText}
+            </span>
+          </div>
+
           {/* Fee & Next Available - Clean, balanced typography with live indicator */}
-          <div className="pt-3.5 pb-1 border-t border-slate-100 mb-4 flex items-end justify-between">
+          <div className="pt-2 pb-1 border-t border-slate-100 mb-4 flex items-end justify-between">
             <div>
               <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Fee</p>
               <p className="font-extrabold text-slate-900 text-lg font-mono tracking-tight leading-none mt-1">
@@ -6198,9 +6385,9 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
             </div>
             <div className="text-right">
               <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Next Slot</p>
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${nextAvail.startsWith('Today') ? 'bg-emerald-500 animate-pulse' : 'bg-clinic-500'}`} />
-                <span>{nextAvail}</span>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.nextSlotClass}`} />
+                <span>{avail.nextSlotText}</span>
               </div>
             </div>
           </div>

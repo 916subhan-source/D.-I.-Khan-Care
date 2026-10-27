@@ -705,39 +705,39 @@ function getDoctorProfileImage(
   doc?: Partial<DoctorData> | { full_name?: string; specialty?: string; profile_image?: string } | null,
   targetWidth: number = 400
 ): string {
-  if (!doc) return '/dr_ayesha_khan.jpg';
+  if (!doc) return '/dr_ayesha_khan.webp';
   if (doc.profile_image) return optimizeCloudinaryUrl(doc.profile_image, targetWidth);
   const name = (doc.full_name || '').toLowerCase();
   const spec = (doc.specialty || '').toLowerCase();
 
   if (name.includes('sadia') || spec.includes('gynecol') || spec.includes('obstetric')) {
-    return '/doctors/dr_sadia_rehman.jpg';
+    return '/doctors/dr_sadia_rehman.webp';
   }
   if (name.includes('tariq') || name.includes('babar')) {
-    return '/doctors/dr_tariq_babar.jpg';
+    return '/doctors/dr_tariq_babar.webp';
   }
   if (name.includes('sahil') || spec.includes('dermatol')) {
-    return '/doctors/dr_sahil_mehsood.jpg';
+    return '/doctors/dr_sahil_mehsood.webp';
   }
   if (name.includes('haris')) {
-    return '/doctors/dr_haris_rehman.jpg';
+    return '/doctors/dr_haris_rehman.webp';
   }
   if (name.includes('asif') || name.includes('gandapur')) {
-    return '/doctors/dr_asif_gandapur.jpg';
+    return '/doctors/dr_asif_gandapur.webp';
   }
   if (name.includes('moiz')) {
-    return '/doctors/dr_moiz_ahmad.jpg';
+    return '/doctors/dr_moiz_ahmad.webp';
   }
   if (name.includes('subhan')) {
-    return '/doctors/dr_subhan_sultan.jpg';
+    return '/doctors/dr_subhan_sultan.webp';
   }
   if (spec.includes('cardio')) {
-    return '/doctors/dr_tariq_babar.jpg';
+    return '/doctors/dr_tariq_babar.webp';
   }
   if (spec.includes('pediat') || spec.includes('child')) {
-    return '/doctors/dr_asif_gandapur.jpg';
+    return '/doctors/dr_asif_gandapur.webp';
   }
-  return '/dr_ayesha_khan.jpg';
+  return '/dr_ayesha_khan.webp';
 }
 
 
@@ -2578,8 +2578,6 @@ function DoctorProfileModal({
                   <img
                     src={getDoctorProfileImage(doctor, 200)}
                     alt={doctor.full_name}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover object-top"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
@@ -3704,8 +3702,6 @@ function DoctorProfileAndBookingView({
                 <img
                   src={getDoctorProfileImage(doctor, 500)}
                   alt={doctor.full_name}
-                  loading="lazy"
-                  decoding="async"
                   className="w-full h-full object-cover object-top"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
@@ -6103,8 +6099,6 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         <img
           src={getDoctorProfileImage(doctor, 500)}
           alt={doctor.full_name}
-          loading="lazy"
-          decoding="async"
           className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
           onError={(e) => {
             (e.target as HTMLElement).style.display = 'none';
@@ -11722,8 +11716,6 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     profile_image: doctorProfile?.profile_image
                   }, 80)}
                   alt={doctorName}
-                  loading="lazy"
-                  decoding="async"
                   className="w-full h-full object-cover object-top"
                 />
               </div>
@@ -13212,8 +13204,6 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       profile_image: doctorProfile?.profile_image
                     }, 300)}
                     alt={doctorProfile?.full_name || 'Doctor'}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover object-top"
                   />
                   {uploadingImage && (

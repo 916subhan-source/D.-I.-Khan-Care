@@ -631,8 +631,6 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                                 <img
                                   src={optimizeCloudinaryUrl(doc.profile_image, 120)}
                                   alt={doc.full_name}
-                                  loading="lazy"
-                                  decoding="async"
                                   className="w-full h-full object-cover object-top"
                                 />
                               ) : (

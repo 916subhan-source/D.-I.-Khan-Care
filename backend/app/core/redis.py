@@ -8,7 +8,7 @@ Redis in-memory manager supporting:
 
 import time
 import logging
-from typing import Optional, Any
+from typing import Optional, Any, Set, List
 import redis.asyncio as aioredis
 from app.core.config import settings
 
@@ -129,7 +129,7 @@ class RedisManager:
             self._fallback_store.pop(key, None)
         return None
 
-    async def get_active_slot_locks(self, slot_ids: list[str]) -> set[str]:
+    async def get_active_slot_locks(self, slot_ids: List[str]) -> Set[str]:
         """
         Blazing-fast batch lock checker using a single Redis MGET command
         instead of sequential roundtrips. Reduces 100 queries (~20 seconds) to 1 query (~20ms).
@@ -138,7 +138,7 @@ class RedisManager:
         if not slot_ids:
             return set()
         
-        locked_set: set[str] = set()
+        locked_set: Set[str] = set()
         keys = [f"slot:lock:{sid}" for sid in slot_ids]
 
         # 1. Real Redis client with MGET (single network roundtrip!)

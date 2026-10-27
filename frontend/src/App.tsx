@@ -3145,6 +3145,7 @@ function DoctorProfileAndBookingView({
   const [confirmedSlip, setConfirmedSlip] = useState<any>(null);
 
   const [availableSlots, setAvailableSlots] = useState<SlotData[]>([]);
+  const [isSlotsLoading, setIsSlotsLoading] = useState(true);
   const [activeSlotId, setActiveSlotId] = useState<string>('');
 
   const normalizeIsoUtc = (iso?: string | null): string => {
@@ -3418,10 +3419,12 @@ function DoctorProfileAndBookingView({
   }, [activeSlotsToDisplay]);
 
   useEffect(() => {
+    let isCancelled = false;
     const loadSlots = async () => {
       try {
+        setIsSlotsLoading(true);
         const slots = await apiFetch<SlotData[]>(`/doctors/${doctor.id}/slots`);
-        if (Array.isArray(slots)) {
+        if (Array.isArray(slots) && !isCancelled) {
           const nowMs = Date.now();
           const fortyFiveMinsAheadMs = nowMs + 45 * 60 * 1000;
           const validSlots = slots.filter(s => {
@@ -3433,9 +3436,12 @@ function DoctorProfileAndBookingView({
         }
       } catch (err) {
         console.warn('Slot load note:', err);
+      } finally {
+        if (!isCancelled) setIsSlotsLoading(false);
       }
     };
     loadSlots();
+    return () => { isCancelled = true; };
   }, [doctor.id]);
 
   const handleStartBooking = async (e: React.FormEvent) => {
@@ -3974,6 +3980,8 @@ function DoctorProfileAndBookingView({
                           <span className={`inline-block text-[10px] font-bold px-1 rounded-full mt-0.5 ${isSelected ? 'bg-amber-300 text-slate-900' : 'bg-teal-100 text-teal-800'}`}>
                             {day.slotCount}
                           </span>
+                        ) : isSlotsLoading ? (
+                          <span className="block text-[9px] text-teal-600 font-bold animate-pulse mt-0.5">...</span>
                         ) : (
                           <span className="block text-[9px] text-slate-300 mt-0.5 font-medium">Off</span>
                         )}
@@ -4037,7 +4045,14 @@ function DoctorProfileAndBookingView({
                 </div>
 
                 {/* Doctor Shift Schedule Info Banner derived dynamically from generated slots */}
-                {selectedDayObj?.isOffDay ? null : displaySlots.length > 0 ? (
+                {isSlotsLoading ? (
+                  <div className="p-2.5 rounded-xl bg-teal-50/70 border border-teal-100 flex items-center justify-between text-[11px] text-teal-800 animate-pulse font-medium">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-teal-700 flex-shrink-0" />
+                      <span>Loading real-time available consultation slots from clinic...</span>
+                    </div>
+                  </div>
+                ) : selectedDayObj?.isOffDay ? null : displaySlots.length > 0 ? (
                   <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-100 flex items-center justify-between text-[11px] text-slate-600">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
@@ -4074,7 +4089,13 @@ function DoctorProfileAndBookingView({
                 )}
 
                 {/* Time Slots (dynamic slots buttons) */}
-                {activeSlotsToDisplay.length === 0 ? (
+                {isSlotsLoading ? (
+                  <div className="py-12 text-center bg-slate-50/70 rounded-2xl border border-slate-200/80 flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin text-teal-700" />
+                    <p className="text-xs font-bold text-slate-800">Checking consultation slots...</p>
+                    <p className="text-[11px] text-slate-400">Loading live appointment schedule for {doctor.full_name}</p>
+                  </div>
+                ) : activeSlotsToDisplay.length === 0 ? (
                   <div className="py-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-1">
                     {selectedDayObj?.isOffDay ? (
                       <>

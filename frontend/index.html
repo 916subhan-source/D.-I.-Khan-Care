@@ -29,25 +29,46 @@
     <meta name="twitter:title" content="D.I. Khan Doctor Appointment System — Local Healthcare Platform" />
     <meta name="twitter:description" content="Book online doctor appointments in D.I. Khan with top specialists. Instant digital token slips and live queue tracking." />
 
-    <!-- Google Structured Data (Schema.org JSON-LD for Medical / Healthcare Platform) -->
+    <!-- Google Structured Data (Schema.org JSON-LD for Medical / Healthcare Platform & Sitelinks) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "MedicalBusiness",
-      "name": "D.I. Khan Doctor Appointment System — D.I. Khan Care",
-      "url": "https://dikhan-doctor-appointment.pages.dev/",
-      "description": "Online doctor appointment booking, digital tokens, and consultation scheduling for clinics and specialists across Dera Ismail Khan, Khyber Pakhtunkhwa.",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Dera Ismail Khan",
-        "addressRegion": "Khyber Pakhtunkhwa",
-        "addressCountry": "PK"
-      },
-      "areaServed": "Dera Ismail Khan",
-      "medicalSpecialty": [
-        "Cardiovascular",
-        "GeneralPractice",
-        "Pediatric"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://dikhan-doctor-appointment.pages.dev/#website",
+          "url": "https://dikhan-doctor-appointment.pages.dev/",
+          "name": "D.I. Khan Care — Doctor Appointment System",
+          "description": "Online doctor appointment booking, digital tokens, and consultation scheduling for clinics and specialists across Dera Ismail Khan, KP.",
+          "hasPart": [
+            {
+              "@type": "WebPage",
+              "@id": "https://dikhan-doctor-appointment.pages.dev/track#webpage",
+              "url": "https://dikhan-doctor-appointment.pages.dev/track",
+              "name": "Track Appointment & Live Queue Token — D.I. Khan Care",
+              "description": "Check real-time live appointment status, patient digital slip details, and clinic queue calling token number in Dera Ismail Khan."
+            }
+          ]
+        },
+        {
+          "@type": "MedicalBusiness",
+          "@id": "https://dikhan-doctor-appointment.pages.dev/#medicalbusiness",
+          "name": "D.I. Khan Doctor Appointment System — D.I. Khan Care",
+          "url": "https://dikhan-doctor-appointment.pages.dev/",
+          "description": "Online doctor appointment booking, digital tokens, and consultation scheduling for clinics and specialists across Dera Ismail Khan, Khyber Pakhtunkhwa.",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Dera Ismail Khan",
+            "addressRegion": "Khyber Pakhtunkhwa",
+            "addressCountry": "PK"
+          },
+          "areaServed": "Dera Ismail Khan",
+          "medicalSpecialty": [
+            "Cardiovascular",
+            "GeneralPractice",
+            "Pediatric"
+          ]
+        }
       ]
     }
     </script>

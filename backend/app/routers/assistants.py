@@ -751,8 +751,8 @@ async def get_available_slots_by_date(
         for idx, s in enumerate(day_all_slots):
             s_pkt = to_pkt(s.start_time)
             if s.status == "available":
-                # For today, skip slots that already passed in time
-                if day_offset == 0 and s_pkt < now_pkt:
+                # For today, skip slots that have already started or passed in time
+                if day_offset == 0 and s_pkt <= now_pkt:
                     continue
                 available_slots_data.append({
                     "id": s.id,
@@ -974,6 +974,16 @@ async def pos_book_appointment(
         raise HTTPException(
             status_code=400,
             detail="The selected time slot has already been booked or is locked. Please select another slot."
+        )
+
+    # Validate that slot timing has not already passed
+    slot_pkt = to_pkt(slot.start_time)
+    now_pkt = datetime.now(PKT)
+    # Check if slot start time has already passed (with 5-minute buffer for immediate emergency slots)
+    if slot_pkt and slot_pkt < (now_pkt - timedelta(minutes=5)):
+        raise HTTPException(
+            status_code=400,
+            detail=f"The selected slot timing ({format_pkt_time(slot.start_time)}) has already passed. Please select an upcoming slot or use Emergency Walk-in."
         )
 
     # 3. Locate or create Patient User record

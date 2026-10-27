@@ -371,6 +371,32 @@ function parseTimeToMinutes(str?: string, defaultMins: number = 540): number {
   return h * 60 + m;
 }
 
+function isPosSlotPassed(s: any, isToday: boolean): boolean {
+  if (!isToday || !s) return false;
+  if (s.is_emergency) return false;
+  try {
+    const currentMins = getCurrentMinutesInPkt();
+    let slotMins = 9999;
+    if (s.start_time) {
+      const dt = new Date(s.start_time);
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Karachi',
+        hour: 'numeric',
+        minute: 'numeric',
+        hourCycle: 'h23'
+      }).formatToParts(dt);
+      const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+      const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+      slotMins = h * 60 + m;
+    } else if (s.start_time_fmt) {
+      slotMins = parseTimeToMinutes(s.start_time_fmt);
+    }
+    return currentMins >= slotMins;
+  } catch {
+    return false;
+  }
+}
+
 function formatMinutesTo12h(mins: number): string {
   let normalized = mins % 1440;
   if (normalized < 0) normalized += 1440;
@@ -7203,6 +7229,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       return;
     }
 
+    const isTargetToday = Boolean(selectedPosDate === pktTodayYmd || (posDays[0] && posDays[0].date === selectedPosDate && posDays[0].is_today));
+    if (isPosSlotPassed(selectedPosSlot, isTargetToday)) {
+      setPosError(`The selected consultation slot (${selectedPosSlot.start_time_fmt}) has already passed. Please select an upcoming slot or use Emergency Walk-In.`);
+      return;
+    }
+
     const cleanName = posPatientName.trim();
     const cleanPhone = posPatientPhone.trim().replace(/[\s-]/g, '');
 
@@ -8041,6 +8073,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                               </>
                                             )}
                                           </button>
+                                        ) : !isPaid && (isDateTimeReached || isCurrentActive) ? (
+                                          <span
+                                            className="h-7 px-2.5 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 inline-flex items-center gap-1"
+                                            title="Please collect payment balance before completing consultation"
+                                          >
+                                            <CreditCard className="w-3 h-3 text-amber-600" />
+                                            <span>Pay Due to Complete</span>
+                                          </span>
                                         ) : (
                                           <span
                                             className="h-7 px-2.5 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-flex items-center gap-1"
@@ -9463,7 +9503,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         {posDays.map(day => {
                           const isSelected = (selectedPosDate || (posDays[0] && posDays[0].date)) === day.date;
                           const isOff = Boolean(day.is_off_day);
-                          const hasOpen = day.available_count > 0;
+                          const isDayToday = Boolean(day.is_today || day.date === pktTodayYmd);
+                          const upcomingSlots = isDayToday ? (day.slots || []).filter(s => !isPosSlotPassed(s, true)) : (day.slots || []);
+                          const upcomingCount = isDayToday ? upcomingSlots.length : day.available_count;
+                          const hasOpen = upcomingCount > 0;
                           return (
                             <button
                               key={day.date}
@@ -9493,7 +9536,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         : 'bg-emerald-100 text-emerald-800'
                                       : 'bg-slate-200 text-slate-700'
                                   }`}>
-                                  {isOff ? 'OFF DAY' : hasOpen ? `${day.available_count} open` : 'Full'}
+                                  {isOff ? 'OFF DAY' : hasOpen ? `${upcomingCount} open` : (isDayToday ? 'All Passed' : 'Full')}
                                 </span>
                               </div>
                               <span className="text-[10px] text-slate-500 block mt-0.5 font-medium">
@@ -9541,7 +9584,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         );
                       }
 
-                      if (curDay.slots.length === 0) {
+                      const isCurDayToday = Boolean(curDay.is_today || curDay.date === pktTodayYmd);
+                      const availableUpcomingSlots = isCurDayToday
+                        ? (curDay.slots || []).filter(s => !isPosSlotPassed(s, true))
+                        : (curDay.slots || []);
+                      const passedSlotsCount = isCurDayToday ? ((curDay.slots || []).length - availableUpcomingSlots.length) : 0;
+
+                      if (availableUpcomingSlots.length === 0) {
                         return (
                           <div className="p-6 text-center bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-slate-50 rounded-2xl border-2 border-dashed border-amber-300 px-4 space-y-4">
                             <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
@@ -9549,10 +9598,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-extrabold text-amber-950">
-                                All Standard Slots Booked on {curDay.label} ({curDay.date_fmt})
+                                {isCurDayToday ? `All Standard Slots Ended or Booked Today` : `All Standard Slots Booked on ${curDay.label}`} ({curDay.date_fmt})
                               </p>
                               <p className="text-[11px] text-amber-900/90 max-w-md mx-auto">
-                                All regular consultation slots for this date are fully booked or past. As the reception assistant, you can choose specific timing for an <strong>Emergency Walk-In Slot</strong> right now.
+                                {isCurDayToday
+                                  ? `All regular consultation slots for earlier today (${passedSlotsCount} slots) have already passed in time or are booked. As the reception assistant, you can choose specific timing for an Emergency Walk-In Slot right now.`
+                                  : `All regular consultation slots for this date are fully booked or past. As the reception assistant, you can choose specific timing for an Emergency Walk-In Slot right now.`}
                               </p>
                             </div>
 
@@ -9583,12 +9634,19 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       return (
                         <div>
                           <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                            <span className="text-xs font-bold text-slate-700">
-                              Available Consultation Slots &bull; {curDay.label} ({curDay.date_fmt})
-                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-bold text-slate-700">
+                                Available Consultation Slots &bull; {curDay.label} ({curDay.date_fmt})
+                              </span>
+                              {passedSlotsCount > 0 && (
+                                <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium border border-slate-200">
+                                  ⏱️ {passedSlotsCount} earlier {passedSlotsCount === 1 ? 'slot' : 'slots'} passed
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center gap-2">
                               <span className="text-[11px] text-emerald-700 font-semibold">
-                                {curDay.slots.length} available
+                                {availableUpcomingSlots.length} available
                               </span>
                               <button
                                 type="button"
@@ -9604,7 +9662,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           </div>
 
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
-                            {curDay.slots.map(s => {
+                            {availableUpcomingSlots.map(s => {
                               const isSlotSelected = selectedPosSlot?.id === s.id;
                               const isEmg = Boolean(s.is_emergency);
                               return (

@@ -83,9 +83,78 @@ async def list_doctors(
     result = await db.execute(query)
     doctors = result.scalars().all()
 
+    doctor_ids = [doc.id for doc in doctors]
+    slots_by_doctor = {doc_id: [] for doc_id in doctor_ids}
+
+    if doctor_ids:
+        now = utc_now()
+        # Booking buffer: 45 minutes from now in UTC
+        min_start_time = now + timedelta(minutes=45)
+        # Check slots up to next 14 days
+        max_end_time = now + timedelta(days=14)
+
+        slots_query = select(
+            DoctorSlot.doctor_id,
+            DoctorSlot.start_time
+        ).where(
+            and_(
+                DoctorSlot.doctor_id.in_(doctor_ids),
+                DoctorSlot.status == "available",
+                DoctorSlot.start_time >= min_start_time,
+                DoctorSlot.start_time <= max_end_time
+            )
+        ).order_by(DoctorSlot.doctor_id, DoctorSlot.start_time.asc())
+
+        slots_result = await db.execute(slots_query)
+        for s_doc_id, s_start in slots_result.all():
+            slots_by_doctor[s_doc_id].append(s_start)
+
+    now_pkt = to_pkt(utc_now())
+    today_pkt_date = now_pkt.date()
+    tomorrow_pkt_date = today_pkt_date + timedelta(days=1)
+    today_day_name = now_pkt.strftime("%A").lower()
+
     doctor_list = []
     for doc in doctors:
         doc_name = doc.user.full_name if doc.user else "Dr. Healthcare Specialist"
+        doc_slots = slots_by_doctor.get(doc.id, [])
+        doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()]
+        is_today_off = today_day_name in doc_off_days
+
+        # Exclude slots that fall on doctor's designated off days
+        valid_slots = []
+        for s_dt in doc_slots:
+            slot_pkt_dt = to_pkt(s_dt)
+            if slot_pkt_dt.strftime("%A").lower() in doc_off_days:
+                continue
+            valid_slots.append(slot_pkt_dt)
+
+        upcoming_count = len(valid_slots)
+        today_slots = [s for s in valid_slots if s.date() == today_pkt_date]
+        is_available_today = len(today_slots) > 0
+
+        next_available_slot = None
+        if is_today_off:
+            today_status = "OFF_TODAY"
+        elif is_available_today:
+            today_status = "AVAILABLE_TODAY"
+        elif upcoming_count > 0:
+            today_status = "NO_SLOTS_TODAY"
+        else:
+            today_status = "NO_UPCOMING_SLOTS"
+
+        if valid_slots:
+            earliest = valid_slots[0]
+            earliest_date = earliest.date()
+            time_fmt = format_pkt_time(earliest)
+            if earliest_date == today_pkt_date:
+                next_available_slot = f"Today · {time_fmt}"
+            elif earliest_date == tomorrow_pkt_date:
+                next_available_slot = f"Tomorrow · {time_fmt}"
+            else:
+                day_fmt = earliest.strftime("%a, %b %d")
+                next_available_slot = f"{day_fmt} · {time_fmt}"
+
         doctor_list.append({
             "id": doc.id,
             "user_id": doc.user_id,
@@ -110,11 +179,15 @@ async def list_doctors(
             "expertise": doc.expertise,
             "experience_years": doc.experience_years if doc.experience_years is not None else 5,
             "qualification": doc.qualification or "MBBS, FCPS",
-            "created_at": doc.created_at.isoformat()
+            "created_at": doc.created_at.isoformat(),
+            "next_available_slot": next_available_slot,
+            "is_available_today": is_available_today,
+            "today_status": today_status,
+            "upcoming_slots_count": upcoming_count
         })
 
-    # Cache in Redis for 5 minutes
-    await redis_manager.set_cache(cache_key, json.dumps(doctor_list), ttl=300)
+    # Cache in Redis for 60 seconds (rapid real-time freshness)
+    await redis_manager.set_cache(cache_key, json.dumps(doctor_list), ttl=60)
     return doctor_list
 
 @router.get("/{doctor_id}/slots", response_model=List[SlotResponse])

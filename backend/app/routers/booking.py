@@ -255,6 +255,7 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
     
     # 7. Release Redis lock now that DB appointment has taken over & clear cache
     await redis_manager.release_slot_lock(payload.slot_id)
+    await redis_manager.clear_cache_pattern("doctors:")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{slot.doctor_id}")
     await db.commit()
 

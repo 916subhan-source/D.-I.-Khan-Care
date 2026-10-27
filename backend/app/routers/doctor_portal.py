@@ -406,6 +406,7 @@ async def block_slot(
 
     slot.status = "blocked"
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {"status": "SUCCESS", "message": f"Slot {slot_id} blocked.", "slot_id": slot_id}
 
@@ -432,6 +433,7 @@ async def unblock_slot(
 
     slot.status = "available"
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {"status": "SUCCESS", "message": f"Slot {slot_id} is now available again.", "slot_id": slot_id}
 
@@ -474,6 +476,8 @@ async def blackout_date(
         blocked_count += 1
 
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {
         "status": "SUCCESS",
         "date": date,

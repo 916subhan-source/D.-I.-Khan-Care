@@ -69,6 +69,10 @@ class DoctorResponse(DoctorBase):
     verification_status: str
     profile_image: Optional[str] = None
     created_at: datetime
+    next_available_slot: Optional[str] = None
+    is_available_today: Optional[bool] = False
+    today_status: Optional[str] = "NO_SLOTS"
+    upcoming_slots_count: Optional[int] = 0
 
     class Config:
         from_attributes = True

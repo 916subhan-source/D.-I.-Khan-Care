@@ -234,8 +234,20 @@ async def approve_appointment(
     await verify_assistant_doctor_access(current_user, appt.doctor_id, db)
 
     old_status = appt.status
+    visit_date = appt.slot.start_time if appt.slot and appt.slot.start_time else appt.created_at
+    need_regenerate = False
     if not appt.slip_number or not slip_service.is_valid_sequential_slip(appt.slip_number):
-        visit_date = appt.slot.start_time if appt.slot and appt.slot.start_time else appt.created_at
+        need_regenerate = True
+    elif appt.slot_id and appt.doctor_id and visit_date:
+        expected_seq = await slip_service.get_slot_daily_sequence(db, appt.doctor_id, visit_date, appt.slot_id)
+        if expected_seq is not None:
+            parts = appt.slip_number.split("-")
+            if len(parts) >= 4 and parts[3].isdigit():
+                current_seq = int(parts[3])
+                if current_seq != expected_seq:
+                    need_regenerate = True
+
+    if need_regenerate:
         slip_num = await slip_service.generate_slip_number(
             db=db,
             doctor_id=appt.doctor_id,
@@ -394,15 +406,14 @@ async def reschedule_appointment(
     new_slot.status = "booked" if appt.status == "CONFIRMED" else "hold"
     appt.reschedule_reason = payload.reason
 
-    # If rescheduled to a different calendar date, update slip to sequential queue on that new date
-    new_date_str = format_pkt_ymd(new_slot.start_time) if new_slot.start_time else None
-    if new_date_str and (not appt.slip_number or new_date_str not in appt.slip_number):
-        appt.slip_number = await slip_service.generate_slip_number(
-            db=db,
-            doctor_id=appt.doctor_id,
-            visit_date=new_slot.start_time,
-            specialty=appt.doctor.specialty if appt.doctor else "General"
-        )
+    # Update slip to sequential queue matching new slot sequence and date
+    appt.slip_number = await slip_service.generate_slip_number(
+        db=db,
+        doctor_id=appt.doctor_id,
+        visit_date=new_slot.start_time,
+        specialty=appt.doctor.specialty if appt.doctor else "General",
+        slot_id=new_slot.id
+    )
 
     await audit_service.log_action(
         db=db,

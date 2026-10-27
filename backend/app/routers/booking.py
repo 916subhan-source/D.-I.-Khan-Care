@@ -224,7 +224,8 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
         db=db,
         doctor_id=slot.doctor_id,
         visit_date=visit_date,
-        specialty=slot.doctor.specialty if slot and slot.doctor else "General"
+        specialty=slot.doctor.specialty if slot and slot.doctor else "General",
+        slot_id=slot.id
     )
     
     appointment = Appointment(

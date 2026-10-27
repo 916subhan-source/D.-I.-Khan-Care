@@ -6,7 +6,7 @@ Example: DIK-CARD-20260930-014
 
 from datetime import datetime, timezone
 import random
-from typing import Optional
+from typing import Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func
 from app.models import Appointment, DoctorSlot
@@ -36,6 +36,35 @@ class SlipService:
             return False
         parts = slip_number.strip().split("-")
         return len(parts) >= 5 and parts[3].isdigit() and len(parts[3]) <= 3 and int(parts[3]) > 0
+
+    @classmethod
+    async def get_slot_daily_sequence(
+        cls,
+        db: AsyncSession,
+        doctor_id: str,
+        visit_date: Any,
+        slot_id: str
+    ) -> Optional[int]:
+        """Calculates the 1-based chronological index of a slot for a doctor on a given day."""
+        visit_dt = to_pkt(visit_date) or datetime.now(PKT)
+        day_start_pkt = datetime(visit_dt.year, visit_dt.month, visit_dt.day, 0, 0, 0, tzinfo=PKT)
+        day_end_pkt = datetime(visit_dt.year, visit_dt.month, visit_dt.day, 23, 59, 59, 999999, tzinfo=PKT)
+        day_start = day_start_pkt.astimezone(timezone.utc)
+        day_end = day_end_pkt.astimezone(timezone.utc)
+
+        slots_res = await db.execute(
+            select(DoctorSlot.id)
+            .where(
+                DoctorSlot.doctor_id == doctor_id,
+                DoctorSlot.start_time >= day_start,
+                DoctorSlot.start_time <= day_end
+            )
+            .order_by(DoctorSlot.start_time.asc())
+        )
+        day_slot_ids = [r[0] for r in slots_res.all()]
+        if slot_id in day_slot_ids:
+            return day_slot_ids.index(slot_id) + 1
+        return None
 
     @classmethod
     async def generate_slip_number(
@@ -78,18 +107,7 @@ class SlipService:
 
             # If slot_id is provided, check if it matches the slot's daily sequence index
             if slot_id:
-                slots_res = await db.execute(
-                    select(DoctorSlot.id)
-                    .where(
-                        DoctorSlot.doctor_id == doctor_id,
-                        DoctorSlot.start_time >= day_start,
-                        DoctorSlot.start_time <= day_end
-                    )
-                    .order_by(DoctorSlot.start_time.asc())
-                )
-                day_slot_ids = [r[0] for r in slots_res.all()]
-                if slot_id in day_slot_ids:
-                    daily_slot_seq = day_slot_ids.index(slot_id) + 1
+                daily_slot_seq = await cls.get_slot_daily_sequence(db, doctor_id, visit_dt, slot_id)
 
             # Query all appointments for this doctor on this visit date
             query = (

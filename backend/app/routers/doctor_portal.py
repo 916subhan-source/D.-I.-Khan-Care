@@ -570,15 +570,16 @@ async def generate_slots(
     )
     all_existing_slots = existing_slots_res.scalars().all()
 
+    slots_to_check = [s.id for s in all_existing_slots if s.status not in ("booked", "hold", "blocked")]
+    active_locked_ids = await redis_manager.get_active_slot_locks(slots_to_check)
+
     protected_slots = []
     for s in all_existing_slots:
         is_protected = s.status in ("booked", "hold", "blocked")
         if s.appointment and s.appointment.status not in ("CANCELLED", "REJECTED"):
             is_protected = True
-        if not is_protected:
-            has_lock = await redis_manager.get_slot_lock(s.id)
-            if has_lock:
-                is_protected = True
+        elif s.id in active_locked_ids:
+            is_protected = True
 
         if is_protected:
             protected_slots.append(s)

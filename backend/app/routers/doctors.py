@@ -134,8 +134,8 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
     if cached_slots:
         try:
             slots_data = json.loads(cached_slots)
-            # Filter out active slot locks AND slots starting within 45 minutes of current time AND off-days
-            available_slots = []
+            # Filter candidate slots by 45min margin and off-days in memory
+            candidate_slots = []
             for s in slots_data:
                 try:
                     s_dt = datetime.fromisoformat(s["start_time"].replace("Z", "+00:00"))
@@ -143,12 +143,13 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
                         continue
                     if to_pkt(s_dt).strftime("%A").lower() in doc_off_days:
                         continue
+                    candidate_slots.append(s)
                 except Exception:
                     pass
-                active_lock = await redis_manager.get_slot_lock(s["id"])
-                if not active_lock:
-                    available_slots.append(s)
-            return available_slots
+            # Single-roundtrip batch lock check (MGET)
+            candidate_ids = [s["id"] for s in candidate_slots]
+            locked_ids = await redis_manager.get_active_slot_locks(candidate_ids)
+            return [s for s in candidate_slots if s["id"] not in locked_ids]
         except Exception:
             pass
 
@@ -191,13 +192,10 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
     # Store in Redis cache for 60 seconds
     await redis_manager.set_cache(cache_key, json.dumps(slots_to_cache), ttl=60)
 
-    available_slots = []
-    for slot_dict in slots_to_cache:
-        active_lock = await redis_manager.get_slot_lock(slot_dict["id"])
-        if not active_lock:
-            available_slots.append(slot_dict)
-
-    return available_slots
+    # Single-roundtrip batch lock check (MGET) instead of sequential loop
+    all_slot_ids = [s["id"] for s in slots_to_cache]
+    locked_ids = await redis_manager.get_active_slot_locks(all_slot_ids)
+    return [s for s in slots_to_cache if s["id"] not in locked_ids]
 
 
 # ── DOCTOR VERIFIED REVIEWS ──────────────────────────────────────────

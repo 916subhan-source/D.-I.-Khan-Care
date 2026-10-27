@@ -683,10 +683,30 @@ function isSlotEligibleForReschedule(
 
 
 
+// Helper to transform any Cloudinary URL for blazing fast CDN delivery (<50ms)
+function optimizeCloudinaryUrl(url?: string | null, width: number = 400): string {
+  if (!url) return '';
+  if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return url;
+  const prefix = url.substring(0, uploadIndex + 8);
+  let suffix = url.substring(uploadIndex + 8);
+  if (['f_auto', 'w_', 'q_', 'c_'].some((k) => suffix.startsWith(k))) {
+    const slashIdx = suffix.indexOf('/');
+    if (slashIdx !== -1) {
+      suffix = suffix.substring(slashIdx + 1);
+    }
+  }
+  return `${prefix}f_auto,q_auto:eco,w_${width},c_fill,g_face,dpr_auto/${suffix}`;
+}
+
 // Helper to get doctor profile image with reliable matching for D.I. Khan specialists
-function getDoctorProfileImage(doc?: Partial<DoctorData> | { full_name?: string; specialty?: string; profile_image?: string } | null): string {
+function getDoctorProfileImage(
+  doc?: Partial<DoctorData> | { full_name?: string; specialty?: string; profile_image?: string } | null,
+  targetWidth: number = 400
+): string {
   if (!doc) return '/dr_ayesha_khan.jpg';
-  if (doc.profile_image) return doc.profile_image;
+  if (doc.profile_image) return optimizeCloudinaryUrl(doc.profile_image, targetWidth);
   const name = (doc.full_name || '').toLowerCase();
   const spec = (doc.specialty || '').toLowerCase();
 
@@ -2556,8 +2576,10 @@ function DoctorProfileModal({
               <div className="flex items-start gap-4">
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-teal-400/40 flex-shrink-0 bg-slate-800">
                   <img
-                    src={getDoctorProfileImage(doctor)}
+                    src={getDoctorProfileImage(doctor, 200)}
                     alt={doctor.full_name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-top"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
@@ -3680,8 +3702,10 @@ function DoctorProfileAndBookingView({
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
               <div className="relative w-full h-56 bg-slate-900 overflow-hidden">
                 <img
-                  src={getDoctorProfileImage(doctor)}
+                  src={getDoctorProfileImage(doctor, 500)}
                   alt={doctor.full_name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover object-top"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
@@ -6077,8 +6101,10 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
       {/* ── Full Box Width Doctor Image Header ── */}
       <div className="relative w-full h-56 sm:h-72 bg-slate-900 overflow-hidden flex-shrink-0">
         <img
-          src={getDoctorProfileImage(doctor)}
+          src={getDoctorProfileImage(doctor, 500)}
           alt={doctor.full_name}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
           onError={(e) => {
             (e.target as HTMLElement).style.display = 'none';
@@ -11527,19 +11553,72 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     }
   };
 
+  // Pre-compresses high-resolution phone/camera photos client-side to ~80-150KB for instant uploads
+  const compressImageForUpload = async (inputFile: File, maxDim = 800, quality = 0.85): Promise<File> => {
+    if (!inputFile.type.startsWith('image/') || inputFile.type === 'image/svg+xml') {
+      return inputFile;
+    }
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(inputFile);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob || blob.size >= inputFile.size) {
+                resolve(inputFile);
+              } else {
+                const compressedFile = new File([blob], inputFile.name.replace(/\.[^/.]+$/, '.jpg'), {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.onerror = () => resolve(inputFile);
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = () => resolve(inputFile);
+      reader.readAsDataURL(inputFile);
+    });
+  };
+
   // 10. Profile photo upload handler (Cloudinary)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setImageUploadMsg('Error: Image file size must be less than 5 MB.');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('file', file);
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
     try {
       setUploadingImage(true);
-      setImageUploadMsg('Uploading photo to Cloudinary & auto-optimizing...');
+      setImageUploadMsg('Optimizing & compressing photo in browser...');
+      const fileToUpload = await compressImageForUpload(rawFile, 800, 0.85);
+
+      const formData = new FormData();
+      formData.append('file', fileToUpload);
+
+      setImageUploadMsg('Uploading photo to Cloudinary CDN...');
       const res: any = await apiFetch('/doctor/profile/picture', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -11641,8 +11720,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     full_name: doctorProfile?.full_name,
                     specialty: doctorProfile?.specialty,
                     profile_image: doctorProfile?.profile_image
-                  })}
+                  }, 80)}
                   alt={doctorName}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover object-top"
                 />
               </div>
@@ -13129,8 +13210,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       full_name: doctorProfile?.full_name,
                       specialty: doctorProfile?.specialty,
                       profile_image: doctorProfile?.profile_image
-                    })}
+                    }, 300)}
                     alt={doctorProfile?.full_name || 'Doctor'}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-top"
                   />
                   {uploadingImage && (

@@ -22,6 +22,7 @@ from app.schemas import (
     PatientEligibilityCheckResponse, PatientCompletedAppointmentItem
 )
 from app.core.timezone import to_pkt, format_pkt_date, format_pkt_time
+from app.core.cloudinary_service import optimize_cloudinary_url
 
 router = APIRouter(prefix="/doctors", tags=["Doctor Directory"])
 
@@ -103,7 +104,7 @@ async def list_doctors(
             "evening_end": doc.evening_end or "21:00",
             "is_spotlight": doc.is_spotlight,
             "verification_status": doc.verification_status,
-            "profile_image": doc.profile_image if doc.profile_image else resolve_doctor_image(doc_name, doc.specialty),
+            "profile_image": optimize_cloudinary_url(doc.profile_image, 600) if doc.profile_image else resolve_doctor_image(doc_name, doc.specialty),
             "off_days": doc.off_days or "sunday",
             "bio": doc.bio,
             "expertise": doc.expertise,

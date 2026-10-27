@@ -27,10 +27,33 @@ def configure_cloudinary():
 # Initialize on module load
 configure_cloudinary()
 
+def optimize_cloudinary_url(url: Optional[str], width: int = 600) -> Optional[str]:
+    """
+    Injects automatic format (f_auto -> AVIF/WebP), intelligent compression (q_auto:eco),
+    and responsive dimensions into Cloudinary URLs for ultra-fast CDN delivery.
+    """
+    if not url or "res.cloudinary.com" not in url or "/upload/" not in url:
+        return url
+
+    upload_idx = url.find("/upload/")
+    if upload_idx == -1:
+        return url
+
+    prefix = url[:upload_idx + 8]
+    suffix = url[upload_idx + 8:]
+
+    # If the URL already contains transformation segments, strip them out first
+    if any(suffix.startswith(k) for k in ["f_auto", "w_", "q_", "c_"]):
+        slash_idx = suffix.find("/")
+        if slash_idx != -1:
+            suffix = suffix[slash_idx + 1:]
+
+    return f"{prefix}f_auto,q_auto:eco,w_{width},c_fill,g_face,dpr_auto/{suffix}"
+
 def upload_doctor_photo(file_bytes: bytes, doctor_id: str) -> Optional[str]:
     """
     Uploads a doctor profile picture to Cloudinary with automatic face-detection,
-    smart cropping, and format/quality optimization.
+    smart cropping, format/quality optimization, and eager edge CDN caching.
     """
     configure_cloudinary()
     try:
@@ -40,13 +63,20 @@ def upload_doctor_photo(file_bytes: bytes, doctor_id: str) -> Optional[str]:
             public_id=f"doc_{doctor_id}",
             overwrite=True,
             resource_type="image",
-            transformation=[
-                {"width": 800, "height": 800, "crop": "fill", "gravity": "face"},
-                {"quality": "auto"},
-                {"fetch_format": "auto"}
-            ]
+            eager=[
+                {
+                    "width": 600,
+                    "height": 600,
+                    "crop": "fill",
+                    "gravity": "face",
+                    "quality": "auto:eco",
+                    "fetch_format": "auto"
+                }
+            ],
+            eager_async=False
         )
-        return res.get("secure_url")
+        raw_url = res.get("secure_url")
+        return optimize_cloudinary_url(raw_url, 600)
     except Exception as e:
         print(f"Cloudinary upload error: {e}")
         raise e

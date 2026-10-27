@@ -63,6 +63,22 @@ interface HealthChatbotProps {
   onTrack?: () => void;
 }
 
+function optimizeCloudinaryUrl(url?: string | null, width: number = 200): string {
+  if (!url) return '';
+  if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return url;
+  const prefix = url.substring(0, uploadIndex + 8);
+  let suffix = url.substring(uploadIndex + 8);
+  if (['f_auto', 'w_', 'q_', 'c_'].some((k) => suffix.startsWith(k))) {
+    const slashIdx = suffix.indexOf('/');
+    if (slashIdx !== -1) {
+      suffix = suffix.substring(slashIdx + 1);
+    }
+  }
+  return `${prefix}f_auto,q_auto:eco,w_${width},c_fill,g_face,dpr_auto/${suffix}`;
+}
+
 const QUICK_CHIPS = [
   { id: 'track', label: 'Appointment Trace / Dekhein', icon: Clock, query: 'Appointment kaisey dekhen ya trace karen?' },
   { id: 'booking', label: 'Appointment Kaise Book Karein?', icon: Calendar, query: 'Appointment book kaise karen?' },
@@ -613,8 +629,10 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                             <div className="w-12 h-12 rounded-xl bg-slate-900 overflow-hidden flex-shrink-0 relative border border-slate-200">
                               {doc.profile_image ? (
                                 <img
-                                  src={doc.profile_image}
+                                  src={optimizeCloudinaryUrl(doc.profile_image, 120)}
                                   alt={doc.full_name}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-full h-full object-cover object-top"
                                 />
                               ) : (

@@ -136,7 +136,8 @@ class Payment(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
     appointment_id: Mapped[str] = mapped_column(String(36), ForeignKey("appointments.id", ondelete="CASCADE"), unique=True, nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default="PENDING_CASH", index=True) # PENDING_CASH, PAID
+    amount_paid: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"))
+    status: Mapped[str] = mapped_column(String(20), default="PENDING_CASH", index=True) # PENDING_CASH, PARTIAL, PAID
     paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     collected_by: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

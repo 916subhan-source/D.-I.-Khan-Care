@@ -191,7 +191,11 @@ async def get_queue(
             "created_at": appt.created_at,
             "patient_name": appt.patient_name or (appt.patient.full_name if appt.patient else "Patient"),
             "patient_phone": appt.patient_phone or (appt.patient.phone if appt.patient else "N/A"),
-            "doctor_name": appt.doctor.user.full_name if appt.doctor and appt.doctor.user else "Doctor",
+            "doctor_name": (
+                ("Dr. " + appt.doctor.user.full_name.strip().title()) 
+                if appt.doctor and appt.doctor.user and not appt.doctor.user.full_name.strip().lower().startswith("dr")
+                else (appt.doctor.user.full_name.strip().title() if appt.doctor and appt.doctor.user else "Doctor")
+            ),
             "slot_start": appt.slot.start_time if appt.slot else None,
             "start_time": appt.slot.start_time.isoformat() if appt.slot and appt.slot.start_time else None,
             "slot_date": (
@@ -208,6 +212,14 @@ async def get_queue(
             ),
             "payment_status": appt.payment.status if appt.payment else "PENDING_CASH",
             "fee_amount": float(appt.payment.amount) if appt.payment else float(appt.doctor.fee_clinic if appt.doctor else 1000.00),
+            "amount_paid": float(appt.payment.amount_paid) if appt.payment and appt.payment.amount_paid is not None else (
+                float(appt.payment.amount) if appt.payment and appt.payment.status == "PAID" else 0.0
+            ),
+            "amount_due": max(0.0, (float(appt.payment.amount) if appt.payment else float(appt.doctor.fee_clinic if appt.doctor else 1000.00)) - (
+                float(appt.payment.amount_paid) if appt.payment and appt.payment.amount_paid is not None else (
+                    float(appt.payment.amount) if appt.payment and appt.payment.status == "PAID" else 0.0
+                )
+            )),
             "token_number": parse_token_from_slip_str(appt.slip_number)
         })
     return items
@@ -506,13 +518,33 @@ async def mark_appointment_paid(
 
     await verify_assistant_doctor_access(current_user, payment.appointment.doctor_id, db)
 
-    if payment.status == "PAID":
-        return {"status": "ALREADY_PAID", "message": "This consultation fee is already marked as PAID."}
+    curr_paid = payment.amount_paid if payment.amount_paid is not None else (payment.amount if payment.status == "PAID" else Decimal("0.00"))
+    total_fee = payment.amount or Decimal("0.00")
+
+    if payment.status == "PAID" and curr_paid >= total_fee:
+        return {"status": "ALREADY_PAID", "message": "This consultation fee is already fully PAID."}
 
     old_status = payment.status
-    payment.status = "PAID"
-    payment.paid_at = datetime.now(timezone.utc)
-    payment.collected_by = current_user.id
+    now_utc = datetime.now(timezone.utc)
+
+    # If partial amount was provided in payload, add it; otherwise pay full remaining
+    if payload and payload.amount and payload.amount > 0:
+        new_paid = curr_paid + Decimal(str(payload.amount))
+    else:
+        new_paid = total_fee
+
+    if new_paid >= total_fee:
+        payment.amount_paid = total_fee
+        payment.status = "PAID"
+        payment.paid_at = now_utc
+        payment.collected_by = current_user.id
+        action_note = f"PAID IN FULL (Total: Rs. {total_fee}, Collected Remaining: Rs. {total_fee - curr_paid})"
+    else:
+        payment.amount_paid = new_paid
+        payment.status = "PARTIAL"
+        payment.paid_at = now_utc
+        payment.collected_by = current_user.id
+        action_note = f"PARTIAL ADVANCE (Collected: Rs. {new_paid}, Remaining Due: Rs. {total_fee - new_paid})"
 
     await audit_service.log_action(
         db=db,
@@ -521,15 +553,17 @@ async def mark_appointment_paid(
         entity="Payment",
         entity_id=payment.id,
         before_value=old_status,
-        after_value=f"PAID (Amount: Rs. {payment.amount}) by Assistant #{current_user.full_name}"
+        after_value=f"{action_note} by Assistant #{current_user.full_name}"
     )
 
     await db.commit()
     return {
         "status": "SUCCESS",
-        "payment_status": "PAID",
+        "payment_status": payment.status,
         "amount": float(payment.amount),
-        "paid_at": payment.paid_at.isoformat(),
+        "amount_paid": float(payment.amount_paid),
+        "amount_due": max(0.0, float(payment.amount - payment.amount_paid)),
+        "paid_at": payment.paid_at.isoformat() if payment.paid_at else None,
         "collected_by": current_user.full_name
     }
 
@@ -998,17 +1032,39 @@ async def pos_book_appointment(
     db.add(appt)
     await db.flush()
 
-    # 7. Create Payment record
+    # 7. Create Payment record with support for full, partial advance, or pay on calling
     fee = Decimal(str(payload.fee_amount)) if payload.fee_amount is not None else doc.fee_clinic
-    p_status = "PAID" if payload.payment_status == "PAID" else "PENDING_CASH"
     now_utc = datetime.now(timezone.utc)
     
+    tendered = Decimal(str(payload.cash_tendered)) if payload.cash_tendered is not None else None
+    
+    if payload.payment_status == "PENDING_CASH" and (tendered is None or tendered <= 0):
+        p_status = "PENDING_CASH"
+        amt_paid = Decimal("0.00")
+    elif tendered is not None:
+        if tendered >= fee:
+            p_status = "PAID"
+            amt_paid = fee
+        elif tendered > 0:
+            p_status = "PARTIAL"
+            amt_paid = tendered
+        else:
+            p_status = "PENDING_CASH"
+            amt_paid = Decimal("0.00")
+    elif payload.payment_status == "PAID":
+        p_status = "PAID"
+        amt_paid = fee
+    else:
+        p_status = "PENDING_CASH"
+        amt_paid = Decimal("0.00")
+
     payment = Payment(
         appointment_id=appt.id,
         amount=fee,
+        amount_paid=amt_paid,
         status=p_status,
-        paid_at=now_utc if p_status == "PAID" else None,
-        collected_by=current_user.id if p_status == "PAID" else None
+        paid_at=now_utc if p_status in ("PAID", "PARTIAL") else None,
+        collected_by=current_user.id if p_status in ("PAID", "PARTIAL") else None
     )
     db.add(payment)
 
@@ -1020,7 +1076,7 @@ async def pos_book_appointment(
         entity="Appointment",
         entity_id=appt.id,
         before_value=None,
-        after_value=f"CONFIRMED Slip: {slip_num} (Slot: {format_pkt_date(slot.start_time)} {format_pkt_time(slot.start_time)}, Payment: {p_status})"
+        after_value=f"CONFIRMED Slip: {slip_num} (Slot: {format_pkt_date(slot.start_time)} {format_pkt_time(slot.start_time)}, Payment: {p_status}, Paid: Rs. {amt_paid}/{fee})"
     )
 
     await db.commit()
@@ -1046,7 +1102,11 @@ async def pos_book_appointment(
         "clinic_address": doc.clinic_address,
         "slot_date": format_pkt_date(slot.start_time),
         "slot_time": format_pkt_time(slot.start_time),
-        "fee_amount": float(payment.amount),
+        "fee_amount": float(fee),
+        "amount_paid": float(amt_paid),
+        "amount_due": max(0.0, float(fee - amt_paid)),
+        "cash_tendered": float(tendered) if tendered is not None else None,
+        "change_amount": max(0.0, float(tendered - fee)) if tendered and tendered > fee else 0.0,
         "payment_status": payment.status,
         "appointment_status": "CONFIRMED"
     }

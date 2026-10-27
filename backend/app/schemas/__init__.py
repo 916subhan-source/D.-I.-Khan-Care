@@ -209,6 +209,7 @@ class RescheduleRequest(BaseModel):
 # --- Cash Payment Schemas ---
 class MarkPaidRequest(BaseModel):
     notes: Optional[str] = None
+    amount: Optional[Decimal] = None
 
 class POSBookingRequest(BaseModel):
     doctor_id: str

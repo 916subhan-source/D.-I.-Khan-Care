@@ -117,6 +117,8 @@ interface AppointmentItem {
   slot_time?: string;
   payment_status?: string;
   fee_amount?: number;
+  amount_paid?: number;
+  amount_due?: number;
   token_number?: number;
   created_at: string;
   updated_at?: string;
@@ -383,10 +385,11 @@ function formatMinutesTo12h(mins: number): string {
 function formatDoctorName(name?: string): string {
   if (!name) return 'Doctor';
   const clean = name.trim();
-  if (/^dr\.?\s+/i.test(clean)) {
-    return clean;
+  const titled = clean.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+  if (/^dr\.?\s+/i.test(titled)) {
+    return titled;
   }
-  return `Dr. ${clean}`;
+  return `Dr. ${titled}`;
 }
 
 function getDoctorCallingShiftInfo(
@@ -7251,10 +7254,18 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         body: JSON.stringify(payload)
       });
 
+      const tenderedNum = posPaymentMode === 'PAID' && posCashTendered ? Number(posCashTendered) : undefined;
+      const isPartial = tenderedNum !== undefined && tenderedNum > 0 && tenderedNum < posFee;
+      const effectivePaid = isPartial ? tenderedNum : (posPaymentMode === 'PAID' ? posFee : 0);
+      const effectiveDue = Math.max(0, posFee - effectivePaid);
+
       setPosSuccessReceipt({
         ...res,
-        cash_tendered: posPaymentMode === 'PAID' && posCashTendered ? Number(posCashTendered) : undefined,
-        change_amount: posPaymentMode === 'PAID' && posCashTendered ? Math.max(0, Number(posCashTendered) - posFee) : 0
+        payment_status: isPartial ? 'PARTIAL' : (res.payment_status || posPaymentMode),
+        amount_paid: effectivePaid,
+        amount_due: effectiveDue,
+        cash_tendered: tenderedNum,
+        change_amount: tenderedNum !== undefined && tenderedNum >= posFee ? tenderedNum - posFee : 0
       });
 
       setPosPatientName('');
@@ -7414,8 +7425,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const pendingCount = queue.filter(q => q.status === 'PENDING_ASSISTANT_APPROVAL' || q.status === 'pending').length;
 
   const confirmedCount = queue.filter(q => q.status === 'CONFIRMED' || q.status === 'confirmed').length;
-  const paidCount = queue.filter(q => q.payment_status === 'PAID').length;
-  const totalRevenue = queue.filter(q => q.payment_status === 'PAID').reduce((sum, q) => sum + Number(q.fee_amount || 0), 0);
+  const paidCount = queue.filter(q => q.payment_status === 'PAID' || q.payment_status === 'PARTIAL').length;
+  const totalRevenue = queue.reduce((sum, q) => {
+    if (q.payment_status === 'PAID') {
+      return sum + Number(q.amount_paid !== undefined ? q.amount_paid : (q.fee_amount || 0));
+    } else if (q.payment_status === 'PARTIAL') {
+      return sum + Number(q.amount_paid || 0);
+    }
+    return sum;
+  }, 0);
 
 
 
@@ -7537,7 +7555,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                {currentDoctor?.doctor_name} &mdash; Reception Desk
+                {formatDoctorName(currentDoctor?.doctor_name)} &mdash; Reception Desk
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 {currentDoctor?.specialty} &bull; {currentDoctor?.clinic_address} &bull; Shift: {currentDoctor?.shift} &bull; Weekly Off: <span className="font-bold text-rose-700 capitalize">{currentDoctor?.off_days ? currentDoctor.off_days.split(',').join(', ') : 'Sunday'}</span>
@@ -7776,6 +7794,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   {isCurrentActive && (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider mb-1 shadow-xs animate-pulse">
                                       📢 Now Calling · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'}
+                                      {item.payment_status === 'PARTIAL' && (
+                                        <span className="ml-1 bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded font-black text-[9px]">
+                                          ⚠️ Collect Due: {formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))}
+                                        </span>
+                                      )}
                                     </span>
                                   )}
                                   {isNextInLineWaiting && (
@@ -7848,10 +7871,24 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               )}
                             </td>
                             <td className="py-3 px-4">
-                              <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] ${item.payment_status === 'PAID' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                                }`}>
-                                {item.payment_status === 'PAID' ? '✓ PAID' : 'PENDING CASH'} ({formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)})
-                              </span>
+                              {item.payment_status === 'PAID' ? (
+                                <span className="px-2.5 py-1 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
+                                  ✓ PAID ({formatCurrency(item.amount_paid || item.fee_amount || 1000)})
+                                </span>
+                              ) : item.payment_status === 'PARTIAL' ? (
+                                <div className="space-y-0.5">
+                                  <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-amber-100 text-amber-900 border border-amber-300 inline-flex items-center gap-1">
+                                    🟡 ADVANCE: {formatCurrency(item.amount_paid || 0)}
+                                  </span>
+                                  <div className="text-[10px] font-extrabold text-rose-600 pl-0.5">
+                                    Due on Calling: {formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="px-2.5 py-1 rounded-full font-bold text-[10px] bg-amber-50 border border-amber-200 text-amber-800">
+                                  PENDING CASH ({formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)})
+                                </span>
+                              )}
                             </td>
                             <td className="py-2.5 px-4 text-right">
                               {/* 1. COMPLETED status chip */}
@@ -7934,7 +7971,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                       </>
                                     )}
 
-                                    {/* CONFIRMED: Mark Paid + Complete / Upcoming Slot */}
+                                    {/* CONFIRMED: Mark Paid / Collect Due + Complete / Upcoming Slot */}
                                     {isConfirmed && (
                                       <>
                                         {item.payment_status === 'PENDING_CASH' && (
@@ -7954,6 +7991,28 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                               <>
                                                 <CreditCard className="w-3 h-3 text-emerald-600" />
                                                 <span>Mark Paid</span>
+                                              </>
+                                            )}
+                                          </button>
+                                        )}
+
+                                        {item.payment_status === 'PARTIAL' && (
+                                          <button
+                                            type="button"
+                                            disabled={Boolean(appointmentActionLoading)}
+                                            onClick={() => handleMarkPaid(item.id)}
+                                            className="h-7 px-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg text-[11px] font-extrabold shadow-xs hover:shadow-sm transition-all inline-flex items-center gap-1 disabled:opacity-50 animate-pulse"
+                                            title="Collect remaining balance on calling"
+                                          >
+                                            {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'paid' ? (
+                                              <>
+                                                <Loader2 className="w-3 h-3 animate-spin text-white" />
+                                                <span>Collecting...</span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <CreditCard className="w-3 h-3 text-white" />
+                                                <span>Collect Due ({formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))})</span>
                                               </>
                                             )}
                                           </button>
@@ -9822,6 +9881,17 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             />
                           </div>
 
+                          {posCashTendered && Number(posCashTendered) > 0 && Number(posCashTendered) < posFee && (
+                            <div className="flex items-center justify-between border-t border-amber-200/80 pt-1.5 text-xs bg-amber-50/70 p-1.5 rounded-lg text-amber-900">
+                              <span className="font-bold flex items-center gap-1">
+                                <span>🟡 Partial Advance Deposit</span>
+                              </span>
+                              <span className="font-mono font-extrabold text-xs text-rose-700">
+                                Remaining Due on Calling: {formatCurrency(posFee - Number(posCashTendered))}
+                              </span>
+                            </div>
+                          )}
+
                           {posCashTendered && Number(posCashTendered) >= posFee && (
                             <div className="flex items-center justify-between border-t border-emerald-200/80 pt-1.5 text-xs">
                               <span className="font-bold text-emerald-800">Change Due:</span>
@@ -10183,13 +10253,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       Confirmed Walk-In Slip
                     </span>
                     <h3 className="font-extrabold text-slate-900 text-base" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                      {currentDoctor?.clinic_address?.split(',')[0] || 'Rehmat Polyclinic'}
+                      {formatDoctorName(posSuccessReceipt.doctor_name || currentDoctor?.doctor_name)} Clinic
                     </h3>
                     <p className="text-[11px] text-slate-500">
-                      {formatDoctorName(posSuccessReceipt.doctor_name)} &bull; {posSuccessReceipt.doctor_specialty}
+                      {posSuccessReceipt.doctor_specialty || currentDoctor?.specialty}
                     </p>
                     <p className="text-[10px] text-slate-400">
-                      {posSuccessReceipt.clinic_address}
+                      {posSuccessReceipt.clinic_address || currentDoctor?.clinic_address}
                     </p>
                   </div>
 
@@ -10240,14 +10310,37 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Payment Status:</span>
-                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${posSuccessReceipt.payment_status === 'PAID'
+                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                        posSuccessReceipt.payment_status === 'PAID'
                           ? 'bg-emerald-100 text-emerald-800'
+                          : posSuccessReceipt.payment_status === 'PARTIAL'
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
                           : 'bg-amber-100 text-amber-800'
                         }`}>
-                        {posSuccessReceipt.payment_status === 'PAID' ? '✓ PAID IN CASH' : 'PAY AT CALLING TIME'}
+                        {posSuccessReceipt.payment_status === 'PAID'
+                          ? '✓ PAID IN FULL'
+                          : posSuccessReceipt.payment_status === 'PARTIAL'
+                          ? '🟡 PARTIAL ADVANCE (Remaining Due on Calling)'
+                          : 'PAY AT CALLING TIME'}
                       </span>
                     </div>
-                    {posSuccessReceipt.cash_tendered !== undefined && (
+                    {posSuccessReceipt.payment_status === 'PARTIAL' && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Advance Paid at Desk:</span>
+                          <span className="font-mono font-bold text-emerald-800">
+                            {formatCurrency(posSuccessReceipt.amount_paid || posSuccessReceipt.cash_tendered)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between font-bold text-rose-700 bg-rose-50/70 p-1 rounded">
+                          <span>Remaining Due on Calling:</span>
+                          <span className="font-mono">
+                            {formatCurrency(posSuccessReceipt.amount_due !== undefined ? posSuccessReceipt.amount_due : (posSuccessReceipt.fee_amount - (posSuccessReceipt.amount_paid || posSuccessReceipt.cash_tendered)))}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {posSuccessReceipt.payment_status === 'PAID' && posSuccessReceipt.cash_tendered !== undefined && (
                       <>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Cash Received:</span>

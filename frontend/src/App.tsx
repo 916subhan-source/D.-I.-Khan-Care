@@ -1046,11 +1046,10 @@ function FloatingThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: 
         type="button"
         onClick={onToggle}
         title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl border backdrop-blur-md transition-all duration-300 cursor-pointer select-none group hover:scale-105 active:scale-95 ${
-          isDark
-            ? 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 border-slate-700/80 shadow-black/40 ring-1 ring-amber-400/20'
-            : 'bg-white/95 hover:bg-slate-50 text-slate-700 border-slate-200/90 shadow-slate-900/10'
-        }`}
+        className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl border backdrop-blur-md transition-all duration-300 cursor-pointer select-none group hover:scale-105 active:scale-95 ${isDark
+          ? 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 border-slate-700/80 shadow-black/40 ring-1 ring-amber-400/20'
+          : 'bg-white/95 hover:bg-slate-50 text-slate-700 border-slate-200/90 shadow-slate-900/10'
+          }`}
         aria-label="Toggle Light and Dark Mode"
       >
         <span className="p-0.5 rounded-full transition-transform group-hover:rotate-12">
@@ -1491,8 +1490,8 @@ function StaffLoginSplitView({
                   type="button"
                   onClick={() => onSwitchRole?.('doctor')}
                   className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${currentRole === 'doctor'
-                      ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
-                      : 'text-slate-500 hover:text-slate-800'
+                    ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
+                    : 'text-slate-500 hover:text-slate-800'
                     }`}
                 >
                   <img
@@ -1506,8 +1505,8 @@ function StaffLoginSplitView({
                   type="button"
                   onClick={() => onSwitchRole?.('assistant')}
                   className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${currentRole === 'assistant'
-                      ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
-                      : 'text-slate-500 hover:text-slate-800'
+                    ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
+                    : 'text-slate-500 hover:text-slate-800'
                     }`}
                 >
                   <img
@@ -1870,8 +1869,8 @@ export default function App() {
             <button
               onClick={() => handleSwitchRole('patient')}
               className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${activeTab === 'patient'
-                  ? 'text-clinic-700 font-semibold bg-clinic-50'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'text-clinic-700 font-semibold bg-clinic-50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
               Find a doctor
@@ -1879,8 +1878,8 @@ export default function App() {
             <button
               onClick={() => handleSwitchRole('track')}
               className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${activeTab === 'track'
-                  ? 'text-clinic-700 font-semibold bg-clinic-50'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'text-clinic-700 font-semibold bg-clinic-50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
               Track appointment
@@ -2610,8 +2609,8 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                       <div key={step.title} className="flex items-start gap-3 relative">
                         {idx < 1 && <div className="absolute left-2.5 top-5 w-0.5 h-6 bg-rose-200" />}
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${step.isError
-                            ? 'border-2 border-rose-500 bg-rose-50 text-rose-600'
-                            : 'border-2 border-clinic-600 bg-white text-clinic-700'
+                          ? 'border-2 border-rose-500 bg-rose-50 text-rose-600'
+                          : 'border-2 border-clinic-600 bg-white text-clinic-700'
                           }`}>
                           {step.isError ? <span className="w-2 h-2 rounded-full bg-rose-600" /> : <span className="w-2 h-2 rounded-full bg-clinic-600" />}
                         </div>
@@ -4259,8 +4258,8 @@ function DoctorProfileAndBookingView({
                           type="button"
                           onClick={() => setSelectedDayDate(d.fullDate)}
                           className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${selectedDayDate === d.fullDate
-                              ? 'bg-[#0f766e] text-white shadow-2xs font-bold'
-                              : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-800'
+                            ? 'bg-[#0f766e] text-white shadow-2xs font-bold'
+                            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-800'
                             }`}
                         >
                           <span>{d.weekday} {d.dayNum}</span>
@@ -4332,8 +4331,8 @@ function DoctorProfileAndBookingView({
                         type="button"
                         onClick={() => setSelectedShiftTab('all')}
                         className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${selectedShiftTab === 'all'
-                            ? 'bg-white text-slate-900 shadow-2xs'
-                            : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-white text-slate-900 shadow-2xs'
+                          : 'text-slate-500 hover:text-slate-800'
                           }`}
                       >
                         All Shifts ({displaySlots.length})
@@ -4342,8 +4341,8 @@ function DoctorProfileAndBookingView({
                         type="button"
                         onClick={() => setSelectedShiftTab('morning')}
                         className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${selectedShiftTab === 'morning'
-                            ? 'bg-amber-500 text-white shadow-2xs'
-                            : 'text-slate-600 hover:text-amber-800'
+                          ? 'bg-amber-500 text-white shadow-2xs'
+                          : 'text-slate-600 hover:text-amber-800'
                           }`}
                       >
                         <Sun className="w-3.5 h-3.5" />
@@ -4353,8 +4352,8 @@ function DoctorProfileAndBookingView({
                         type="button"
                         onClick={() => setSelectedShiftTab('evening')}
                         className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${selectedShiftTab === 'evening'
-                            ? 'bg-indigo-600 text-white shadow-2xs'
-                            : 'text-slate-600 hover:text-indigo-800'
+                          ? 'bg-indigo-600 text-white shadow-2xs'
+                          : 'text-slate-600 hover:text-indigo-800'
                           }`}
                       >
                         <Moon className="w-3.5 h-3.5" />
@@ -4860,8 +4859,8 @@ function DoctorProfileAndBookingView({
                 type="button"
                 onClick={() => { setReviewModalView('list'); setReviewError(''); }}
                 className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${reviewModalView === 'list'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-800'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800'
                   }`}
               >
                 All Reviews ({reviewsSummary?.total_reviews || 0})
@@ -4870,8 +4869,8 @@ function DoctorProfileAndBookingView({
                 type="button"
                 onClick={() => { setReviewModalView('write'); setReviewError(''); }}
                 className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${reviewModalView === 'write'
-                    ? 'bg-[#0f766e] text-white shadow-xs'
-                    : 'text-[#0f766e] hover:bg-teal-50/50'
+                  ? 'bg-[#0f766e] text-white shadow-xs'
+                  : 'text-[#0f766e] hover:bg-teal-50/50'
                   }`}
               >
                 <Star className={`w-3.5 h-3.5 ${reviewModalView === 'write' ? 'fill-white' : 'fill-teal-600'}`} />
@@ -4896,8 +4895,8 @@ function DoctorProfileAndBookingView({
                         <Star
                           key={s}
                           className={`w-3.5 h-3.5 ${s <= Math.round(reviewsSummary ? reviewsSummary.average_rating : 5)
-                              ? 'fill-amber-500 text-amber-500'
-                              : 'text-slate-300'
+                            ? 'fill-amber-500 text-amber-500'
+                            : 'text-slate-300'
                             }`}
                         />
                       ))}
@@ -5081,8 +5080,8 @@ function DoctorProfileAndBookingView({
                               if (appt.existing_comment) setReviewComment(appt.existing_comment);
                             }}
                             className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${isSelected
-                                ? 'border-[#0f766e] bg-teal-50/70 ring-1 ring-[#0f766e]'
-                                : 'border-slate-200 bg-white hover:border-slate-300'
+                              ? 'border-[#0f766e] bg-teal-50/70 ring-1 ring-[#0f766e]'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
                               }`}
                           >
                             <div className="flex items-center gap-2.5">
@@ -5146,8 +5145,8 @@ function DoctorProfileAndBookingView({
                         >
                           <Star
                             className={`w-6 h-6 transition-colors ${s <= (hoverRating || reviewRating)
-                                ? 'fill-amber-400 text-amber-400'
-                                : 'text-slate-200 fill-slate-100'
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-slate-200 fill-slate-100'
                               }`}
                           />
                         </button>
@@ -5190,8 +5189,8 @@ function DoctorProfileAndBookingView({
                             }
                           }}
                           className={`text-[11px] px-2.5 py-1 rounded-lg border font-medium transition-all cursor-pointer ${isSelected
-                              ? 'bg-teal-50 border-teal-400 text-[#0f766e] font-bold shadow-2xs'
-                              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                            ? 'bg-teal-50 border-teal-400 text-[#0f766e] font-bold shadow-2xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                             }`}
                         >
                           {isSelected ? '✓ ' : '+ '}{tag}
@@ -5785,8 +5784,8 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                     setQuickFilter('all');
                   }}
                   className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
-                      ? 'bg-clinic-800 text-white shadow-sm border border-clinic-800 font-bold'
-                      : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/90 hover:border-clinic-300 hover:bg-clinic-50/50'
+                    ? 'bg-clinic-800 text-white shadow-sm border border-clinic-800 font-bold'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/90 hover:border-clinic-300 hover:bg-clinic-50/50'
                     }`}
                 >
                   <span
@@ -5855,12 +5854,12 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
               <div className="mt-4 p-4 bg-clinic-900 rounded-xl text-white space-y-2">
                 <div className="flex items-center justify-between">
                   <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${trackedAppointment.status?.toUpperCase() === 'COMPLETED'
-                      ? 'bg-emerald-600 text-white'
-                      : trackedAppointment.status?.toUpperCase() === 'CANCELLED' || trackedAppointment.status?.toUpperCase() === 'REJECTED'
-                        ? 'bg-rose-600 text-white'
-                        : trackedAppointment.status?.toUpperCase() === 'PENDING_ASSISTANT_APPROVAL' || trackedAppointment.status?.toUpperCase() === 'PENDING'
-                          ? 'bg-amber-600 text-white'
-                          : 'bg-clinic-700'
+                    ? 'bg-emerald-600 text-white'
+                    : trackedAppointment.status?.toUpperCase() === 'CANCELLED' || trackedAppointment.status?.toUpperCase() === 'REJECTED'
+                      ? 'bg-rose-600 text-white'
+                      : trackedAppointment.status?.toUpperCase() === 'PENDING_ASSISTANT_APPROVAL' || trackedAppointment.status?.toUpperCase() === 'PENDING'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-clinic-700'
                     }`}>
                     {trackedAppointment.status}
                   </span>
@@ -5999,8 +5998,8 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                     }
                   }}
                   className={`px-3 py-1 rounded-full font-medium whitespace-nowrap transition-all shadow-2xs cursor-pointer ${isActive
-                      ? 'bg-slate-800 text-white shadow-xs font-semibold'
-                      : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80 border border-slate-200/60'
+                    ? 'bg-slate-800 text-white shadow-xs font-semibold'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80 border border-slate-200/60'
                     }`}
                 >
                   {chip.label}
@@ -7344,7 +7343,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     const itemMins = getApptMinutesFromMidnight(item);
     const isItemMorning = itemMins < 840;
     const isShiftMatch = (callingShiftInfo.activeShiftType === 'MORNING' && isItemMorning) ||
-                         (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
+      (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
     const isCallingStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
     const isFirstActive = Boolean(callingOrderActive && queue[0]?.id === item.id && isToday && isShiftMatch && isCallingStarted);
 
@@ -7833,8 +7832,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 fetchPosDays(selectedDoctorId);
               }}
               className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-xs ${deskTab === 'pos'
-                  ? 'bg-emerald-700 text-white shadow-sm ring-2 ring-emerald-300'
-                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
+                ? 'bg-emerald-700 text-white shadow-sm ring-2 ring-emerald-300'
+                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
                 }`}
               title="Open POS / Walk-in patient booking desk"
             >
@@ -7991,8 +7990,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     type="button"
                     onClick={() => setIncludeArchived(!includeArchived)}
                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
-                        ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
-                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                       }`}
                     title="Past closed consultations from previous days are automatically hidden to keep your reception desk clean."
                   >
@@ -8008,8 +8007,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       localStorage.setItem('asst_calling_order', String(next));
                     }}
                     className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${callingOrderActive
-                        ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm ring-1 ring-emerald-400'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                      ? 'bg-emerald-600 border-emerald-500 text-white shadow-sm ring-1 ring-emerald-400'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                       }`}
                     title="Arrange appointments in live calling sequence (Today's Time & Token order). Completed visits automatically move down."
                   >
@@ -8124,7 +8123,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         const itemMins = getApptMinutesFromMidnight(item);
                         const isItemMorning = itemMins < 840;
                         const isShiftMatch = (callingShiftInfo.activeShiftType === 'MORNING' && isItemMorning) ||
-                                             (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
+                          (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
                         const isItemCallingEligible = isShiftMatch && isCallingStarted;
 
                         const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isItemCallingEligible;
@@ -8371,8 +8370,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                             disabled={Boolean(appointmentActionLoading)}
                                             onClick={() => handleCompleteAppointment(item.id)}
                                             className={`h-7 px-3 text-white rounded-lg text-[11px] font-bold shadow-xs hover:shadow-sm transition-all inline-flex items-center gap-1.5 disabled:opacity-50 ${isCurrentActive
-                                                ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 ring-2 ring-emerald-300 shadow-sm'
-                                                : 'bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900'
+                                              ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 ring-2 ring-emerald-300 shadow-sm'
+                                              : 'bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900'
                                               }`}
                                             title="Mark consultation as completed"
                                           >
@@ -8706,8 +8705,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             type="button"
                             onClick={() => setAsstOffDays(['sunday'])}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${asstOffDays.length === 1 && asstOffDays[0] === 'sunday'
-                                ? 'bg-clinic-700 text-white border-clinic-700'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-clinic-700 text-white border-clinic-700'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                               }`}
                           >
                             Sun Off
@@ -8716,8 +8715,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             type="button"
                             onClick={() => setAsstOffDays(['friday', 'sunday'])}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${asstOffDays.length === 2 && asstOffDays.includes('friday') && asstOffDays.includes('sunday')
-                                ? 'bg-clinic-700 text-white border-clinic-700'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-clinic-700 text-white border-clinic-700'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                               }`}
                           >
                             Fri &amp; Sun Off
@@ -8726,8 +8725,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             type="button"
                             onClick={() => setAsstOffDays([])}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${asstOffDays.length === 0
-                                ? 'bg-clinic-700 text-white border-clinic-700'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-clinic-700 text-white border-clinic-700'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                               }`}
                           >
                             All 7 Days Open
@@ -8750,8 +8749,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 );
                               }}
                               className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
-                                  ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
-                                  : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
+                                ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
+                                : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
                                 }`}
                             >
                               <span className="block text-xs font-black">{day.label}</span>
@@ -9023,12 +9022,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                               <td className="py-3 px-5">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${slot.status === 'available'
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : slot.status === 'hold'
-                                      ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                      : slot.status === 'booked'
-                                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                        : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : slot.status === 'hold'
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                    : slot.status === 'booked'
+                                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
                                   }`}>
                                   {slot.status === 'available' && '● Available'}
                                   {slot.status === 'hold' && '⏳ In Review'}
@@ -9269,8 +9268,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900">{formatCurrency(reschedItem.fee_amount || currentDoctor?.fee_clinic || 1000)}</span>
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${reschedItem.payment_status === 'PAID'
-                                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                : 'bg-amber-50 text-amber-800 border border-amber-200'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
                               }`}>
                               {reschedItem.payment_status === 'PAID' ? 'CASH PAID' : 'PENDING CASH'}
                             </span>
@@ -9371,8 +9370,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   setReschedError('');
                                 }}
                                 className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all text-center ${reschedSelectedDate === info.date
-                                    ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm'
-                                    : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                                  ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm'
+                                  : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                                   }`}
                               >
                                 {info.label.split(',')[0]} ({info.count})
@@ -9479,14 +9478,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         }
                                       }}
                                       className={`p-2.5 rounded-xl border text-center transition-all ${isSelected
-                                          ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm font-bold'
-                                          : !isAvailable
-                                            ? s.status === 'booked'
-                                              ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
-                                              : s.status === 'hold'
-                                                ? 'bg-amber-50/70 border-amber-200 text-amber-800 cursor-not-allowed opacity-75'
-                                                : 'bg-rose-50 border-rose-200 text-rose-700 cursor-not-allowed opacity-60'
-                                            : 'bg-white border-slate-200 text-slate-800 hover:border-clinic-500 hover:bg-clinic-50/80 cursor-pointer'
+                                        ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm font-bold'
+                                        : !isAvailable
+                                          ? s.status === 'booked'
+                                            ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                                            : s.status === 'hold'
+                                              ? 'bg-amber-50/70 border-amber-200 text-amber-800 cursor-not-allowed opacity-75'
+                                              : 'bg-rose-50 border-rose-200 text-rose-700 cursor-not-allowed opacity-60'
+                                          : 'bg-white border-slate-200 text-slate-800 hover:border-clinic-500 hover:bg-clinic-50/80 cursor-pointer'
                                         }`}
                                     >
                                       <span className="text-xs font-semibold block">{timeLabel}</span>
@@ -9523,8 +9522,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         </div>
 
                         <div className={`p-4 rounded-xl border transition-all ${selectedNewSlot
-                            ? 'bg-clinic-50/90 border-clinic-300'
-                            : 'bg-amber-50/60 border-amber-200'
+                          ? 'bg-clinic-50/90 border-clinic-300'
+                          : 'bg-amber-50/60 border-amber-200'
                           }`}>
                           <span className="text-[10px] uppercase tracking-wider text-clinic-700 font-bold block mb-1">
                             PROPOSED NEW SLOT
@@ -9831,12 +9830,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 setSelectedPosSlot(null);
                               }}
                               className={`flex-shrink-0 px-3.5 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
-                                  ? isOff
-                                    ? 'border-rose-500 bg-rose-50/80 ring-2 ring-rose-200 shadow-xs'
-                                    : 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-200 shadow-xs'
-                                  : isOff
-                                    ? 'border-rose-200 bg-rose-50/40 hover:bg-rose-50'
-                                    : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300'
+                                ? isOff
+                                  ? 'border-rose-500 bg-rose-50/80 ring-2 ring-rose-200 shadow-xs'
+                                  : 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-200 shadow-xs'
+                                : isOff
+                                  ? 'border-rose-200 bg-rose-50/40 hover:bg-rose-50'
+                                  : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300'
                                 }`}
                             >
                               <div className="flex items-center justify-between gap-2">
@@ -9844,12 +9843,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   {day.label}
                                 </span>
                                 <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${isOff
-                                    ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                                    : hasOpen
-                                      ? isSelected
-                                        ? 'bg-emerald-600 text-white'
-                                        : 'bg-emerald-100 text-emerald-800'
-                                      : 'bg-slate-200 text-slate-700'
+                                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                  : hasOpen
+                                    ? isSelected
+                                      ? 'bg-emerald-600 text-white'
+                                      : 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-slate-200 text-slate-700'
                                   }`}>
                                   {isOff ? 'OFF DAY' : hasOpen ? `${upcomingCount} open` : (isDayToday ? 'All Passed' : 'Full')}
                                 </span>
@@ -9985,29 +9984,26 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   key={s.id}
                                   type="button"
                                   onClick={() => setSelectedPosSlot(s)}
-                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${
-                                    isSlotSelected
-                                      ? isEmg
-                                        ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white border-amber-600 shadow-md ring-2 ring-amber-300'
-                                        : 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-emerald-600 shadow-md ring-2 ring-emerald-300'
-                                      : isEmg
+                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative ${isSlotSelected
+                                    ? isEmg
+                                      ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white border-amber-600 shadow-md ring-2 ring-amber-300'
+                                      : 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-emerald-600 shadow-md ring-2 ring-emerald-300'
+                                    : isEmg
                                       ? 'bg-amber-50/70 hover:bg-amber-50 border-amber-300 text-slate-900 shadow-2xs'
                                       : 'bg-white hover:bg-emerald-50/50 hover:border-emerald-300 border-slate-200 text-slate-800 shadow-2xs'
-                                  }`}
+                                    }`}
                                 >
                                   <div className="flex items-center justify-between">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold ${
-                                      isSlotSelected
-                                        ? isEmg ? 'bg-amber-950 text-amber-200' : 'bg-white text-emerald-800'
-                                        : isEmg
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold ${isSlotSelected
+                                      ? isEmg ? 'bg-amber-950 text-amber-200' : 'bg-white text-emerald-800'
+                                      : isEmg
                                         ? 'bg-amber-100 text-amber-900 border border-amber-300'
                                         : 'bg-emerald-100 text-emerald-800'
-                                    }`}>
+                                      }`}>
                                       {isEmg ? `🚨 EMG #${s.daily_slot_number}` : `Slot #${s.daily_slot_number}`}
                                     </span>
-                                    <span className={`text-[10px] font-semibold ${
-                                      isSlotSelected ? (isEmg ? 'text-amber-100' : 'text-emerald-100') : 'text-slate-400'
-                                    }`}>
+                                    <span className={`text-[10px] font-semibold ${isSlotSelected ? (isEmg ? 'text-amber-100' : 'text-emerald-100') : 'text-slate-400'
+                                      }`}>
                                       Token #{s.daily_slot_number}
                                     </span>
                                   </div>
@@ -10015,9 +10011,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   <p className="text-xs font-bold mt-2">
                                     {s.start_time_fmt}
                                   </p>
-                                  <p className={`text-[10px] ${
-                                    isSlotSelected ? (isEmg ? 'text-amber-100' : 'text-emerald-100') : (isEmg ? 'text-amber-800 font-medium' : 'text-slate-500')
-                                  }`}>
+                                  <p className={`text-[10px] ${isSlotSelected ? (isEmg ? 'text-amber-100' : 'text-emerald-100') : (isEmg ? 'text-amber-800 font-medium' : 'text-slate-500')
+                                    }`}>
                                     to {s.end_time_fmt}
                                   </p>
                                 </button>
@@ -10133,12 +10128,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
 
                     {/* Selected Slot Recap Banner */}
-                    <div className={`p-3 rounded-xl border transition-all ${
-                        selectedPosSlot
-                          ? selectedPosSlot.is_emergency
-                            ? 'bg-amber-50/90 border-amber-300 ring-1 ring-amber-300'
-                            : 'bg-emerald-50/70 border-emerald-300'
-                          : 'bg-slate-50 border-slate-200 text-slate-400'
+                    <div className={`p-3 rounded-xl border transition-all ${selectedPosSlot
+                      ? selectedPosSlot.is_emergency
+                        ? 'bg-amber-50/90 border-amber-300 ring-1 ring-amber-300'
+                        : 'bg-emerald-50/70 border-emerald-300'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
                       }`}>
                       <div className="flex items-center justify-between mb-0.5">
                         <span className="text-[10px] font-bold uppercase tracking-wider block text-slate-500">
@@ -10160,9 +10154,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               {posDays.find(d => d.date === selectedPosDate)?.date_fmt || selectedPosDate}
                             </span>
                           </div>
-                          <span className={`px-2.5 py-1 rounded-lg font-mono font-bold text-xs shadow-xs ${
-                            selectedPosSlot.is_emergency ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'
-                          }`}>
+                          <span className={`px-2.5 py-1 rounded-lg font-mono font-bold text-xs shadow-xs ${selectedPosSlot.is_emergency ? 'bg-amber-600 text-white' : 'bg-emerald-600 text-white'
+                            }`}>
                             Token #{selectedPosSlot.daily_slot_number}
                           </span>
                         </div>
@@ -10217,8 +10210,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             type="button"
                             onClick={() => setPosPaymentMode('PENDING_CASH')}
                             className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${posPaymentMode === 'PENDING_CASH'
-                                ? 'bg-amber-50 border-amber-300 ring-1 ring-amber-400 text-amber-900'
-                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                              ? 'bg-amber-50 border-amber-300 ring-1 ring-amber-400 text-amber-900'
+                              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                               }`}
                           >
                             <span className="block font-bold text-xs">Pay at Calling Time</span>
@@ -10228,8 +10221,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             type="button"
                             onClick={() => setPosPaymentMode('PAID')}
                             className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${posPaymentMode === 'PAID'
-                                ? 'bg-emerald-50 border-emerald-300 ring-1 ring-emerald-400 text-emerald-900'
-                                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                              ? 'bg-emerald-50 border-emerald-300 ring-1 ring-emerald-400 text-emerald-900'
+                              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                               }`}
                           >
                             <span className="block font-bold text-xs">Paid Right Now (POS)</span>
@@ -10355,11 +10348,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           key={d.date}
                           type="button"
                           onClick={() => setEmgModalDate(d.date)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
-                            emgModalDate === d.date
-                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                          }`}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${emgModalDate === d.date
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                            }`}
                         >
                           {d.label} ({d.date_fmt})
                         </button>
@@ -10509,22 +10501,20 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <button
                             type="button"
                             onClick={() => setEmgPeriod('AM')}
-                            className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                              emgPeriod === 'AM'
-                                ? 'bg-amber-600 text-white shadow-xs'
-                                : 'text-slate-600 hover:bg-slate-100'
-                            }`}
+                            className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${emgPeriod === 'AM'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'text-slate-600 hover:bg-slate-100'
+                              }`}
                           >
                             AM
                           </button>
                           <button
                             type="button"
                             onClick={() => setEmgPeriod('PM')}
-                            className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
-                              emgPeriod === 'PM'
-                                ? 'bg-amber-600 text-white shadow-xs'
-                                : 'text-slate-600 hover:bg-slate-100'
-                            }`}
+                            className={`flex-1 h-full rounded-lg text-xs font-extrabold transition-all cursor-pointer ${emgPeriod === 'PM'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'text-slate-600 hover:bg-slate-100'
+                              }`}
                           >
                             PM
                           </button>
@@ -10544,11 +10534,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           key={mins}
                           type="button"
                           onClick={() => setEmgDuration(mins)}
-                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                            emgDuration === mins
-                              ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                          }`}
+                          className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${emgDuration === mins
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                            }`}
                         >
                           {mins} Mins {mins === 20 ? '(Standard)' : ''}
                         </button>
@@ -10683,18 +10672,17 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Payment Status:</span>
-                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
-                        posSuccessReceipt.payment_status === 'PAID'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : posSuccessReceipt.payment_status === 'PARTIAL'
+                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${posSuccessReceipt.payment_status === 'PAID'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : posSuccessReceipt.payment_status === 'PARTIAL'
                           ? 'bg-amber-100 text-amber-900 border border-amber-300'
                           : 'bg-amber-100 text-amber-800'
                         }`}>
                         {posSuccessReceipt.payment_status === 'PAID'
                           ? '✓ PAID IN FULL'
                           : posSuccessReceipt.payment_status === 'PARTIAL'
-                          ? '🟡 PARTIAL ADVANCE (Remaining Due on Calling)'
-                          : 'PAY AT CALLING TIME'}
+                            ? '🟡 PARTIAL ADVANCE (Remaining Due on Calling)'
+                            : 'PAY AT CALLING TIME'}
                       </span>
                     </div>
                     {posSuccessReceipt.payment_status === 'PARTIAL' && (
@@ -12004,8 +11992,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   key={tab}
                   onClick={() => setActivePortalTab(tab as any)}
                   className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap flex-shrink-0 ${activePortalTab === tab
-                      ? 'text-white shadow-md'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/70'
+                    ? 'text-white shadow-md'
+                    : 'text-slate-500 hover:text-slate-800 hover:bg-white/70'
                     }`}
                   style={activePortalTab === tab ? { background: 'linear-gradient(135deg, #1a6359, #143d38)' } : {}}
                 >
@@ -12264,8 +12252,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       type="button"
                       onClick={() => setIncludeArchived(!includeArchived)}
                       className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
-                          ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                        ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       title="Past closed consultations from previous days are automatically hidden to keep your daily active queue clean."
                     >
@@ -12281,8 +12269,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         localStorage.setItem('doc_calling_order', String(next));
                       }}
                       className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${callingOrderActive
-                          ? 'bg-emerald-600 border-emerald-500 text-white ring-1 ring-emerald-300'
-                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        ? 'bg-emerald-600 border-emerald-500 text-white ring-1 ring-emerald-300'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                         }`}
                       title="Arrange appointments in live calling sequence (Today's Time & Token order). Completed visits automatically move down."
                     >
@@ -12402,7 +12390,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             const apptMins = getApptMinutesFromMidnight(appt);
                             const isApptMorning = apptMins < 840;
                             const isShiftMatch = (docCallingShiftInfo.activeShiftType === 'MORNING' && isApptMorning) ||
-                                                 (docCallingShiftInfo.activeShiftType === 'EVENING' && !isApptMorning);
+                              (docCallingShiftInfo.activeShiftType === 'EVENING' && !isApptMorning);
                             const isCallingEligible = isShiftMatch && isCallingStarted;
 
                             const isCurrentActive = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && isCallingEligible;
@@ -12852,8 +12840,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             type="button"
                             onClick={() => setDocOffDays(['sunday'])}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${docOffDays.length === 1 && docOffDays[0] === 'sunday'
-                                ? 'bg-clinic-700 text-white border-clinic-700'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-clinic-700 text-white border-clinic-700'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                               }`}
                           >
                             Sun Off
@@ -12862,8 +12850,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             type="button"
                             onClick={() => setDocOffDays(['friday', 'sunday'])}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${docOffDays.length === 2 && docOffDays.includes('friday') && docOffDays.includes('sunday')
-                                ? 'bg-clinic-700 text-white border-clinic-700'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-clinic-700 text-white border-clinic-700'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                               }`}
                           >
                             Fri &amp; Sun Off
@@ -12872,8 +12860,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             type="button"
                             onClick={() => setDocOffDays([])}
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition cursor-pointer ${docOffDays.length === 0
-                                ? 'bg-clinic-700 text-white border-clinic-700'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-clinic-700 text-white border-clinic-700'
+                              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                               }`}
                           >
                             All 7 Days Open
@@ -12896,8 +12884,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 );
                               }}
                               className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
-                                  ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
-                                  : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
+                                ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
+                                : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
                                 }`}
                             >
                               <span className="block text-xs font-black">{day.label}</span>

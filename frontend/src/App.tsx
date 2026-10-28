@@ -817,8 +817,10 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
       nextOpenDay = dayAfterTomorrow.charAt(0).toUpperCase() + dayAfterTomorrow.slice(1);
     }
 
-    // ── Real DB Slot Awareness: If doctor has live backend slot status ──
-    if (doc.today_status !== undefined) {
+    // ── Real DB Slot Awareness: If doctor has live backend slot status or next_available_slot ──
+    const hasLiveSlotData = Boolean(doc.next_available_slot || doc.today_status !== undefined || doc.is_available_today !== undefined);
+
+    if (hasLiveSlotData) {
       if (doc.today_status === 'OFF_TODAY' || isTodayOff) {
         return {
           isAvailableToday: false,
@@ -831,15 +833,38 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         };
       }
 
-      if (doc.today_status === 'AVAILABLE_TODAY' || doc.is_available_today) {
+      const isTodaySlot = (doc.next_available_slot && doc.next_available_slot.toLowerCase().startsWith('today')) || doc.is_available_today === true || doc.today_status === 'AVAILABLE_TODAY';
+
+      if (isTodaySlot) {
+        let todayBadge = 'Available Today';
+        let status = doc.upcoming_slots_count ? `${doc.upcoming_slots_count} slots open` : 'Open for booking';
+
+        // For doctors with BOTH shifts, distinguish Morning vs Evening based on actual next slot
+        if (shift === 'BOTH') {
+          const isMorningSlot = doc.next_available_slot ? doc.next_available_slot.toLowerCase().includes('am') : (nowMins < mEndMin - 20);
+          if (isMorningSlot) {
+            todayBadge = 'Available Today (Morning)';
+            status = `Morning shift until ${fmt12(mEh, mEm)}`;
+          } else {
+            todayBadge = 'Available Today (Evening)';
+            status = `Evening shift until ${fmt12(eEh, eEm)}`;
+          }
+        } else if (shift === 'MORNING') {
+          todayBadge = 'Available Today (Morning)';
+          status = `Morning shift until ${fmt12(mEh, mEm)}`;
+        } else if (shift === 'EVENING') {
+          todayBadge = 'Available Today (Evening)';
+          status = `Evening shift until ${fmt12(eEh, eEm)}`;
+        }
+
         return {
           isAvailableToday: true,
-          todayBadgeText: 'Available Today',
+          todayBadgeText: todayBadge,
           todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
           nextSlotText: doc.next_available_slot || 'Today · Available',
           nextSlotClass: 'bg-emerald-500 animate-pulse',
           shiftBadge,
-          statusText: doc.upcoming_slots_count ? `${doc.upcoming_slots_count} slots open` : 'Open for booking'
+          statusText: status
         };
       }
 
@@ -855,7 +880,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         };
       }
 
-      // NO_SLOTS_TODAY: Slots for today are cleared/passed or not generated yet
+      // No slots left today (either passed or cleared)
       return {
         isAvailableToday: false,
         todayBadgeText: 'No Slots Left Today',
@@ -873,7 +898,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         isAvailableToday: false,
         todayBadgeText: 'Off Today (Weekly Off)',
         todayBadgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
-        nextSlotText: `${nextOpenDay} · ${startSlot}`,
+        nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${startSlot}`,
         nextSlotClass: 'bg-rose-500',
         shiftBadge,
         statusText: 'Weekly Off Day'
@@ -888,9 +913,9 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         const nextSlotM = nextRoundedMin % 60;
         return {
           isAvailableToday: true,
-          todayBadgeText: 'Available Today',
+          todayBadgeText: 'Available Today (Morning)',
           todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-          nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+          nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
           nextSlotClass: 'bg-emerald-500 animate-pulse',
           shiftBadge,
           statusText: `Open until ${fmt12(mEh, mEm)}`
@@ -900,7 +925,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
           isAvailableToday: false,
           todayBadgeText: 'Morning Shift Ended',
           todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-          nextSlotText: `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
+          nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
           nextSlotClass: 'bg-amber-500',
           shiftBadge,
           statusText: 'Shift ended today'
@@ -916,9 +941,9 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         const nextSlotM = nextRoundedMin % 60;
         return {
           isAvailableToday: true,
-          todayBadgeText: 'Available Today',
+          todayBadgeText: 'Available Today (Evening)',
           todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-          nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+          nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
           nextSlotClass: 'bg-emerald-500 animate-pulse',
           shiftBadge,
           statusText: `Open until ${fmt12(eEh, eEm)}`
@@ -928,7 +953,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
           isAvailableToday: false,
           todayBadgeText: 'Evening Shift Ended',
           todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-          nextSlotText: `${nextOpenDay} · ${fmt12(eSh, eSm)}`,
+          nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${fmt12(eSh, eSm)}`,
           nextSlotClass: 'bg-amber-500',
           shiftBadge,
           statusText: 'Shift ended today'
@@ -946,7 +971,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         isAvailableToday: true,
         todayBadgeText: 'Available Today (Morning)',
         todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-        nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+        nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
         nextSlotClass: 'bg-emerald-500 animate-pulse',
         shiftBadge,
         statusText: `Morning shift until ${fmt12(mEh, mEm)}`
@@ -960,7 +985,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         isAvailableToday: true,
         todayBadgeText: 'Available Today (Evening)',
         todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-        nextSlotText: `Today · ${fmt12(nextSlotH, nextSlotM)}`,
+        nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
         nextSlotClass: 'bg-emerald-500 animate-pulse',
         shiftBadge,
         statusText: `Evening shift until ${fmt12(eEh, eEm)}`
@@ -970,7 +995,7 @@ export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorA
         isAvailableToday: false,
         todayBadgeText: 'Both Shifts Ended',
         todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-        nextSlotText: `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
+        nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
         nextSlotClass: 'bg-amber-500',
         shiftBadge,
         statusText: 'Both shifts ended today'

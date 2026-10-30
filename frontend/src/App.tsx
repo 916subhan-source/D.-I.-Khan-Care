@@ -1958,8 +1958,8 @@ export default function App() {
 
       {/* ── Public Mobile Slide-over Drawer ── */}
       {showMobileNav && (
-        <div className="fixed inset-0 z-50 md:hidden bg-slate-950/60 backdrop-blur-sm flex justify-end animate-fade-in">
-          <div className="w-[280px] max-w-[85vw] bg-white h-full shadow-2xl p-6 flex flex-col justify-between animate-slide-right">
+        <div onClick={() => setShowMobileNav(false)} className="fixed inset-0 z-50 md:hidden bg-slate-950/70 backdrop-blur-xs flex justify-end animate-fade-in">
+          <div onClick={(e) => e.stopPropagation()} className="w-[280px] max-w-[85vw] bg-white dark:bg-slate-900 h-full shadow-2xl p-6 flex flex-col justify-between animate-slide-right border-l border-slate-100 dark:border-slate-800">
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
                 <div className="flex items-center gap-2">
@@ -5690,7 +5690,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       </div>
 
       {/* ── Modern Hero Section with Image Banner ── */}
-      <div className="relative bg-[#f0f6f3] border-b border-clinic-100/80 pt-6 sm:pt-9 lg:pt-11 pb-0">
+      <div className="relative bg-[#f0f6f3] border-b border-clinic-100/80 pt-5 sm:pt-9 lg:pt-11 pb-0">
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <img
@@ -5742,7 +5742,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             </div>
 
             {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
-            <div className="block lg:hidden mt-3 pt-2.5 border-t border-clinic-200/60 max-w-xs sm:max-w-sm">
+            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 w-full max-w-[270px]">
               <Hero3DPass isStatic={true} />
             </div>
           </div>

@@ -4783,7 +4783,7 @@ function DoctorProfileAndBookingView({
 
             {/* 6 Digit Input Boxes */}
             <form onSubmit={handleConfirmOtp} className="space-y-6">
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center items-center gap-1 sm:gap-2">
                 {otpDigits.map((digit, idx) => (
                   <input
                     key={idx}
@@ -4792,7 +4792,7 @@ function DoctorProfileAndBookingView({
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
-                    className="w-11 h-13 text-center text-xl font-bold font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0f766e] focus:border-[#0f766e] shadow-2xs"
+                    className="w-9 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0f766e] focus:border-[#0f766e] shadow-2xs"
                   />
                 ))}
               </div>
@@ -6327,7 +6327,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                     </p>
 
                     {/* 6 OTP boxes */}
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-4">
+                    <div className="flex items-center justify-center gap-1 sm:gap-2 mb-4">
                       {otpDigits.map((d, i) => (
                         <input
                           key={i}
@@ -6342,7 +6342,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                               (document.getElementById(`otp-${i - 1}`) as HTMLInputElement)?.focus();
                             }
                           }}
-                          className={`w-10 sm:w-12 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold border rounded-xl focus:outline-none focus:ring-2 transition-all ${otpError
+                          className={`w-9 sm:w-12 h-11 sm:h-14 text-center text-base sm:text-xl font-bold border rounded-xl focus:outline-none focus:ring-2 transition-all ${otpError
                             ? 'border-rose-400 focus:ring-rose-300 bg-rose-50'
                             : 'border-slate-300 focus:ring-clinic-400 focus:border-clinic-400 bg-white'
                             }`}

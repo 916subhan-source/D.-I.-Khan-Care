@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -228,7 +228,7 @@
 
   /* ── OTP Input Box ── */
   .otp-box {
-    @apply w-12 h-14 text-center text-xl font-bold border border-slate-200
+    @apply w-9 sm:w-12 h-11 sm:h-14 text-center text-base sm:text-xl font-bold border border-slate-200
            rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2
            focus:ring-clinic-400 focus:border-clinic-400 transition-all shadow-sm;
     font-family: 'Outfit', sans-serif;

@@ -98,6 +98,7 @@ class DoctorSlot(Base):
 
     __table_args__ = (
         UniqueConstraint("doctor_id", "start_time", name="uq_doctor_slot_concurrency"),
+        Index("ix_doctor_slots_lookup", "doctor_id", "status", "start_time"),
     )
 
     doctor: Mapped["Doctor"] = relationship("Doctor", back_populates="slots")

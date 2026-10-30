@@ -195,20 +195,25 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
     """
     Fetches upcoming available slots for a doctor, actively checking Redis distributed locks.
     Excludes any slots whose scheduled start time has already passed.
-    Accelerated with Redis in-memory TTL caching.
+    Accelerated with Redis in-memory TTL caching (Checked FIRST before DB roundtrip).
     """
     now = utc_now()
     min_start_time = now + timedelta(minutes=45)
-
-    doc = await db.get(Doctor, doctor_id)
-    doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()] if doc else ["sunday"]
-
     cache_key = f"doctor_slots:{doctor_id}"
-    cached_slots = await redis_manager.get_cache(cache_key)
-    if cached_slots:
+
+    # 1. Fast path: Check Redis cache first to bypass cold Neon PostgreSQL SSL handshake (~5-6s saved!)
+    cached_payload = await redis_manager.get_cache(cache_key)
+    if cached_payload:
         try:
-            slots_data = json.loads(cached_slots)
-            # Filter candidate slots by 45min margin and off-days in memory
+            cached_obj = json.loads(cached_payload)
+            # Support both new payload format {"off_days": [...], "slots": [...]} and legacy list format
+            if isinstance(cached_obj, dict) and "slots" in cached_obj:
+                doc_off_days = cached_obj.get("off_days", ["sunday"])
+                slots_data = cached_obj.get("slots", [])
+            else:
+                doc_off_days = ["sunday"]
+                slots_data = cached_obj if isinstance(cached_obj, list) else []
+
             candidate_slots = []
             for s in slots_data:
                 try:
@@ -220,12 +225,17 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
                     candidate_slots.append(s)
                 except Exception:
                     pass
-            # Single-roundtrip batch lock check (MGET)
+
+            # Single-roundtrip batch lock check (MGET) for active locks
             candidate_ids = [s["id"] for s in candidate_slots]
             locked_ids = await redis_manager.get_active_slot_locks(candidate_ids)
             return [s for s in candidate_slots if s["id"] not in locked_ids]
         except Exception:
             pass
+
+    # 2. Cache miss: Query doctor profile and database slots
+    doc = await db.get(Doctor, doctor_id)
+    doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()] if doc else ["sunday"]
 
     query = select(DoctorSlot).where(
         and_(
@@ -263,8 +273,12 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
             "status": s.status
         })
 
-    # Store in Redis cache for 60 seconds
-    await redis_manager.set_cache(cache_key, json.dumps(slots_to_cache), ttl=60)
+    # Store off_days metadata alongside slots in Redis cache for 300 seconds (5 minutes)
+    cache_data = {
+        "off_days": doc_off_days,
+        "slots": slots_to_cache
+    }
+    await redis_manager.set_cache(cache_key, json.dumps(cache_data), ttl=300)
 
     # Single-roundtrip batch lock check (MGET) instead of sequential loop
     all_slot_ids = [s["id"] for s in slots_to_cache]

@@ -3345,6 +3345,8 @@ function DoctorProfileModal({
 // ══════════════════════════════════════════════════════════════════════════════════════
 // ── Dedicated Full-Page View Doctor Profile & Book Appointment View ──
 // ══════════════════════════════════════════════════════════════════════════════════════
+// Client-side transient slot cache (2 minutes TTL) to make profile switching instant
+const clientSlotCache: Record<string, { timestamp: number; slots: SlotData[] }> = {};
 function DoctorProfileAndBookingView({
   doctor,
   onBack,
@@ -3818,6 +3820,20 @@ function DoctorProfileAndBookingView({
     let isCancelled = false;
     const loadSlots = async () => {
       try {
+        const cached = clientSlotCache[doctor.id];
+        if (cached && (Date.now() - cached.timestamp < 120000)) {
+          const nowMs = Date.now();
+          const fortyFiveMinsAheadMs = nowMs + 45 * 60 * 1000;
+          const validSlots = cached.slots.filter(s => {
+            if (!s.start_time) return false;
+            const t = new Date(s.start_time).getTime();
+            return !isNaN(t) && t >= fortyFiveMinsAheadMs;
+          });
+          setAvailableSlots(validSlots);
+          setIsSlotsLoading(false);
+          return;
+        }
+
         setIsSlotsLoading(true);
         const slots = await apiFetch<SlotData[]>(`/doctors/${doctor.id}/slots`);
         if (Array.isArray(slots) && !isCancelled) {
@@ -3828,6 +3844,7 @@ function DoctorProfileAndBookingView({
             const t = new Date(s.start_time).getTime();
             return !isNaN(t) && t >= fortyFiveMinsAheadMs;
           });
+          clientSlotCache[doctor.id] = { timestamp: Date.now(), slots };
           setAvailableSlots(validSlots);
         }
       } catch (err) {
@@ -5431,6 +5448,19 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
     setDevCodePreview(null);
     setOtpDigits(['', '', '', '', '', '']);
     try {
+      const cached = clientSlotCache[doctor.id];
+      if (cached && (Date.now() - cached.timestamp < 120000)) {
+        const nowMs = Date.now();
+        const validSlots = cached.slots.filter(s => {
+          if (!s.start_time) return false;
+          const iso = s.start_time.endsWith('Z') || s.start_time.includes('+') ? s.start_time : s.start_time + 'Z';
+          const t = new Date(iso).getTime();
+          return !isNaN(t) && t > nowMs;
+        });
+        setAvailableSlots(validSlots);
+        setSlotsLoading(false);
+        return;
+      }
       setSlotsLoading(true);
       const slots = await apiFetch<SlotData[]>(`/doctors/${doctor.id}/slots`);
       const nowMs = Date.now();
@@ -5440,6 +5470,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
         const t = new Date(iso).getTime();
         return !isNaN(t) && t > nowMs;
       });
+      clientSlotCache[doctor.id] = { timestamp: Date.now(), slots: Array.isArray(slots) ? slots : [] };
       setAvailableSlots(validSlots);
     } catch (err) {
       console.error(err);

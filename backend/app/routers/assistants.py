@@ -16,7 +16,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload, contains_eager
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_roles
 from app.core.redis import redis_manager
@@ -139,10 +139,10 @@ async def get_queue(
     query = select(Appointment).outerjoin(
         DoctorSlot, Appointment.slot_id == DoctorSlot.id
     ).options(
-        selectinload(Appointment.doctor).selectinload(Doctor.user),
-        selectinload(Appointment.patient),
-        selectinload(Appointment.slot),
-        selectinload(Appointment.payment)
+        contains_eager(Appointment.slot),
+        joinedload(Appointment.doctor).joinedload(Doctor.user),
+        joinedload(Appointment.patient),
+        joinedload(Appointment.payment)
     )
 
     if current_user.role == "ASSISTANT":
@@ -188,7 +188,7 @@ async def get_queue(
     query = query.order_by(Appointment.created_at.desc())
 
     result = await db.execute(query)
-    appointments = result.scalars().all()
+    appointments = result.unique().scalars().all()
 
     items = []
     for appt in appointments:

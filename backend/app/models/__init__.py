@@ -99,6 +99,7 @@ class DoctorSlot(Base):
     __table_args__ = (
         UniqueConstraint("doctor_id", "start_time", name="uq_doctor_slot_concurrency"),
         Index("ix_doctor_slots_lookup", "doctor_id", "status", "start_time"),
+        Index("ix_doctor_slots_doctor_start", "doctor_id", "start_time"),
     )
 
     doctor: Mapped["Doctor"] = relationship("Doctor", back_populates="slots")
@@ -123,6 +124,11 @@ class Appointment(Base):
     reschedule_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+    __table_args__ = (
+        Index("ix_appointments_doctor_created", "doctor_id", "created_at"),
+        Index("ix_appointments_doctor_status", "doctor_id", "status"),
+    )
 
     patient: Mapped["User"] = relationship("User", foreign_keys=[patient_id], back_populates="patient_appointments")
     doctor: Mapped["Doctor"] = relationship("Doctor", back_populates="appointments")

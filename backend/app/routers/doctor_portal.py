@@ -8,13 +8,14 @@ Doctor Portal Management Router:
 """
 
 import re
+import asyncio
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_, func
-from sqlalchemy.orm import selectinload
+from sqlalchemy import select, and_, or_, func, case
+from sqlalchemy.orm import selectinload, joinedload, contains_eager
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_roles
 from app.core.security import get_password_hash
@@ -1134,62 +1135,47 @@ async def get_doctor_analytics(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    # Total Appointments
-    total_appts = (await db.execute(
-        select(func.count(Appointment.id)).where(Appointment.doctor_id == doc.id)
-    )).scalar() or 0
+    # Performance: Consolidated Single Query for all appointment statuses instead of 5 separate roundtrips
+    appt_counts_query = select(
+        func.count(Appointment.id).label("total"),
+        func.count(case((Appointment.status == "CONFIRMED", 1))).label("confirmed"),
+        func.count(case((Appointment.status == "PENDING_ASSISTANT_APPROVAL", 1))).label("pending"),
+        func.count(case((Appointment.status == "COMPLETED", 1))).label("completed"),
+        func.count(case((Appointment.status == "CANCELLED", 1))).label("cancelled")
+    ).where(Appointment.doctor_id == doc.id)
 
-    # Confirmed Appointments
-    confirmed_appts = (await db.execute(
-        select(func.count(Appointment.id)).where(
-            and_(Appointment.doctor_id == doc.id, Appointment.status == "CONFIRMED")
-        )
-    )).scalar() or 0
+    # Consolidated Single Query for slot metrics
+    slots_counts_query = select(
+        func.count(DoctorSlot.id).label("total"),
+        func.count(case((DoctorSlot.status == "available", 1))).label("available")
+    ).where(DoctorSlot.doctor_id == doc.id)
 
-    # Pending Assistant Review
-    pending_appts = (await db.execute(
-        select(func.count(Appointment.id)).where(
-            and_(Appointment.doctor_id == doc.id, Appointment.status == "PENDING_ASSISTANT_APPROVAL")
-        )
-    )).scalar() or 0
+    appt_counts_res, slots_counts_res = await asyncio.gather(
+        db.execute(appt_counts_query),
+        db.execute(slots_counts_query)
+    )
 
-    # Completed Appointments
-    completed_appts = (await db.execute(
-        select(func.count(Appointment.id)).where(
-            and_(Appointment.doctor_id == doc.id, Appointment.status == "COMPLETED")
-        )
-    )).scalar() or 0
+    appt_row = appt_counts_res.first()
+    slots_row = slots_counts_res.first()
 
-    # Cancelled Appointments
-    cancelled_appts = (await db.execute(
-        select(func.count(Appointment.id)).where(
-            and_(Appointment.doctor_id == doc.id, Appointment.status == "CANCELLED")
-        )
-    )).scalar() or 0
+    total_appts = appt_row.total if appt_row else 0
+    confirmed_appts = appt_row.confirmed if appt_row else 0
+    pending_appts = appt_row.pending if appt_row else 0
+    completed_appts = appt_row.completed if appt_row else 0
+    cancelled_appts = appt_row.cancelled if appt_row else 0
 
-    # Available Slots Count
-    avail_slots = (await db.execute(
-        select(func.count(DoctorSlot.id)).where(
-            and_(DoctorSlot.doctor_id == doc.id, DoctorSlot.status == "available")
-        )
-    )).scalar() or 0
+    avail_slots = slots_row.available if slots_row else 0
+    tot_slots = slots_row.total if slots_row else 0
 
-    # Total Slots Count
-    tot_slots = (await db.execute(
-        select(func.count(DoctorSlot.id)).where(DoctorSlot.doctor_id == doc.id)
-    )).scalar() or 0
+    # Consolidated Single Query for all financial collections
+    fin_query = select(
+        func.coalesce(func.sum(case((Payment.status.in_(["PAID", "PARTIAL"]), Payment.amount_paid), else_=Decimal("0.00"))), Decimal("0.00")).label("paid_sum"),
+        func.coalesce(func.sum(case((Payment.status.in_(["PENDING_CASH", "PARTIAL"]), Payment.amount - Payment.amount_paid), else_=Decimal("0.00"))), Decimal("0.00")).label("pending_sum")
+    ).select_from(Payment).join(Appointment, Payment.appointment_id == Appointment.id).where(Appointment.doctor_id == doc.id)
 
-    # Total Cash Collected — sum amount_paid (actual collected), include PARTIAL payments too
-    paid_sum = (await db.execute(
-        select(func.sum(Payment.amount_paid)).join(Appointment, Payment.appointment_id == Appointment.id)\
-            .where(and_(Appointment.doctor_id == doc.id, Payment.status.in_(["PAID", "PARTIAL"])))
-    )).scalar() or Decimal("0.00")
-
-    # Pending Cash — outstanding balance across PENDING_CASH and PARTIAL payments
-    pending_cash_sum = (await db.execute(
-        select(func.sum(Payment.amount - Payment.amount_paid)).join(Appointment, Payment.appointment_id == Appointment.id)\
-            .where(and_(Appointment.doctor_id == doc.id, Payment.status.in_(["PENDING_CASH", "PARTIAL"])))
-    )).scalar() or Decimal("0.00")
+    fin_res = (await db.execute(fin_query)).first()
+    paid_sum = fin_res.paid_sum if fin_res else Decimal("0.00")
+    pending_cash_sum = fin_res.pending_sum if fin_res else Decimal("0.00")
 
     return {
         "doctor_id": doc.id,
@@ -1221,9 +1207,9 @@ async def list_doctor_appointments(
     query = select(Appointment).outerjoin(
         DoctorSlot, Appointment.slot_id == DoctorSlot.id
     ).options(
-        selectinload(Appointment.patient),
-        selectinload(Appointment.slot),
-        selectinload(Appointment.payment)
+        contains_eager(Appointment.slot),
+        joinedload(Appointment.patient),
+        joinedload(Appointment.payment)
     ).where(Appointment.doctor_id == doc.id)
 
     if not include_archived:
@@ -1238,7 +1224,7 @@ async def list_doctor_appointments(
     query = query.order_by(Appointment.created_at.desc())
 
     result = await db.execute(query)
-    appts = result.scalars().all()
+    appts = result.unique().scalars().all()
 
     res_list = []
     for appt in appts:

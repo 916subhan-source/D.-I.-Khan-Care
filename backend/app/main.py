@@ -56,12 +56,12 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass  # Column already exists — safe to ignore
 
-        # Performance optimization: composite index for instant doctor slots retrieval
+        # Performance optimization: composite indexes for instant doctor portal queries
         try:
-            if "sqlite" in settings.DATABASE_URL:
-                await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_doctor_slots_lookup ON doctor_slots (doctor_id, status, start_time)"))
-            else:
-                await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_doctor_slots_lookup ON doctor_slots (doctor_id, status, start_time)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_doctor_slots_lookup ON doctor_slots (doctor_id, status, start_time)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_doctor_slots_doctor_start ON doctor_slots (doctor_id, start_time)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_appointments_doctor_created ON appointments (doctor_id, created_at DESC)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_appointments_doctor_status ON appointments (doctor_id, status)"))
         except Exception:
             pass
 

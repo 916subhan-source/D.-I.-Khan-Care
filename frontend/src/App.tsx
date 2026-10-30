@@ -11054,7 +11054,22 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     setLoadingAppointments(true);
     const showArchived = typeof archived === 'boolean' ? archived : includeArchived;
     const headers = { Authorization: `Bearer ${token}` };
-    return apiFetch<any>('/auth/me', { headers })
+
+    // Performance: Fire all requests concurrently rather than waiting sequentially on /auth/me
+    const mePromise = apiFetch<any>('/auth/me', { headers });
+    const profilePromise = apiFetch<any>('/doctor/profile', { headers }).catch(() => null);
+    const apptsPromise = apiFetch<AppointmentItem[]>(`/doctor/appointments?include_archived=${showArchived}`, { headers }).catch(() => []);
+    const analyPromise = apiFetch<any>('/doctor/analytics', { headers }).catch(() => null);
+    const slotsPromise = apiFetch<SlotData[]>('/doctor/slots/my-slots', { headers }).catch(() => []);
+    const asstsPromise = apiFetch<any[]>('/doctor/assistants', { headers }).catch(() => []);
+
+    // Instant UI responsiveness: render appointments table the instant apptsPromise resolves
+    apptsPromise.then((appts) => {
+      setAppointments(Array.isArray(appts) ? appts : []);
+      setLoadingAppointments(false);
+    });
+
+    return mePromise
       .then((me) => {
         if (!me || me.role?.toUpperCase() !== 'DOCTOR') {
           // Invalidate non-doctor token immediately: clear token and return to doctor login screen
@@ -11070,11 +11085,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         }
 
         return Promise.all([
-          apiFetch<any>('/doctor/profile', { headers }).catch(() => null),
-          apiFetch<AppointmentItem[]>(`/doctor/appointments?include_archived=${showArchived}`, { headers }).catch(() => []),
-          apiFetch<any>('/doctor/analytics', { headers }).catch(() => null),
-          apiFetch<SlotData[]>('/doctor/slots/my-slots', { headers }).catch(() => []),
-          apiFetch<any[]>('/doctor/assistants', { headers }).catch(() => []),
+          profilePromise,
+          apptsPromise,
+          analyPromise,
+          slotsPromise,
+          asstsPromise,
         ]).then(([profile, appts, analy, sl, assts]) => {
           if (profile) {
             setDoctorProfile(profile);

@@ -2819,6 +2819,21 @@ function DoctorProfileModal({
         services: ['Antenatal & Postnatal Care', 'High-Risk Pregnancy Management', 'PCOS / PCOD Treatment', 'Infertility Evaluation', 'Gynecological Ultrasound', 'Menstrual Disorder Care'],
         conditions: ['PCOS / PCOD', 'High-Risk Pregnancy', 'Infertility', 'Menstrual Irregularities', 'Pelvic Infections', 'Uterine Fibroids']
       };
+    } else if (s.includes('laparo') || s.includes('lapro')) {
+      return {
+        services: ['Diagnostic Laparoscopy', 'Laparoscopic Cholecystectomy (Gallbladder)', 'Laparoscopic Appendectomy', 'Minimally Invasive Hernia Repair', 'Laparoscopic Cyst Removal', 'Post-Op Laparoscopic Follow-up'],
+        conditions: ['Gallstones & Cholecystitis', 'Appendicitis', 'Abdominal & Inguinal Hernia', 'Abdominal Adhesions', 'Ovarian & Pelvic Cysts', 'Acute Abdominal Pain']
+      };
+    } else if (s.includes('aesthet') || s.includes('asthet') || s.includes('face')) {
+      return {
+        services: ['Facial Contouring & Reshaping', 'Rhinoplasty (Nose Reshaping)', 'Blepharoplasty (Eyelid Surgery)', 'Facelift & Neck Lift Consultation', 'Scar Revision & Facial Reconstruction', 'Botox, Fillers & Facial Rejuvenation'],
+        conditions: ['Facial Trauma & Scarring', 'Nasal Deformities & Deviations', 'Sagging Facial Skin & Wrinkles', 'Ptosis & Drooping Eyelids', 'Facial Asymmetry', 'Post-Burn & Post-Excision Reconstruction']
+      };
+    } else if (s.includes('surgeon') || s.includes('surgery')) {
+      return {
+        services: ['Minor & Major General Surgery', 'Hernia Repair (Open/Mesh)', 'Appendectomy & Bowel Surgery', 'Wound Debridement & Abscess Drainage', 'Lipoma & Cyst Excision', 'Surgical OPD & Post-Operative Care'],
+        conditions: ['Inguinal & Ventral Hernia', 'Acute Appendicitis', 'Skin Cysts, Lipomas & Tumors', 'Soft Tissue Infections & Abscesses', 'Gallbladder & Biliary Conditions', 'Surgical Wound Complications']
+      };
     } else {
       return {
         services: ['General Health Checkup', 'Diabetes & Sugar Management', 'Fever & Infection Care', 'Blood Pressure Monitoring', 'Gastric & Acidity Treatment', 'Routine Physical Examination'],
@@ -3311,7 +3326,7 @@ function DoctorProfileModal({
             <div>
               <h3 className="text-base font-bold text-slate-900 mb-3">Top Specialties in D.I. Khan</h3>
               <div className="flex flex-wrap gap-2 text-xs">
-                {['General Physician', 'Cardiologist', 'Dermatologist', 'Gynecologist', 'Pediatrician', 'ENT Specialist', 'Orthopedic Surgeon', 'Eye Specialist', 'Dentist'].map((spec, i) => (
+                {['General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynecologist', 'Pediatrician', 'ENT Specialist', 'Orthopedic Surgeon', 'Eye Specialist', 'Dentist'].map((spec, i) => (
                   <span key={i} className="px-3 py-1.5 bg-slate-100 hover:bg-teal-100 text-slate-700 hover:text-teal-900 rounded-xl border border-slate-200 font-medium cursor-pointer transition-colors">
                     {spec} in D.I. Khan
                   </span>
@@ -5588,7 +5603,10 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
     const matchLoc = selectedLocality === 'All D.I. Khan' || doc.sub_region.toLowerCase().includes(selectedLocality.split('/')[0].trim().toLowerCase());
     const matchShift = selectedShift === 'Any shift' || doc.shift.toLowerCase().includes(selectedShift.toLowerCase());
     const matchSearch = !searchTerm || doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doc.clinic_address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchSpecialty = selectedSpecialty === 'All specialties' || doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase());
+    const matchSpecialty = selectedSpecialty === 'All specialties' || 
+      doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
+      (selectedSpecialty.toLowerCase().includes('lap') && doc.specialty.toLowerCase().includes('lap')) ||
+      (selectedSpecialty.toLowerCase().includes('face') && doc.specialty.toLowerCase().includes('face'));
     if (!matchLoc || !matchShift || !matchSearch || !matchSpecialty) return false;
 
     if (quickFilter === 'top_rated') {
@@ -5805,7 +5823,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                   onChange={e => { setSelectedSpecialty(e.target.value); setQuickFilter('all'); }}
                   className="w-full bg-transparent text-sm font-semibold text-slate-900 focus:outline-none cursor-pointer"
                 >
-                  {['All specialties', 'Cardiologist', 'Dermatologist', 'General Physician', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Dentist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
+                  {['All specialties', 'General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Dentist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
                     <option key={s} value={s}>{s === 'All specialties' ? 'All Specialties' : s}</option>
                   ))}
                 </select>
@@ -5871,6 +5889,9 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             {[
               { name: 'All specialties', label: 'All Specialties', emoji: '⚪' },
               { name: 'General Physician', label: 'General Physician', emoji: '🩺' },
+              { name: 'General Surgeon', label: 'General Surgeon', emoji: '🩹' },
+              { name: 'Laparoscopic Surgeon', label: 'Laparoscopic Surgeon', emoji: '🔬' },
+              { name: 'Face Aesthetic Surgeon', label: 'Face Aesthetic Surgeon', emoji: '🪞' },
               { name: 'Cardiologist', label: 'Cardiologist', emoji: '🫀' },
               { name: 'Dermatologist', label: 'Dermatologist', emoji: '✨' },
               { name: 'Gynaecologist', label: 'Gynaecologist', emoji: '🌸' },
@@ -15166,13 +15187,16 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                         className="w-full px-3 py-2 border rounded-xl mt-1 text-xs bg-white focus:ring-2 focus:ring-clinic-400 focus:outline-none"
                         required
                       >
+                        <option value="General Physician">General Physician</option>
+                        <option value="General Surgeon">General Surgeon</option>
+                        <option value="Laparoscopic Surgeon">Laparoscopic Surgeon</option>
+                        <option value="Face Aesthetic Surgeon">Face Aesthetic Surgeon</option>
                         <option value="Cardiologist">Cardiologist</option>
                         <option value="Gynecologist">Gynecologist</option>
                         <option value="Dermatologist">Dermatologist</option>
                         <option value="Pediatrician">Pediatrician</option>
                         <option value="Neurologist">Neurologist</option>
                         <option value="ENT Specialist">ENT Specialist</option>
-                        <option value="General Physician">General Physician</option>
                         <option value="Orthopedic Surgeon">Orthopedic Surgeon</option>
                       </select>
                     </div>

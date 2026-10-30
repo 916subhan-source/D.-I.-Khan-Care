@@ -166,6 +166,14 @@ async def list_doctor_assistants(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
+
     query = select(DoctorAssistant, User).join(User, DoctorAssistant.assistant_user_id == User.id)\
         .where(
             and_(
@@ -202,6 +210,14 @@ async def create_or_link_assistant(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     # 1. Check if user already exists
     user_res = await db.execute(select(User).where(User.email == payload.email))
@@ -270,6 +286,14 @@ async def revoke_assistant(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
+
     link_res = await db.execute(
         select(DoctorAssistant).where(
             and_(DoctorAssistant.doctor_id == doc.id, DoctorAssistant.assistant_user_id == assistant_user_id)
@@ -300,6 +324,8 @@ async def revoke_assistant(
             asst_user.status = "inactive"
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{doc.id}")
     return {"status": "SUCCESS", "message": "Assistant access revoked successfully."}
 
 @router.put("/assistants/{assistant_user_id}/reset-password")
@@ -323,6 +349,14 @@ async def reset_assistant_password(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
+
     link_res = await db.execute(
         select(DoctorAssistant).where(
             and_(DoctorAssistant.doctor_id == doc.id, DoctorAssistant.assistant_user_id == assistant_user_id)
@@ -339,6 +373,8 @@ async def reset_assistant_password(
     asst_user.password_hash = get_password_hash(pwd)
     asst_user.plain_password = pwd  # Update recoverable copy
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{doc.id}")
     return {
         "status": "SUCCESS",
         "message": f"Password for assistant '{asst_user.full_name}' updated successfully.",
@@ -453,6 +489,14 @@ async def blackout_date(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     try:
         target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -932,6 +976,14 @@ async def cancel_appointment_by_doctor(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
+
     query = select(Appointment).options(
         selectinload(Appointment.slot)
     ).where(and_(Appointment.id == appointment_id, Appointment.doctor_id == doc.id))
@@ -978,6 +1030,14 @@ async def mark_appointment_paid_by_doctor(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     payment_res = await db.execute(
         select(Payment).options(selectinload(Payment.appointment)).where(Payment.appointment_id == appointment_id)
@@ -1034,6 +1094,14 @@ async def complete_appointment_by_doctor(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     query = select(Appointment).options(
         selectinload(Appointment.doctor).selectinload(Doctor.user),
@@ -1233,6 +1301,14 @@ async def list_doctor_appointments(
         except Exception:
             pass
 
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
+
     query = select(Appointment).outerjoin(
         DoctorSlot, Appointment.slot_id == DoctorSlot.id
     ).options(
@@ -1327,6 +1403,14 @@ async def update_doctor_profile(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     if payload.fee_clinic is not None:
         doc.fee_clinic = Decimal(str(payload.fee_clinic))

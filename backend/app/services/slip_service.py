@@ -28,6 +28,12 @@ class SlipService:
             return "ORTH"
         elif "DERMA" in s:
             return "DERM"
+        elif "LAPARO" in s or "LAPRO" in s:
+            return "LAP"
+        elif "AESTHET" in s or "ASTHET" in s or "FACE" in s:
+            return "FAS"
+        elif "SURG" in s:
+            return "SURG"
         return "GEN"
 
     @staticmethod

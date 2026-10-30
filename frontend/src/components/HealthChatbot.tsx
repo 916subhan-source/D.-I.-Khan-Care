@@ -351,6 +351,9 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
 
     const specialtyMap: Array<{ keywords: string[]; dbKeyword: string; label: string; unavailable: boolean }> = [
       { keywords: ['cardiologist', 'cardio', 'dil', 'heart', 'chest', 'bp', 'blood pressure'], dbKeyword: 'Cardio', label: 'Cardiologist', unavailable: false },
+      { keywords: ['laparoscopic', 'laproscopic', 'laparoscopy', 'pait operation', 'hernia', 'gallbladder', 'pitta'], dbKeyword: 'Lap', label: 'Laparoscopic Surgeon', unavailable: false },
+      { keywords: ['general surgeon', 'surgery', 'surgeon', 'operation', 'apendx', 'appendix'], dbKeyword: 'Surgeon', label: 'General Surgeon', unavailable: false },
+      { keywords: ['face aesthetic', 'face asthetic', 'plastic surgeon', 'rhinoplasty', 'facial', 'cosmetic'], dbKeyword: 'Face', label: 'Face Aesthetic Surgeon', unavailable: false },
       { keywords: ['pediatrician', 'pediatric', 'child specialist', 'bachon', 'bacho'], dbKeyword: 'Pediatric', label: 'Pediatrician', unavailable: false },
       { keywords: ['gynecologist', 'gynae', 'gyneco', 'khwateen', 'lady doctor', 'pregnancy'], dbKeyword: 'Gynec', label: 'Gynecologist', unavailable: false },
       { keywords: ['ent', 'ear nose throat', 'kaan naak gala'], dbKeyword: 'ENT', label: 'ENT', unavailable: true },

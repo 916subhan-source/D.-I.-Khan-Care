@@ -468,7 +468,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
   return (
     <>
       {/* ── Floating Action Trigger Button ── */}
-      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end">
+      <div className="fixed bottom-20 md:bottom-5 right-4 sm:right-5 z-40 flex flex-col items-end">
         {/* Animated Tooltip Bubble when closed */}
         {!isOpen && hasUnreadAlert && (
           <div className="mb-2.5 bg-slate-900/95 text-white text-xs px-3.5 py-1.5 rounded-2xl shadow-xl border border-slate-700/80 backdrop-blur-md flex items-center gap-2 animate-bounce">

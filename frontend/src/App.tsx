@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import {
   Stethoscope,
   Printer,
@@ -1066,7 +1066,7 @@ function StatusPill({ status }: { status: string }) {
 // ── Global Floating Theme Toggle Component ──────────────────────────────────────────
 function FloatingThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: () => void }) {
   return (
-    <div className="fixed bottom-5 left-5 z-40">
+    <div className="fixed bottom-20 md:bottom-5 left-4 sm:left-5 z-40">
       <button
         type="button"
         onClick={onToggle}
@@ -2067,7 +2067,7 @@ export default function App() {
       )}
 
       {/* ── Content ── */}
-      <main className="flex-1">
+      <main className="flex-1 pb-20 md:pb-0">
         {activeTab === 'track' ? (
           <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('patient')} />
         ) : (
@@ -2094,6 +2094,58 @@ export default function App() {
           </div>
         </div>
       </footer>
+      {/* ── Modern Mobile Bottom Sticky Navigation Bar (< 768px) ── */}
+      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5 transition-all">
+        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
+          {/* Tab 1: Find Doctor (Home/Directory) */}
+          <button
+            type="button"
+            onClick={() => handleSwitchRole('patient')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${
+              activeTab === 'patient'
+                ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <Search className={`w-5 h-5 mb-0.5 ${activeTab === 'patient' ? 'stroke-[2.5]' : 'stroke-2'}`} />
+            <span className="text-[10px] leading-tight tracking-tight">Doctors</span>
+          </button>
+
+          {/* Tab 2: Track Appointment */}
+          <button
+            type="button"
+            onClick={() => handleSwitchRole('track')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${
+              activeTab === 'track'
+                ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <Clock className={`w-5 h-5 mb-0.5 ${activeTab === 'track' ? 'stroke-[2.5]' : 'stroke-2'}`} />
+            <span className="text-[10px] leading-tight tracking-tight">Track Slip</span>
+          </button>
+
+          {/* Tab 3: Staff Portal Access */}
+          <button
+            type="button"
+            onClick={() => setShowStaffModal(true)}
+            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+          >
+            <Stethoscope className="w-5 h-5 mb-0.5 stroke-2" />
+            <span className="text-[10px] leading-tight tracking-tight">Staff Portal</span>
+          </button>
+
+          {/* Tab 4: More / Quick Menu Drawer */}
+          <button
+            type="button"
+            onClick={() => setShowMobileNav(true)}
+            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+          >
+            <Menu className="w-5 h-5 mb-0.5 stroke-2" />
+            <span className="text-[10px] leading-tight tracking-tight">Menu</span>
+          </button>
+        </div>
+      </nav>
 
       {/* ── Global Floating Theme Toggle (Light / Dark) ── */}
       <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />

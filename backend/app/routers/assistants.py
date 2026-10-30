@@ -19,11 +19,24 @@ from sqlalchemy import select, and_, or_, func
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_roles
+from app.core.redis import redis_manager
 from app.services.slip_service import slip_service
 from app.services.audit_service import audit_service
 from app.models import User, Doctor, DoctorAssistant, DoctorSlot, Appointment, Payment
 from app.schemas import AppointmentResponse, RescheduleRequest, MarkPaidRequest, POSBookingRequest, EmergencySlotRequest
 from app.core.timezone import format_pkt_date, format_pkt_time, format_pkt_ymd, PKT, to_pkt
+
+def _safe_slot_date_from_slip(slip_number: Optional[str], fallback_dt) -> Optional[str]:
+    """Bug fix helper: safely extract date from slip number without crashing on malformed values.
+    Falls back to fallback_dt (created_at) if the embedded date is invalid."""
+    try:
+        m = re.search(r"(\d{4})(\d{2})(\d{2})", slip_number)
+        if m:
+            dt = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), 0, 0, tzinfo=timezone.utc)
+            return format_pkt_date(dt)
+    except (ValueError, AttributeError):
+        pass
+    return format_pkt_date(fallback_dt) if fallback_dt else None
 
 def parse_token_from_slip_str(slip_number: Optional[str]) -> Optional[int]:
     if not slip_number or not isinstance(slip_number, str):
@@ -200,7 +213,9 @@ async def get_queue(
             "start_time": appt.slot.start_time.isoformat() if appt.slot and appt.slot.start_time else None,
             "slot_date": (
                 format_pkt_date(appt.slot.start_time) if appt.slot and appt.slot.start_time else (
-                    format_pkt_date(datetime(int(re.search(r"(\d{4})(\d{2})(\d{2})", appt.slip_number).group(1)), int(re.search(r"(\d{4})(\d{2})(\d{2})", appt.slip_number).group(2)), int(re.search(r"(\d{4})(\d{2})(\d{2})", appt.slip_number).group(3)), 0, 0, tzinfo=timezone.utc))
+                    # Bug fix: wrap slip-number date extraction in try/except
+                    # re.search().group() + datetime() can crash with ValueError on malformed slip numbers
+                    (lambda: _safe_slot_date_from_slip(appt.slip_number, appt.created_at))()
                     if appt.slip_number and re.search(r"(\d{4})(\d{2})(\d{2})", appt.slip_number)
                     else (format_pkt_date(appt.created_at) if appt.created_at else None)
                 )
@@ -361,6 +376,7 @@ async def cancel_appointment_by_assistant(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after cancellation
 
     # Trigger Event 2b: Notify assistant Gmail & patient of cancellation
     try:
@@ -398,9 +414,9 @@ async def reschedule_appointment(
     if new_slot.start_time:
         pkt_tz = timezone(timedelta(hours=5))
         now_pkt = datetime.now(pkt_tz)
-        slot_dt = new_slot.start_time
-        if slot_dt.tzinfo is None:
-            slot_dt = slot_dt.replace(tzinfo=pkt_tz)
+        # Bug fix: use to_pkt() to properly convert UTC→PKT instead of replace()
+        # replace() was incorrectly stamping PKT label on a UTC value, causing 5-hour distortion
+        slot_dt = to_pkt(new_slot.start_time)
         if slot_dt.date() == now_pkt.date() and slot_dt < (now_pkt + timedelta(minutes=45)):
             raise HTTPException(
                 status_code=400,
@@ -494,6 +510,7 @@ async def reject_appointment(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after rejection
     return {
         "status": "SUCCESS",
         "appointment_id": appt.id,
@@ -557,6 +574,7 @@ async def mark_appointment_paid(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale cache after payment status change
     return {
         "status": "SUCCESS",
         "payment_status": payment.status,
@@ -904,6 +922,7 @@ async def create_emergency_slot(
     )
     db.add(emergency_slot)
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after emergency slot creation
     await db.refresh(emergency_slot)
 
     # 7. Audit log
@@ -1090,6 +1109,7 @@ async def pos_book_appointment(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after POS walk-in booking
 
     token_num = parse_token_from_slip_str(slip_num)
 

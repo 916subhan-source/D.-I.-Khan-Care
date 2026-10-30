@@ -205,6 +205,63 @@ class RedisManager:
                 pass
         self._fallback_store.pop(key, None)
 
+    async def increment_verify_attempts(self, contact: str, ttl_seconds: int = 600) -> int:
+        """
+        Increments failed OTP verification attempts for a contact.
+        Returns the updated attempt count.
+        """
+        key = f"otp:verify_attempts:{contact}"
+        if not self._use_fallback and self.client:
+            try:
+                count = await self.client.incr(key)
+                if count == 1:
+                    await self.client.expire(key, ttl_seconds)
+                return int(count)
+            except Exception:
+                pass
+
+        now = time.time()
+        if key in self._fallback_store:
+            count, exp = self._fallback_store[key]
+            if now < exp:
+                count += 1
+                self._fallback_store[key] = (count, exp)
+                return int(count)
+            else:
+                self._fallback_store[key] = (1, now + ttl_seconds)
+                return 1
+        else:
+            self._fallback_store[key] = (1, now + ttl_seconds)
+            return 1
+
+    async def get_verify_attempts(self, contact: str) -> int:
+        """Retrieves the current number of failed verification attempts for a contact."""
+        key = f"otp:verify_attempts:{contact}"
+        if not self._use_fallback and self.client:
+            try:
+                val = await self.client.get(key)
+                return int(val) if val else 0
+            except Exception:
+                pass
+
+        if key in self._fallback_store:
+            count, exp = self._fallback_store[key]
+            if time.time() < exp:
+                return int(count)
+            self._fallback_store.pop(key, None)
+        return 0
+
+    async def reset_verify_attempts(self, contact: str) -> None:
+        """Resets the failed verification counter when a new code is issued or code is successfully verified."""
+        key = f"otp:verify_attempts:{contact}"
+        if not self._use_fallback and self.client:
+            try:
+                await self.client.delete(key)
+                return
+            except Exception:
+                pass
+        self._fallback_store.pop(key, None)
+
     async def check_and_increment_rate_limit(self, contact: str, max_attempts: int = 3, window_seconds: int = 900) -> bool:
         """
         Enforces max 3 attempts per 15 minutes.

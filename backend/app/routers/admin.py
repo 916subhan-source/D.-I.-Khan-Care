@@ -375,7 +375,7 @@ async def toggle_doctor_spotlight(
 @router.post("/doctors/{doctor_id}/verify")
 async def verify_doctor_account(
     doctor_id: str,
-    status_update: str = Query(..., regex="^(verified|rejected)$"),
+    status_update: str = Query(..., pattern="^(verified|rejected)$"),
     current_user: User = Depends(require_roles(["ADMIN"])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -458,7 +458,7 @@ async def get_redis_status(
                 directory_cache.append({"key": key, "ttl_seconds_remaining": ttl_remaining})
             elif key.startswith("otp:attempts:"):
                 otp_rate_limits.append({"key": key, "attempts_count": value, "ttl_seconds_remaining": ttl_remaining})
-            elif key.startswith("otp:"):
+            elif key.startswith("otp:") and not key.startswith("otp:attempts:") and not key.startswith("otp:verify_attempts:"):
                 otp_entries.append({"key": key, "ttl_seconds_remaining": ttl_remaining})
     else:
         # Read from actual Redis

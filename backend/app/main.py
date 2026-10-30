@@ -47,6 +47,15 @@ async def lifespan(app: FastAPI):
             except Exception:
                 pass
 
+        # Bug fix: ensure amount_paid column exists on payments table (added for PARTIAL payment tracking)
+        try:
+            if "sqlite" in settings.DATABASE_URL:
+                await conn.execute(text("ALTER TABLE payments ADD COLUMN amount_paid NUMERIC(10,2) DEFAULT 0.00"))
+            else:
+                await conn.execute(text("ALTER TABLE payments ADD COLUMN IF NOT EXISTS amount_paid NUMERIC(10,2) DEFAULT 0.00"))
+        except Exception:
+            pass  # Column already exists — safe to ignore
+
         try:
             await conn.execute(text("UPDATE appointments SET patient_name = (SELECT full_name FROM users WHERE users.id = appointments.patient_id) WHERE patient_name IS NULL"))
             await conn.execute(text("UPDATE appointments SET patient_phone = (SELECT phone FROM users WHERE users.id = appointments.patient_id) WHERE patient_phone IS NULL"))

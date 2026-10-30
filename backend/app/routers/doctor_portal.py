@@ -986,6 +986,7 @@ async def mark_appointment_paid_by_doctor(
 
     old_status = payment.status
     payment.status = "PAID"
+    payment.amount_paid = payment.amount  # Bug fix: record the full amount collected
     payment.paid_at = datetime.now(timezone.utc)
     payment.collected_by = current_user.id
 
@@ -1052,6 +1053,7 @@ async def complete_appointment_by_doctor(
         if mark_paid and appt.payment:
             old_pay_status = appt.payment.status
             appt.payment.status = "PAID"
+            appt.payment.amount_paid = appt.payment.amount  # Bug fix: record the full amount collected
             appt.payment.paid_at = datetime.now(timezone.utc)
             appt.payment.collected_by = current_user.id
             await audit_service.log_action(
@@ -1177,16 +1179,16 @@ async def get_doctor_analytics(
         select(func.count(DoctorSlot.id)).where(DoctorSlot.doctor_id == doc.id)
     )).scalar() or 0
 
-    # Total Cash Collected (PAID)
+    # Total Cash Collected — sum amount_paid (actual collected), include PARTIAL payments too
     paid_sum = (await db.execute(
-        select(func.sum(Payment.amount)).join(Appointment, Payment.appointment_id == Appointment.id)\
-            .where(and_(Appointment.doctor_id == doc.id, Payment.status == "PAID"))
+        select(func.sum(Payment.amount_paid)).join(Appointment, Payment.appointment_id == Appointment.id)\
+            .where(and_(Appointment.doctor_id == doc.id, Payment.status.in_(["PAID", "PARTIAL"])))
     )).scalar() or Decimal("0.00")
 
-    # Pending Cash to collect at desk
+    # Pending Cash — outstanding balance across PENDING_CASH and PARTIAL payments
     pending_cash_sum = (await db.execute(
-        select(func.sum(Payment.amount)).join(Appointment, Payment.appointment_id == Appointment.id)\
-            .where(and_(Appointment.doctor_id == doc.id, Payment.status == "PENDING_CASH"))
+        select(func.sum(Payment.amount - Payment.amount_paid)).join(Appointment, Payment.appointment_id == Appointment.id)\
+            .where(and_(Appointment.doctor_id == doc.id, Payment.status.in_(["PENDING_CASH", "PARTIAL"])))
     )).scalar() or Decimal("0.00")
 
     return {

@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     OTP_TTL_SECONDS: int = 600        # 10 minutes
     MAX_OTP_ATTEMPTS: int = 3
     RATE_LIMIT_WINDOW_SECONDS: int = 900  # 15 minutes
+    MAX_OTP_VERIFY_ATTEMPTS: int = 5      # Max 5 failed verification attempts before invalidating OTP
     
     # Notification / Email (Resend.com driver or Direct Gmail SMTP)
     RESEND_API_KEY: str = ""

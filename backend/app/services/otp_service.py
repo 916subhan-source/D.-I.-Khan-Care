@@ -37,11 +37,14 @@ class OTPService:
         if not within_limit:
             return False, "Rate limit exceeded. Maximum 3 attempts allowed per 15 minutes. Please try again later.", None
 
-        # 2. Generate 6-digit code and Argon2 hash
+        # 2. Reset any previous failed verification attempts for this contact
+        await redis_manager.reset_verify_attempts(contact)
+
+        # 3. Generate 6-digit code and Argon2 hash
         plain_code = cls.generate_6digit_code()
         hashed_code = hash_otp_code(plain_code)
 
-        # 3. Store in Redis with 10-minute TTL
+        # 4. Store in Redis with 10-minute TTL
         await redis_manager.set_otp(contact, hashed_code, ttl_seconds=settings.OTP_TTL_SECONDS)
         logger.info(f"Generated 6-digit OTP for {contact} (Dev code: {plain_code})")
 
@@ -53,18 +56,36 @@ class OTPService:
     async def verify_code(cls, contact: str, code: str) -> Tuple[bool, str]:
         """
         Verifies the patient's 6-digit code against Redis.
-        Deletes code upon successful verification.
+        Strictly enforces maximum failed verification attempts (max 5) to block brute-force attacks.
+        Deletes code upon successful verification or when max attempts are reached.
         """
         stored_hash = await redis_manager.get_otp(contact)
         if not stored_hash:
             return False, "Verification code has expired or was not requested. Please request a new code."
 
+        max_verify = getattr(settings, "MAX_OTP_VERIFY_ATTEMPTS", 5)
+
+        # 1. Check if verification attempts have already been exhausted
+        current_attempts = await redis_manager.get_verify_attempts(contact)
+        if current_attempts >= max_verify:
+            await redis_manager.delete_otp(contact)
+            return False, "Too many incorrect verification attempts. This verification code has been invalidated for security. Please request a new code."
+
+        # 2. Check code validity
         is_valid = verify_otp_code(code, stored_hash)
         if not is_valid:
-            return False, "Invalid 6-digit verification code. Please check and try again."
+            new_attempts = await redis_manager.increment_verify_attempts(contact, ttl_seconds=settings.OTP_TTL_SECONDS)
+            if new_attempts >= max_verify:
+                await redis_manager.delete_otp(contact)
+                return False, "Too many incorrect verification attempts. This verification code has been invalidated for security. Please request a new code."
 
-        # Code is valid -> consume it immediately
+            remaining = max_verify - new_attempts
+            attempt_word = "attempt" if remaining == 1 else "attempts"
+            return False, f"Invalid 6-digit verification code. {remaining} {attempt_word} remaining."
+
+        # 3. Code is valid -> consume it immediately and clear verify counter
         await redis_manager.delete_otp(contact)
+        await redis_manager.reset_verify_attempts(contact)
         return True, "Verification successful."
 
 otp_service = OTPService()

@@ -8,6 +8,7 @@ Doctor Portal Management Router:
 """
 
 import re
+import json
 import asyncio
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
@@ -961,6 +962,9 @@ async def cancel_appointment_by_doctor(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {"status": "SUCCESS", "message": "Appointment cancelled and slot released to available.", "appointment_id": appt.id}
 
 
@@ -1002,6 +1006,8 @@ async def mark_appointment_paid_by_doctor(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{doc.id}")
     return {
         "status": "SUCCESS",
         "payment_status": "PAID",
@@ -1112,6 +1118,8 @@ async def complete_appointment_by_doctor(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{doc.id}")
 
     # Trigger Event 4: Notify assistant Gmail & patient of completion
     try:
@@ -1134,6 +1142,14 @@ async def get_doctor_analytics(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_analytics:{doc.id}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     # Performance: Consolidated Single Query for all appointment statuses instead of 5 separate roundtrips
     appt_counts_query = select(
@@ -1177,7 +1193,7 @@ async def get_doctor_analytics(
     paid_sum = fin_res.paid_sum if fin_res else Decimal("0.00")
     pending_cash_sum = fin_res.pending_sum if fin_res else Decimal("0.00")
 
-    return {
+    data = {
         "doctor_id": doc.id,
         "total_appointments": total_appts,
         "completed_appointments": completed_appts,
@@ -1190,6 +1206,11 @@ async def get_doctor_analytics(
         "cash_collected_pkr": float(paid_sum),
         "pending_cash_pkr": float(pending_cash_sum)
     }
+    try:
+        await redis_manager.set_cache(cache_key, json.dumps(data), ttl=30)
+    except Exception:
+        pass
+    return data
 
 
 @router.get("/appointments")
@@ -1203,6 +1224,14 @@ async def list_doctor_appointments(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    cache_key = f"doc_appts:{doc.id}:{include_archived}"
+    cached_data = await redis_manager.get_cache(cache_key)
+    if cached_data:
+        try:
+            return json.loads(cached_data)
+        except Exception:
+            pass
 
     query = select(Appointment).outerjoin(
         DoctorSlot, Appointment.slot_id == DoctorSlot.id
@@ -1265,6 +1294,10 @@ async def list_doctor_appointments(
             "created_at": appt.created_at.isoformat() if appt.created_at else None
         })
 
+    try:
+        await redis_manager.set_cache(cache_key, json.dumps(res_list), ttl=30)
+    except Exception:
+        pass
     return res_list
 
 

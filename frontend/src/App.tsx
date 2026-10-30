@@ -10880,8 +10880,23 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [loginLoading, setLoginLoading] = useState(false);
 
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
-  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
+  // SWR: Initialize appointments from instant local cache so UI renders with 0ms delay
+  const [appointments, setAppointments] = useState<AppointmentItem[]>(() => {
+    try {
+      const c = localStorage.getItem('doc_cached_appts');
+      return c ? JSON.parse(c) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [analytics, setAnalytics] = useState<any>(() => {
+    try {
+      const c = localStorage.getItem('doc_cached_analytics');
+      return c ? JSON.parse(c) : null;
+    } catch {
+      return null;
+    }
+  });
   const [slots, setSlots] = useState<SlotData[]>([]);
   const [activePortalTab, setActivePortalTab] = useState<'overview' | 'schedule' | 'assistants' | 'profile'>('overview');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -10892,7 +10907,16 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [apptSearch, setApptSearch] = useState('');
   const [apptStatusFilter, setApptStatusFilter] = useState<'ALL' | 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'>('ALL');
   const [includeArchived, setIncludeArchived] = useState<boolean>(false);
-  const [loadingAppointments, setLoadingAppointments] = useState<boolean>(true);
+  const [loadingAppointments, setLoadingAppointments] = useState<boolean>(() => {
+    try {
+      const c = localStorage.getItem('doc_cached_appts');
+      const parsed = c ? JSON.parse(c) : null;
+      return !(Array.isArray(parsed) && parsed.length > 0);
+    } catch {
+      return true;
+    }
+  });
+  const [isRefreshingAppts, setIsRefreshingAppts] = useState<boolean>(false);
   const [callingOrderActive, setCallingOrderActive] = useState<boolean>(() => {
     return localStorage.getItem('doc_calling_order') === 'true';
   });
@@ -11049,9 +11073,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     }
   };
 
-  const loadDoctorData = (archived?: boolean) => {
+  const loadDoctorData = (archived?: boolean, silent: boolean = false) => {
     if (!token) return Promise.resolve();
-    setLoadingAppointments(true);
+    if (!silent && appointments.length === 0) {
+      setLoadingAppointments(true);
+    }
+    setIsRefreshingAppts(true);
     const showArchived = typeof archived === 'boolean' ? archived : includeArchived;
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -11063,10 +11090,25 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     const slotsPromise = apiFetch<SlotData[]>('/doctor/slots/my-slots', { headers }).catch(() => []);
     const asstsPromise = apiFetch<any[]>('/doctor/assistants', { headers }).catch(() => []);
 
-    // Instant UI responsiveness: render appointments table the instant apptsPromise resolves
+    // Instant UI responsiveness: render appointments table the instant apptsPromise resolves and cache in localStorage
     apptsPromise.then((appts) => {
-      setAppointments(Array.isArray(appts) ? appts : []);
+      if (Array.isArray(appts)) {
+        setAppointments(appts);
+        try {
+          localStorage.setItem('doc_cached_appts', JSON.stringify(appts));
+        } catch {}
+      }
       setLoadingAppointments(false);
+      setIsRefreshingAppts(false);
+    });
+
+    analyPromise.then((analy) => {
+      if (analy) {
+        setAnalytics(analy);
+        try {
+          localStorage.setItem('doc_cached_analytics', JSON.stringify(analy));
+        } catch {}
+      }
     });
 
     return mePromise
@@ -11074,6 +11116,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         if (!me || me.role?.toUpperCase() !== 'DOCTOR') {
           // Invalidate non-doctor token immediately: clear token and return to doctor login screen
           localStorage.removeItem('doctor_token');
+          localStorage.removeItem('doc_cached_appts');
+          localStorage.removeItem('doc_cached_analytics');
           setToken('');
           setDoctorProfile(null);
           setAppointments([]);
@@ -11130,20 +11174,27 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             setEveningEndMin(ee.minute);
             setEveningEndPeriod(ee.period);
           }
-          setAppointments(Array.isArray(appts) ? appts : []);
-          setAnalytics(analy);
+          if (Array.isArray(appts)) {
+            setAppointments(appts);
+          }
+          if (analy) {
+            setAnalytics(analy);
+          }
           setSlots(Array.isArray(sl) ? sl : []);
           setAssistants(Array.isArray(assts) ? assts : []);
         });
       })
       .catch((err) => {
         localStorage.removeItem('doctor_token');
+        localStorage.removeItem('doc_cached_appts');
+        localStorage.removeItem('doc_cached_analytics');
         setToken('');
         setDoctorProfile(null);
         setLoginError(err.message || 'Session expired. Please sign in again.');
       })
       .finally(() => {
         setLoadingAppointments(false);
+        setIsRefreshingAppts(false);
       });
   };
 
@@ -12074,13 +12125,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <button
-              onClick={() => loadDoctorData()}
-              disabled={loadingAppointments}
+              onClick={() => loadDoctorData(undefined, true)}
+              disabled={isRefreshingAppts}
               className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-card"
               title="Refresh clinic appointments and live queue"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 ${loadingAppointments ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{loadingAppointments ? 'Refreshing...' : 'Refresh'}</span>
+              <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{isRefreshingAppts ? 'Refreshing...' : 'Refresh'}</span>
             </button>
             <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-100">
               <div className="w-7 h-7 rounded-lg overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100 shadow-xs">
@@ -12403,18 +12454,18 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                     <button
                       type="button"
-                      onClick={() => loadDoctorData()}
-                      disabled={loadingAppointments}
+                      onClick={() => loadDoctorData(undefined, true)}
+                      disabled={isRefreshingAppts}
                       className="ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60 shadow-sm flex-shrink-0"
                       title="Refresh clinic appointments and live queue"
                     >
-                      <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${loadingAppointments ? 'animate-spin' : ''}`} />
-                      <span>Refresh Queue</span>
+                      <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
+                      <span>{isRefreshingAppts ? 'Refreshing...' : 'Refresh Queue'}</span>
                     </button>
                   </div>
                 </div>
 
-                {loadingAppointments ? (
+                {loadingAppointments && appointments.length === 0 ? (
                   <div className="py-20 text-center">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <Loader2 className="w-10 h-10 animate-spin text-clinic-600" />

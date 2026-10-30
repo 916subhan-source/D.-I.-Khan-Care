@@ -260,6 +260,8 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
     await redis_manager.release_slot_lock(payload.slot_id)
     await redis_manager.clear_cache_pattern("doctors:")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{slot.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doc_appts:{slot.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{slot.doctor_id}")
 
     # Trigger Event 1: Notify assistant Gmail of new booking request
     try:

@@ -303,6 +303,9 @@ async def approve_appointment(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{appt.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{appt.doctor_id}")
+    await redis_manager.clear_cache_pattern("doctors:")
 
     # Trigger Event 2a: Notify assistant Gmail & patient of confirmation
     try:
@@ -376,6 +379,9 @@ async def cancel_appointment_by_assistant(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{appt.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{appt.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{appt.doctor_id}")
     await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after cancellation
 
     # Trigger Event 2b: Notify assistant Gmail & patient of cancellation
@@ -457,6 +463,8 @@ async def reschedule_appointment(
 
     try:
         from app.core.redis import redis_manager
+        await redis_manager.clear_cache_pattern(f"doc_appts:{appt.doctor_id}")
+        await redis_manager.clear_cache_pattern(f"doc_analytics:{appt.doctor_id}")
         await redis_manager.clear_cache_pattern(f"doctor_slots:{appt.doctor_id}")
         await redis_manager.clear_cache_pattern("doctors:")
     except Exception:
@@ -510,6 +518,9 @@ async def reject_appointment(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{appt.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{appt.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{appt.doctor_id}")
     await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after rejection
     return {
         "status": "SUCCESS",
@@ -574,6 +585,9 @@ async def mark_appointment_paid(
     )
 
     await db.commit()
+    if payment.appointment:
+        await redis_manager.clear_cache_pattern(f"doc_appts:{payment.appointment.doctor_id}")
+        await redis_manager.clear_cache_pattern(f"doc_analytics:{payment.appointment.doctor_id}")
     await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale cache after payment status change
     return {
         "status": "SUCCESS",
@@ -1109,6 +1123,9 @@ async def pos_book_appointment(
     )
 
     await db.commit()
+    await redis_manager.clear_cache_pattern(f"doc_appts:{slot.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doc_analytics:{slot.doctor_id}")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{slot.doctor_id}")
     await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after POS walk-in booking
 
     token_num = parse_token_from_slip_str(slip_num)

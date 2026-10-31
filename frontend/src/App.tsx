@@ -3451,6 +3451,8 @@ function DoctorProfileAndBookingView({
 
   // VIP Loyalty Card states
   const [applyLoyaltyCard, setApplyLoyaltyCard] = useState<boolean>(false);
+  // Mobile tab navigation state ('booking' | 'profile')
+  const [mobileActiveTab, setMobileActiveTab] = useState<'booking' | 'profile'>('booking');
   const [loyaltyGuardianName, setLoyaltyGuardianName] = useState<string>('');
   const [loyaltyDob, setLoyaltyDob] = useState<string>('1992-05-15');
   const [loyaltyGender, setLoyaltyGender] = useState<string>('Male');
@@ -4193,10 +4195,43 @@ function DoctorProfileAndBookingView({
           </div>
         </div>
 
+        {/* ── Mobile Navigation Tabs (visible only on mobile/tablet < lg) ── */}
+        <div className="lg:hidden flex items-center p-1 bg-slate-100 rounded-2xl mb-4 sm:mb-5 border border-slate-200/90 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setMobileActiveTab('booking')}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              mobileActiveTab === 'booking'
+                ? 'bg-[#0f766e] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>1. Pick Time &amp; Book</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileActiveTab('profile')}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              mobileActiveTab === 'profile'
+                ? 'bg-[#0f766e] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>2. Doctor &amp; Loyalty Info</span>
+            {Boolean(doctor.loyalty_card_enabled) && (
+              <span className="bg-amber-400 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">
+                VIP
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* ── 2-Column Responsive Layout ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           {/* ── Left Column: Doctor Profile & Clinic Visit ── */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className={`lg:col-span-4 space-y-5 sm:space-y-6 ${mobileActiveTab === 'profile' ? 'block' : 'hidden lg:block'}`}>
             {/* Card 1: Doctor Profile */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
               <div className="relative w-full h-56 bg-slate-900 overflow-hidden">
@@ -4386,11 +4421,11 @@ function DoctorProfileAndBookingView({
               </div>
 
               {/* Loyalty Card Photo Uploaded by Doctor */}
-              <div className="rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-md bg-slate-950 relative group">
+              <div className="rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-md bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1]">
                 <img
                   src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
                   alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                  className="w-full h-44 object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
                     const fb = (e.target as HTMLElement).nextElementSibling;
@@ -4444,11 +4479,63 @@ function DoctorProfileAndBookingView({
                 <p className="text-xs font-bold text-slate-900 mt-0.5 font-mono">0966 123 456 &middot; Mon&ndash;Sat, 9am&ndash;8pm</p>
               </div>
             </div>
+
+            {/* Mobile Return to Booking CTA */}
+            <div className="lg:hidden pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileActiveTab('booking');
+                  window.scrollTo({ top: 120, behavior: 'smooth' });
+                }}
+                className="w-full py-3.5 bg-[#0f766e] hover:bg-[#0b5c56] text-white font-bold rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Continue to Choose Appointment Time &rarr;</span>
+              </button>
+            </div>
           </div>
 
           {/* ── Right Column: Choose Your Appointment Form ── */}
-          <div className="lg:col-span-8">
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-8 shadow-xs">
+          <div className={`lg:col-span-8 ${mobileActiveTab === 'booking' ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-6 lg:p-8 shadow-xs">
+              {/* Mobile Doctor Quick Summary Banner */}
+              <div className="lg:hidden mb-5 p-3.5 bg-gradient-to-r from-teal-50 to-emerald-50/70 border border-teal-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 border border-teal-200 shadow-2xs">
+                    <img
+                      src={getDoctorProfileImage(doctor, 200)}
+                      alt={doctor.full_name}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-extrabold text-xs text-slate-900 leading-snug truncate">{doctor.full_name}</h3>
+                    <p className="text-[11px] text-[#0f766e] font-bold uppercase truncate">{doctor.specialty} Specialist</p>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span className="text-[10px] text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded font-bold flex items-center gap-0.5">
+                        <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
+                        {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
+                      </span>
+                      <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100/80 px-1.5 py-0.2 rounded font-mono">
+                        Fee: {formatCurrency(doctor.fee_clinic)}
+                      </span>
+                      {Boolean(doctor.loyalty_card_enabled) && (
+                        <span className="text-[10px] text-amber-950 font-black bg-amber-300 px-1.5 py-0.2 rounded">
+                          {Number(doctor.loyalty_discount_percent ?? 20)}% OFF VIP
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileActiveTab('profile')}
+                  className="text-[11px] font-bold text-[#0f766e] bg-white px-2.5 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition shadow-2xs flex-shrink-0 cursor-pointer"
+                >
+                  Info &rarr;
+                </button>
+              </div>
               {/* Header */}
               <div className="flex items-start justify-between gap-4 pb-6 border-b border-slate-100">
                 <div>
@@ -4628,38 +4715,41 @@ function DoctorProfileAndBookingView({
 
                   {/* Shift Tabs - only visible on working days */}
                   {!selectedDayObj?.isOffDay && (
-                    <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-xl">
+                    <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100/90 rounded-xl">
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('all')}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${selectedShiftTab === 'all'
+                        className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition text-center truncate cursor-pointer ${selectedShiftTab === 'all'
                           ? 'bg-white text-slate-900 shadow-2xs'
                           : 'text-slate-500 hover:text-slate-800'
                           }`}
                       >
-                        All Shifts ({displaySlots.length})
+                        <span className="hidden sm:inline">All Shifts</span>
+                        <span className="sm:hidden">All</span> ({displaySlots.length})
                       </button>
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('morning')}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${selectedShiftTab === 'morning'
+                        className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition text-center truncate cursor-pointer ${selectedShiftTab === 'morning'
                           ? 'bg-amber-500 text-white shadow-2xs'
                           : 'text-slate-600 hover:text-amber-800'
                           }`}
                       >
-                        <Sun className="w-3.5 h-3.5" />
-                        Morning Shift ({morningSlots.length})
+                        <Sun className="w-3 h-3 flex-shrink-0" />
+                        <span className="hidden sm:inline">Morning</span>
+                        <span className="sm:hidden">Morn</span> ({morningSlots.length})
                       </button>
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('evening')}
-                        className={`flex-1 py-1.5 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition ${selectedShiftTab === 'evening'
+                        className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition text-center truncate cursor-pointer ${selectedShiftTab === 'evening'
                           ? 'bg-indigo-600 text-white shadow-2xs'
                           : 'text-slate-600 hover:text-indigo-800'
                           }`}
                       >
-                        <Moon className="w-3.5 h-3.5" />
-                        Evening Shift ({eveningSlots.length})
+                        <Moon className="w-3 h-3 flex-shrink-0" />
+                        <span className="hidden sm:inline">Evening</span>
+                        <span className="sm:hidden">Eve</span> ({eveningSlots.length})
                       </button>
                     </div>
                   )}
@@ -4832,6 +4922,30 @@ function DoctorProfileAndBookingView({
                       </p>
                     </div>
                   </div>
+
+                  {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
+                  {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
+                    <div className="mt-3 bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
+                      <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-400 shadow-xs flex-shrink-0">
+                        <img
+                          src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
+                          alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                          className="w-full h-full object-contain bg-slate-950"
+                        />
+                      </div>
+                      <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
+                        <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                          <span className="font-extrabold text-xs text-amber-950">{doctor.loyalty_card_title || 'RK Loyalty Card'}</span>
+                          <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-2xs">
+                            {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-amber-900 leading-snug">
+                          Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 )}
 

@@ -7607,7 +7607,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [reschedReasonText, setReschedReasonText] = useState('Patient requested a different time slot.');
   const [reschedError, setReschedError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'CONFIRMED' | 'PAID' | 'COMPLETED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'CONFIRMED' | 'PAID' | 'COMPLETED' | 'LOYALTY'>('ALL');
   const [includeArchived, setIncludeArchived] = useState<boolean>(false);
   const [manualCallingStarted, setManualCallingStarted] = useState<boolean>(false);
 
@@ -7660,6 +7660,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       if (statusFilter === 'CONFIRMED') return item.status === 'CONFIRMED';
       if (statusFilter === 'PAID') return item.payment_status === 'PAID';
       if (statusFilter === 'COMPLETED') return item.status === 'COMPLETED';
+      if (statusFilter === 'LOYALTY') return Boolean(item.has_loyalty_discount);
       return true;
     });
 
@@ -8578,16 +8579,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 </div>
                 {/* Filter pills — swipeable scroll strip on mobile */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
-                  {(['ALL', 'PENDING', 'CONFIRMED', 'PAID'] as const).map(f => (
+                  {((['ALL', 'PENDING', 'CONFIRMED', 'PAID', 'LOYALTY'] as const)).map(f => (
                     <button
                       key={f}
                       onClick={() => setStatusFilter(f)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex-shrink-0 ${statusFilter === f
-                        ? 'bg-clinic-700 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? (f === 'LOYALTY' ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-400' : 'bg-clinic-700 text-white')
+                        : (f === 'LOYALTY' ? 'bg-amber-100 text-amber-900 border border-amber-300 font-bold hover:bg-amber-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')
                         }`}
                     >
-                      {f === 'ALL' ? 'All Patients' : f === 'PENDING' ? 'Pending Approval' : f === 'CONFIRMED' ? 'Confirmed' : 'Paid'}
+                      {f === 'ALL' ? 'All Patients' : f === 'PENDING' ? 'Pending Approval' : f === 'CONFIRMED' ? 'Confirmed' : f === 'PAID' ? 'Paid' : `💳 VIP Loyalty Requests (${queue.filter(q => q.has_loyalty_discount).length})`}
                     </button>
                   ))}
 
@@ -8820,8 +8821,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     }
                                     if (qNum) {
                                       return (
-                                        <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold font-sans">
-                                          Token #{qNum}
+                                        <span className={`px-2 py-0.5 rounded-md text-xs font-bold font-sans border ${
+                                          item.has_loyalty_discount
+                                            ? 'bg-amber-100 border-amber-300 text-amber-950 font-black shadow-xs'
+                                            : 'bg-teal-50 border border-teal-200 text-teal-800'
+                                        }`}>
+                                          Token #{qNum} {item.has_loyalty_discount ? '🌟 VIP' : ''}
                                         </span>
                                       );
                                     }
@@ -8830,9 +8835,21 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   <span className="px-2 py-0.5 rounded-lg bg-clinic-50 border border-clinic-200 text-clinic-800 text-[11px] font-bold">
                                     #{item.slip_number}
                                   </span>
+                                  {item.has_loyalty_discount && (
+                                    <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-extrabold shadow-2xs">
+                                      💳 VIP LOYALTY TOKEN
+                                    </span>
+                                  )}
                                 </div>
                               ) : (
-                                <span className="text-slate-400 italic text-[11px]">Awaiting Approval</span>
+                                <div className="space-y-1">
+                                  <span className="text-slate-400 italic text-[11px] block">Awaiting Approval</span>
+                                  {item.has_loyalty_discount && (
+                                    <span className="inline-block px-2 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-950 text-[10px] font-extrabold shadow-2xs">
+                                      💳 VIP Loyalty Token Request
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </td>
                             <td className="py-3 px-4">
@@ -8894,6 +8911,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     {/* PENDING: Reject + Issue Slip */}
                                     {(item.status === 'PENDING_ASSISTANT_APPROVAL' || item.status === 'pending') && (
                                       <>
+                                        {item.has_loyalty_discount && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setSelectedLoyaltyAppt(item)}
+                                            className="h-7 px-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg text-[11px] font-extrabold transition-all inline-flex items-center gap-1 shadow-xs cursor-pointer animate-pulse"
+                                            title="View 10-Field Loyalty Application details"
+                                          >
+                                            <span>📋 View Form</span>
+                                          </button>
+                                        )}
                                         <button
                                           type="button"
                                           disabled={Boolean(appointmentActionLoading)}
@@ -8939,6 +8966,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     {/* CONFIRMED: Mark Paid / Collect Due + Complete / Upcoming Slot */}
                                     {isConfirmed && (
                                       <>
+                                        {item.has_loyalty_discount && (
+                                          <button
+                                            type="button"
+                                            onClick={() => setSelectedLoyaltyAppt(item)}
+                                            className="h-7 px-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer"
+                                            title="View patient's Golden VIP Loyalty Card details"
+                                          >
+                                            <span>💳 Loyalty Details</span>
+                                          </button>
+                                        )}
                                         {item.payment_status === 'PENDING_CASH' && (
                                           <button
                                             type="button"

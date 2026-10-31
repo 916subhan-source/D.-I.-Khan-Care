@@ -8637,40 +8637,40 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
             </button>
           </div>
 
-          {/* KPI Cards */}
+          {/* KPI Cards — Unified Neutral Surfaces with Sophisticated Metric Accents */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-            <div className="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs font-semibold text-amber-700 uppercase tracking-wider">Awaiting Slip</p>
-              <p className="text-2xl sm:text-3xl font-bold text-amber-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{pendingCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-amber-600 mt-0.5">Need assistant approval</p>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Awaiting Slip</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{pendingCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Need assistant approval</p>
             </div>
-            <div className="bg-clinic-50/60 border border-clinic-200/80 rounded-2xl p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs font-semibold text-clinic-700 uppercase tracking-wider">Confirmed &amp; Queued</p>
-              <p className="text-2xl sm:text-3xl font-bold text-clinic-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{confirmedCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-clinic-600 mt-0.5">Digital slips issued</p>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confirmed &amp; Queued</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-clinic-600 dark:text-clinic-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{confirmedCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Digital slips issued</p>
             </div>
-            <div className="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs font-semibold text-emerald-700 uppercase tracking-wider">Paid at Cash Desk</p>
-              <p className="text-2xl sm:text-3xl font-bold text-emerald-900 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{paidCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-emerald-600 mt-0.5">Cash collected</p>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Paid at Cash Desk</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{paidCount}</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Cash collected</p>
             </div>
-            <div className="bg-slate-900 text-white rounded-2xl p-3 sm:p-4">
-              <p className="text-[11px] sm:text-xs font-semibold text-clinic-400 uppercase tracking-wider">Total Shift Cash</p>
-              <p className="text-2xl sm:text-3xl font-bold text-white mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Shift Cash</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>
                 {formatCurrency(totalRevenue)}
               </p>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">Reconciliation ledger</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Reconciliation ledger</p>
             </div>
           </div>
 
-          {/* Action alert */}
+          {/* Action alert — High-Contrast Clean Banner */}
           {actionMessage && (
-            <div className="p-3.5 bg-clinic-50 border border-clinic-200 rounded-xl text-xs text-clinic-800 font-medium flex items-center justify-between shadow-sm">
+            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-900 dark:text-emerald-200 font-semibold flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-clinic-700 flex-shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                 <span>{actionMessage}</span>
               </div>
-              <button onClick={() => setActionMessage('')} className="text-clinic-600 hover:text-clinic-900">
+              <button onClick={() => setActionMessage('')} className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-white cursor-pointer p-0.5">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -8754,14 +8754,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 (() => {
                   const isStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
                   return isStarted ? (
-                    <div className="bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200 dark:border-emerald-800 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-900 dark:text-emerald-200 transition-all">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-800 dark:text-slate-200 transition-all">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                        <span className="font-bold">
-                          🟢 Live Calling Active &middot; {callingShiftInfo.shiftName} (Today: {pktTodayYmd})
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          Live Calling Active &middot; {callingShiftInfo.shiftName} (Today: {pktTodayYmd})
                         </span>
-                        <span className="text-emerald-700 dark:text-emerald-300 hidden sm:inline">
-                          &middot; Calling started at {callingShiftInfo.callingStartTimeStr} (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftStartTimeStr} shift).
+                        <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">
+                          &middot; Started at {callingShiftInfo.callingStartTimeStr} (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftStartTimeStr} shift).
                         </span>
                       </div>
                       <span className="text-[11px] font-mono bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-semibold shadow-xs whitespace-nowrap self-start sm:self-auto">
@@ -13454,46 +13454,42 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* 2. Total Appointments Card */}
-                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-3xl opacity-30" style={{ background: 'linear-gradient(135deg, #f0faf8, transparent)' }} />
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Appointments</p>
                   <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">
                     {timeframe === 'today' ? 'Today' : timeframe === 'week' ? 'This Week' : timeframe === 'month' ? 'This Month' : 'All time'}
                   </p>
-                  <p className="text-4xl font-extrabold text-slate-900 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <p className="text-4xl font-extrabold text-slate-900 dark:text-white leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeScopedAppts.length}
                   </p>
                   <p className="text-[11px] text-slate-400 mt-2">{selectedShift} Shift</p>
                 </div>
 
                 {/* 3. Completed Visits Card */}
-                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-3xl opacity-20" style={{ background: 'linear-gradient(135deg, #ecfdf5, transparent)' }} />
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completed</p>
                   <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">Consultations</p>
-                  <p className="text-4xl font-extrabold text-emerald-600 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <p className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeCompletedCount}
                   </p>
                   <p className="text-[11px] text-slate-400 mt-2">Finished visits</p>
                 </div>
 
                 {/* 4. Confirmed Visits Card */}
-                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-3xl opacity-20" style={{ background: 'linear-gradient(135deg, #f0faf8, transparent)' }} />
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Confirmed</p>
                   <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">Approved visits</p>
-                  <p className="text-4xl font-extrabold text-clinic-700 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <p className="text-4xl font-extrabold text-clinic-600 dark:text-clinic-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeConfirmedCount}
                   </p>
                   <p className="text-[11px] text-slate-400 mt-2">Upcoming queue</p>
                 </div>
 
                 {/* 5. Available Slots Card */}
-                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-3xl opacity-20" style={{ background: 'linear-gradient(135deg, #fffbeb, transparent)' }} />
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Open Slots</p>
                   <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">For booking</p>
-                  <p className="text-4xl font-extrabold text-amber-600 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <p className="text-4xl font-extrabold text-amber-600 dark:text-amber-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {slots.filter(s => s.status === 'available').length}
                   </p>
                   <p className="text-[11px] text-slate-400 mt-2">Patient bookable</p>

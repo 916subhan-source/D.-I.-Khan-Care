@@ -117,6 +117,22 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
     if clean_email:
         await redis_manager.set(f"slot:patient_email:{slot.id}", clean_email, expire=600)
 
+    if getattr(payload, "has_loyalty_discount", False):
+        loyalty_dict = {
+            "has_loyalty_discount": True,
+            "loyalty_applicant_name": payload.loyalty_applicant_name or payload.full_name.strip(),
+            "loyalty_guardian_name": payload.loyalty_guardian_name.strip() if payload.loyalty_guardian_name else None,
+            "loyalty_dob": payload.loyalty_dob.strip() if payload.loyalty_dob else None,
+            "loyalty_gender": payload.loyalty_gender.strip() if payload.loyalty_gender else None,
+            "loyalty_cnic": payload.loyalty_cnic.strip() if payload.loyalty_cnic else None,
+            "loyalty_mobile": payload.loyalty_mobile.strip() if payload.loyalty_mobile else payload.phone.strip(),
+            "loyalty_whatsapp": payload.loyalty_whatsapp.strip() if payload.loyalty_whatsapp else (payload.whatsapp_number.strip() if payload.whatsapp_number else None),
+            "loyalty_email": payload.loyalty_email.strip() if payload.loyalty_email else clean_email,
+            "loyalty_address": payload.loyalty_address.strip() if payload.loyalty_address else None,
+            "loyalty_city": payload.loyalty_city.strip() if payload.loyalty_city else "Dera Ismail Khan",
+        }
+        await redis_manager.set(f"slot:loyalty:{slot.id}", json.dumps(loyalty_dict), expire=600)
+
     # 3. Acquire 10-minute atomic Redis slot lock
     locked = await redis_manager.acquire_slot_lock(slot.id, patient.id, ttl_seconds=600)
     if not locked:
@@ -228,6 +244,45 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
         slot_id=slot.id
     )
     
+    # 4b. Check for VIP Loyalty Card selection
+    loyalty_data = None
+    cached_loyalty = await redis_manager.get(f"slot:loyalty:{payload.slot_id}")
+    if cached_loyalty:
+        try:
+            loyalty_str = cached_loyalty.decode("utf-8") if isinstance(cached_loyalty, bytes) else str(cached_loyalty)
+            loyalty_data = json.loads(loyalty_str)
+        except Exception:
+            pass
+    elif getattr(payload, "has_loyalty_discount", False):
+        loyalty_data = {
+            "has_loyalty_discount": True,
+            "loyalty_applicant_name": payload.loyalty_applicant_name,
+            "loyalty_guardian_name": payload.loyalty_guardian_name,
+            "loyalty_dob": payload.loyalty_dob,
+            "loyalty_gender": payload.loyalty_gender,
+            "loyalty_cnic": payload.loyalty_cnic,
+            "loyalty_mobile": payload.loyalty_mobile,
+            "loyalty_whatsapp": payload.loyalty_whatsapp,
+            "loyalty_email": payload.loyalty_email,
+            "loyalty_address": payload.loyalty_address,
+            "loyalty_city": payload.loyalty_city,
+        }
+
+    from decimal import Decimal
+    base_fee = slot.doctor.fee_clinic if (slot and slot.doctor) else Decimal("1000.00")
+    has_loyalty = bool(loyalty_data and loyalty_data.get("has_loyalty_discount"))
+    discount_pct = Decimal(str(slot.doctor.loyalty_discount_percent or 20.00)) if (slot and slot.doctor) else Decimal("20.00")
+    discount_amount = Decimal("0.00")
+    final_fee = Decimal(str(base_fee))
+
+    if has_loyalty:
+        discount_amount = (Decimal(str(base_fee)) * discount_pct / Decimal("100.00")).quantize(Decimal("1.00"))
+        final_fee = max(Decimal("0.00"), Decimal(str(base_fee)) - discount_amount)
+
+    notes_text = f"Patient: {patient_visit_name}. Clinic visit booked via web portal. Pending assistant desk verification."
+    if has_loyalty:
+        notes_text += f" [VIP Loyalty Card Applicant - {discount_pct}% Fee Discount Applied]"
+
     appointment = Appointment(
         patient_id=patient.id,
         doctor_id=slot.doctor_id,
@@ -237,7 +292,19 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
         patient_name=patient_visit_name,
         patient_phone=patient_visit_phone,
         patient_email=candidate_email if candidate_email else None,
-        notes=f"Patient: {patient_visit_name}. Clinic visit booked via web portal. Pending assistant desk verification."
+        has_loyalty_discount=has_loyalty,
+        loyalty_discount_amount=discount_amount if has_loyalty else None,
+        loyalty_applicant_name=loyalty_data.get("loyalty_applicant_name") if loyalty_data else None,
+        loyalty_guardian_name=loyalty_data.get("loyalty_guardian_name") if loyalty_data else None,
+        loyalty_dob=loyalty_data.get("loyalty_dob") if loyalty_data else None,
+        loyalty_gender=loyalty_data.get("loyalty_gender") if loyalty_data else None,
+        loyalty_cnic=loyalty_data.get("loyalty_cnic") if loyalty_data else None,
+        loyalty_mobile=loyalty_data.get("loyalty_mobile") if loyalty_data else None,
+        loyalty_whatsapp=loyalty_data.get("loyalty_whatsapp") if loyalty_data else None,
+        loyalty_email=loyalty_data.get("loyalty_email") if loyalty_data else None,
+        loyalty_address=loyalty_data.get("loyalty_address") if loyalty_data else None,
+        loyalty_city=loyalty_data.get("loyalty_city") if loyalty_data else None,
+        notes=notes_text
     )
     db.add(appointment)
     await db.flush()
@@ -245,7 +312,9 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
     # 5. Create Payment record (Cash at clinic)
     payment = Payment(
         appointment_id=appointment.id,
-        amount=slot.doctor.fee_clinic if slot.doctor else 1000.00,
+        amount=final_fee,
+        original_amount=base_fee,
+        discount_amount=discount_amount,
         status="PENDING_CASH"
     )
     db.add(payment)
@@ -444,7 +513,25 @@ async def track_appointment(payload: TrackAppointmentRequest, db: AsyncSession =
             "slot_date": format_pkt_date(appt.slot.start_time) if appt.slot and appt.slot.start_time else None,
             "slot_time": format_pkt_time(appt.slot.start_time) if appt.slot and appt.slot.start_time else None,
             "payment_status": appt.payment.status if appt.payment else "PENDING_CASH",
-            "fee_amount": appt.payment.amount if appt.payment else 1000.00
+            "fee_amount": appt.payment.amount if appt.payment else 1000.00,
+            "has_loyalty_discount": appt.has_loyalty_discount or False,
+            "loyalty_discount_amount": float(appt.loyalty_discount_amount) if appt.loyalty_discount_amount is not None else 0.0,
+            "loyalty_applicant_name": appt.loyalty_applicant_name,
+            "loyalty_guardian_name": appt.loyalty_guardian_name,
+            "loyalty_dob": appt.loyalty_dob,
+            "loyalty_gender": appt.loyalty_gender,
+            "loyalty_cnic": appt.loyalty_cnic,
+            "loyalty_mobile": appt.loyalty_mobile,
+            "loyalty_whatsapp": appt.loyalty_whatsapp,
+            "loyalty_email": appt.loyalty_email,
+            "loyalty_address": appt.loyalty_address,
+            "loyalty_city": appt.loyalty_city,
+            "google_maps_url": appt.doctor.google_maps_url if appt.doctor else None,
+            "loyalty_pickup_message": (
+                f"Please collect your physical Golden VIP Loyalty Card from the clinic reception upon arrival at {appt.doctor.clinic_address}."
+                if appt.has_loyalty_discount and appt.doctor
+                else None
+            )
         }
 
     serialized_list = [serialize_appointment(a) for a in appointments]

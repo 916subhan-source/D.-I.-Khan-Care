@@ -235,7 +235,26 @@ async def get_queue(
                     float(appt.payment.amount) if appt.payment and appt.payment.status == "PAID" else 0.0
                 )
             )),
-            "token_number": parse_token_from_slip_str(appt.slip_number)
+            "token_number": parse_token_from_slip_str(appt.slip_number),
+            "has_loyalty_discount": appt.has_loyalty_discount or False,
+            "loyalty_discount_amount": float(appt.loyalty_discount_amount) if appt.loyalty_discount_amount is not None else 0.0,
+            "loyalty_applicant_name": appt.loyalty_applicant_name,
+            "loyalty_guardian_name": appt.loyalty_guardian_name,
+            "loyalty_dob": appt.loyalty_dob,
+            "loyalty_gender": appt.loyalty_gender,
+            "loyalty_cnic": appt.loyalty_cnic,
+            "loyalty_mobile": appt.loyalty_mobile,
+            "loyalty_whatsapp": appt.loyalty_whatsapp,
+            "loyalty_email": appt.loyalty_email,
+            "loyalty_address": appt.loyalty_address,
+            "loyalty_city": appt.loyalty_city,
+            "clinic_address": appt.doctor.clinic_address if appt.doctor else None,
+            "google_maps_url": appt.doctor.google_maps_url if appt.doctor else None,
+            "loyalty_pickup_message": (
+                f"Please collect your physical Golden VIP Loyalty Card from the clinic reception upon arrival at {appt.doctor.clinic_address}."
+                if appt.has_loyalty_discount and appt.doctor
+                else None
+            )
         })
     return items
 
@@ -334,7 +353,26 @@ async def approve_appointment(
         "slot_time": format_pkt_time(appt.slot.start_time) if appt.slot and appt.slot.start_time else None,
         "payment_status": appt.payment.status if appt.payment else "PENDING_CASH",
         "fee_amount": appt.payment.amount if appt.payment else 1000.00,
-        "token_number": parse_token_from_slip_str(appt.slip_number)
+        "token_number": parse_token_from_slip_str(appt.slip_number),
+        "has_loyalty_discount": appt.has_loyalty_discount or False,
+        "loyalty_discount_amount": float(appt.loyalty_discount_amount) if appt.loyalty_discount_amount is not None else 0.0,
+        "loyalty_applicant_name": appt.loyalty_applicant_name,
+        "loyalty_guardian_name": appt.loyalty_guardian_name,
+        "loyalty_dob": appt.loyalty_dob,
+        "loyalty_gender": appt.loyalty_gender,
+        "loyalty_cnic": appt.loyalty_cnic,
+        "loyalty_mobile": appt.loyalty_mobile,
+        "loyalty_whatsapp": appt.loyalty_whatsapp,
+        "loyalty_email": appt.loyalty_email,
+        "loyalty_address": appt.loyalty_address,
+        "loyalty_city": appt.loyalty_city,
+        "clinic_address": appt.doctor.clinic_address if appt.doctor else None,
+        "google_maps_url": appt.doctor.google_maps_url if appt.doctor else None,
+        "loyalty_pickup_message": (
+            f"Please collect your physical Golden VIP Loyalty Card from the clinic reception upon arrival at {appt.doctor.clinic_address}."
+            if appt.has_loyalty_discount and appt.doctor
+            else None
+        )
     }
 
 

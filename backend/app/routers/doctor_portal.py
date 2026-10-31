@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 """
 Doctor Portal Management Router:
 - Schedule & Shift Manager: create recurring daily/shift slots (Morning / Evening)
@@ -21,7 +22,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user, require_roles
 from app.core.security import get_password_hash
 from app.core.redis import redis_manager
-from app.core.cloudinary_service import upload_doctor_photo, delete_doctor_photo
+from app.core.cloudinary_service import upload_doctor_photo, delete_doctor_photo, upload_loyalty_card_photo
 from app.models import User, Doctor, DoctorAssistant, DoctorSlot, Appointment, Payment
 from app.schemas import (
     AssistantCreateRequest, AssistantResponse, 
@@ -65,7 +66,11 @@ async def get_doctor_profile(
         "bio": doctor.bio,
         "expertise": doctor.expertise,
         "experience_years": doctor.experience_years if doctor.experience_years is not None else 5,
-        "qualification": doctor.qualification or "MBBS, FCPS"
+        "qualification": doctor.qualification or "MBBS, FCPS",
+        "loyalty_card_enabled": doctor.loyalty_card_enabled if doctor.loyalty_card_enabled is not None else False,
+        "loyalty_card_title": doctor.loyalty_card_title or "RK Loyalty Card",
+        "loyalty_card_image_url": doctor.loyalty_card_image_url,
+        "loyalty_discount_percent": float(doctor.loyalty_discount_percent if doctor.loyalty_discount_percent is not None else 20.00)
     }
 
 @router.post("/profile/picture")
@@ -156,6 +161,97 @@ async def delete_doctor_profile_picture(
     }
 
 # --- 1. Self-Service Assistant Management ---
+
+@router.post("/loyalty-card/upload")
+async def upload_doctor_loyalty_card(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Uploads the doctor's custom VIP Loyalty Card photo to Cloudinary
+    and enables the loyalty program with default 20% discount.
+    """
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image format. Please upload JPG, PNG, or WEBP."
+        )
+
+    file_bytes = await file.read()
+    if len(file_bytes) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Loyalty card image exceeds 5 MB limit."
+        )
+
+    result = await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))
+    doctor = result.scalar_one_or_none()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    try:
+        url = upload_loyalty_card_photo(file_bytes, doctor.id)
+        if not url:
+            raise HTTPException(status_code=500, detail="Failed to upload loyalty card image.")
+
+        doctor.loyalty_card_image_url = url
+        doctor.loyalty_card_enabled = True
+        if not doctor.loyalty_card_title:
+            doctor.loyalty_card_title = "RK Loyalty Card"
+        if not doctor.loyalty_discount_percent:
+            doctor.loyalty_discount_percent = Decimal("20.00")
+
+        await db.commit()
+        await redis_manager.clear_cache_pattern("doctors:")
+
+        return {
+            "status": "SUCCESS",
+            "message": "VIP Loyalty Card uploaded successfully.",
+            "loyalty_card_image_url": doctor.loyalty_card_image_url,
+            "loyalty_card_enabled": doctor.loyalty_card_enabled,
+            "loyalty_card_title": doctor.loyalty_card_title,
+            "loyalty_discount_percent": float(doctor.loyalty_discount_percent)
+        }
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to process loyalty card: {str(e)}")
+
+class LoyaltySettingsRequest(BaseModel):
+    loyalty_card_enabled: bool
+    loyalty_card_title: Optional[str] = "RK Loyalty Card"
+    loyalty_discount_percent: Optional[float] = 20.0
+
+@router.put("/loyalty-card/settings")
+async def update_doctor_loyalty_settings(
+    payload: LoyaltySettingsRequest,
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Updates doctor's loyalty card active status, title, and discount percentage."""
+    result = await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))
+    doctor = result.scalar_one_or_none()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    doctor.loyalty_card_enabled = payload.loyalty_card_enabled
+    if payload.loyalty_card_title:
+        doctor.loyalty_card_title = payload.loyalty_card_title.strip()
+    if payload.loyalty_discount_percent is not None:
+        doctor.loyalty_discount_percent = Decimal(str(payload.loyalty_discount_percent))
+
+    await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:")
+
+    return {
+        "status": "SUCCESS",
+        "message": "Loyalty Card settings updated successfully.",
+        "loyalty_card_enabled": doctor.loyalty_card_enabled,
+        "loyalty_card_title": doctor.loyalty_card_title,
+        "loyalty_discount_percent": float(doctor.loyalty_discount_percent)
+    }
+
 @router.get("/assistants", response_model=List[AssistantResponse])
 async def list_doctor_assistants(
     current_user: User = Depends(require_roles(["DOCTOR"])),
@@ -166,13 +262,7 @@ async def list_doctor_assistants(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     query = select(DoctorAssistant, User).join(User, DoctorAssistant.assistant_user_id == User.id)\
         .where(
@@ -211,13 +301,7 @@ async def create_or_link_assistant(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     # 1. Check if user already exists
     user_res = await db.execute(select(User).where(User.email == payload.email))
@@ -286,13 +370,7 @@ async def revoke_assistant(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     link_res = await db.execute(
         select(DoctorAssistant).where(
@@ -349,13 +427,7 @@ async def reset_assistant_password(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     link_res = await db.execute(
         select(DoctorAssistant).where(
@@ -490,13 +562,7 @@ async def blackout_date(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     try:
         target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -976,13 +1042,7 @@ async def cancel_appointment_by_doctor(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     query = select(Appointment).options(
         selectinload(Appointment.slot)
@@ -1031,13 +1091,7 @@ async def mark_appointment_paid_by_doctor(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     payment_res = await db.execute(
         select(Payment).options(selectinload(Payment.appointment)).where(Payment.appointment_id == appointment_id)
@@ -1095,13 +1149,7 @@ async def complete_appointment_by_doctor(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     query = select(Appointment).options(
         selectinload(Appointment.doctor).selectinload(Doctor.user),
@@ -1211,13 +1259,7 @@ async def get_doctor_analytics(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     # Performance: Consolidated Single Query for all appointment statuses instead of 5 separate roundtrips
     appt_counts_query = select(
@@ -1301,13 +1343,7 @@ async def list_doctor_appointments(
         except Exception:
             pass
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     query = select(Appointment).outerjoin(
         DoctorSlot, Appointment.slot_id == DoctorSlot.id
@@ -1367,7 +1403,19 @@ async def list_doctor_appointments(
             "fee_amount": float(appt.payment.amount if appt.payment and appt.payment.amount else doc.fee_clinic),
             "notes": appt.notes or "",
             "payment_status": appt.payment.status if appt.payment else "UNPAID",
-            "created_at": appt.created_at.isoformat() if appt.created_at else None
+            "created_at": appt.created_at.isoformat() if appt.created_at else None,
+            "has_loyalty_discount": appt.has_loyalty_discount or False,
+            "loyalty_discount_amount": float(appt.loyalty_discount_amount) if appt.loyalty_discount_amount is not None else 0.0,
+            "loyalty_applicant_name": appt.loyalty_applicant_name,
+            "loyalty_guardian_name": appt.loyalty_guardian_name,
+            "loyalty_dob": appt.loyalty_dob,
+            "loyalty_gender": appt.loyalty_gender,
+            "loyalty_cnic": appt.loyalty_cnic,
+            "loyalty_mobile": appt.loyalty_mobile,
+            "loyalty_whatsapp": appt.loyalty_whatsapp,
+            "loyalty_email": appt.loyalty_email,
+            "loyalty_address": appt.loyalty_address,
+            "loyalty_city": appt.loyalty_city
         })
 
     try:
@@ -1404,13 +1452,7 @@ async def update_doctor_profile(
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
 
-    cache_key = f"doc_analytics:{doc.id}"
-    cached_data = await redis_manager.get_cache(cache_key)
-    if cached_data:
-        try:
-            return json.loads(cached_data)
-        except Exception:
-            pass
+
 
     if payload.fee_clinic is not None:
         doc.fee_clinic = Decimal(str(payload.fee_clinic))

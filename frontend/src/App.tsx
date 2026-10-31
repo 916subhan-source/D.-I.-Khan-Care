@@ -54,7 +54,8 @@ import {
   Code2,
   Terminal,
   LogOut,
-  Menu
+  Menu,
+  Upload
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
@@ -89,6 +90,10 @@ interface DoctorData {
   is_available_today?: boolean;
   today_status?: string;
   upcoming_slots_count?: number;
+  loyalty_card_enabled?: boolean;
+  loyalty_card_title?: string;
+  loyalty_card_image_url?: string;
+  loyalty_discount_percent?: number;
 }
 
 interface SlotData {
@@ -129,6 +134,21 @@ interface AppointmentItem {
   appointment_date?: string;
   time?: string;
   date?: string;
+  has_loyalty_discount?: boolean;
+  loyalty_discount_amount?: number;
+  loyalty_applicant_name?: string;
+  loyalty_guardian_name?: string;
+  loyalty_dob?: string;
+  loyalty_gender?: string;
+  loyalty_cnic?: string;
+  loyalty_mobile?: string;
+  loyalty_whatsapp?: string;
+  loyalty_email?: string;
+  loyalty_address?: string;
+  loyalty_city?: string;
+  google_maps_url?: string;
+  loyalty_pickup_message?: string;
+  clinic_address?: string;
 }
 
 // Helper to parse sequence queue number from digital slip or token number
@@ -2609,6 +2629,34 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                   </div>
                 </div>
 
+                {appointment.has_loyalty_discount && (
+                  <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/20 to-amber-500/10 border-2 border-amber-400/80 rounded-2xl p-4 shadow-sm space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">💳</span>
+                      <h5 className="font-extrabold text-amber-950 text-sm">VIP Golden Loyalty Card &bull; 20% Discount Approved!</h5>
+                    </div>
+                    <p className="text-xs text-amber-900 leading-relaxed font-medium">
+                      Please collect your physical Golden VIP Loyalty Card directly from the clinic reception counter upon arrival.
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-amber-300/40 text-xs">
+                      <span className="text-amber-950 font-medium flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+                        {appointment.clinic_address || 'Clinic Reception, D.I. Khan'}
+                      </span>
+                      {appointment.google_maps_url && (
+                        <a
+                          href={appointment.google_maps_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-amber-900 hover:text-amber-950 underline"
+                        >
+                          Open in Google Maps <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                   <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {formatCurrency(appointment.fee_amount || 1000)}
@@ -2973,6 +3021,15 @@ function DoctorProfileModal({
               </div>
 
               <div className="bg-slate-800/90 border border-slate-700/80 p-4 rounded-xl flex flex-col gap-2 min-w-[200px]">
+                {doctor.loyalty_card_image_url && (
+                  <div className="mb-2 p-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-400/10 border border-amber-400/40 flex items-center gap-2">
+                    <img src={doctor.loyalty_card_image_url} alt="Loyalty Card" className="w-10 h-7 object-cover rounded-md border border-amber-400/60" />
+                    <div>
+                      <div className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">{doctor.loyalty_card_title || 'VIP Loyalty Card'}</div>
+                      <div className="text-[11px] font-extrabold text-white">20% Fee Discount</div>
+                    </div>
+                  </div>
+                )}
                 <div className="text-xs text-slate-400">Consultation Fee</div>
                 <div className="text-2xl font-extrabold text-teal-300">{formatCurrency(doctor.fee_clinic)}</div>
                 <button
@@ -3384,6 +3441,18 @@ function DoctorProfileAndBookingView({
   const [patientGender, setPatientGender] = useState('Male');
   const [patientReason, setPatientReason] = useState('Follow-up for blood pressure and a review of my current medication.');
   const [sendSmsReminder, setSendSmsReminder] = useState(true);
+
+  // VIP Loyalty Card states
+  const [applyLoyaltyCard, setApplyLoyaltyCard] = useState<boolean>(false);
+  const [loyaltyGuardianName, setLoyaltyGuardianName] = useState<string>('');
+  const [loyaltyDob, setLoyaltyDob] = useState<string>('1992-05-15');
+  const [loyaltyGender, setLoyaltyGender] = useState<string>('Male');
+  const [loyaltyCnic, setLoyaltyCnic] = useState<string>('');
+  const [loyaltyMobile, setLoyaltyMobile] = useState<string>('');
+  const [loyaltyWhatsapp, setLoyaltyWhatsapp] = useState<string>('');
+  const [loyaltyEmail, setLoyaltyEmail] = useState<string>('');
+  const [loyaltyAddress, setLoyaltyAddress] = useState<string>('Circular Road, Cantt');
+  const [loyaltyCity, setLoyaltyCity] = useState<string>('Dera Ismail Khan');
 
   // ── Doctor Verified Reviews State ──
   const [showReviewsModal, setShowReviewsModal] = useState(false);
@@ -3892,6 +3961,19 @@ function DoctorProfileAndBookingView({
         return;
       }
 
+      if (applyLoyaltyCard) {
+        if (!loyaltyDob.trim()) {
+          setErrorMessage('Date of Birth is required for VIP Loyalty Card verification.');
+          setIsSubmitting(false);
+          return;
+        }
+        if (!loyaltyAddress.trim()) {
+          setErrorMessage('Residential Address is required for VIP Loyalty Card verification.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const res: any = await apiFetch('/booking/request', {
         method: 'POST',
         body: JSON.stringify({
@@ -3900,8 +3982,19 @@ function DoctorProfileAndBookingView({
           full_name: patientName.trim() || 'Ahmed Khan',
           phone: patientPhone.trim() || '+92 300 123 4567',
           email: patientEmail.trim().toLowerCase(),
-          whatsapp_number: patientPhone.trim() || '+92 300 123 4567',
-          notes: patientReason
+          whatsapp_number: (applyLoyaltyCard && loyaltyWhatsapp.trim()) ? loyaltyWhatsapp.trim() : (patientPhone.trim() || '+92 300 123 4567'),
+          notes: patientReason,
+          has_loyalty_discount: applyLoyaltyCard,
+          loyalty_applicant_name: patientName.trim() || 'Ahmed Khan',
+          loyalty_guardian_name: loyaltyGuardianName.trim() || undefined,
+          loyalty_dob: loyaltyDob.trim() || undefined,
+          loyalty_gender: loyaltyGender || patientGender,
+          loyalty_cnic: loyaltyCnic.trim() || undefined,
+          loyalty_mobile: (loyaltyMobile.trim() || patientPhone.trim()),
+          loyalty_whatsapp: loyaltyWhatsapp.trim() || undefined,
+          loyalty_email: loyaltyEmail.trim() || (patientEmail.trim().toLowerCase() || undefined),
+          loyalty_address: loyaltyAddress.trim() || undefined,
+          loyalty_city: loyaltyCity.trim() || 'Dera Ismail Khan'
         })
       });
 
@@ -3958,19 +4051,37 @@ function DoctorProfileAndBookingView({
           slot_id: slotIdToVerify,
           patient_name: patientName.trim(),
           patient_phone: patientPhone.trim(),
-          patient_email: patientEmail.trim()
+          patient_email: patientEmail.trim(),
+          has_loyalty_discount: applyLoyaltyCard,
+          loyalty_applicant_name: patientName.trim() || 'Ahmed Khan',
+          loyalty_guardian_name: loyaltyGuardianName.trim() || undefined,
+          loyalty_dob: loyaltyDob.trim() || undefined,
+          loyalty_gender: loyaltyGender || patientGender,
+          loyalty_cnic: loyaltyCnic.trim() || undefined,
+          loyalty_mobile: (loyaltyMobile.trim() || patientPhone.trim()),
+          loyalty_whatsapp: loyaltyWhatsapp.trim() || undefined,
+          loyalty_email: loyaltyEmail.trim() || (patientEmail.trim().toLowerCase() || undefined),
+          loyalty_address: loyaltyAddress.trim() || undefined,
+          loyalty_city: loyaltyCity.trim() || 'Dera Ismail Khan'
         })
       });
 
       // Set confirmed slip details with real slip from backend
       const slipNum = verifyRes.slip_number || `DIK-${doctor.specialty.slice(0, 4).toUpperCase()}-20261012-004-18`;
+      const finalCalculatedFee = applyLoyaltyCard
+        ? Math.round(Number(doctor.fee_clinic || 1000) * 0.8)
+        : Number(doctor.fee_clinic || 1000);
+
       setConfirmedSlip({
         slipNumber: slipNum,
         doctorName: doctor.full_name,
         specialty: doctor.specialty,
         date: selectedDayObj?.label || 'Scheduled Date',
         time: selectedTimeSlot,
-        fee: doctor.fee_clinic || 1500,
+        fee: finalCalculatedFee,
+        originalFee: doctor.fee_clinic || 1000,
+        hasLoyaltyDiscount: applyLoyaltyCard,
+        discountAmount: applyLoyaltyCard ? Math.round(Number(doctor.fee_clinic || 1000) * 0.2) : 0,
         patientName: patientName || 'Ahmed Khan',
         patientPhone: patientPhone || '+92 300 123 4567',
         patientEmail: patientEmail.trim(),
@@ -4240,6 +4351,75 @@ function DoctorProfileAndBookingView({
                     <p className="text-slate-500 mt-0.5">Your CNIC, current medicines and any recent test reports.</p>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* VIP Loyalty Card Showcase on Doctor Profile Page */}
+            <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-3xl p-5 shadow-sm space-y-3.5 relative overflow-hidden animate-fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
+                    💳
+                  </span>
+                  <div>
+                    <h4 className="font-extrabold text-amber-950 text-sm">
+                      {doctor.loyalty_card_title || 'RK Loyalty Card'}
+                    </h4>
+                    <p className="text-[11px] text-amber-800 font-medium">VIP Clinic Privilege Card</p>
+                  </div>
+                </div>
+                <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-xs">
+                  {doctor.loyalty_discount_percent ? `${doctor.loyalty_discount_percent}% OFF` : '20% OFF'}
+                </span>
+              </div>
+
+              {/* Loyalty Card Photo Uploaded by Doctor */}
+              <div className="rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-md bg-slate-950 relative group">
+                <img
+                  src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
+                  alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                  className="w-full h-44 object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                    const fb = (e.target as HTMLElement).nextElementSibling;
+                    if (fb) (fb as HTMLElement).style.display = 'flex';
+                  }}
+                />
+                <div
+                  style={{ display: doctor.loyalty_card_image_url ? 'none' : 'flex' }}
+                  className="w-full h-44 bg-gradient-to-br from-amber-700 via-amber-500 to-yellow-400 text-slate-950 p-4 flex flex-col justify-between"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-[10px] font-black tracking-widest uppercase bg-slate-950 text-amber-300 px-2 py-0.5 rounded">
+                        VIP GOLDEN CARD
+                      </span>
+                      <h5 className="text-base font-black tracking-tight mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        {doctor.loyalty_card_title || 'RK Loyalty Card'}
+                      </h5>
+                    </div>
+                    <span className="text-sm font-black text-amber-950 bg-white/70 px-2 py-0.5 rounded">
+                      20% OFF
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-bold text-amber-950">
+                      Dr. {doctor.full_name} &bull; {doctor.specialty}
+                    </p>
+                    <p className="text-[10px] text-amber-900/90 font-mono">
+                      Physical Card Issued at Reception &bull; {doctor.clinic_address}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-amber-100/70 border border-amber-300/80 rounded-xl p-3 text-xs text-amber-950 space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                  <span>✨</span> Save 20% on Every Consultation
+                </div>
+                <p className="text-[11px] text-amber-800 leading-relaxed font-normal">
+                  Select <strong>"Apply for VIP Loyalty Card"</strong> in the booking form. When the assistant desk confirms your appointment, collect your physical Golden VIP card at reception!
+                </p>
               </div>
             </div>
 
@@ -4584,9 +4764,60 @@ function DoctorProfileAndBookingView({
                     <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
                       2
                     </span>
-                    <h3 className="font-bold text-sm text-slate-900">Patient details</h3>
+                    <h3 className="font-bold text-sm text-slate-900">Appointment Type &amp; Patient Details</h3>
                   </div>
                   <span className="text-xs text-slate-400 font-medium">* Required fields</span>
+                </div>
+
+                {/* Option to Choose Standard Appointment vs VIP Loyalty Card */}
+                <div className="space-y-2 pt-1">
+                  <label className="block text-xs font-bold text-slate-700">Choose Consultation Plan</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Plan A: Standard Appointment */}
+                    <div
+                      onClick={() => setApplyLoyaltyCard(false)}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                        !applyLoyaltyCard
+                          ? 'border-[#0f766e] bg-teal-50/70 ring-2 ring-[#0f766e]/20 shadow-xs'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-[#0f766e]" /> Standard Appointment
+                        </span>
+                        <span className="font-extrabold text-xs text-slate-900 font-mono">
+                          {formatCurrency(doctor.fee_clinic)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-1.5">
+                        Standard clinic fee &bull; Fast 10-second booking with simple details
+                      </p>
+                    </div>
+
+                    {/* Plan B: VIP Loyalty Card */}
+                    <div
+                      onClick={() => setApplyLoyaltyCard(true)}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                        applyLoyaltyCard
+                          ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100/70 ring-2 ring-amber-500/30 shadow-xs'
+                          : 'border-amber-300/80 bg-amber-50/30 hover:border-amber-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm">💳</span>
+                          <span className="font-extrabold text-xs text-amber-950">VIP Loyalty Card</span>
+                        </div>
+                        <span className="font-extrabold text-xs text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full font-mono">
+                          20% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * 0.8))}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-amber-900/80 mt-1.5 font-medium">
+                        Save 20% &bull; Complete verification details to receive Golden Card at clinic
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Booking for Toggle */}
@@ -4694,6 +4925,171 @@ function DoctorProfileAndBookingView({
                   </p>
                 </div>
 
+                {/* 10-Field Form for VIP Loyalty Card Applicants */}
+                {applyLoyaltyCard && (
+                  <div className="bg-amber-50/50 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-4 animate-fade-in">
+                    <div className="flex items-center gap-2 pb-2 border-b border-amber-200/60">
+                      <span className="text-base">📋</span>
+                      <div>
+                        <h4 className="font-extrabold text-xs text-amber-950 uppercase tracking-wider">
+                          VIP Loyalty Card Verification Application
+                        </h4>
+                        <p className="text-[11px] text-amber-800">
+                          These 10 verified fields will appear on your Golden Loyalty Card and be confirmed at the assistant desk.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+                      {/* Field 1: Full Name (Required) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          1. Full Name * <span className="text-[10px] text-emerald-700 font-semibold">(Required)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={patientName}
+                          onChange={(e) => setPatientName(e.target.value)}
+                          placeholder="e.g. Muhammad Ahmed Khan"
+                          required
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                      </div>
+
+                      {/* Field 2: Father's / Husband's Name (Optional) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          2. Father's / Husband's Name <span className="text-[10px] text-slate-400">(Optional)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={loyaltyGuardianName}
+                          onChange={(e) => setLoyaltyGuardianName(e.target.value)}
+                          placeholder="e.g. Tariq Khan"
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                      </div>
+
+                      {/* Field 3: Date of Birth (Required) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          3. Date of Birth * <span className="text-[10px] text-emerald-700 font-semibold">(Required)</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={loyaltyDob}
+                          onChange={(e) => setLoyaltyDob(e.target.value)}
+                          required
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                      </div>
+
+                      {/* Field 4: Gender (Optional) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          4. Gender <span className="text-[10px] text-slate-400">(Optional)</span>
+                        </label>
+                        <select
+                          value={loyaltyGender}
+                          onChange={(e) => setLoyaltyGender(e.target.value)}
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      {/* Field 5: CNIC / B-Form Number (Optional) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          5. CNIC / B-Form Number <span className="text-[10px] text-slate-400">(Optional)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={loyaltyCnic}
+                          onChange={(e) => setLoyaltyCnic(e.target.value)}
+                          placeholder="e.g. 12101-1234567-1"
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 font-mono"
+                        />
+                      </div>
+
+                      {/* Field 6: Mobile Number (Required) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          6. Mobile Number * <span className="text-[10px] text-emerald-700 font-semibold">(Required)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={loyaltyMobile || patientPhone}
+                          onChange={(e) => setLoyaltyMobile(e.target.value)}
+                          placeholder="+92 300 123 4567"
+                          required
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 font-mono"
+                        />
+                      </div>
+
+                      {/* Field 7: WhatsApp Number (If different) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          7. WhatsApp Number <span className="text-[10px] text-slate-400">(If different)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={loyaltyWhatsapp}
+                          onChange={(e) => setLoyaltyWhatsapp(e.target.value)}
+                          placeholder="Leave blank if same as mobile"
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 font-mono"
+                        />
+                      </div>
+
+                      {/* Field 8: Email Address (Optional) */}
+                      <div>
+                        <label className="block font-bold text-amber-950 mb-1">
+                          8. Email Address <span className="text-[10px] text-slate-400">(Optional)</span>
+                        </label>
+                        <input
+                          type="email"
+                          value={loyaltyEmail || patientEmail}
+                          onChange={(e) => setLoyaltyEmail(e.target.value)}
+                          placeholder="yourname@gmail.com"
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                      </div>
+
+                      {/* Field 9: Residential Address (Required) */}
+                      <div className="sm:col-span-2">
+                        <label className="block font-bold text-amber-950 mb-1">
+                          9. Residential Address * <span className="text-[10px] text-emerald-700 font-semibold">(Required)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={loyaltyAddress}
+                          onChange={(e) => setLoyaltyAddress(e.target.value)}
+                          placeholder="House / Street / Mohallah"
+                          required
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                      </div>
+
+                      {/* Field 10: City (Required) */}
+                      <div className="sm:col-span-2">
+                        <label className="block font-bold text-amber-950 mb-1">
+                          10. City * <span className="text-[10px] text-emerald-700 font-semibold">(Required)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={loyaltyCity}
+                          onChange={(e) => setLoyaltyCity(e.target.value)}
+                          placeholder="Dera Ismail Khan"
+                          required
+                          className="w-full px-3 py-2 bg-white rounded-xl border border-amber-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Reason for visit (optional) */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Reason for your visit (optional)</label>
@@ -4734,16 +5130,40 @@ function DoctorProfileAndBookingView({
                 </div>
 
                 {/* Fee and Payment Notice */}
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="font-bold text-xs text-slate-900">Total consultation fee</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Pay at the clinic &middot; No online payment required</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-slate-900 font-mono">
-                      {formatCurrency(doctor.fee_clinic)}
-                    </span>
-                  </div>
+                <div className="pt-2 space-y-2">
+                  {applyLoyaltyCard ? (
+                    <div className="bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-200 rounded-xl p-3.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-xs text-slate-500">
+                        <span>Standard Consultation Fee:</span>
+                        <span className="line-through font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs font-bold text-emerald-700">
+                        <span>VIP Golden Loyalty Discount (20% OFF):</span>
+                        <span className="font-mono">-{formatCurrency(Math.round(doctor.fee_clinic * 0.2))}</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-1 border-t border-amber-200/80">
+                        <div>
+                          <p className="font-extrabold text-xs text-amber-950">Discounted Fee Payable at Clinic</p>
+                          <p className="text-[10px] text-amber-800">Collect physical VIP Card from reception upon arrival</p>
+                        </div>
+                        <span className="text-2xl font-black text-amber-950 font-mono">
+                          {formatCurrency(Math.round(doctor.fee_clinic * 0.8))}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-xs text-slate-900">Total consultation fee</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Pay at the clinic &middot; No online payment required</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-2xl font-black text-slate-900 font-mono">
+                          {formatCurrency(doctor.fee_clinic)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Primary CTA Button */}
@@ -4905,6 +5325,33 @@ function DoctorProfileAndBookingView({
                     <span>
                       Slip receipt &amp; status updates sent to: <strong>{confirmedSlip.patientEmail}</strong>
                     </span>
+                  </div>
+                </div>
+              )}
+
+              {confirmedSlip.hasLoyaltyDiscount && (
+                <div className="pt-2 border-t border-teal-200/60">
+                  <div className="bg-gradient-to-r from-amber-500/15 via-amber-400/25 to-amber-500/15 border-2 border-amber-400/90 rounded-2xl p-4 text-xs text-amber-950 space-y-2 shadow-2xs">
+                    <div className="flex items-center gap-2 font-black text-amber-950 text-sm">
+                      <span className="text-lg">💳</span>
+                      <span>VIP Golden Loyalty Card Approved!</span>
+                    </div>
+                    <p className="text-[11px] text-amber-900 leading-relaxed font-semibold">
+                      Please collect your physical Golden VIP Loyalty Card from the clinic reception counter upon arrival!
+                    </p>
+                    <div className="pt-1 border-t border-amber-300/60 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px]">
+                      <span className="text-amber-950"><strong>Clinic Address:</strong> {confirmedSlip.clinic}</span>
+                      {doctor.google_maps_url && (
+                        <a
+                          href={doctor.google_maps_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold underline text-amber-900 hover:text-amber-950 flex items-center gap-1"
+                        >
+                          Google Maps Link <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -13639,6 +14086,117 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 >
                   {isEditingProfile ? 'Cancel Editing' : 'Edit Profile Details'}
                 </button>
+              </div>
+
+              {/* VIP Loyalty Card Management Section */}
+              <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/15 to-amber-600/10 border-2 border-amber-300 rounded-2xl p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
+                      💳
+                    </span>
+                    <div>
+                      <h4 className="font-extrabold text-amber-950 text-sm">
+                        {doctorProfile?.loyalty_card_title || 'RK Loyalty Card'} &bull; VIP Loyalty Program
+                      </h4>
+                      <p className="text-[11px] text-amber-800 font-medium">
+                        Consultation fee discount program for returning &amp; registered patients.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const newStatus = !doctorProfile?.loyalty_card_enabled;
+                        try {
+                          await apiFetch('/doctor/loyalty-card/settings', {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                              loyalty_card_enabled: newStatus,
+                              loyalty_card_title: doctorProfile?.loyalty_card_title || 'RK Loyalty Card',
+                              loyalty_discount_percent: doctorProfile?.loyalty_discount_percent || 20.0
+                            })
+                          });
+                          setDoctorProfile((prev: any) => ({ ...prev, loyalty_card_enabled: newStatus }));
+                        } catch (err: any) {
+                          alert(err.message || 'Failed to update loyalty settings');
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-xs font-extrabold transition-all cursor-pointer shadow-xs ${
+                        doctorProfile?.loyalty_card_enabled
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-200 text-slate-700'
+                      }`}
+                    >
+                      {doctorProfile?.loyalty_card_enabled ? '✓ Program Active (20% OFF)' : 'Program Inactive'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
+                  {/* Card Image Preview */}
+                  <div className="relative group w-48 h-32 rounded-2xl overflow-hidden bg-slate-950 border-2 border-amber-400 shadow-md flex-shrink-0">
+                    <img
+                      src={doctorProfile?.loyalty_card_image_url || '/rk-loyalty-card.png'}
+                      alt="Loyalty Card"
+                      className="w-full h-full object-cover object-center"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                        const fb = (e.target as HTMLElement).nextElementSibling;
+                        if (fb) (fb as HTMLElement).style.display = 'flex';
+                      }}
+                    />
+                    <div
+                      style={{ display: doctorProfile?.loyalty_card_image_url ? 'none' : 'flex' }}
+                      className="w-full h-full bg-gradient-to-tr from-amber-600 to-yellow-400 text-slate-950 font-black text-xs flex flex-col justify-center items-center text-center p-2"
+                    >
+                      <span>{doctorProfile?.loyalty_card_title || 'RK Loyalty Card'}</span>
+                      <span className="text-[10px] opacity-80 mt-1">Upload Card Photo</span>
+                    </div>
+                  </div>
+
+                  {/* Upload Controls & Settings */}
+                  <div className="space-y-2 flex-1 w-full text-xs">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs transition shadow-xs">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Custom Loyalty Card Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const fd = new FormData();
+                            fd.append('file', file);
+                            try {
+                              const res: any = await apiFetch('/doctor/loyalty-card/upload', {
+                                method: 'POST',
+                                body: fd
+                              });
+                              setDoctorProfile((prev: any) => ({
+                                ...prev,
+                                loyalty_card_image_url: res.loyalty_card_image_url,
+                                loyalty_card_enabled: true
+                              }));
+                              alert('VIP Loyalty Card photo uploaded successfully!');
+                            } catch (err: any) {
+                              alert(err.message || 'Failed to upload loyalty card');
+                            }
+                          }}
+                        />
+                      </label>
+                      <span className="text-[11px] text-amber-900">
+                        Supports JPG, PNG, WEBP (Max 5MB)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-900/80 leading-relaxed">
+                      Your loyalty card image is displayed prominently on your doctor profile page and booking screen. Patients can apply for this card during booking to receive a 20% consultation fee discount.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Doctor Profile Picture Card (Cloudinary Powered) */}

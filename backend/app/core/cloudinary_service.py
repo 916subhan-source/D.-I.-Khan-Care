@@ -92,3 +92,29 @@ def delete_doctor_photo(doctor_id: str) -> bool:
     except Exception as e:
         print(f"Cloudinary delete error: {e}")
         return False
+
+def upload_loyalty_card_photo(file_bytes: bytes, doctor_id: str) -> Optional[str]:
+    """
+    Uploads a doctor's VIP loyalty card image to Cloudinary with quality & format optimization.
+    """
+    configure_cloudinary()
+    try:
+        res = cloudinary.uploader.upload(
+            file_bytes,
+            folder="dikhan_loyalty_cards",
+            public_id=f"loyalty_{doctor_id}",
+            overwrite=True,
+            resource_type="image",
+            eager=[
+                {
+                    "quality": "auto:eco",
+                    "fetch_format": "auto"
+                }
+            ],
+            eager_async=False
+        )
+        raw_url = res.get("secure_url")
+        return raw_url
+    except Exception as e:
+        print(f"Cloudinary loyalty card upload error: {e}")
+        raise e

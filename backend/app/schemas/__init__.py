@@ -73,6 +73,10 @@ class DoctorResponse(DoctorBase):
     is_available_today: Optional[bool] = False
     today_status: Optional[str] = "NO_SLOTS"
     upcoming_slots_count: Optional[int] = 0
+    loyalty_card_enabled: Optional[bool] = False
+    loyalty_card_title: Optional[str] = 'RK Loyalty Card'
+    loyalty_card_image_url: Optional[str] = None
+    loyalty_discount_percent: Optional[Decimal] = Decimal('20.00')
 
     class Config:
         from_attributes = True
@@ -163,6 +167,17 @@ class BookingRequestSchema(BaseModel):
     email: EmailStr
     whatsapp_number: str  # Required — serves as primary contact for OTP & reminders
     notes: Optional[str] = None
+    has_loyalty_discount: Optional[bool] = False
+    loyalty_applicant_name: Optional[str] = None
+    loyalty_guardian_name: Optional[str] = None
+    loyalty_dob: Optional[str] = None
+    loyalty_gender: Optional[str] = None
+    loyalty_cnic: Optional[str] = None
+    loyalty_mobile: Optional[str] = None
+    loyalty_whatsapp: Optional[str] = None
+    loyalty_email: Optional[str] = None
+    loyalty_address: Optional[str] = None
+    loyalty_city: Optional[str] = None
 
 class OTPVerifySchema(BaseModel):
     contact: str  # phone or email
@@ -172,6 +187,17 @@ class OTPVerifySchema(BaseModel):
     patient_name: Optional[str] = None
     patient_phone: Optional[str] = None
     patient_email: Optional[str] = None
+    has_loyalty_discount: Optional[bool] = False
+    loyalty_applicant_name: Optional[str] = None
+    loyalty_guardian_name: Optional[str] = None
+    loyalty_dob: Optional[str] = None
+    loyalty_gender: Optional[str] = None
+    loyalty_cnic: Optional[str] = None
+    loyalty_mobile: Optional[str] = None
+    loyalty_whatsapp: Optional[str] = None
+    loyalty_email: Optional[str] = None
+    loyalty_address: Optional[str] = None
+    loyalty_city: Optional[str] = None
 
 class TrackAppointmentRequest(BaseModel):
     phone: Optional[str] = None
@@ -199,6 +225,20 @@ class AppointmentResponse(BaseModel):
     specialty: Optional[str] = None
     clinic_address: Optional[str] = None
     token_number: Optional[int] = None
+    has_loyalty_discount: Optional[bool] = False
+    loyalty_discount_amount: Optional[Decimal] = None
+    loyalty_applicant_name: Optional[str] = None
+    loyalty_guardian_name: Optional[str] = None
+    loyalty_dob: Optional[str] = None
+    loyalty_gender: Optional[str] = None
+    loyalty_cnic: Optional[str] = None
+    loyalty_mobile: Optional[str] = None
+    loyalty_whatsapp: Optional[str] = None
+    loyalty_email: Optional[str] = None
+    loyalty_address: Optional[str] = None
+    loyalty_city: Optional[str] = None
+    google_maps_url: Optional[str] = None
+    loyalty_pickup_message: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -281,3 +321,8 @@ class DoctorReviewsSummaryResponse(BaseModel):
     rating_breakdown: dict
     reviews: List[ReviewResponse]
 
+
+class LoyaltyCardSettingsSchema(BaseModel):
+    loyalty_card_enabled: bool
+    loyalty_card_title: Optional[str] = 'RK Loyalty Card'
+    loyalty_discount_percent: Optional[Decimal] = Decimal('20.00')

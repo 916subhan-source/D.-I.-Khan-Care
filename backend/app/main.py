@@ -56,6 +56,58 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass  # Column already exists — safe to ignore
 
+        # Loyalty VIP Card schema migrations
+        loyalty_cols_doc = [
+            ("loyalty_card_enabled", "BOOLEAN DEFAULT FALSE"),
+            ("loyalty_card_title", "VARCHAR(120) DEFAULT 'VIP Loyalty Card'"),
+            ("loyalty_card_image_url", "VARCHAR(500)"),
+            ("loyalty_discount_percent", "NUMERIC(5,2) DEFAULT 20.00")
+        ]
+        for col_name, col_def in loyalty_cols_doc:
+            try:
+                if "sqlite" in settings.DATABASE_URL:
+                    await conn.execute(text(f"ALTER TABLE doctors ADD COLUMN {col_name} {col_def}"))
+                else:
+                    await conn.execute(text(f"ALTER TABLE doctors ADD COLUMN IF NOT EXISTS {col_name} {col_def}"))
+            except Exception:
+                pass
+
+        loyalty_cols_appt = [
+            ("has_loyalty_discount", "BOOLEAN DEFAULT FALSE"),
+            ("loyalty_discount_amount", "NUMERIC(10,2) DEFAULT 0.00"),
+            ("loyalty_applicant_name", "VARCHAR(120)"),
+            ("loyalty_guardian_name", "VARCHAR(120)"),
+            ("loyalty_dob", "VARCHAR(30)"),
+            ("loyalty_gender", "VARCHAR(20)"),
+            ("loyalty_cnic", "VARCHAR(30)"),
+            ("loyalty_mobile", "VARCHAR(30)"),
+            ("loyalty_whatsapp", "VARCHAR(30)"),
+            ("loyalty_email", "VARCHAR(255)"),
+            ("loyalty_address", "TEXT"),
+            ("loyalty_city", "VARCHAR(80) DEFAULT 'Dera Ismail Khan'")
+        ]
+        for col_name, col_def in loyalty_cols_appt:
+            try:
+                if "sqlite" in settings.DATABASE_URL:
+                    await conn.execute(text(f"ALTER TABLE appointments ADD COLUMN {col_name} {col_def}"))
+                else:
+                    await conn.execute(text(f"ALTER TABLE appointments ADD COLUMN IF NOT EXISTS {col_name} {col_def}"))
+            except Exception:
+                pass
+
+        loyalty_cols_pay = [
+            ("original_amount", "NUMERIC(10,2) DEFAULT 0.00"),
+            ("discount_amount", "NUMERIC(10,2) DEFAULT 0.00")
+        ]
+        for col_name, col_def in loyalty_cols_pay:
+            try:
+                if "sqlite" in settings.DATABASE_URL:
+                    await conn.execute(text(f"ALTER TABLE payments ADD COLUMN {col_name} {col_def}"))
+                else:
+                    await conn.execute(text(f"ALTER TABLE payments ADD COLUMN IF NOT EXISTS {col_name} {col_def}"))
+            except Exception:
+                pass
+
         # Performance optimization: composite indexes for instant doctor portal queries
         try:
             await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_doctor_slots_lookup ON doctor_slots (doctor_id, status, start_time)"))

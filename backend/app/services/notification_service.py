@@ -479,6 +479,21 @@ class NotificationService:
                             Direct Tracking Link: <a href="{track_url}" style="color: #059669; text-decoration: underline; font-family: monospace;">{track_url}</a>
                         </p>
 
+                        {f'''
+                        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 10px; padding: 16px; margin: 18px 0; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.15);">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 20px;">💳</span>
+                                <strong style="color: #92400e; font-size: 15px;">VIP Golden Loyalty Card Approved!</strong>
+                            </div>
+                            <p style="font-size: 13px; color: #78350f; margin: 8px 0 6px 0; line-height: 1.5;">
+                                Your VIP loyalty discount was applied. <strong>Please collect your physical Golden VIP Loyalty Card from the clinic reception upon arrival!</strong>
+                            </p>
+                            <div style="font-size: 12px; color: #92400e;">
+                                <strong>Clinic Address:</strong> {appt.doctor.clinic_address if appt.doctor else 'Clinic, D.I. Khan'}
+                            </div>
+                            {f'<div style="margin-top: 8px;"><a href="{appt.doctor.google_maps_url}" style="color: #b45309; text-decoration: underline; font-weight: bold; font-size: 12px;">📍 Open Directions in Google Maps &rarr;</a></div>' if appt.doctor and appt.doctor.google_maps_url else ''}
+                        </div>
+                        ''' if appt.has_loyalty_discount else ''}
                         <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 12px; font-size: 12px; color: #92400e; margin-top: 14px;">
                             <strong>Clinic Instructions:</strong> Please arrive at the clinic 10-15 minutes before your scheduled slot. Show your slip number <strong>#{appt.slip_number}</strong> or your phone number at the reception desk.
                         </div>

@@ -119,6 +119,7 @@ interface AppointmentItem {
   notes?: string;
   patient_name?: string;
   patient_phone?: string;
+  patient_email?: string;
   doctor_name?: string;
   slot_start?: string;
   start_time?: string;
@@ -2633,15 +2634,21 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                   <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/20 to-amber-500/10 border-2 border-amber-400/80 rounded-2xl p-4 shadow-sm space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">💳</span>
-                      <h5 className="font-extrabold text-amber-950 text-sm">VIP Golden Loyalty Card &bull; 10% Discount Approved!</h5>
+                      <h5 className="font-extrabold text-amber-950 text-sm">
+                        {appointment.status === 'CONFIRMED' || appointment.status === 'COMPLETED'
+                          ? 'VIP Golden Loyalty Card &bull; Approved!'
+                          : 'VIP Golden Loyalty Card &bull; Application Pending Assistant Approval'}
+                      </h5>
                     </div>
                     <p className="text-xs text-amber-900 leading-relaxed font-medium">
-                      Please collect your physical Golden VIP Loyalty Card directly from the clinic reception counter upon arrival.
+                      {appointment.status === 'CONFIRMED' || appointment.status === 'COMPLETED'
+                        ? 'Your Golden VIP Loyalty Card has been verified and approved! Please collect your physical Golden VIP Loyalty Card directly from the clinic reception counter upon arrival.'
+                        : 'Your loyalty application details have been submitted. The assistant desk will review and verify your details upon appointment confirmation.'}
                     </p>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-amber-300/40 text-xs">
                       <span className="text-amber-950 font-medium flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
-                        {appointment.clinic_address || 'Clinic Reception, D.I. Khan'}
+                        <strong>Pickup:</strong> {appointment.clinic_address || 'Clinic Reception, D.I. Khan'}
                       </span>
                       {appointment.google_maps_url && (
                         <a
@@ -5352,10 +5359,13 @@ function DoctorProfileAndBookingView({
                   <div className="bg-gradient-to-r from-amber-500/15 via-amber-400/25 to-amber-500/15 border-2 border-amber-400/90 rounded-2xl p-4 text-xs text-amber-950 space-y-2 shadow-2xs">
                     <div className="flex items-center gap-2 font-black text-amber-950 text-sm">
                       <span className="text-lg">💳</span>
-                      <span>VIP Golden Loyalty Card Approved!</span>
+                      <span>VIP Golden Loyalty Card &bull; Application Submitted</span>
+                      <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-auto">
+                        Pending Assistant Approval
+                      </span>
                     </div>
                     <p className="text-[11px] text-amber-900 leading-relaxed font-semibold">
-                      Please collect your physical Golden VIP Loyalty Card from the clinic reception counter upon arrival!
+                      Your 10 verification details have been submitted. Once the clinic assistant confirms your appointment, your Golden VIP Loyalty Card will be approved and ready for pickup at reception!
                     </p>
                     <div className="pt-1 border-t border-amber-300/60 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px]">
                       <span className="text-amber-950"><strong>Clinic Address:</strong> {confirmedSlip.clinic}</span>
@@ -7173,6 +7183,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [actionMessage, setActionMessage] = useState('');
   const [appointmentActionLoading, setAppointmentActionLoading] = useState<{ id: string; action: 'approve' | 'reject' | 'paid' | 'cancel' | 'complete' } | null>(null);
   const [reschedLoading, setReschedLoading] = useState(false);
+  const [selectedLoyaltyAppt, setSelectedLoyaltyAppt] = useState<AppointmentItem | null>(null);
 
   // Assistant Login State
   const [token, setToken] = useState(localStorage.getItem('assistant_token') || '');
@@ -8762,6 +8773,20 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     <Phone className="w-3 h-3 text-slate-400" />
                                     {item.patient_phone || 'No phone'}
                                   </p>
+                                  {item.has_loyalty_discount && (
+                                    <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 border border-amber-300 text-amber-900 text-[10px] font-bold shadow-2xs">
+                                        💳 VIP Loyalty Card Requested
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedLoyaltyAppt(item)}
+                                        className="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-[10px] font-bold transition shadow-2xs inline-flex items-center gap-1 cursor-pointer"
+                                      >
+                                        📋 View 10 Application Details
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </td>
@@ -11346,6 +11371,137 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <span>Book Next Walk-In</span>
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIP Loyalty Card Application Verification Modal for Assistant */}
+          {selectedLoyaltyAppt && (
+            <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+              <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden relative">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 p-5 text-white flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-xl shadow-xs">
+                      💳
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-base tracking-tight">VIP Golden Loyalty Card Application</h3>
+                      <p className="text-xs text-amber-100 mt-0.5">
+                        Submitted during appointment booking &bull; Verify before approving &amp; card handover
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedLoyaltyAppt(null)}
+                    className="p-1.5 rounded-lg bg-black/10 hover:bg-black/20 text-white transition cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* 10 Verified Application Details */}
+                <div className="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+                  <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
+                    <div className="text-xs font-black uppercase tracking-wider text-amber-900 mb-3 flex items-center justify-between">
+                      <span>📋 10 Patient Verification Fields</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        selectedLoyaltyAppt.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-200 text-amber-900'
+                      }`}>
+                        {selectedLoyaltyAppt.status === 'CONFIRMED' ? '✓ Card Approved' : '⏳ Awaiting Assistant Approval'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">1. Full Name</span>
+                        <span className="font-bold text-slate-900">{selectedLoyaltyAppt.loyalty_applicant_name || selectedLoyaltyAppt.patient_name || 'Ahmed Khan'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">2. Father / Husband Name</span>
+                        <span className="font-bold text-slate-900">{selectedLoyaltyAppt.loyalty_guardian_name || 'Not provided'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">3. Date of Birth</span>
+                        <span className="font-bold text-emerald-800 font-mono">{selectedLoyaltyAppt.loyalty_dob || 'Not provided'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">4. Gender</span>
+                        <span className="font-bold text-slate-900">{selectedLoyaltyAppt.loyalty_gender || 'Not specified'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">5. CNIC / B-Form</span>
+                        <span className="font-bold text-slate-900 font-mono">{selectedLoyaltyAppt.loyalty_cnic || 'Not provided'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">6. Mobile Number</span>
+                        <span className="font-bold text-slate-900 font-mono">{selectedLoyaltyAppt.loyalty_mobile || selectedLoyaltyAppt.patient_phone || 'N/A'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">7. WhatsApp Number</span>
+                        <span className="font-bold text-slate-900 font-mono">{selectedLoyaltyAppt.loyalty_whatsapp || selectedLoyaltyAppt.patient_phone || 'Same as Mobile'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">8. Email Address</span>
+                        <span className="font-bold text-slate-900">{selectedLoyaltyAppt.loyalty_email || selectedLoyaltyAppt.patient_email || 'Not provided'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100 sm:col-span-2">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">9. Residential Address</span>
+                        <span className="font-bold text-slate-900">{selectedLoyaltyAppt.loyalty_address || 'Not provided'}</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-amber-100 sm:col-span-2">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase">10. City</span>
+                        <span className="font-bold text-slate-900">{selectedLoyaltyAppt.loyalty_city || 'Dera Ismail Khan'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Consultation Fee & Privilege Card Summary */}
+                  <div className="bg-gradient-to-r from-amber-50 to-amber-100/70 border border-amber-200 rounded-2xl p-4 space-y-2 text-xs">
+                    <div className="flex items-center justify-between font-medium text-slate-600">
+                      <span>Standard Consultation Fee:</span>
+                      <span className="font-mono">{formatCurrency(currentDoctor?.fee_clinic || 1000)}</span>
+                    </div>
+                    <div className="flex items-center justify-between font-bold text-emerald-700">
+                      <span>VIP Golden Loyalty Discount:</span>
+                      <span className="font-mono">-{formatCurrency(selectedLoyaltyAppt.loyalty_discount_amount || Math.round((currentDoctor?.fee_clinic || 1000) * 0.2))}</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-amber-300 font-black text-amber-950 text-sm">
+                      <span>Discounted Fee Payable at Desk:</span>
+                      <span className="font-mono">{formatCurrency(selectedLoyaltyAppt.fee_amount || Math.round((currentDoctor?.fee_clinic || 1000) * 0.8))}</span>
+                    </div>
+                    <p className="text-[11px] text-amber-800 pt-1">
+                      📍 <strong>Card Handover:</strong> Hand over the physical Golden VIP Loyalty Card to the patient at reception upon payment.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLoyaltyAppt(null)}
+                    className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 transition cursor-pointer"
+                  >
+                    Close
+                  </button>
+
+                  {(selectedLoyaltyAppt.status === 'PENDING_ASSISTANT_APPROVAL' || selectedLoyaltyAppt.status === 'pending') && (
+                    <button
+                      type="button"
+                      disabled={Boolean(appointmentActionLoading)}
+                      onClick={async () => {
+                        const apptId = selectedLoyaltyAppt.id;
+                        setSelectedLoyaltyAppt(null);
+                        await handleApprove(apptId);
+                      }}
+                      className="px-5 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs rounded-xl shadow-sm transition inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Approve &amp; Issue VIP Loyalty Card</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

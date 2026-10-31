@@ -8,6 +8,7 @@ Booking workflow and verification router:
 from typing import Optional
 import uuid
 import re
+import json
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,7 +37,9 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
     - Creates or locates patient record.
     """
     # 1. Verify slot exists and is available in DB (or dynamically provision slot for doctor)
-    slot_res = await db.execute(select(DoctorSlot).where(DoctorSlot.id == payload.slot_id))
+    slot_res = await db.execute(
+        select(DoctorSlot).options(selectinload(DoctorSlot.doctor)).where(DoctorSlot.id == payload.slot_id)
+    )
     slot = slot_res.scalar_one_or_none()
 
     if not slot:

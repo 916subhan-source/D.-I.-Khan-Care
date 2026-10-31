@@ -3947,7 +3947,7 @@ function DoctorProfileAndBookingView({
     setErrorMessage('');
 
     try {
-      const chosen = displaySlots.find(s => s.id === selectedSlotId) || displaySlots[0];
+      const chosen = displaySlots.find(s => s.id === selectedSlotId) || activeSlotsToDisplay[0] || displaySlots[0];
       if (!chosen || !chosen.isReal || !chosen.rawSlot) {
         setErrorMessage('No consultation slot is available for this date. Please select a date with available slots.');
         setIsSubmitting(false);
@@ -5173,6 +5173,16 @@ function DoctorProfileAndBookingView({
                     </div>
                   )}
                 </div>
+
+                {/* Form Error Notification */}
+                {errorMessage && bookingState === 'form' && (
+                  <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 font-semibold flex items-start gap-2.5 shadow-2xs animate-fade-in">
+                    <span className="text-base leading-none">⚠️</span>
+                    <div className="flex-1 leading-relaxed">
+                      {errorMessage}
+                    </div>
+                  </div>
+                )}
 
                 {/* Primary CTA Button */}
                 <button

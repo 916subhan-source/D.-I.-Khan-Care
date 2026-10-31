@@ -2,15 +2,9 @@ import io
 import json
 import re
 import os
+import math
+import statistics
 from typing import Dict, Any
-import numpy as np
-from PIL import Image
-
-try:
-    from google import genai
-    _HAS_GENAI = True
-except Exception as _err:
-    _HAS_GENAI = False
 
 def detect_loyalty_discount_cv(image_bytes: bytes) -> float:
     """
@@ -18,28 +12,36 @@ def detect_loyalty_discount_cv(image_bytes: bytes) -> float:
     Examines the consultation fee discount box on the card layout.
     Distinguishes 10% vs 20% fee discounts reliably without external API dependencies.
     """
+    if not image_bytes:
+        return 20.0
+
     try:
+        from PIL import Image
         im = Image.open(io.BytesIO(image_bytes)).convert('L')
         w, h = im.size
         # Box 1 is 'ON FEE (CONSULTATION)'
-        b = im.crop((int(0.06*w), int(0.58*h), int(0.26*w), int(0.86*h)))
+        b = im.crop((int(0.06 * w), int(0.58 * h), int(0.26 * w), int(0.86 * h)))
         bw, bh = b.size
         
         # Crop the first digit area of the percentage number
-        d = b.crop((int(0.10*bw), int(0.12*bh), int(0.48*bw), int(0.58*bh))).resize((30, 30))
-        arr = np.array(d)
+        d = b.crop((int(0.10 * bw), int(0.12 * bh), int(0.48 * bw), int(0.58 * bh))).resize((30, 30))
         
-        # Dynamic threshold based on upper quartile
-        th_val = np.percentile(arr, 75)
-        th = (arr >= th_val).astype(np.uint8)
+        # Check pixel values across rows 14-26
+        pixels = list(d.getdata())
+        sorted_px = sorted(pixels)
+        th_val = sorted_px[int(len(sorted_px) * 0.75)]
         
-        # Analyze horizontal spread of the digit body (rows 14-26)
-        body = th[14:26, :]
-        ys, xs = np.where(body > 0)
-        if len(xs) == 0:
+        xs = []
+        for y in range(14, 27):
+            for x in range(30):
+                val = d.getpixel((x, y))
+                if val >= th_val:
+                    xs.append(x)
+                    
+        if len(xs) < 2:
             return 20.0
-        
-        x_std = float(np.std(xs))
+            
+        x_std = statistics.pstdev(xs)
         # Thin vertical stroke of '1' has low horizontal standard deviation (< 4.5)
         # Curved shape of '2' has wide horizontal spread (>= 4.5)
         return 10.0 if x_std < 4.5 else 20.0
@@ -62,10 +64,13 @@ def analyze_loyalty_card_image(image_bytes: bytes) -> Dict[str, Any]:
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
     # Only invoke Gemini if key looks like an official Google AI Studio key (starts with AIzaSy)
-    if not _HAS_GENAI or not image_bytes or not gemini_key or not gemini_key.startswith("AIzaSy"):
+    if not image_bytes or not gemini_key or not gemini_key.startswith("AIzaSy"):
         return default_res
 
     try:
+        from google import genai
+        from PIL import Image
+
         client = genai.Client(api_key=gemini_key)
         img = Image.open(io.BytesIO(image_bytes))
 

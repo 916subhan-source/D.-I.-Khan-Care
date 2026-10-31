@@ -9400,150 +9400,172 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         )}
 
                         {/* Action Buttons Row */}
-                        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                          {/* Secondary: Reschedule / Cancel */}
-                          <div className="flex items-center gap-1.5">
-                            {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setReschedItem(item);
-                                    setSelectedNewSlotId('');
-                                    setSelectedNewSlot(null);
-                                    setReschedError('');
-                                    const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
-                                    setReschedSelectedDate(initialDate);
-                                    setDeskTab('smart_resched');
-                                  }}
-                                  className="h-8 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 text-slate-700 dark:text-slate-300 hover:text-sky-600 rounded-lg text-xs font-medium inline-flex items-center gap-1 transition-colors"
-                                >
-                                  <Clock className="w-3.5 h-3.5 text-sky-500" />
-                                  <span>Reschedule</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={Boolean(appointmentActionLoading)}
-                                  onClick={() => handleCancelAppointment(item.id)}
-                                  className="h-8 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg text-xs font-medium inline-flex items-center gap-1 transition-colors disabled:opacity-50"
-                                >
-                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
-                                    <Loader2 className="w-3 h-3 animate-spin text-rose-500" />
-                                  ) : (
-                                    <X className="w-3.5 h-3.5 text-slate-400" />
-                                  )}
-                                  <span>Cancel</span>
-                                </button>
-                              </>
-                            )}
-                          </div>
-
-                          {/* Primary Actions */}
-                          <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 justify-end">
-                            {(item.status === 'PENDING_ASSISTANT_APPROVAL' || item.status === 'pending') && (
-                              <>
-                                <button
-                                  type="button"
-                                  disabled={Boolean(appointmentActionLoading)}
-                                  onClick={() => handleReject(item.id)}
-                                  className="h-8 px-3 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                  <span>Reject</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={Boolean(appointmentActionLoading)}
-                                  onClick={() => handleApprove(item.id)}
-                                  className="h-8 px-3.5 bg-gradient-to-r from-clinic-700 to-clinic-800 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50"
-                                >
-                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'approve' ? (
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+                          {/* Primary Actions (Full width for effortless thumb taps) */}
+                          {(item.status === 'PENDING_ASSISTANT_APPROVAL' || item.status === 'pending') && (
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                disabled={Boolean(appointmentActionLoading)}
+                                onClick={() => handleReject(item.id)}
+                                className="h-9 px-3 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer"
+                              >
+                                <X className="w-3.5 h-3.5 text-rose-500" />
+                                <span>Reject</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={Boolean(appointmentActionLoading)}
+                                onClick={() => handleApprove(item.id)}
+                                className="h-9 px-3.5 bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900 text-white rounded-xl text-xs font-bold shadow-xs inline-flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                              >
+                                {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'approve' ? (
+                                  <>
                                     <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                  ) : (
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                                  )}
-                                  <span>Issue Slip</span>
-                                </button>
-                              </>
-                            )}
-
-                            {isConfirmed && (
-                              <>
-                                {item.payment_status === 'PENDING_CASH' && (
-                                  <button
-                                    type="button"
-                                    disabled={Boolean(appointmentActionLoading)}
-                                    onClick={() => handleMarkPaid(item.id)}
-                                    className="h-8 px-3 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
-                                  >
-                                    <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
-                                    <span>Mark Paid</span>
-                                  </button>
-                                )}
-
-                                {item.payment_status === 'PARTIAL' && (
-                                  <button
-                                    type="button"
-                                    disabled={Boolean(appointmentActionLoading)}
-                                    onClick={() => handleMarkPaid(item.id)}
-                                    className="h-8 px-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1 disabled:opacity-50"
-                                  >
-                                    <CreditCard className="w-3.5 h-3.5 text-white" />
-                                    <span>Collect Due</span>
-                                  </button>
-                                )}
-
-                                {canComplete ? (
-                                  <button
-                                    type="button"
-                                    disabled={Boolean(appointmentActionLoading)}
-                                    onClick={() => handleCompleteAppointment(item.id)}
-                                    className={`h-8 px-3.5 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50 ${
-                                      isCurrentActive
-                                        ? 'bg-gradient-to-r from-emerald-600 to-teal-700 ring-2 ring-emerald-300'
-                                        : 'bg-gradient-to-r from-clinic-700 to-clinic-800'
-                                    }`}
-                                  >
-                                    {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
-                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                    ) : (
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                                    )}
-                                    <span>Complete</span>
-                                  </button>
-                                ) : !isPaid && (isDateTimeReached || isCurrentActive) ? (
-                                  <span className="h-8 px-2.5 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 inline-flex items-center gap-1">
-                                    <CreditCard className="w-3 h-3 text-amber-600" />
-                                    <span>Pay Due to Complete</span>
-                                  </span>
+                                    <span>Issuing...</span>
+                                  </>
                                 ) : (
-                                  <span className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1">
-                                    <Clock className="w-3 h-3 text-slate-400" />
-                                    <span>Upcoming Slot</span>
-                                  </span>
+                                  <>
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                                    <span>Issue Slip</span>
+                                  </>
                                 )}
-                              </>
-                            )}
+                              </button>
+                            </div>
+                          )}
 
-                            {item.status === 'COMPLETED' && (
-                              <span className="h-8 px-3 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 inline-flex items-center gap-1.5">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>Completed</span>
-                              </span>
-                            )}
-                            {item.status === 'CANCELLED' && (
-                              <span className="h-8 px-3 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5">
-                                <XCircle className="w-3.5 h-3.5 text-slate-400" />
-                                <span>Cancelled</span>
-                              </span>
-                            )}
-                            {item.status === 'REJECTED' && (
-                              <span className="h-8 px-3 rounded-lg text-xs font-medium bg-rose-50 dark:bg-rose-950/40 text-rose-500 border border-rose-200 dark:border-rose-800 inline-flex items-center gap-1.5">
-                                <XCircle className="w-3.5 h-3.5 text-rose-400" />
-                                <span>Rejected</span>
-                              </span>
-                            )}
-                          </div>
+                          {isConfirmed && (
+                            <div className="space-y-2">
+                              {/* 1. If cash is pending: Prominent High-Contrast Mark as Paid Button */}
+                              {item.payment_status === 'PENDING_CASH' && (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleMarkPaid(item.id)}
+                                  className="w-full h-9 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'paid' ? (
+                                    <>
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                      <span>Recording Cash Payment...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CreditCard className="w-4 h-4 text-white" />
+                                      <span>Mark as Paid ({formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)})</span>
+                                    </>
+                                  )}
+                                </button>
+                              )}
+
+                              {/* 2. If partial: Prominent Collect Due Button */}
+                              {item.payment_status === 'PARTIAL' && (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleMarkPaid(item.id)}
+                                  className="w-full h-9 px-4 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'paid' ? (
+                                    <>
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                      <span>Recording Payment...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CreditCard className="w-4 h-4 text-white" />
+                                      <span>Collect Remaining Due ({formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))})</span>
+                                    </>
+                                  )}
+                                </button>
+                              )}
+
+                              {/* 3. If paid & ready: Complete Consultation Button */}
+                              {canComplete ? (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleCompleteAppointment(item.id)}
+                                  className={`w-full h-9 px-4 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer ${
+                                    isCurrentActive
+                                      ? 'bg-gradient-to-r from-emerald-600 to-teal-700 ring-2 ring-emerald-300 shadow-sm'
+                                      : 'bg-gradient-to-r from-clinic-700 to-clinic-800'
+                                  }`}
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
+                                    <>
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                      <span>Completing...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                                      <span>Complete Consultation</span>
+                                    </>
+                                  )}
+                                </button>
+                              ) : isPaid && (
+                                <div className="h-8 px-3 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1.5">
+                                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                  <span>Upcoming Slot (Consultation time not reached)</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {item.status === 'COMPLETED' && (
+                            <div className="h-8 px-3 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-1.5">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              <span>Consultation Completed</span>
+                            </div>
+                          )}
+                          {item.status === 'CANCELLED' && (
+                            <div className="h-8 px-3 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1.5">
+                              <XCircle className="w-4 h-4 text-slate-400" />
+                              <span>Appointment Cancelled</span>
+                            </div>
+                          )}
+                          {item.status === 'REJECTED' && (
+                            <div className="h-8 px-3 rounded-lg text-xs font-medium bg-rose-50 dark:bg-rose-950/40 text-rose-500 border border-rose-200 dark:border-rose-800 flex items-center justify-center gap-1.5">
+                              <XCircle className="w-4 h-4 text-rose-400" />
+                              <span>Appointment Rejected</span>
+                            </div>
+                          )}
+
+                          {/* Secondary: Reschedule & Cancel in compact row */}
+                          {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
+                            <div className="flex items-center justify-end gap-2 pt-0.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReschedItem(item);
+                                  setSelectedNewSlotId('');
+                                  setSelectedNewSlot(null);
+                                  setReschedError('');
+                                  const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
+                                  setReschedSelectedDate(initialDate);
+                                  setDeskTab('smart_resched');
+                                }}
+                                className="h-7 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 text-slate-600 dark:text-slate-400 hover:text-sky-600 rounded-lg text-[11px] font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Clock className="w-3 h-3 text-sky-500" />
+                                <span>Reschedule</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={Boolean(appointmentActionLoading)}
+                                onClick={() => handleCancelAppointment(item.id)}
+                                className="h-7 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg text-[11px] font-medium inline-flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer"
+                              >
+                                {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
+                                  <Loader2 className="w-3 h-3 animate-spin text-rose-500" />
+                                ) : (
+                                  <X className="w-3 h-3 text-slate-400" />
+                                )}
+                                <span>Cancel</span>
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -11830,10 +11852,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         setPosSuccessReceipt(null);
                         setDeskTab('queue');
                       }}
-                      className="py-2 bg-clinic-50 hover:bg-clinic-100 text-clinic-800 border border-clinic-200 font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="py-2.5 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       <span>Go to Live Queue</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 text-white" />
                     </button>
                     <button
                       type="button"

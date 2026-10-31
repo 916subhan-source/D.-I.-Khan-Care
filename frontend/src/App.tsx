@@ -43,6 +43,7 @@ import {
   FileText,
   Globe,
   ArrowRight,
+  ArrowLeft,
   Plus,
   ChevronRight,
   ChevronLeft,
@@ -10366,37 +10367,38 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {deskTab === 'smart_resched' && (
             <div className="space-y-6 animate-fade-in">
               {/* Header */}
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    Find a better time.
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Reschedule within {currentDoctor?.doctor_name}'s real available slots. Releases the old slot and reassigns the new slot with updated digital queue slip.
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      Find a better time.
+                    </h2>
+                    <RealtimeLive />
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                    Reschedule within {currentDoctor?.doctor_name}&apos;s real available slots. Releases the old slot and reassigns the new slot with updated digital queue slip.
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <RealtimeLive />
-                  <button
-                    type="button"
-                    onClick={() => { setReschedError(''); setDeskTab('queue'); }}
-                    className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl shadow-sm transition-colors"
-                  >
-                    Back to live desk
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => { setReschedError(''); setDeskTab('queue'); }}
+                  className="self-start sm:self-auto px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl shadow-2xs transition-colors whitespace-nowrap cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Live Desk</span>
+                </button>
               </div>
 
               {/* Linked doctor selector bar */}
               <div className="flex items-center justify-between">
                 <div>
                   <label className="text-xs text-slate-400 block mb-1">Linked doctor clinic</label>
-                  <div className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 shadow-sm flex items-center gap-2">
-                    <span className="font-bold text-clinic-800">{currentDoctor?.doctor_name || 'Doctor Clinic'}</span>
+                  <div className="px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-xs flex flex-wrap items-center gap-2">
+                    <span className="font-bold text-clinic-700 dark:text-clinic-400">{currentDoctor?.doctor_name || 'Doctor Clinic'}</span>
                     <span className="text-slate-400">&middot;</span>
-                    <span className="text-slate-600">{currentDoctor?.clinic_address || 'D.I. Khan'}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{currentDoctor?.clinic_address || 'D.I. Khan'}</span>
                     <span className="text-slate-400">&middot;</span>
-                    <span className="text-slate-500">{currentDoctor?.specialty || 'General'}</span>
+                    <span className="text-slate-500 dark:text-slate-400">{currentDoctor?.specialty || 'General'}</span>
                   </div>
                 </div>
 

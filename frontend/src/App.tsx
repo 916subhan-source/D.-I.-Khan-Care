@@ -3021,7 +3021,7 @@ function DoctorProfileModal({
               </div>
 
               <div className="bg-slate-800/90 border border-slate-700/80 p-4 rounded-xl flex flex-col gap-2 min-w-[200px]">
-                {doctor.loyalty_card_image_url && (
+                {Boolean(doctor.loyalty_card_enabled) && doctor.loyalty_card_image_url && (
                   <div className="mb-2 p-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-400/10 border border-amber-400/40 flex items-center gap-2">
                     <img src={doctor.loyalty_card_image_url} alt="Loyalty Card" className="w-10 h-7 object-cover rounded-md border border-amber-400/60" />
                     <div>
@@ -3961,7 +3961,9 @@ function DoctorProfileAndBookingView({
         return;
       }
 
-      if (applyLoyaltyCard) {
+      const isLoyaltyActiveForDoc = Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard;
+
+      if (isLoyaltyActiveForDoc) {
         if (!loyaltyDob.trim()) {
           setErrorMessage('Date of Birth is required for VIP Loyalty Card verification.');
           setIsSubmitting(false);
@@ -3982,19 +3984,19 @@ function DoctorProfileAndBookingView({
           full_name: patientName.trim() || 'Ahmed Khan',
           phone: patientPhone.trim() || '+92 300 123 4567',
           email: patientEmail.trim().toLowerCase(),
-          whatsapp_number: (applyLoyaltyCard && loyaltyWhatsapp.trim()) ? loyaltyWhatsapp.trim() : (patientPhone.trim() || '+92 300 123 4567'),
+          whatsapp_number: (isLoyaltyActiveForDoc && loyaltyWhatsapp.trim()) ? loyaltyWhatsapp.trim() : (patientPhone.trim() || '+92 300 123 4567'),
           notes: patientReason,
-          has_loyalty_discount: applyLoyaltyCard,
-          loyalty_applicant_name: patientName.trim() || 'Ahmed Khan',
-          loyalty_guardian_name: loyaltyGuardianName.trim() || undefined,
-          loyalty_dob: loyaltyDob.trim() || undefined,
-          loyalty_gender: loyaltyGender || patientGender,
-          loyalty_cnic: loyaltyCnic.trim() || undefined,
-          loyalty_mobile: (loyaltyMobile.trim() || patientPhone.trim()),
-          loyalty_whatsapp: loyaltyWhatsapp.trim() || undefined,
-          loyalty_email: loyaltyEmail.trim() || (patientEmail.trim().toLowerCase() || undefined),
-          loyalty_address: loyaltyAddress.trim() || undefined,
-          loyalty_city: loyaltyCity.trim() || 'Dera Ismail Khan'
+          has_loyalty_discount: isLoyaltyActiveForDoc,
+          loyalty_applicant_name: isLoyaltyActiveForDoc ? (patientName.trim() || 'Ahmed Khan') : undefined,
+          loyalty_guardian_name: isLoyaltyActiveForDoc ? (loyaltyGuardianName.trim() || undefined) : undefined,
+          loyalty_dob: isLoyaltyActiveForDoc ? (loyaltyDob.trim() || undefined) : undefined,
+          loyalty_gender: isLoyaltyActiveForDoc ? (loyaltyGender || patientGender) : undefined,
+          loyalty_cnic: isLoyaltyActiveForDoc ? (loyaltyCnic.trim() || undefined) : undefined,
+          loyalty_mobile: isLoyaltyActiveForDoc ? (loyaltyMobile.trim() || patientPhone.trim()) : undefined,
+          loyalty_whatsapp: isLoyaltyActiveForDoc ? (loyaltyWhatsapp.trim() || undefined) : undefined,
+          loyalty_email: isLoyaltyActiveForDoc ? (loyaltyEmail.trim() || (patientEmail.trim().toLowerCase() || undefined)) : undefined,
+          loyalty_address: isLoyaltyActiveForDoc ? (loyaltyAddress.trim() || undefined) : undefined,
+          loyalty_city: isLoyaltyActiveForDoc ? (loyaltyCity.trim() || 'Dera Ismail Khan') : undefined
         })
       });
 
@@ -4052,23 +4054,24 @@ function DoctorProfileAndBookingView({
           patient_name: patientName.trim(),
           patient_phone: patientPhone.trim(),
           patient_email: patientEmail.trim(),
-          has_loyalty_discount: applyLoyaltyCard,
-          loyalty_applicant_name: patientName.trim() || 'Ahmed Khan',
-          loyalty_guardian_name: loyaltyGuardianName.trim() || undefined,
-          loyalty_dob: loyaltyDob.trim() || undefined,
-          loyalty_gender: loyaltyGender || patientGender,
-          loyalty_cnic: loyaltyCnic.trim() || undefined,
-          loyalty_mobile: (loyaltyMobile.trim() || patientPhone.trim()),
-          loyalty_whatsapp: loyaltyWhatsapp.trim() || undefined,
-          loyalty_email: loyaltyEmail.trim() || (patientEmail.trim().toLowerCase() || undefined),
-          loyalty_address: loyaltyAddress.trim() || undefined,
-          loyalty_city: loyaltyCity.trim() || 'Dera Ismail Khan'
+          has_loyalty_discount: Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard,
+          loyalty_applicant_name: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (patientName.trim() || 'Ahmed Khan') : undefined,
+          loyalty_guardian_name: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyGuardianName.trim() || undefined) : undefined,
+          loyalty_dob: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyDob.trim() || undefined) : undefined,
+          loyalty_gender: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyGender || patientGender) : undefined,
+          loyalty_cnic: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyCnic.trim() || undefined) : undefined,
+          loyalty_mobile: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyMobile.trim() || patientPhone.trim()) : undefined,
+          loyalty_whatsapp: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyWhatsapp.trim() || undefined) : undefined,
+          loyalty_email: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyEmail.trim() || (patientEmail.trim().toLowerCase() || undefined)) : undefined,
+          loyalty_address: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyAddress.trim() || undefined) : undefined,
+          loyalty_city: (Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard) ? (loyaltyCity.trim() || 'Dera Ismail Khan') : undefined
         })
       });
 
       // Set confirmed slip details with real slip from backend
       const slipNum = verifyRes.slip_number || `DIK-${doctor.specialty.slice(0, 4).toUpperCase()}-20261012-004-18`;
-      const finalCalculatedFee = applyLoyaltyCard
+      const isLoyaltyValid = Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard;
+      const finalCalculatedFee = isLoyaltyValid
         ? Math.round(Number(doctor.fee_clinic || 1000) * 0.8)
         : Number(doctor.fee_clinic || 1000);
 
@@ -4080,8 +4083,8 @@ function DoctorProfileAndBookingView({
         time: selectedTimeSlot,
         fee: finalCalculatedFee,
         originalFee: doctor.fee_clinic || 1000,
-        hasLoyaltyDiscount: applyLoyaltyCard,
-        discountAmount: applyLoyaltyCard ? Math.round(Number(doctor.fee_clinic || 1000) * 0.2) : 0,
+        hasLoyaltyDiscount: isLoyaltyValid,
+        discountAmount: isLoyaltyValid ? Math.round(Number(doctor.fee_clinic || 1000) * 0.2) : 0,
         patientName: patientName || 'Ahmed Khan',
         patientPhone: patientPhone || '+92 300 123 4567',
         patientEmail: patientEmail.trim(),
@@ -4354,7 +4357,8 @@ function DoctorProfileAndBookingView({
               </div>
             </div>
 
-            {/* VIP Loyalty Card Showcase on Doctor Profile Page */}
+            {/* VIP Loyalty Card Showcase on Doctor Profile Page (Only visible when doctor has enabled it) */}
+            {Boolean(doctor.loyalty_card_enabled) && (
             <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-3xl p-5 shadow-sm space-y-3.5 relative overflow-hidden animate-fade-in">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
@@ -4422,6 +4426,7 @@ function DoctorProfileAndBookingView({
                 </p>
               </div>
             </div>
+            )}
 
             {/* Helpline Card */}
             <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-teal-50/60 border border-teal-100/90 shadow-2xs">
@@ -4769,7 +4774,8 @@ function DoctorProfileAndBookingView({
                   <span className="text-xs text-slate-400 font-medium">* Required fields</span>
                 </div>
 
-                {/* Option to Choose Standard Appointment vs VIP Loyalty Card */}
+                {/* Option to Choose Standard Appointment vs VIP Loyalty Card (Only if doctor enabled) */}
+                {Boolean(doctor.loyalty_card_enabled) && (
                 <div className="space-y-2 pt-1">
                   <label className="block text-xs font-bold text-slate-700">Choose Consultation Plan</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -4819,6 +4825,7 @@ function DoctorProfileAndBookingView({
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* Booking for Toggle */}
                 <div className="flex items-center gap-3">
@@ -4926,7 +4933,7 @@ function DoctorProfileAndBookingView({
                 </div>
 
                 {/* 10-Field Form for VIP Loyalty Card Applicants */}
-                {applyLoyaltyCard && (
+                {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
                   <div className="bg-amber-50/50 border border-amber-200/80 rounded-2xl p-4 sm:p-5 space-y-4 animate-fade-in">
                     <div className="flex items-center gap-2 pb-2 border-b border-amber-200/60">
                       <span className="text-base">📋</span>
@@ -5131,7 +5138,7 @@ function DoctorProfileAndBookingView({
 
                 {/* Fee and Payment Notice */}
                 <div className="pt-2 space-y-2">
-                  {applyLoyaltyCard ? (
+                  {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard ? (
                     <div className="bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-200 rounded-xl p-3.5 space-y-1.5">
                       <div className="flex items-center justify-between text-xs text-slate-500">
                         <span>Standard Consultation Fee:</span>
@@ -14119,17 +14126,18 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             })
                           });
                           setDoctorProfile((prev: any) => ({ ...prev, loyalty_card_enabled: newStatus }));
+                          alert(newStatus ? 'VIP Loyalty Card is now ACTIVE and visible on your profile.' : 'VIP Loyalty Card is now INACTIVE and hidden from your profile.');
                         } catch (err: any) {
                           alert(err.message || 'Failed to update loyalty settings');
                         }
                       }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-extrabold transition-all cursor-pointer shadow-xs ${
+                      className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-xs flex items-center gap-1.5 ${
                         doctorProfile?.loyalty_card_enabled
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-200 text-slate-700'
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                       }`}
                     >
-                      {doctorProfile?.loyalty_card_enabled ? '✓ Program Active (20% OFF)' : 'Program Inactive'}
+                      {doctorProfile?.loyalty_card_enabled ? '✓ Program Active (20% OFF)' : '✕ Program Inactive (Hidden)'}
                     </button>
                   </div>
                 </div>

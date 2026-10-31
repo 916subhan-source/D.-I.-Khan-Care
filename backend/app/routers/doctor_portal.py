@@ -121,7 +121,7 @@ async def upload_doctor_profile_picture(
 
     # 6. Invalidate Redis directory cache so the home page updates immediately
     try:
-        await redis_manager.clear_cache_pattern("doctors:")
+        await redis_manager.clear_cache_pattern("doctors:*")
     except Exception:
         pass
 
@@ -150,7 +150,7 @@ async def delete_doctor_profile_picture(
     await db.refresh(doctor)
 
     try:
-        await redis_manager.clear_cache_pattern("doctors:")
+        await redis_manager.clear_cache_pattern("doctors:*")
     except Exception:
         pass
 
@@ -204,7 +204,7 @@ async def upload_doctor_loyalty_card(
             doctor.loyalty_discount_percent = Decimal("20.00")
 
         await db.commit()
-        await redis_manager.clear_cache_pattern("doctors:")
+        await redis_manager.clear_cache_pattern("doctors:*")
 
         return {
             "status": "SUCCESS",
@@ -242,7 +242,7 @@ async def update_doctor_loyalty_settings(
         doctor.loyalty_discount_percent = Decimal(str(payload.loyalty_discount_percent))
 
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
 
     return {
         "status": "SUCCESS",
@@ -516,7 +516,7 @@ async def block_slot(
 
     slot.status = "blocked"
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {"status": "SUCCESS", "message": f"Slot {slot_id} blocked.", "slot_id": slot_id}
 
@@ -543,7 +543,7 @@ async def unblock_slot(
 
     slot.status = "available"
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {"status": "SUCCESS", "message": f"Slot {slot_id} is now available again.", "slot_id": slot_id}
 
@@ -588,7 +588,7 @@ async def blackout_date(
         blocked_count += 1
 
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {
         "status": "SUCCESS",
@@ -814,7 +814,7 @@ async def generate_slots(
         current_day += timedelta(days=1)
 
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     off_days_summary = f" (Skipped off days: {', '.join(d.capitalize() for d in selected_off_days)})" if selected_off_days else ""
     msg = f"Generated {slots_created} new consultation slots ({dur_mins} mins each for {shift} shift){off_days_summary} with conflict protection!" if slots_created > 0 else f"Slots processed{off_days_summary}. No duplicate slots created."
@@ -912,7 +912,7 @@ async def clear_unbooked_slots(
             count += 1
     
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     msg = f"Successfully cleared {count} unbooked slots"
     if s_str and e_str:
@@ -964,7 +964,7 @@ async def delete_single_slot(
 
     await db.delete(slot)
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
     return {"status": "SUCCESS", "message": "Slot deleted successfully.", "slot_id": slot_id}
 
@@ -1484,7 +1484,7 @@ async def update_doctor_profile(
         doc.qualification = payload.qualification.strip() if payload.qualification else "MBBS, FCPS"
 
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors:*")
     return {
         "status": "SUCCESS",
         "message": "Doctor profile updated successfully.",

@@ -117,7 +117,8 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
     if clean_email:
         await redis_manager.set(f"slot:patient_email:{slot.id}", clean_email, expire=600)
 
-    if getattr(payload, "has_loyalty_discount", False):
+    doc_loyalty_active = bool(slot.doctor and getattr(slot.doctor, "loyalty_card_enabled", False))
+    if getattr(payload, "has_loyalty_discount", False) and doc_loyalty_active:
         loyalty_dict = {
             "has_loyalty_discount": True,
             "loyalty_applicant_name": payload.loyalty_applicant_name or payload.full_name.strip(),
@@ -270,7 +271,8 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
 
     from decimal import Decimal
     base_fee = slot.doctor.fee_clinic if (slot and slot.doctor) else Decimal("1000.00")
-    has_loyalty = bool(loyalty_data and loyalty_data.get("has_loyalty_discount"))
+    doc_loyalty_active = bool(slot.doctor and getattr(slot.doctor, "loyalty_card_enabled", False))
+    has_loyalty = bool(loyalty_data and loyalty_data.get("has_loyalty_discount") and doc_loyalty_active)
     discount_pct = Decimal(str(slot.doctor.loyalty_discount_percent or 20.00)) if (slot and slot.doctor) else Decimal("20.00")
     discount_amount = Decimal("0.00")
     final_fee = Decimal(str(base_fee))

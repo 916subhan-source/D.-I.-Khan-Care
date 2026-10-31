@@ -9863,12 +9863,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 );
                               }}
                               className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
-                                ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
-                                : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
+                                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 shadow-2xs ring-1 ring-rose-200 dark:ring-rose-900/50'
+                                : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50'
                                 }`}
                             >
                               <span className="block text-xs font-black">{day.label}</span>
-                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${isOff ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-950'
+                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${isOff ? 'bg-rose-200 dark:bg-rose-900/80 text-rose-900 dark:text-rose-200' : 'bg-emerald-200 dark:bg-emerald-900/80 text-emerald-950 dark:text-emerald-200'
                                 }`}>
                                 {isOff ? 'OFF' : 'OPEN'}
                               </span>
@@ -9902,7 +9902,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         type="button"
                         onClick={handleClearUnbooked}
                         disabled={asstClearingSlots || asstSlotsLoading}
-                        className="px-3 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                        className="px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
                       >
                         {asstClearingSlots ? 'Clearing Slots...' : 'Clear Unbooked Slots'}
                       </button>
@@ -9921,50 +9921,50 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                 {/* Right 4 cols: Authority notice & Slot summary chips */}
                 <div className="lg:col-span-4 space-y-6">
-                  {/* Doctor Authority Notice */}
-                  <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-5 space-y-3">
+                  {/* Doctor Authority Notice — Clean High-Contrast Neutral Card */}
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3 shadow-xs">
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-amber-700 flex-shrink-0" />
-                      <h4 className="font-bold text-amber-900 text-sm">Assistant Authority Granted</h4>
+                      <ShieldCheck className="w-5 h-5 text-clinic-600 dark:text-clinic-400 flex-shrink-0" />
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">Assistant Authority Granted</h4>
                     </div>
-                    <p className="text-xs text-amber-800 leading-relaxed">
-                      As an authorized assistant for <strong>{currentDoctor?.doctor_name}</strong>, you have full authority to adjust shift timings, build slots, and block/unblock individual appointment times.
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      As an authorized assistant for <strong className="text-slate-900 dark:text-white">{currentDoctor?.doctor_name}</strong>, you have full authority to adjust shift timings, build slots, and block/unblock individual appointment times.
                     </p>
-                    <div className="p-3 bg-white/80 border border-amber-200 rounded-xl text-[11px] text-amber-900">
-                      <strong>Note:</strong> Full-day Blackouts / Emergency Leaves are exclusively managed by the Doctor directly in the Doctor Portal.
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 rounded-xl text-[11px] text-slate-600 dark:text-slate-300">
+                      <strong className="text-slate-900 dark:text-white">Note:</strong> Full-day Blackouts / Emergency Leaves are exclusively managed by the Doctor directly in the Doctor Portal.
                     </div>
                   </div>
 
-                  {/* Slot Counts Card */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                  {/* Slot Counts Card — Unified Neutral Tiles */}
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-slate-900 text-sm">Slots Overview</h4>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">Slots Overview</h4>
                       <span className="text-[11px] text-slate-400 font-medium">
                         {asstShowPastSlots ? 'Showing all dates' : 'Upcoming dates only'}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-center">
-                      <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                        <span className="text-xl font-bold text-slate-900 block" style={{ fontFamily: 'Outfit, sans-serif' }}>{asstVisibleSlots.length}</span>
-                        <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Slots</span>
+                      <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+                        <span className="text-xl font-bold text-slate-900 dark:text-white block" style={{ fontFamily: 'Outfit, sans-serif' }}>{asstVisibleSlots.length}</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Total Slots</span>
                       </div>
-                      <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
-                        <span className="text-xl font-bold text-emerald-800 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+                        <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
                           {asstVisibleSlots.filter(s => s.status === 'available').length}
                         </span>
-                        <span className="text-[10px] text-emerald-600 uppercase font-semibold">Available</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Available</span>
                       </div>
-                      <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-100">
-                        <span className="text-xl font-bold text-blue-800 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+                        <span className="text-xl font-bold text-sky-600 dark:text-sky-400 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
                           {asstVisibleSlots.filter(s => s.status === 'booked').length}
                         </span>
-                        <span className="text-[10px] text-blue-600 uppercase font-semibold">Booked</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Booked</span>
                       </div>
-                      <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-100">
-                        <span className="text-xl font-bold text-rose-800 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+                        <span className="text-xl font-bold text-rose-600 dark:text-rose-400 block" style={{ fontFamily: 'Outfit, sans-serif' }}>
                           {asstVisibleSlots.filter(s => s.status === 'blocked').length}
                         </span>
-                        <span className="text-[10px] text-rose-600 uppercase font-semibold">Blocked</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Blocked</span>
                       </div>
                     </div>
                   </div>
@@ -14290,12 +14290,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 );
                               }}
                               className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
-                                ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs ring-1 ring-rose-200'
-                                : 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100/70'
+                                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 shadow-2xs ring-1 ring-rose-200 dark:ring-rose-900/50'
+                                : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/50'
                                 }`}
                             >
                               <span className="block text-xs font-black">{day.label}</span>
-                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${isOff ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-950'
+                              <span className={`inline-block text-[9px] font-extrabold uppercase px-1 rounded mt-0.5 ${isOff ? 'bg-rose-200 dark:bg-rose-900/80 text-rose-900 dark:text-rose-200' : 'bg-emerald-200 dark:bg-emerald-900/80 text-emerald-950 dark:text-emerald-200'
                                 }`}>
                                 {isOff ? 'OFF' : 'OPEN'}
                               </span>
@@ -14399,40 +14399,40 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     </button>
                   </div>
 
-                  {/* Summary of slot counts */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-3">
+                  {/* Summary of slot counts — Unified Neutral Tiles */}
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-slate-900 text-sm">Slots Overview</h3>
-                      <span className="text-xs text-slate-500 font-medium">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-sm">Slots Overview</h3>
+                      <span className="text-xs text-slate-400 font-medium">
                         {slotDateFilter === 'all'
                           ? (doctorShowPastSlots ? `All Dates (${slots.length} total slots)` : `Upcoming Dates (${doctorVisibleSlots.length} total slots)`)
                           : `${slotDatesInfo.find(i => i.date === slotDateFilter)?.label || slotDateFilter} (${filteredSlots.length} matching slots)`}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-                        <span className="text-lg font-bold text-emerald-800 block">
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 rounded-xl">
+                        <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400 block">
                           {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'available').length}
                         </span>
-                        <span className="text-[10px] text-emerald-600 font-semibold uppercase">Available</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Available</span>
                       </div>
-                      <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                        <span className="text-lg font-bold text-amber-800 block">
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 rounded-xl">
+                        <span className="text-lg font-bold text-amber-600 dark:text-amber-400 block">
                           {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'hold').length}
                         </span>
-                        <span className="text-[10px] text-amber-600 font-semibold uppercase">Hold / In Review</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Hold / In Review</span>
                       </div>
-                      <div className="p-3 bg-clinic-50 border border-clinic-200 rounded-xl">
-                        <span className="text-lg font-bold text-clinic-800 block">
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 rounded-xl">
+                        <span className="text-lg font-bold text-sky-600 dark:text-sky-400 block">
                           {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'booked').length}
                         </span>
-                        <span className="text-[10px] text-clinic-600 font-semibold uppercase">Booked</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Booked</span>
                       </div>
-                      <div className="p-3 bg-slate-100 border border-slate-200 rounded-xl">
-                        <span className="text-lg font-bold text-slate-700 block">
+                      <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 rounded-xl">
+                        <span className="text-lg font-bold text-rose-600 dark:text-rose-400 block">
                           {(slotDateFilter === 'all' ? (doctorShowPastSlots ? slots : doctorVisibleSlots) : filteredSlots).filter(s => s.status === 'blocked').length}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-semibold uppercase">Blocked</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">Blocked</span>
                       </div>
                     </div>
                   </div>

@@ -471,17 +471,17 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
   return (
     <>
       {/* ── Floating Action Trigger Button ── */}
-      <div className="fixed bottom-20 md:bottom-5 right-4 sm:right-5 z-40 flex flex-col items-end">
-        {/* Animated Tooltip Bubble when closed */}
+      <div className="fixed bottom-20 sm:bottom-6 right-3 sm:right-6 z-40 flex flex-col items-end">
+        {/* Animated Tooltip Bubble when closed (Only on sm+ to prevent blocking mobile form fields) */}
         {!isOpen && hasUnreadAlert && (
-          <div className="mb-2.5 bg-slate-900/95 text-white text-xs px-3.5 py-1.5 rounded-2xl shadow-xl border border-slate-700/80 backdrop-blur-md flex items-center gap-2 animate-bounce">
+          <div className="hidden sm:flex mb-2.5 bg-slate-900/95 text-white text-xs px-3.5 py-1.5 rounded-2xl shadow-xl border border-slate-700/80 backdrop-blur-md items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span className="font-medium text-[11px] sm:text-xs">
               Doctor ki zaroorat hai? <strong className="text-amber-300">Yahan poochein!</strong>
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); setHasUnreadAlert(false); }}
-              className="text-slate-400 hover:text-white ml-1 text-xs"
+              className="text-slate-400 hover:text-white ml-1 text-xs cursor-pointer"
               title="Close notification"
             >
               &times;
@@ -491,7 +491,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`relative p-3.5 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center ${
+          className={`relative p-3 sm:p-4 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center ${
             isOpen
               ? 'bg-slate-800 text-white hover:bg-slate-900 rotate-90'
               : 'bg-gradient-to-r from-clinic-600 via-clinic-700 to-clinic-800 text-white hover:scale-105 hover:shadow-clinic-700/50'

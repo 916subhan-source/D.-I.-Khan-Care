@@ -1963,7 +1963,7 @@ export default function App() {
             </button>
             <button
               onClick={() => handleSwitchRole('track')}
-              className="px-2.5 py-1.5 text-xs font-semibold text-clinic-800 bg-clinic-50 hover:bg-clinic-100 rounded-lg transition-all"
+              className="px-2.5 py-1.5 text-xs font-bold text-clinic-800 dark:text-clinic-300 bg-clinic-50 dark:bg-clinic-950/60 hover:bg-clinic-100 dark:hover:bg-clinic-900 border border-clinic-200 dark:border-clinic-700/80 rounded-lg transition-all shadow-2xs"
             >
               Track
             </button>
@@ -6313,14 +6313,14 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             </span>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-semibold">
-            <span className="inline-flex items-center gap-1.5 text-emerald-800">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse flex-shrink-0" />
+            <span className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse flex-shrink-0" />
               LIVE HOSPITAL SYNC
             </span>
-            <span className="text-slate-300">|</span>
+            <span className="text-slate-300 dark:text-slate-600">|</span>
             <button
               onClick={() => setShowTrack(t => !t)}
-              className="text-clinic-800 hover:text-clinic-900 hover:underline font-semibold"
+              className="text-clinic-800 dark:text-clinic-300 hover:text-clinic-900 dark:hover:text-clinic-200 hover:underline font-semibold cursor-pointer"
             >
               Counter Guidelines
             </button>
@@ -6335,7 +6335,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
           <img
             src="/images/private-clinic-consultation.jpg"
             alt="Doctor consultation in a private clinic in Dera Ismail Khan"
-            className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100"
+            className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-15"
             style={{
               WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.7) 35%, black 60%)',
               maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.7) 35%, black 60%)'
@@ -6350,7 +6350,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-clinic-200/80 text-[10px] sm:text-[11px] font-bold text-clinic-800 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-clinic-200/80 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-clinic-800 dark:text-clinic-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             <span>Local Care. A Clearer Next Step.</span>
           </div>
@@ -6364,7 +6364,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
               Book a trusted doctor
               <span className="block mt-1 sm:mt-2 text-slate-900">of D.I. Khan</span>
             </h1>
-            <p className="text-xs sm:text-base text-slate-600 mt-2.5 sm:mt-4 leading-relaxed font-normal max-w-lg">
+            <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-4 leading-relaxed font-normal max-w-lg">
               Explore clinics across Dera Ismail Khan. Choose a time, verify your request, and pay cash at reception.
             </p>
 

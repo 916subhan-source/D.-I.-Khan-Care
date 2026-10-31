@@ -55,49 +55,49 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
   if (isStatic) {
     return (
       <div className={`w-full max-w-[270px] rounded-2xl glass-pass-card p-3 select-none shadow-md ${className}`}>
-        <div className="flex items-center justify-between pb-2 border-b border-white/40">
+        <div className="flex items-center justify-between pb-2 border-b border-white/40 dark:border-white/10">
           <div className="inline-flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
             </span>
-            <span className="text-[10px] font-bold text-slate-800 tracking-wider uppercase font-mono">
+            <span className="text-[10px] font-bold text-slate-800 dark:text-emerald-300 tracking-wider uppercase font-mono">
               TOKEN #042
             </span>
           </div>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-900 border border-emerald-500/20 text-[9px] font-bold uppercase tracking-wider">
-            <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-700/60 text-[9px] font-bold uppercase tracking-wider">
+            <Sparkles className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
             Verified Pass
           </span>
         </div>
 
         <div className="py-2 flex items-center justify-between gap-2">
           <div>
-            <div className="text-[8.5px] font-bold uppercase tracking-widest text-emerald-800/80">
+            <div className="text-[8.5px] font-bold uppercase tracking-widest text-emerald-800/80 dark:text-emerald-400">
               District Health Pass
             </div>
             <h4 
-              className="text-[13.5px] font-black text-slate-900 tracking-tight leading-tight"
+              className="text-[13.5px] font-black text-slate-900 dark:text-white tracking-tight leading-tight"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
               Instant Reception Pass
             </h4>
-            <p className="text-[9.5px] font-medium text-slate-600 mt-0.5 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+            <p className="text-[9.5px] font-medium text-slate-600 dark:text-slate-300 mt-0.5 flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
               Guaranteed Queue Slot
             </p>
           </div>
-          <div className="p-1.5 rounded-xl bg-white/95 border border-white shadow-xs flex items-center justify-center shrink-0">
-            <QrCode className="w-6 h-6 text-slate-800" />
+          <div className="p-1.5 rounded-xl bg-white/95 dark:bg-slate-800 border border-white dark:border-slate-700 shadow-xs flex items-center justify-center shrink-0">
+            <QrCode className="w-6 h-6 text-slate-800 dark:text-slate-200" />
           </div>
         </div>
 
-        <div className="pt-2 border-t border-white/40 flex items-center justify-between text-[9px] font-semibold text-slate-700">
+        <div className="pt-2 border-t border-white/40 dark:border-white/10 flex items-center justify-between text-[9px] font-semibold text-slate-700 dark:text-slate-300">
           <div className="flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3 text-clinic-700 shrink-0" />
+            <ShieldCheck className="w-3 h-3 text-clinic-700 dark:text-clinic-400 shrink-0" />
             <span>Zero Waiting Queue</span>
           </div>
-          <div className="text-[8.5px] font-bold text-emerald-800 bg-white/70 px-1.5 py-0.5 rounded border border-white/60">
+          <div className="text-[8.5px] font-bold text-emerald-800 dark:text-emerald-300 bg-white/70 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-white/60 dark:border-slate-700">
             Live Sync
           </div>
         </div>
@@ -168,16 +168,16 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
             style={{ transform: 'translateZ(30px)' }}
           >
             <div>
-              <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-800/80 mb-0.5">
+              <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-800/80 dark:text-emerald-400 mb-0.5">
                 District Health Pass
               </div>
               <h4
-                className="text-[14px] lg:text-[15px] font-black text-slate-900 tracking-tight leading-snug"
+                className="text-[14px] lg:text-[15px] font-black text-slate-900 dark:text-white tracking-tight leading-snug"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
               >
                 Instant Reception Pass
               </h4>
-              <p className="text-[9.5px] font-medium text-slate-600 mt-0.5 flex items-center gap-1">
+              <p className="text-[9.5px] font-medium text-slate-600 dark:text-slate-300 mt-0.5 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                 Guaranteed Queue Slot
               </p>
@@ -185,7 +185,7 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
 
             {/* Micro Holographic QR Code Badge (translateZ 38px) */}
             <div
-              className="relative p-1.5 rounded-xl bg-white/95 border border-white shadow-sm flex items-center justify-center shrink-0 text-slate-800 transition-transform"
+              className="relative p-1.5 rounded-xl bg-white/95 dark:bg-slate-800 border border-white dark:border-slate-700 shadow-sm flex items-center justify-center shrink-0 text-slate-800 dark:text-slate-200 transition-transform"
               style={{ transform: 'translateZ(38px)' }}
             >
               <QrCode className="w-6 h-6 text-slate-800" />
@@ -197,14 +197,14 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
 
           {/* ── Layer 3: Bottom Trust Bar (translateZ 20px) ── */}
           <div
-            className="pt-2 border-t border-white/40 flex items-center justify-between text-[9px] font-semibold text-slate-700"
+            className="pt-2 border-t border-white/40 flex items-center justify-between text-[9px] font-semibold text-slate-700 dark:text-slate-300"
             style={{ transform: 'translateZ(20px)' }}
           >
             <div className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-clinic-700 shrink-0" />
               <span>Zero Waiting Queue</span>
             </div>
-            <div className="flex items-center gap-1 text-[8.5px] font-bold text-emerald-800 bg-white/60 px-1.5 py-0.5 rounded border border-white/60">
+            <div className="flex items-center gap-1 text-[8.5px] font-bold text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-white/60 dark:border-slate-700">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
               Live Hospital Sync
             </div>

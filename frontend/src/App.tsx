@@ -14188,9 +14188,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               setDoctorProfile((prev: any) => ({
                                 ...prev,
                                 loyalty_card_image_url: res.loyalty_card_image_url,
-                                loyalty_card_enabled: true
+                                loyalty_card_enabled: true,
+                                loyalty_card_title: res.loyalty_card_title || prev?.loyalty_card_title,
+                                loyalty_discount_percent: res.loyalty_discount_percent ?? prev?.loyalty_discount_percent
                               }));
-                              alert('VIP Loyalty Card photo uploaded successfully!');
+                              alert(res.message || `VIP Loyalty Card photo uploaded! Autodetected consultation discount: ${res.loyalty_discount_percent}% OFF`);
                             } catch (err: any) {
                               alert(err.message || 'Failed to upload loyalty card');
                             }
@@ -14198,11 +14200,63 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         />
                       </label>
                       <span className="text-[11px] text-amber-900">
-                        Supports JPG, PNG, WEBP (Max 5MB)
+                        Supports JPG, PNG, WEBP &bull; AI autodetects discount
                       </span>
                     </div>
+
+                    {/* Direct Loyalty Discount & Title Controls */}
+                    <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-amber-200/60">
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1">Card Title / Clinic Branding</label>
+                        <input
+                          type="text"
+                          value={doctorProfile?.loyalty_card_title || 'RK Loyalty Card'}
+                          onChange={(e) => setDoctorProfile((prev: any) => ({ ...prev, loyalty_card_title: e.target.value }))}
+                          className="w-full text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-950 mb-1">
+                          Consultation Discount (%)
+                          <span className="ml-1 text-[10px] text-emerald-700 font-semibold">(Autodetected from photo)</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            max="99"
+                            step="0.5"
+                            value={doctorProfile?.loyalty_discount_percent ?? 20}
+                            onChange={(e) => setDoctorProfile((prev: any) => ({ ...prev, loyalty_discount_percent: parseFloat(e.target.value) || 0 }))}
+                            className="w-24 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await apiFetch('/doctor/loyalty-card/settings', {
+                                  method: 'PUT',
+                                  body: JSON.stringify({
+                                    loyalty_card_enabled: Boolean(doctorProfile?.loyalty_card_enabled),
+                                    loyalty_card_title: doctorProfile?.loyalty_card_title || 'RK Loyalty Card',
+                                    loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 20.0
+                                  })
+                                });
+                                alert(`Loyalty settings saved! Consultation discount updated to ${doctorProfile?.loyalty_discount_percent}% OFF.`);
+                              } catch (err: any) {
+                                alert(err.message || 'Failed to save loyalty settings');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition cursor-pointer shadow-xs"
+                          >
+                            Save Settings
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     <p className="text-[11px] text-amber-900/80 leading-relaxed">
-                      Your loyalty card image is displayed prominently on your doctor profile page and booking screen. Patients can apply for this card during booking to receive a 10% consultation fee discount.
+                      AI analyzes your uploaded loyalty card and extracts the exact consultation fee discount automatically. You can also customize or adjust the discount percentage above at any time.
                     </p>
                   </div>
                 </div>

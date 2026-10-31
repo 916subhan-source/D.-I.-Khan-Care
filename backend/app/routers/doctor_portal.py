@@ -29,6 +29,7 @@ from app.schemas import (
     SlotCreate, SlotResponse
 )
 from app.services.audit_service import audit_service
+from app.services.vision_service import analyze_loyalty_card_image
 from app.core.timezone import PKT, to_pkt, format_pkt_date, format_pkt_time, format_pkt_ymd
 
 router = APIRouter(prefix="/doctor", tags=["Doctor Portal"])
@@ -196,19 +197,24 @@ async def upload_doctor_loyalty_card(
         if not url:
             raise HTTPException(status_code=500, detail="Failed to upload loyalty card image.")
 
+        # Run AI Vision Analysis to autodetect consultation discount and title
+        analysis = analyze_loyalty_card_image(file_bytes)
+        detected_discount = analysis.get("consultation_discount_percent")
+        detected_title = analysis.get("card_title")
+
         doctor.loyalty_card_image_url = url
         doctor.loyalty_card_enabled = True
-        if not doctor.loyalty_card_title:
-            doctor.loyalty_card_title = "RK Loyalty Card"
-        if not doctor.loyalty_discount_percent:
-            doctor.loyalty_discount_percent = Decimal("10.00")
+        if detected_title:
+            doctor.loyalty_card_title = detected_title
+        if detected_discount is not None:
+            doctor.loyalty_discount_percent = Decimal(str(detected_discount))
 
         await db.commit()
         await redis_manager.clear_cache_pattern("doctors:*")
 
         return {
             "status": "SUCCESS",
-            "message": "VIP Loyalty Card uploaded successfully.",
+            "message": f"VIP Loyalty Card uploaded! Autodetected {doctor.loyalty_discount_percent}% consultation fee discount.",
             "loyalty_card_image_url": doctor.loyalty_card_image_url,
             "loyalty_card_enabled": doctor.loyalty_card_enabled,
             "loyalty_card_title": doctor.loyalty_card_title,

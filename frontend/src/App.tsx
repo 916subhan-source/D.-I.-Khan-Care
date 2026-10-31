@@ -10066,7 +10066,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   </div>
                 ) : (
                   <div className="overflow-x-auto touch-scroll max-h-[30rem]">
-                    <table className="w-full text-xs">
+                    <table className="w-full min-w-[560px] text-xs">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left">
                           <th className="py-3 px-5 font-semibold">Date &amp; Start Time</th>
@@ -10118,9 +10118,9 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           })();
 
                           return (
-                            <tr key={slot.id} className="hover:bg-slate-50/80 transition-colors">
-                              <td className="py-3 px-5">
-                                <div className="font-semibold text-slate-800 flex items-center gap-1.5 text-xs">
+                            <tr key={slot.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
+                              <td className="py-3 px-5 whitespace-nowrap">
+                                <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-xs">
                                   <Calendar className="w-3.5 h-3.5 text-clinic-700 flex-shrink-0" />
                                   <span>{slotDateWithDay}</span>
                                 </div>
@@ -10130,7 +10130,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 </div>
                               </td>
 
-                              <td className="py-3 px-5 text-slate-600 font-mono">
+                              <td className="py-3 px-5 text-slate-600 dark:text-slate-300 font-mono whitespace-nowrap">
                                 {eTime}
                               </td>
 
@@ -14531,7 +14531,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   </div>
                 ) : (
                   <div className="overflow-x-auto max-h-[30rem]">
-                    <table className="w-full text-xs">
+                    <table className="w-full min-w-[560px] text-xs">
                       <thead className="sticky top-0 bg-slate-50 z-10">
                         <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left">
                           <th className="py-3 px-5 font-semibold">Date &amp; Start Time</th>

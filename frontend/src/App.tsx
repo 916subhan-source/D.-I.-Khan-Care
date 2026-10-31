@@ -8754,35 +8754,35 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 (() => {
                   const isStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
                   return isStarted ? (
-                    <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 flex items-center justify-between text-xs text-emerald-900 transition-all">
+                    <div className="bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200 dark:border-emerald-800 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-900 dark:text-emerald-200 transition-all">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                         <span className="font-bold">
                           🟢 Live Calling Active &middot; {callingShiftInfo.shiftName} (Today: {pktTodayYmd})
                         </span>
-                        <span className="text-emerald-700 hidden sm:inline">
+                        <span className="text-emerald-700 dark:text-emerald-300 hidden sm:inline">
                           &middot; Calling started at {callingShiftInfo.callingStartTimeStr} (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftStartTimeStr} shift).
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-semibold shadow-xs">
+                      <span className="text-[11px] font-mono bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-semibold shadow-xs whitespace-nowrap self-start sm:self-auto">
                         Active Patient at Top
                       </span>
                     </div>
                   ) : (
-                    <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex items-center justify-between text-xs text-amber-900 transition-all">
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 dark:text-amber-200 transition-all">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping flex-shrink-0" />
                         <span className="font-bold">
                           ⏳ Calling Starts at {callingShiftInfo.callingStartTimeStr}
                         </span>
-                        <span className="text-amber-800">
+                        <span className="text-amber-800 dark:text-amber-300">
                           (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftName} at {callingShiftInfo.shiftStartTimeStr})
                         </span>
-                        <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-semibold border border-amber-200">
+                        <span className="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded text-[11px] font-semibold border border-amber-200 dark:border-amber-700">
                           Opens in {callingShiftInfo.minutesUntilCalling} min{callingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
                           type="button"
                           onClick={() => setManualCallingStarted(true)}
@@ -8791,7 +8791,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         >
                           ▶ Start Calling Early
                         </button>
-                        <span className="text-[11px] font-mono bg-white px-2 py-0.5 rounded border border-amber-200 font-semibold text-amber-800">
+                        <span className="text-[11px] font-mono bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-700 font-semibold text-amber-800 dark:text-amber-300 whitespace-nowrap">
                           Queue Arranged
                         </span>
                       </div>
@@ -8800,9 +8800,9 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 })()
               )}
 
-              {/* Queue table */}
-              <div className="overflow-x-auto touch-scroll">
-                <table className="w-full text-left text-xs">
+              {/* Queue table — Desktop View */}
+              <div className="hidden md:block overflow-x-auto touch-scroll">
+                <table className="w-full min-w-[760px] text-left text-xs">
                   <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
                       <th className="py-3 px-4">Patient</th>
@@ -9227,6 +9227,328 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile Card Feed View (< md) */}
+              <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                {loading ? (
+                  <div className="py-16 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-clinic-600 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Loading incoming patient queue...</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Fetching verified requests & live queue data</p>
+                  </div>
+                ) : filteredQueue.length === 0 ? (
+                  <div className="py-12 px-4 text-center text-slate-400">
+                    <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No appointments in this view</p>
+                    <p className="text-xs text-slate-400 mt-1">New bookings will show up here automatically via real-time sync.</p>
+                  </div>
+                ) : (
+                  filteredQueue.map((item, idx) => {
+                    const isCallingStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
+                    const isConfirmed = item.status === 'CONFIRMED' || item.status === 'confirmed';
+                    const isPaid = item.payment_status === 'PAID';
+                    const isToday = getApptDateStrGlobal(item) === pktTodayYmd;
+
+                    const itemMins = getApptMinutesFromMidnight(item);
+                    const isItemMorning = itemMins < 840;
+                    const isShiftMatch = (callingShiftInfo.activeShiftType === 'MORNING' && isItemMorning) ||
+                      (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
+                    const isItemCallingEligible = isShiftMatch && isCallingStarted;
+
+                    const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isItemCallingEligible;
+                    const isNextInLineWaiting = callingOrderActive && idx === 0 && isConfirmed && isToday && !isItemCallingEligible;
+                    const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
+                    const canComplete = isConfirmed && isPaid && (isDateTimeReached || isCurrentActive);
+                    const qNum = parseQueueNumberFromSlip(item.slip_number, item.token_number);
+
+                    return (
+                      <div
+                        key={`m-asst-${item.id}`}
+                        className={`p-4 transition-colors ${
+                          isCurrentActive
+                            ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500'
+                            : isNextInLineWaiting
+                            ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'
+                            : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850'
+                        }`}
+                      >
+                        {/* Calling Status Banner if active */}
+                        {isCurrentActive && (
+                          <div className="mb-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-emerald-600 text-white shadow-xs animate-pulse">
+                            📢 NOW CALLING &middot; Token #{qNum || '1'}
+                            {item.payment_status === 'PARTIAL' && (
+                              <span className="bg-amber-300 text-amber-950 px-1.5 py-0.5 rounded text-[10px] font-black">
+                                Due: {formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {isNextInLineWaiting && (
+                          <div className="mb-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-extrabold bg-amber-600 text-white shadow-xs">
+                            ⏱️ 1st To Call &middot; Token #{qNum || '1'}
+                          </div>
+                        )}
+                        {callingOrderActive && idx > 0 && isConfirmed && isToday && (
+                          <div className="mb-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            Line #{idx + 1} &middot; Token #{qNum || (idx + 1)}
+                          </div>
+                        )}
+                        {item.notes && item.notes.includes('EMERGENCY') && (
+                          <div className="mb-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-600 text-white animate-pulse">
+                            🚨 Emergency Walk-In
+                          </div>
+                        )}
+
+                        {/* Top row: Patient Initials, Name, Phone + Status Pill & Token */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <InitialsAvatar name={item.patient_name || 'Patient'} size="sm" />
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                                {item.patient_name || 'Unnamed Patient'}
+                              </h4>
+                              <a
+                                href={`tel:${item.patient_phone || ''}`}
+                                className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5 whitespace-nowrap hover:text-clinic-600 dark:hover:text-clinic-400"
+                              >
+                                <Phone className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                                <span className="font-mono">{item.patient_phone || 'No phone'}</span>
+                              </a>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                            <StatusPill status={item.status} />
+                            {qNum ? (
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-sans ${
+                                item.has_loyalty_discount
+                                  ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                                  : 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
+                              }`}>
+                                Token #{qNum}
+                              </span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400">
+                                No Token
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Details grid: Time & Payment info */}
+                        <div className="mt-3 grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs">
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-400 block tracking-wider">Scheduled Slot</span>
+                            <div className="flex items-center gap-1 text-slate-800 dark:text-slate-200 font-medium mt-0.5 whitespace-nowrap">
+                              <Calendar className="w-3 h-3 text-clinic-600 dark:text-clinic-400 flex-shrink-0" />
+                              <span>{item.slot_date || formatSlotDateTime(item.slot_start || (item as any).start_time, item.slip_number, item.created_at).date}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[11px] mt-0.5 whitespace-nowrap">
+                              <Clock className="w-3 h-3 flex-shrink-0" />
+                              <span>{item.slot_time || formatSlotDateTime(item.slot_start || (item as any).start_time, item.slip_number, item.created_at).time}</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-400 block tracking-wider">Cash Desk / Slip</span>
+                            <div className="mt-0.5">
+                              {item.payment_status === 'PAID' ? (
+                                <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 inline-flex items-center gap-1 whitespace-nowrap">
+                                  ✓ Paid ({formatCurrency(item.amount_paid || item.fee_amount || 1000)})
+                                </span>
+                              ) : item.payment_status === 'PARTIAL' ? (
+                                <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 inline-flex items-center gap-1 whitespace-nowrap">
+                                  Due: {formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))}
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full font-bold text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 inline-flex items-center gap-1 whitespace-nowrap">
+                                  Cash: {formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)}
+                                </span>
+                              )}
+                            </div>
+                            {item.slip_number && (
+                              <span className="text-[11px] font-mono font-bold text-clinic-700 dark:text-clinic-400 block mt-1">
+                                #{item.slip_number}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* VIP Loyalty Application Banner (clean & interactive) */}
+                        {item.has_loyalty_discount && (
+                          <div className="mt-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/70 dark:from-amber-950/40 dark:to-amber-900/30 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-base flex-shrink-0">💳</span>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-amber-950 dark:text-amber-200 truncate">
+                                  VIP Loyalty Card Applicant
+                                </p>
+                                <p className="text-[10px] text-amber-800 dark:text-amber-300">
+                                  10 verification fields completed
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedLoyaltyAppt(item)}
+                              className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white rounded-lg text-xs font-bold transition shadow-xs flex-shrink-0 cursor-pointer"
+                            >
+                              📋 View Form
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Action Buttons Row */}
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                          {/* Secondary: Reschedule / Cancel */}
+                          <div className="flex items-center gap-1.5">
+                            {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReschedItem(item);
+                                    setSelectedNewSlotId('');
+                                    setSelectedNewSlot(null);
+                                    setReschedError('');
+                                    const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
+                                    setReschedSelectedDate(initialDate);
+                                    setDeskTab('smart_resched');
+                                  }}
+                                  className="h-8 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 text-slate-700 dark:text-slate-300 hover:text-sky-600 rounded-lg text-xs font-medium inline-flex items-center gap-1 transition-colors"
+                                >
+                                  <Clock className="w-3.5 h-3.5 text-sky-500" />
+                                  <span>Reschedule</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleCancelAppointment(item.id)}
+                                  className="h-8 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg text-xs font-medium inline-flex items-center gap-1 transition-colors disabled:opacity-50"
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
+                                    <Loader2 className="w-3 h-3 animate-spin text-rose-500" />
+                                  ) : (
+                                    <X className="w-3.5 h-3.5 text-slate-400" />
+                                  )}
+                                  <span>Cancel</span>
+                                </button>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Primary Actions */}
+                          <div className="flex items-center gap-2 flex-grow sm:flex-grow-0 justify-end">
+                            {(item.status === 'PENDING_ASSISTANT_APPROVAL' || item.status === 'pending') && (
+                              <>
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleReject(item.id)}
+                                  className="h-8 px-3 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                  <span>Reject</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleApprove(item.id)}
+                                  className="h-8 px-3.5 bg-gradient-to-r from-clinic-700 to-clinic-800 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50"
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'approve' ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                  ) : (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                                  )}
+                                  <span>Issue Slip</span>
+                                </button>
+                              </>
+                            )}
+
+                            {isConfirmed && (
+                              <>
+                                {item.payment_status === 'PENDING_CASH' && (
+                                  <button
+                                    type="button"
+                                    disabled={Boolean(appointmentActionLoading)}
+                                    onClick={() => handleMarkPaid(item.id)}
+                                    className="h-8 px-3 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
+                                  >
+                                    <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Mark Paid</span>
+                                  </button>
+                                )}
+
+                                {item.payment_status === 'PARTIAL' && (
+                                  <button
+                                    type="button"
+                                    disabled={Boolean(appointmentActionLoading)}
+                                    onClick={() => handleMarkPaid(item.id)}
+                                    className="h-8 px-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1 disabled:opacity-50"
+                                  >
+                                    <CreditCard className="w-3.5 h-3.5 text-white" />
+                                    <span>Collect Due</span>
+                                  </button>
+                                )}
+
+                                {canComplete ? (
+                                  <button
+                                    type="button"
+                                    disabled={Boolean(appointmentActionLoading)}
+                                    onClick={() => handleCompleteAppointment(item.id)}
+                                    className={`h-8 px-3.5 text-white rounded-lg text-xs font-bold shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50 ${
+                                      isCurrentActive
+                                        ? 'bg-gradient-to-r from-emerald-600 to-teal-700 ring-2 ring-emerald-300'
+                                        : 'bg-gradient-to-r from-clinic-700 to-clinic-800'
+                                    }`}
+                                  >
+                                    {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                    ) : (
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                                    )}
+                                    <span>Complete</span>
+                                  </button>
+                                ) : !isPaid && (isDateTimeReached || isCurrentActive) ? (
+                                  <span className="h-8 px-2.5 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 inline-flex items-center gap-1">
+                                    <CreditCard className="w-3 h-3 text-amber-600" />
+                                    <span>Pay Due to Complete</span>
+                                  </span>
+                                ) : (
+                                  <span className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1">
+                                    <Clock className="w-3 h-3 text-slate-400" />
+                                    <span>Upcoming Slot</span>
+                                  </span>
+                                )}
+                              </>
+                            )}
+
+                            {item.status === 'COMPLETED' && (
+                              <span className="h-8 px-3 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 inline-flex items-center gap-1.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Completed</span>
+                              </span>
+                            )}
+                            {item.status === 'CANCELLED' && (
+                              <span className="h-8 px-3 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1.5">
+                                <XCircle className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Cancelled</span>
+                              </span>
+                            )}
+                            {item.status === 'REJECTED' && (
+                              <span className="h-8 px-3 rounded-lg text-xs font-medium bg-rose-50 dark:bg-rose-950/40 text-rose-500 border border-rose-200 dark:border-rose-800 inline-flex items-center gap-1.5">
+                                <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                                <span>Rejected</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}

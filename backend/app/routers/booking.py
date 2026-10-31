@@ -273,7 +273,7 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
     base_fee = slot.doctor.fee_clinic if (slot and slot.doctor) else Decimal("1000.00")
     doc_loyalty_active = bool(slot.doctor and getattr(slot.doctor, "loyalty_card_enabled", False))
     has_loyalty = bool(loyalty_data and loyalty_data.get("has_loyalty_discount") and doc_loyalty_active)
-    discount_pct = Decimal(str(slot.doctor.loyalty_discount_percent or 20.00)) if (slot and slot.doctor) else Decimal("20.00")
+    discount_pct = Decimal(str(slot.doctor.loyalty_discount_percent or 10.00)) if (slot and slot.doctor) else Decimal("10.00")
     discount_amount = Decimal("0.00")
     final_fee = Decimal(str(base_fee))
 

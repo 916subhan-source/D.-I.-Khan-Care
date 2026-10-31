@@ -187,7 +187,7 @@ async def list_doctors(
             "loyalty_card_enabled": doc.loyalty_card_enabled if doc.loyalty_card_enabled is not None else False,
             "loyalty_card_title": doc.loyalty_card_title or "RK Loyalty Card",
             "loyalty_card_image_url": doc.loyalty_card_image_url,
-            "loyalty_discount_percent": float(doc.loyalty_discount_percent if doc.loyalty_discount_percent is not None else 20.00)
+            "loyalty_discount_percent": float(doc.loyalty_discount_percent if doc.loyalty_discount_percent is not None else 10.00)
         })
 
     # Cache in Redis for 60 seconds (rapid real-time freshness)

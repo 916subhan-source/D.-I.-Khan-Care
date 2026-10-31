@@ -70,7 +70,7 @@ async def get_doctor_profile(
         "loyalty_card_enabled": doctor.loyalty_card_enabled if doctor.loyalty_card_enabled is not None else False,
         "loyalty_card_title": doctor.loyalty_card_title or "RK Loyalty Card",
         "loyalty_card_image_url": doctor.loyalty_card_image_url,
-        "loyalty_discount_percent": float(doctor.loyalty_discount_percent if doctor.loyalty_discount_percent is not None else 20.00)
+        "loyalty_discount_percent": float(doctor.loyalty_discount_percent if doctor.loyalty_discount_percent is not None else 10.00)
     }
 
 @router.post("/profile/picture")
@@ -201,7 +201,7 @@ async def upload_doctor_loyalty_card(
         if not doctor.loyalty_card_title:
             doctor.loyalty_card_title = "RK Loyalty Card"
         if not doctor.loyalty_discount_percent:
-            doctor.loyalty_discount_percent = Decimal("20.00")
+            doctor.loyalty_discount_percent = Decimal("10.00")
 
         await db.commit()
         await redis_manager.clear_cache_pattern("doctors:*")
@@ -221,7 +221,7 @@ async def upload_doctor_loyalty_card(
 class LoyaltySettingsRequest(BaseModel):
     loyalty_card_enabled: bool
     loyalty_card_title: Optional[str] = "RK Loyalty Card"
-    loyalty_discount_percent: Optional[float] = 20.0
+    loyalty_discount_percent: Optional[float] = 10.0
 
 @router.put("/loyalty-card/settings")
 async def update_doctor_loyalty_settings(

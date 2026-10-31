@@ -66,7 +66,7 @@ class Doctor(Base):
     loyalty_card_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
     loyalty_card_title: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, default="VIP Loyalty Card")
     loyalty_card_image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    loyalty_discount_percent: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("20.00"))
+    loyalty_discount_percent: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("10.00"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 

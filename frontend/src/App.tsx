@@ -178,7 +178,7 @@ function parseQueueNumberFromSlip(slipNumber?: string, tokenNumber?: any): strin
 }
 
 // Helper to format currency values cleanly without awkward trailing decimals (e.g. 1200.0 -> Rs. 1,200)
-export function formatCurrency(val: any, prefix = 'Rs. '): string {
+export function formatCurrency(val: any, prefix = 'Rs.\u00A0'): string {
   if (val === null || val === undefined || val === '') return `${prefix}1,000`;
   const n = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
   if (isNaN(n)) return `${prefix}1,000`;
@@ -1087,7 +1087,7 @@ function StatusPill({ status }: { status: string }) {
 // ── Global Floating Theme Toggle Component ──────────────────────────────────────────
 function FloatingThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: () => void }) {
   return (
-    <div className="fixed bottom-20 md:bottom-5 left-4 sm:left-5 z-40">
+    <div className="hidden md:block fixed bottom-5 left-5 z-40">
       <button
         type="button"
         onClick={onToggle}
@@ -5270,12 +5270,12 @@ function DoctorProfileAndBookingView({
                         <span>VIP Golden Loyalty Discount ({Number(doctor.loyalty_discount_percent ?? 20)}% OFF):</span>
                         <span className="font-mono">-{formatCurrency(Math.round(doctor.fee_clinic * (Number(doctor.loyalty_discount_percent ?? 20) / 100)))}</span>
                       </div>
-                      <div className="flex items-center justify-between pt-1 border-t border-amber-200/80">
-                        <div>
+                      <div className="flex items-center justify-between pt-2 border-t border-amber-200/80 gap-3">
+                        <div className="min-w-0">
                           <p className="font-extrabold text-xs text-amber-950">Discounted Fee Payable at Clinic</p>
                           <p className="text-[10px] text-amber-800">Collect physical VIP Card from reception upon arrival</p>
                         </div>
-                        <span className="text-2xl font-black text-amber-950 font-mono">
+                        <span className="text-xl sm:text-2xl font-black text-amber-950 font-mono whitespace-nowrap flex-shrink-0 text-right">
                           {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
                         </span>
                       </div>
@@ -13335,8 +13335,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         );
                       })()
                     )}
-                    <div className="overflow-x-auto touch-scroll">
-                      <table className="w-full text-xs">
+                    <div className="hidden md:block overflow-x-auto touch-scroll">
+                      <table className="w-full text-xs min-w-[760px]">
                         <thead>
                           <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left bg-slate-50/50">
                             <th className="py-3 px-5 font-semibold">Scheduled Date & Time</th>
@@ -13396,8 +13396,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   <p className="font-bold text-slate-900">{appt.patient_name || 'Walk-in Patient'}</p>
 
                                 </td>
-                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px]">{appt.patient_phone || 'N/A'}</td>
-                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] font-semibold">
+                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] whitespace-nowrap">{appt.patient_phone || 'N/A'}</td>
+                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] font-semibold whitespace-nowrap">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     {(() => {
                                       const isInactive = appt.status === 'CANCELLED' || appt.status === 'REJECTED';
@@ -13509,6 +13509,105 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           })}
                         </tbody>
                       </table>
+                    </div>
+
+                    {/* Mobile Appointments Card List (< md screens) */}
+                    <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                      {displayAppts.map((appt, idx) => {
+                        const slotInfo = formatSlotDateTime(appt.slot_start || appt.start_time, appt.slip_number, appt.created_at);
+                        const isDone = appt.status?.toUpperCase() === 'COMPLETED';
+                        const isCancelled = appt.status?.toUpperCase() === 'CANCELLED';
+                        const qNum = parseQueueNumberFromSlip(appt.slip_number, appt.token_number);
+                        const isCurrentActive = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && docCallingShiftInfo.isCallingStarted;
+
+                        return (
+                          <div key={`m-${appt.id}`} className={`p-4 space-y-3 transition-colors ${isCurrentActive ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600' : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/60'}`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                {isCurrentActive && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider mb-1.5 shadow-xs animate-pulse">
+                                    🩺 Now Treating
+                                  </span>
+                                )}
+                                <h4 className="font-bold text-sm text-slate-900 dark:text-white leading-tight">
+                                  {appt.patient_name || 'Walk-in Patient'}
+                                </h4>
+                                <div className="flex items-center gap-2 mt-1 text-slate-500 dark:text-slate-400 font-mono text-xs">
+                                  <Phone className="w-3 h-3 text-slate-400" />
+                                  <span>{appt.patient_phone || 'No phone'}</span>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                  isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' :
+                                  isCancelled ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300' :
+                                  appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
+                                  'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
+                                }`}>
+                                  {appt.status}
+                                </span>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                                  appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:border-emerald-700' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:border-amber-700'
+                                }`}>
+                                  {appt.payment_status || 'PENDING'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 flex-wrap gap-2">
+                              <div className="flex items-center gap-3">
+                                <span className="flex items-center gap-1 font-semibold text-slate-800 dark:text-slate-200">
+                                  <Calendar className="w-3.5 h-3.5 text-clinic-700" />
+                                  {appt.slot_date && appt.slot_date !== 'Date Pending' ? appt.slot_date : slotInfo.date}
+                                </span>
+                                <span className="flex items-center gap-1 font-medium text-slate-500 dark:text-slate-400">
+                                  <Clock className="w-3 h-3 text-slate-400" />
+                                  {appt.slot_time && appt.slot_time !== 'Time Scheduled' ? appt.slot_time : slotInfo.time}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                {qNum && (
+                                  <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-bold">
+                                    Queue #{qNum}
+                                  </span>
+                                )}
+                                <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                                  {appt.slip_number || `SLIP-${appt.id.slice(0, 6).toUpperCase()}`}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons Row */}
+                            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                              {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && appt.payment_status !== 'PAID' && (
+                                <button
+                                  type="button"
+                                  disabled={doctorMarkPaidLoading === appt.id}
+                                  onClick={() => handleDoctorMarkPaid(appt.id)}
+                                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                                >
+                                  <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Mark as Paid</span>
+                                </button>
+                              )}
+                              {!isDone && !isCancelled && canDoctorComplete(appt, isCurrentActive) && (
+                                <button
+                                  type="button"
+                                  onClick={() => { setSelectedAppt(appt); }}
+                                  className={`px-3.5 py-1.5 text-white font-semibold rounded-xl text-xs transition-colors shadow-sm cursor-pointer ${isCurrentActive ? 'bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-300' : 'bg-clinic-700 hover:bg-clinic-800'}`}
+                                >
+                                  ✓ Complete
+                                </button>
+                              )}
+                              {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && !canDoctorComplete(appt, isCurrentActive) && (
+                                <span className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                                  Upcoming Slot
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -14414,17 +14513,17 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* VIP Loyalty Card Management Section */}
-              <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/15 to-amber-600/10 border-2 border-amber-300 rounded-2xl p-5 space-y-4">
+              <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/15 to-amber-600/10 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 border-2 border-amber-300 dark:border-amber-500/50 rounded-2xl p-5 space-y-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
                     <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
                       💳
                     </span>
                     <div>
-                      <h4 className="font-extrabold text-amber-950 text-sm">
+                      <h4 className="font-extrabold text-amber-950 dark:text-amber-200 text-sm">
                         {doctorProfile?.loyalty_card_title || 'RK Loyalty Card'} &bull; VIP Loyalty Program
                       </h4>
-                      <p className="text-[11px] text-amber-800 font-medium">
+                      <p className="text-[11px] text-amber-800 dark:text-amber-300/90 font-medium">
                         Consultation fee discount program for returning &amp; registered patients.
                       </p>
                     </div>
@@ -14516,26 +14615,26 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           }}
                         />
                       </label>
-                      <span className="text-[11px] text-amber-900">
+                      <span className="text-[11px] text-amber-900 dark:text-amber-300">
                         Supports JPG, PNG, WEBP &bull; AI autodetects discount
                       </span>
                     </div>
 
                     {/* Direct Loyalty Discount & Title Controls */}
-                    <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-amber-200/60">
+                    <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-amber-200/60 dark:border-amber-700/50">
                       <div>
-                        <label className="block text-[11px] font-bold text-amber-950 mb-1">Card Title / Clinic Branding</label>
+                        <label className="block text-[11px] font-bold text-amber-950 dark:text-amber-200 mb-1">Card Title / Clinic Branding</label>
                         <input
                           type="text"
                           value={doctorProfile?.loyalty_card_title || 'RK Loyalty Card'}
                           onChange={(e) => setDoctorProfile((prev: any) => ({ ...prev, loyalty_card_title: e.target.value }))}
-                          className="w-full text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                          className="w-full text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-600/50 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-bold text-amber-950 mb-1">
+                        <label className="block text-[11px] font-bold text-amber-950 dark:text-amber-200 mb-1">
                           Consultation Discount (%)
-                          <span className="ml-1 text-[10px] text-emerald-700 font-semibold">(Autodetected from photo)</span>
+                          <span className="ml-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">(Autodetected from photo)</span>
                         </label>
                         <div className="flex items-center gap-2">
                           <input
@@ -14545,7 +14644,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             step="0.5"
                             value={doctorProfile?.loyalty_discount_percent ?? 20}
                             onChange={(e) => setDoctorProfile((prev: any) => ({ ...prev, loyalty_discount_percent: parseFloat(e.target.value) || 0 }))}
-                            className="w-24 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                            className="w-24 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-600/50 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
                           />
                           <button
                             type="button"
@@ -14572,7 +14671,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-amber-900/80 leading-relaxed">
+                    <p className="text-[11px] text-amber-900/80 dark:text-amber-200/80 leading-relaxed">
                       AI analyzes your uploaded loyalty card and extracts the exact consultation fee discount automatically. You can also customize or adjust the discount percentage above at any time.
                     </p>
                   </div>
@@ -14580,7 +14679,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* Doctor Profile Picture Card (Cloudinary Powered) */}
-              <div className="bg-gradient-to-r from-slate-50 to-clinic-50/40 rounded-2xl border border-slate-200/90 p-5 flex flex-col sm:flex-row items-center gap-6">
+              <div className="bg-gradient-to-r from-slate-50 to-clinic-50/40 dark:from-slate-800 dark:to-slate-850 rounded-2xl border border-slate-200/90 dark:border-slate-700 p-5 flex flex-col sm:flex-row items-center gap-6">
                 <div className="relative group w-28 h-28 rounded-2xl overflow-hidden bg-slate-900 border-2 border-clinic-600/30 shadow-md flex-shrink-0">
                   <img
                     src={getDoctorProfileImage({
@@ -14606,7 +14705,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                 <div className="flex-1 text-center sm:text-left space-y-2">
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                    <h4 className="font-extrabold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <h4 className="font-extrabold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                       Profile Photo &amp; Portrait
                     </h4>
                     {doctorProfile?.profile_image ? (
@@ -14619,7 +14718,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </span>
                     )}
                   </div>
-                  <p className="text-slate-500 text-xs">
+                  <p className="text-slate-500 dark:text-slate-300 text-xs">
                     Upload your official doctor portrait. Photos are securely hosted on Cloudinary, automatically face-centered, optimized, and updated live across the patient directory.
                   </p>
 
@@ -14804,25 +14903,25 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </form>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Doctor Full Name</span>
-                    <span className="font-bold text-slate-800 text-sm">{doctorProfile?.full_name}</span>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Doctor Full Name</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm">{doctorProfile?.full_name}</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Medical Specialty</span>
-                    <span className="font-bold text-slate-800 text-sm">{doctorProfile?.specialty}</span>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Medical Specialty</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm">{doctorProfile?.specialty}</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Degrees &amp; Qualifications</span>
-                    <span className="font-bold text-clinic-800 text-sm">{doctorProfile?.qualification || 'MBBS, FCPS'}</span>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Degrees &amp; Qualifications</span>
+                    <span className="font-bold text-clinic-800 dark:text-clinic-400 text-sm">{doctorProfile?.qualification || 'MBBS, FCPS'}</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Consultation Fee</span>
-                    <span className="font-bold text-slate-800 text-sm">{formatCurrency(doctorProfile?.fee_clinic)}</span>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Consultation Fee</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm">{formatCurrency(doctorProfile?.fee_clinic)}</span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Clinical Experience</span>
-                    <span className="font-bold text-slate-800 text-sm">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Clinical Experience</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm">
                       {doctorProfile?.experience_years !== undefined && doctorProfile?.experience_years !== null ? `${doctorProfile.experience_years} Years` : '12 Years'}
                     </span>
                   </div>

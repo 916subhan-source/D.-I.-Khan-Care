@@ -3,8 +3,13 @@ import json
 import re
 import os
 from typing import Dict, Any
-from google import genai
-from PIL import Image
+
+try:
+    from google import genai
+    from PIL import Image
+    _HAS_GENAI = True
+except Exception as _err:
+    _HAS_GENAI = False
 
 def analyze_loyalty_card_image(image_bytes: bytes) -> Dict[str, Any]:
     """
@@ -19,7 +24,7 @@ def analyze_loyalty_card_image(image_bytes: bytes) -> Dict[str, Any]:
 
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
 
-    if not image_bytes or not gemini_key:
+    if not _HAS_GENAI or not image_bytes or not gemini_key:
         return default_res
 
     try:

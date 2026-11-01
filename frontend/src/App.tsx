@@ -1338,7 +1338,7 @@ function StaffLoginSplitView({
       portalTitle: 'Doctor Portal Login',
       portalSub: 'Verified PMDC Medical Practitioners',
       tag: 'PMDC Verified',
-      tagColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      tagColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
       icon: Stethoscope,
       accentColor: '#143d38'
     },
@@ -1365,7 +1365,7 @@ function StaffLoginSplitView({
       portalTitle: 'Assistant Reception Desk',
       portalSub: 'Clinic Front-Desk & Cash Queue Management',
       tag: 'Front Desk',
-      tagColor: 'bg-teal-50 text-teal-700 border-teal-200',
+      tagColor: 'bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-500/20',
       icon: Receipt,
       accentColor: '#0a3834'
     },
@@ -1473,14 +1473,14 @@ function StaffLoginSplitView({
       </div>
 
       {/* ── Right Panel (White / Clean Canvas) ──────────────── */}
-      <div className="flex-1 flex flex-col justify-between p-5 sm:p-10 lg:p-14 bg-white overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-between p-5 sm:p-10 lg:p-14 bg-white dark:bg-[#080d14] overflow-y-auto">
         {/* Top bar */}
-        <div className="flex items-center justify-between text-xs text-slate-400 mb-8 pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-8 pb-3 border-b border-slate-100 dark:border-slate-800">
           <span>D.I. Khan Doctor Appointment System</span>
           <button
             type="button"
             onClick={() => onSwitchRole?.('patient')}
-            className="text-xs font-semibold text-slate-600 hover:text-clinic-700 flex items-center gap-1 transition-colors cursor-pointer"
+            className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-clinic-700 dark:hover:text-emerald-400 flex items-center gap-1 transition-colors cursor-pointer"
           >
             <span>Back to directory</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -1490,37 +1490,37 @@ function StaffLoginSplitView({
         {/* Main form area */}
         <div className="max-w-md w-full mx-auto my-auto py-4">
           {/* Role icon badge */}
-          <div className="w-10 h-10 rounded-md bg-[#e6f7f3] border border-[#b2e7db] flex items-center justify-center text-clinic-700 mb-5 shadow-2xs">
+          <div className="w-10 h-10 rounded-xl bg-[#e6f7f3] dark:bg-emerald-950/60 border border-[#b2e7db] dark:border-emerald-800/60 flex items-center justify-center text-clinic-700 dark:text-emerald-400 mb-5 shadow-2xs">
             <IconComponent className="w-5 h-5 text-clinic-700" />
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
             Welcome back.
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 mb-5 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 mb-5 leading-relaxed">
             Sign in with your staff credentials. Patients use passwordless booking and tracking instead.
           </p>
 
           {/* Role Identity Preview Card with Avatar Image */}
-          <div className="mb-5 p-3 rounded-lg border border-slate-200/90 bg-slate-50/80 flex items-center gap-3.5 shadow-2xs">
+          <div className="mb-5 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/90 flex items-center gap-3.5 shadow-2xs">
             <div className="relative flex-shrink-0">
               <img
                 src={visual.image}
                 alt={visual.portalTitle}
-                className="w-12 h-12 rounded-lg object-cover border border-slate-300/80 shadow-xs"
+                className="w-12 h-12 rounded-lg object-cover border border-slate-300/80 dark:border-slate-700 shadow-xs"
               />
-              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-400/40" />
+              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 ring-1 ring-emerald-400/40" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="text-xs font-bold text-slate-900 truncate">
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                   {visual.portalTitle}
                 </h3>
                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${visual.tagColor}`}>
                   {visual.tag}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 truncate mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                 {visual.portalSub}
               </p>
             </div>
@@ -1532,13 +1532,13 @@ function StaffLoginSplitView({
               <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                 Select your role
               </label>
-              <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-lg border border-slate-200/80 gap-1 text-xs">
+              <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-900/90 rounded-xl border border-slate-200/80 dark:border-slate-800 gap-1 text-xs">
                 <button
                   type="button"
                   onClick={() => onSwitchRole?.('doctor')}
-                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${currentRole === 'doctor'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
-                    : 'text-slate-500 hover:text-slate-800'
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-lg font-semibold transition-all cursor-pointer ${currentRole === 'doctor'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs font-bold border border-slate-200/70 dark:border-slate-700'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                     }`}
                 >
                   <img
@@ -1551,9 +1551,9 @@ function StaffLoginSplitView({
                 <button
                   type="button"
                   onClick={() => onSwitchRole?.('assistant')}
-                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-md font-semibold transition-all cursor-pointer ${currentRole === 'assistant'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold border border-slate-200/70'
-                    : 'text-slate-500 hover:text-slate-800'
+                  className={`flex items-center justify-center gap-2 py-2 px-2.5 rounded-lg font-semibold transition-all cursor-pointer ${currentRole === 'assistant'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs font-bold border border-slate-200/70 dark:border-slate-700'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                     }`}
                 >
                   <img
@@ -1655,7 +1655,7 @@ function StaffLoginSplitView({
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 {usernameLabel}
               </label>
               <input
@@ -1664,12 +1664,12 @@ function StaffLoginSplitView({
                 onChange={e => setEmail(e.target.value)}
                 placeholder={usernamePlaceholder}
                 required
-                className="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-clinic-400 focus:border-clinic-400 shadow-2xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Password
               </label>
               <div className="relative">
@@ -1679,7 +1679,7 @@ function StaffLoginSplitView({
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-clinic-400 focus:border-clinic-400 shadow-2xs pr-10"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 shadow-2xs pr-10"
                 />
                 <button
                   type="button"
@@ -1693,7 +1693,7 @@ function StaffLoginSplitView({
 
             {/* Helper row: Remember me & Credential help */}
             <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-600 select-none">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400 select-none">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -1738,15 +1738,15 @@ function StaffLoginSplitView({
           </form>
 
           {/* Scoped Notice Box */}
-          <div className="mt-5 p-3.5 rounded-md bg-[#f0faf8] border border-[#d2efe9] text-xs space-y-0.5">
-            <p className="font-bold text-[#143d38]">{noticeTitle}</p>
-            <p className="text-slate-600 text-[11px] leading-relaxed">{noticeSub}</p>
+          <div className="mt-5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 text-xs space-y-1">
+            <p className="font-semibold text-slate-900 dark:text-emerald-300">{noticeTitle}</p>
+            <p className="text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed">{noticeSub}</p>
           </div>
 
           {/* Looking for your appointment? */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-xs font-bold text-slate-800">Looking for your appointment?</p>
-            <p className="text-[11px] text-slate-500 mt-0.5 mb-3 leading-relaxed">
+          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+            <p className="text-xs font-bold text-slate-800 dark:text-white">Looking for your appointment?</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 mb-3 leading-relaxed">
               No patient password needed. Book with a 6-digit code or look up an approved visit using your phone and digital slip number.
             </p>
             <div className="flex gap-2.5">

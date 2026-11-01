@@ -16,35 +16,48 @@ type PagesFunction<T = Record<string, unknown>> = (context: {
   data: Record<string, unknown>;
 }) => Response | Promise<Response>;
 
-const SYSTEM_INSTRUCTION = `You are D.I. Khan Care AI Health Assistant — a bilingual (Roman Urdu + English) medical triage chatbot for a doctor appointment portal serving D.I. Khan, KPK, Pakistan.
+const SYSTEM_INSTRUCTION = `You are D.I. Khan Care AI Health Assistant — a smart, empathetic, bilingual (Roman Urdu + English) medical triage chatbot for the D.I. Khan Care Doctor Appointment portal in D.I. Khan, KPK, Pakistan.
 
 YOUR CORE RULES:
-1. You ONLY help with: finding the right medical specialist, explaining symptoms, guiding appointment booking, and tracking appointments on this portal.
-2. If the user asks ANYTHING unrelated to healthcare or this portal (politics, weather, coding, jokes, general knowledge, etc.), respond ONLY with:
-   "Main D.I. Khan Care ka AI Assistant hoon. Main sirf doctors dhoondne, appointment book karne, appointment trace karne aur is application se mutalliq kaam me aapki madad ke liye mojood hoon. Baraaye meherbani apni bimari ya appointment ke baare me poochein."
-3. When user describes symptoms, recommend the CORRECT medical specialty (e.g. Orthopedic for joint/back pain, Cardiologist for heart/chest issues, Pediatrician for children, Gynecologist for women's health, ENT for ear/nose/throat, etc.)
-4. Always respond in Roman Urdu mixed with English medical terms. Keep responses SHORT (3-5 lines max).
-5. NEVER diagnose — only recommend the right specialist type.
-6. For emergencies, advise going to DHQ Hospital Emergency immediately.
-7. Format your specialist recommendation clearly like: "Aapko **[Specialty Name]** se milna chahiye."
-8. Do NOT generate doctor names, phone numbers, or clinic addresses — the portal will show real verified doctors.
+1. You ONLY assist with: medical symptoms triage, recommending the right specialist doctor, appointment booking guidance, and tracking appointments on this portal.
+2. If the user asks anything unrelated to health, symptoms, or this clinic portal, reply politely:
+   "👋 **D.I. Khan Care AI Assistant**\nMain sirf doctors dhoondne, appointment book karne aur health consultation me madad karta hoon.\n\nBaraaye meherbani apni bimari ya appointment ke baare me poochein."
+3. MESSAGE FORMATTING RULES (VERY IMPORTANT):
+   Always structure your response cleanly with clear section headings, bullet points, and appropriate emojis:
+
+   Structure to follow:
+   🩺 **Tajweez Karda Specialist:**
+   Aapko **[Specialty Name]** ([Urdu Explanation in brackets]) se rujoo karna chahiye.
+
+   📋 **Hidayat & Agle Iqdamaat:**
+   • [Short explanation in Roman Urdu regarding symptoms]
+   • [Actionable step, e.g. booking an appointment]
+
+   🏥 **Dastyabi (D.I. Khan):**
+   [State whether available on this portal to book below, or direct to DHQ Hospital Emergency/OPD]
+
+   🚨 **Emergency Disclaimer (if chest pain/breathing issue/emergency):**
+   Shadeed takleef ki soorat me foran DHQ Hospital Emergency D.I. Khan tashreef le jayein.
+
+4. Keep responses concise, clean, scannable, and respectful. Use Roman Urdu mixed with clear English medical terms.
+5. NEVER formulate a definitive diagnosis — only recommend the correct medical specialist field.
+6. Do NOT fabricate individual doctor names or phone numbers — the portal automatically displays verified clinic doctors below your message.
 
 AVAILABLE SPECIALTIES ON THIS PORTAL:
-- Cardiologist (Dil, BP, Chest)
+- Cardiologist (Dil, Blood Pressure, Chest)
 - Pediatrician (Bachon ke Doctor)
 - Gynecologist (Khwateen ke Doctor)
 
-UNAVAILABLE SPECIALTIES (recommend DHQ Hospital for these):
-- ENT (Kaan Naak Gala)
+UNAVAILABLE SPECIALTIES (Advise visiting DHQ Hospital D.I. Khan):
+- ENT (Kaan, Naak, Gala)
+- Orthopedic (Haddi, Jod, Kamar)
 - Ophthalmologist (Aankh)
 - Dentist (Daant)
-- Orthopedic (Haddi, Jod, Kamar)
-- Dermatologist (Jild/Skin)
-- Neurologist (Dimagh/Asab)
-- Urologist (Gurda/Peshab)
-- Gastroenterologist (Meda/Pait)
-
-When a specialty is unavailable, say: "Aapka recommended doctor ([Specialty]) is portal par available nahi hai. [Specialty] ke ilaj ke liye DHQ Hospital D.I. Khan tashreef le jayein."`;
+- Dermatologist (Skin / Jild)
+- Neurologist (Dimagh, Asab)
+- Urologist (Gurda, Masana)
+- Gastroenterologist (Meda, Pait)
+`;
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const corsHeaders = {
@@ -134,9 +147,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             },
             contents,
             generationConfig: {
-              temperature: 0.4,
-              maxOutputTokens: 350,
-              topP: 0.9,
+              temperature: 0.3,
+              maxOutputTokens: 400,
+              topP: 0.85,
             },
             safetySettings: [
               { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
@@ -161,36 +174,36 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       }
     }
 
-    // Reliable fallback
+    // Reliable structured fallback
     if (!reply) {
       const lower = userMessage.toLowerCase();
 
       if (lower.includes('dil') || lower.includes('seene') || lower.includes('chest') || lower.includes('heart') || lower.includes('bp') || lower.includes('blood pressure')) {
-        reply = "Aapko **Cardiologist** (Dil ke doctor) se foran mashwara karna chahiye. Seene me shadeed dard ki soorat me foran DHQ Hospital Emergency tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Cardiologist (Dil ke Specialist Doctor)** se foran mashwara karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Seene ka dabao ya blood pressure ki takleef ko foran check karwayein.\n• Portal par verified Cardiologists ke appointment slots dastyab hain.\n\n🚨 **Emergency Disclaimer:**\nAgar seene me shadeed dard ya sans ruk rahi ho to foran **DHQ Hospital Emergency D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('bacha') || lower.includes('bachon') || lower.includes('child') || lower.includes('baby') || lower.includes('bukhar')) {
-        reply = "Aapko **Pediatrician** (Bachon ke doctor) se rujoo karna chahiye. Bachon ke bukhar me foran doctor ko dikhana zaroori hota hai.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Pediatrician (Bachon ke Specialist Doctor)** se rujoo karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Bachon me bukhar, ulti ya sans ki takleef ko nazar-andaz na karein.\n• Portal par mojood Pediatricians ke slots dekhne ke liye neeche button dabayein.";
       } else if (lower.includes('khwateen') || lower.includes('lady') || lower.includes('pregnancy') || lower.includes('aurat') || lower.includes('gynae')) {
-        reply = "Aapko **Gynecologist** (Khwateen ke doctor) se appointment leni chahiye. Portal par Lady Doctors ke auqaat aur appointment slots dastyab hain.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Gynecologist (Khwateen ki Specialist Doctor)** se appointment leni chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Portal par Lady Doctors ke auqaat aur appointment slots dastyab hain.\n• Neeche profile dekh kar appointment confirm karein.";
       } else if (lower.includes('kaan') || lower.includes('kan') || lower.includes('ear') || lower.includes('naak') || lower.includes('nose') || lower.includes('gala') || lower.includes('throat') || lower.includes('ent')) {
-        reply = "Aapko **ENT Specialist** (Kaan, Naak, Gala ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (ENT) is portal par available nahi hai. ENT ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **ENT Specialist (Kaan, Naak & Gala)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Filhaal is portal par ENT clinic active nahi hai.\n• Kaan, naak ya gale ke tasalli-bakhsh ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('haddi') || lower.includes('jodon') || lower.includes('jod') || lower.includes('kamar') || lower.includes('bone') || lower.includes('ortho') || lower.includes('fracture')) {
-        reply = "Aapko **Orthopedic Surgeon** (Haddi/Jodon ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Orthopedic) is portal par available nahi hai. Orthopedic ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Orthopedic Surgeon (Haddi/Jodon ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Filhaal is portal par Orthopedic clinic active nahi hai.\n• X-ray aur ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('aankh') || lower.includes('eye') || lower.includes('nazar') || lower.includes('binai')) {
-        reply = "Aapko **Eye Specialist / Ophthalmologist** (Aankhon ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Eye Specialist) is portal par available nahi hai. Aankhon ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Eye Specialist / Ophthalmologist (Aankhon ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Aankhon ke muaine ke liye **DHQ Hospital D.I. Khan Eye OPD** tashreef le jayein.";
       } else if (lower.includes('daant') || lower.includes('dant') || lower.includes('teeth') || lower.includes('tooth') || lower.includes('dental') || lower.includes('dentist')) {
-        reply = "Aapko **Dentist** (Daanton ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Dentist) is portal par available nahi hai. Daanton ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Dentist (Daanton ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Daanton ki takleef ya fillings ke liye **DHQ Hospital Dental Ward D.I. Khan** se rujoo karein.";
       } else if (lower.includes('jild') || lower.includes('skin') || lower.includes('daad') || lower.includes('kharish') || lower.includes('allergy') || lower.includes('derma')) {
-        reply = "Aapko **Dermatologist** (Jild/Skin ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Dermatologist) is portal par available nahi hai. Jild ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Dermatologist (Jild/Skin ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Jild ki allergy ya kharish ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('dimagh') || lower.includes('brain') || lower.includes('neuro') || lower.includes('sar dard') || lower.includes('mirgi') || lower.includes('seizure')) {
-        reply = "Aapko **Neurologist** (Dimagh/Asab ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Neurologist) is portal par available nahi hai. Dimagh ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Neurologist (Dimagh/Asab ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Shadeed sar dard ya asabi takleef ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('gurda') || lower.includes('kidney') || lower.includes('peshab') || lower.includes('urin') || lower.includes('urolog')) {
-        reply = "Aapko **Urologist** (Gurda/Peshab ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Urologist) is portal par available nahi hai. Gurde ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Urologist (Gurda/Peshab ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Gurde ke ilaj ya ultrasound ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('meda') || lower.includes('pait') || lower.includes('stomach') || lower.includes('gas') || lower.includes('hazma') || lower.includes('gastro') || lower.includes('ulcer')) {
-        reply = "Aapko **Gastroenterologist** (Meda/Pait ke doctor) se milna chahiye. ⚠️ Aapka recommended doctor (Gastroenterologist) is portal par available nahi hai. Mede ke ilaj ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Gastroenterologist (Meda/Pait ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Mede me shadeed jalan ya ulcer ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('sugar') || lower.includes('diabetes') || lower.includes('thyroid')) {
-        reply = "Aapko **General Physician / Medicine Specialist** se milna chahiye jo sugar aur hormones ka ilaj karein. Filhaal is portal par Cardiologist aur Pediatrician mojood hain. Sugar ke makhsoos ilaj ke liye **DHQ Hospital D.I. Khan** se bhi rujoo karein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **General Physician / Diabetologist** se milna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Sugar aur BP monitoring ke liye portal par mojood doctor se appointment book karein.\n• Makhsoos test ke liye **DHQ Hospital D.I. Khan** se bhi rujoo karein.";
       } else {
-        reply = "Main D.I. Khan Care ka AI Assistant hoon. Agar aap kisi bimari me mubtila hain to baraye meherbani apni alamat (jaise dil me dard, bukhar, bachon ki bimari, kaan me dard) wazeh karein taake munasib specialist recommend kiya ja sakay.";
+        reply = "👋 **D.I. Khan Care AI Assistant:**\nMain doctor dhoondne aur appointment book karne me aapki madad ke liye tayyar hoon.\n\n📋 **Aap yeh pooch sakte hain:**\n• *'Dil me dard aur blood pressure'* (Cardiologist)\n• *'Bache ko bukhar hai'* (Pediatrician)\n• *'Appointment kaise book karein'* ya *'Trace visit'*";
       }
       chosenModel = 'system-triage-fallback';
     }

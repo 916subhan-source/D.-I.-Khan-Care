@@ -102,6 +102,80 @@ const hasWord = (text: string, patterns: string[]): boolean => {
   });
 };
 
+// ── Rich Formatted Chat Message Component ──
+const FormattedChatText: React.FC<{ text: string }> = ({ text }) => {
+  const lines = text.split('\n');
+
+  const renderInlineFormatted = (str: string) => {
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+    const tokens = str.split(regex);
+
+    return tokens.map((token, i) => {
+      if (token.startsWith('**') && token.endsWith('**')) {
+        return (
+          <strong key={i} className="font-bold text-slate-900 dark:text-emerald-300">
+            {token.slice(2, -2)}
+          </strong>
+        );
+      }
+      if (token.startsWith('*') && token.endsWith('*')) {
+        return (
+          <em key={i} className="italic text-slate-600 dark:text-slate-300">
+            {token.slice(1, -1)}
+          </em>
+        );
+      }
+      return token;
+    });
+  };
+
+  return (
+    <div className="space-y-1.5 text-xs leading-relaxed">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="h-1" />;
+        }
+
+        // Bullet point lines
+        if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          const bulletContent = trimmed.replace(/^[•\-*]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-1 text-slate-700 dark:text-slate-200">
+              <span className="text-clinic-600 dark:text-emerald-400 font-bold select-none">•</span>
+              <span className="flex-1">{renderInlineFormatted(bulletContent)}</span>
+            </div>
+          );
+        }
+
+        // Numbered list lines (e.g. 1️⃣ or 1.)
+        if (/^(?:[1-9]️⃣|\d+\.)\s*/.test(trimmed)) {
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-1 text-slate-700 dark:text-slate-200">
+              <span>{renderInlineFormatted(trimmed)}</span>
+            </div>
+          );
+        }
+
+        // Header lines with emojis
+        if (trimmed.startsWith('🩺') || trimmed.startsWith('📋') || trimmed.startsWith('🏥') || trimmed.startsWith('🚨') || trimmed.startsWith('⚠️') || trimmed.startsWith('👋') || trimmed.startsWith('💳') || trimmed.startsWith('⏰') || trimmed.startsWith('✅')) {
+          return (
+            <div key={idx} className="font-semibold text-slate-900 dark:text-white pt-1">
+              {renderInlineFormatted(trimmed)}
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="text-slate-800 dark:text-slate-200">
+            {renderInlineFormatted(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
 export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, onProfile, onTrack }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
@@ -120,7 +194,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
   const initialBotMessage: Message = {
     id: 'welcome_1',
     sender: 'bot',
-    text: "Assalam-o-Alaikum! Main D.I. Khan Care ka AI Health Assistant hoon. 🤖✨\n\nAap apni bimari ya symptoms **Roman Urdu** ya **English** me likhein (jaise: *'kaan me dard'*, *'seene me dard'*, *'bacha beemar hai'*, *'khwateen ke amraz'*, ya *'sugar'*). Main aapko mutaliqa makhsoos specialist doctor recommend karunga.\n\n🧠 Powered by Google Gemini AI",
+    text: "👋 **Assalam-o-Alaikum!** Main D.I. Khan Care ka AI Health Assistant hoon. ✨\n\n📋 **Aap apni bimari Roman Urdu ya English me likhein:**\n• *'Dil ya seene me dard'* (Cardiologist)\n• *'Bache ko bukhar hai'* (Pediatrician)\n• *'Khwateen ke amraz'* (Gynecologist)\n• *'Sugar & Blood Pressure'* (Specialist)\n\nMain aapko behtareen verified specialist doctor recommend karunga.\n\n🧠 *Powered by Google Gemini AI*",
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 
@@ -521,7 +595,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
 
       {/* ── Slide-up / Pop-up Chat Modal ── */}
       {isOpen && (
-        <div className="fixed top-16 sm:top-20 bottom-20 sm:bottom-24 right-3 sm:right-6 w-[calc(100vw-24px)] sm:w-[420px] max-h-[620px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="fixed top-16 sm:top-20 bottom-20 sm:bottom-24 right-3 sm:right-6 w-[calc(100vw-24px)] sm:w-[420px] max-h-[620px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/90 dark:border-slate-800 flex flex-col z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-900 via-clinic-900 to-slate-900 px-4 py-3.5 text-white flex items-center justify-between shadow-md flex-shrink-0">
@@ -559,7 +633,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
           </div>
 
           {/* Quick-Action Chips Carousel */}
-          <div className="bg-slate-50 border-b border-slate-200/70 p-2.5 flex-shrink-0">
+          <div className="bg-slate-50 dark:bg-slate-900/90 border-b border-slate-200/70 dark:border-slate-800 p-2.5 flex-shrink-0">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5 px-1">
               Quick Symptoms (Roman Urdu):
             </span>
@@ -568,7 +642,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                 <button
                   key={chip.id}
                   onClick={() => handleSendMessage(chip.query)}
-                  className="whitespace-nowrap px-2.5 py-1 rounded-xl bg-white border border-slate-200 hover:border-clinic-500 hover:bg-clinic-50/60 text-slate-700 hover:text-clinic-800 text-[11px] font-semibold transition-all shadow-2xs flex items-center gap-1.5 flex-shrink-0"
+                  className="whitespace-nowrap px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-750 hover:border-clinic-500 dark:hover:border-emerald-500/70 hover:bg-clinic-50/60 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 hover:text-clinic-800 dark:hover:text-white text-[11px] font-semibold transition-all shadow-2xs flex items-center gap-1.5 flex-shrink-0"
                 >
                   <chip.icon className="w-3 h-3 text-clinic-600" />
                   <span>{chip.label}</span>
@@ -578,7 +652,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-slate-950/80">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -599,7 +673,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                         : 'bg-white text-slate-800 border border-slate-200/90 rounded-tl-xs shadow-xs'
                     }`}
                   >
-                    <p className="whitespace-pre-line">{msg.text}</p>
+                    <FormattedChatText text={msg.text} />
                     <span
                       className={`text-[9px] block text-right mt-1 font-mono ${
                         msg.sender === 'user' ? 'text-clinic-200' : 'text-slate-400'
@@ -632,7 +706,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                       {msg.recommendedDoctors.map((doc) => (
                         <div
                           key={doc.id}
-                          className="bg-white rounded-2xl border border-slate-200 p-3 shadow-xs hover:border-clinic-400 transition-all space-y-2"
+                          className="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-3 shadow-xs hover:border-clinic-400 dark:hover:border-emerald-500/50 transition-all space-y-2"
                         >
                           <div className="flex items-start gap-2.5">
                             {/* Avatar */}
@@ -656,7 +730,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1">
-                                <h4 className="font-bold text-slate-900 text-xs truncate">{doc.full_name}</h4>
+                                <h4 className="font-bold text-slate-900 dark:text-white text-xs truncate">{doc.full_name}</h4>
                                 {doc.is_spotlight && (
                                   <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
                                     ★ Featured
@@ -678,7 +752,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                           </div>
 
                           {/* Clinic Address */}
-                          <div className="text-[10px] text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg truncate">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded-lg truncate">
                             <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
                             <span className="truncate">{doc.clinic_address}</span>
                           </div>
@@ -733,7 +807,7 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
           </div>
 
           {/* Emergency Safety Notice */}
-          <div className="px-3 py-1.5 bg-amber-50/90 border-t border-amber-200/80 text-amber-900 text-[10px] flex items-center gap-1.5 flex-shrink-0">
+          <div className="px-3 py-1.5 bg-amber-50/90 dark:bg-amber-950/40 border-t border-amber-200/80 dark:border-amber-700/50 text-amber-900 dark:text-amber-200 text-[10px] flex items-center gap-1.5 flex-shrink-0">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
             <span className="truncate">
               Yeh AI mashwara hai. Shadeed emergency me foran <strong>DHQ Hospital Emergency</strong> tashreef le jayein.
@@ -746,14 +820,14 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
               e.preventDefault();
               handleSendMessage();
             }}
-            className="p-3 bg-white border-t border-slate-200 flex items-center gap-2 flex-shrink-0"
+            className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 flex-shrink-0"
           >
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Apni bimari Roman Urdu me likhein (e.g. dil me dard)..."
-              className="flex-1 px-3.5 py-2 border border-slate-300 rounded-xl text-xs bg-slate-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-clinic-600 focus:border-transparent transition-all"
+              className="flex-1 px-3.5 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs bg-slate-50/70 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-clinic-600 dark:focus:ring-emerald-500 focus:border-transparent transition-all"
             />
             <button
               type="submit"

@@ -4282,23 +4282,23 @@ function DoctorProfileAndBookingView({
                 </button>
 
                 {/* Experience & Satisfaction Grid */}
-                <div className="bg-slate-50/90 rounded-2xl border border-slate-100 p-4 grid grid-cols-2 divide-x divide-slate-200 my-5">
+                <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 p-4 grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700 my-5">
                   <div>
-                    <div className="text-base font-black text-slate-900 font-mono">
+                    <div className="text-base font-black text-slate-900 dark:text-white font-mono">
                       {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years} years` : '12 years'}
                     </div>
-                    <div className="text-[11px] text-slate-500 font-medium mt-0.5">Clinical experience</div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Clinical experience</div>
                   </div>
                   <div className="pl-4">
-                    <div className="text-base font-black text-slate-900 font-mono">98%</div>
-                    <div className="text-[11px] text-slate-500 font-medium mt-0.5">Patient satisfaction</div>
+                    <div className="text-base font-black text-slate-900 dark:text-white font-mono">98%</div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Patient satisfaction</div>
                   </div>
                 </div>
 
                 {/* About your doctor */}
                 <div className="space-y-3">
-                  <h3 className="font-bold text-sm text-slate-900">About your doctor</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed font-normal whitespace-pre-line">
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">About your doctor</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal whitespace-pre-line">
                     {doctor.bio || `${doctor.full_name} provides thoughtful, evidence-based care for adults, with a focus on comprehensive health, treated conditions and long-term wellbeing.`}
                   </p>
 
@@ -4308,7 +4308,7 @@ function DoctorProfileAndBookingView({
                       ? doctor.expertise.split(',').map((tag: string) => tag.trim()).filter(Boolean)
                       : ['Diabetes care', 'Hypertension', 'General medicine']
                     ).map((tag: string, idx: number) => (
-                      <span key={idx} className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 text-[11px] font-medium bg-slate-50">
+                      <span key={idx} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-medium bg-slate-50 dark:bg-slate-800/80">
                         {tag}
                       </span>
                     ))}
@@ -4344,15 +4344,15 @@ function DoctorProfileAndBookingView({
             </div>
 
             {/* Card 2: Your Clinic Visit */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-4">
-              <h3 className="font-bold text-sm text-slate-900">Your clinic visit</h3>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-4">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-white">Your clinic visit</h3>
 
               <div className="space-y-4 text-xs">
                 {/* Location */}
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-slate-900">{doctor.clinic_address || 'D.I. Khan Care Clinic'}</p>
+                    <p className="font-bold text-slate-900 dark:text-white">{doctor.clinic_address || 'D.I. Khan Care Clinic'}</p>
                     <p className="text-slate-500 mt-0.5">Circular Road, near District Hospital, Dera Ismail Khan</p>
                     <a
                       href={doctor.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(doctor.clinic_address + ' D.I. Khan')}`}
@@ -4369,7 +4369,7 @@ function DoctorProfileAndBookingView({
                 <div className="flex items-start gap-3">
                   <Clock className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-slate-900">{consultationDurationMinutes}-minute consultation</p>
+                    <p className="font-bold text-slate-900 dark:text-white">{consultationDurationMinutes}-minute consultation</p>
                     <p className="text-slate-500 mt-0.5">In-person visit &middot; Please arrive 10 minutes early.</p>
                   </div>
                 </div>
@@ -4378,7 +4378,7 @@ function DoctorProfileAndBookingView({
                 <div className="flex items-start gap-3">
                   <Globe className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-slate-900">We speak your language</p>
+                    <p className="font-bold text-slate-900 dark:text-white">We speak your language</p>
                     <p className="text-slate-500 mt-0.5">Urdu, English and Pashto</p>
                   </div>
                 </div>
@@ -4387,7 +4387,7 @@ function DoctorProfileAndBookingView({
                 <div className="flex items-start gap-3">
                   <FileText className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-slate-900">Bring along</p>
+                    <p className="font-bold text-slate-900 dark:text-white">Bring along</p>
                     <p className="text-slate-500 mt-0.5">Your CNIC, current medicines and any recent test reports.</p>
                   </div>
                 </div>
@@ -4466,11 +4466,11 @@ function DoctorProfileAndBookingView({
             )}
 
             {/* Helpline Card */}
-            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-teal-50/60 border border-teal-100/90 shadow-2xs">
+            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-teal-50/60 dark:bg-slate-800/60 border border-teal-100/90 dark:border-slate-700/60 shadow-2xs">
               <Headphones className="w-5 h-5 text-[#0f766e] flex-shrink-0" />
               <div>
                 <p className="text-[11px] text-slate-500 font-medium">Need help with your appointment?</p>
-                <p className="text-xs font-bold text-slate-900 mt-0.5 font-mono">0966 123 456 &middot; Mon&ndash;Sat, 9am&ndash;8pm</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 font-mono">0966 123 456 &middot; Mon&ndash;Sat, 9am&ndash;8pm</p>
               </div>
             </div>
 
@@ -4558,19 +4558,19 @@ function DoctorProfileAndBookingView({
                 </div>
 
                 {/* In-person Consultation Card */}
-                <div className="bg-[#f0f9f6] border border-[#a7d9c9] rounded-2xl p-4 flex items-center justify-between">
+                <div className="bg-[#f0f9f6] dark:bg-slate-800/80 border border-[#a7d9c9] dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-[#0f766e] flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#0f766e]" />
+                    <div className="w-5 h-5 rounded-full border-2 border-[#0f766e] dark:border-emerald-400 flex items-center justify-center">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#0f766e] dark:bg-emerald-400" />
                     </div>
-                    <Building2 className="w-4 h-4 text-[#0f766e]" />
+                    <Building2 className="w-4 h-4 text-[#0f766e] dark:text-emerald-400" />
                     <div>
-                      <p className="font-bold text-xs text-slate-900">In-person consultation</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{doctor.clinic_address || 'D.I. Khan Care Clinic'} &middot; {consultationDurationMinutes} minutes</p>
+                      <p className="font-bold text-xs text-slate-900 dark:text-white">In-person consultation</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{doctor.clinic_address || 'D.I. Khan Care Clinic'} &middot; {consultationDurationMinutes} minutes</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-extrabold text-slate-900 font-mono">
+                    <span className="text-sm font-extrabold text-slate-900 dark:text-white font-mono">
                       {formatCurrency(doctor.fee_clinic)}
                     </span>
                   </div>
@@ -4579,10 +4579,10 @@ function DoctorProfileAndBookingView({
                 {/* Month Title & Week Navigation */}
                 <div className="flex items-center justify-between pt-1">
                   <div>
-                    <span className="text-xs font-bold text-slate-900 block">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white block">
                       {selectedDayObj?.monthName || 'October 2026'}
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
                       Week {weekOffset + 1} of {totalWeeks} &middot; {visibleDayOptions[0]?.dayNum}&ndash;{visibleDayOptions[visibleDayOptions.length - 1]?.dayNum} {visibleDayOptions[0]?.monthName.split(' ')[0]}
                     </span>
                   </div>
@@ -4600,12 +4600,12 @@ function DoctorProfileAndBookingView({
                           setSelectedDayDate(firstDayOfNewWeek.fullDate);
                         }
                       }}
-                      className="p-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                      className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
                       title="Previous week"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-xs font-bold text-[#0f766e] px-2 py-1 bg-teal-50 border border-teal-200/70 rounded-lg font-mono">
+                    <span className="text-xs font-bold text-[#0f766e] dark:text-emerald-400 px-2 py-1 bg-teal-50 dark:bg-emerald-950/60 border border-teal-200/70 dark:border-emerald-800 rounded-lg font-mono">
                       {visibleDayOptions[0]?.weekday} {visibleDayOptions[0]?.dayNum} &rarr; {visibleDayOptions[visibleDayOptions.length - 1]?.weekday} {visibleDayOptions[visibleDayOptions.length - 1]?.dayNum}
                     </span>
                     <button
@@ -4619,7 +4619,7 @@ function DoctorProfileAndBookingView({
                           setSelectedDayDate(firstDayOfNewWeek.fullDate);
                         }
                       }}
-                      className="p-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                      className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
                       title="Next week"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -4667,10 +4667,10 @@ function DoctorProfileAndBookingView({
                         onClick={() => setSelectedDayDate(day.fullDate)}
                         className={`min-w-[62px] flex-shrink-0 md:min-w-0 md:flex-shrink py-2.5 sm:py-3 px-1 rounded-2xl text-center transition-all relative ${isSelected
                           ? 'bg-[#0f766e] text-white shadow-md ring-2 ring-[#0f766e]/30'
-                          : 'bg-white border border-slate-200 text-slate-700 hover:border-teal-400 hover:bg-teal-50/20'
+                          : 'bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-teal-400 dark:hover:border-emerald-500 hover:bg-teal-50/20 dark:hover:bg-slate-700/60'
                           }`}
                       >
-                        <span className={`block text-[11px] font-medium ${isSelected ? 'text-teal-100' : 'text-slate-500'}`}>
+                        <span className={`block text-[11px] font-medium ${isSelected ? 'text-teal-100' : 'text-slate-500 dark:text-slate-400'}`}>
                           {day.weekday}
                         </span>
                         <span className="block text-base font-black mt-0.5 font-mono">
@@ -4695,7 +4695,7 @@ function DoctorProfileAndBookingView({
                 {/* Shift Selection & Available Times Header */}
                 <div className="pt-2 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-800">
+                    <span className="text-xs font-bold text-slate-800 dark:text-white">
                       Available times &middot; {selectedDayObj?.label}
                     </span>
                     <span className={`text-xs font-medium ${selectedDayObj?.isOffDay ? 'text-rose-600 font-semibold' : 'text-slate-400'}`}>
@@ -4709,13 +4709,13 @@ function DoctorProfileAndBookingView({
 
                   {/* Shift Tabs - only visible on working days */}
                   {!selectedDayObj?.isOffDay && (
-                    <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100/90 rounded-xl">
+                    <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100/90 dark:bg-slate-800/90 rounded-xl border border-transparent dark:border-slate-700/60">
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('all')}
                         className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition text-center truncate cursor-pointer ${selectedShiftTab === 'all'
-                          ? 'bg-white text-slate-900 shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-800'
+                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                           }`}
                       >
                         <span className="hidden sm:inline">All Shifts</span>
@@ -4726,7 +4726,7 @@ function DoctorProfileAndBookingView({
                         onClick={() => setSelectedShiftTab('morning')}
                         className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition text-center truncate cursor-pointer ${selectedShiftTab === 'morning'
                           ? 'bg-amber-500 text-white shadow-2xs'
-                          : 'text-slate-600 hover:text-amber-800'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-amber-800 dark:hover:text-amber-300'
                           }`}
                       >
                         <Sun className="w-3 h-3 flex-shrink-0" />
@@ -4738,7 +4738,7 @@ function DoctorProfileAndBookingView({
                         onClick={() => setSelectedShiftTab('evening')}
                         className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition text-center truncate cursor-pointer ${selectedShiftTab === 'evening'
                           ? 'bg-indigo-600 text-white shadow-2xs'
-                          : 'text-slate-600 hover:text-indigo-800'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-indigo-800 dark:hover:text-indigo-300'
                           }`}
                       >
                         <Moon className="w-3 h-3 flex-shrink-0" />
@@ -4758,12 +4758,12 @@ function DoctorProfileAndBookingView({
                     </div>
                   </div>
                 ) : selectedDayObj?.isOffDay ? null : displaySlots.length > 0 ? (
-                  <div className="p-2.5 rounded-xl bg-teal-50/50 border border-teal-100 flex items-center justify-between text-[11px] text-slate-600">
+                  <div className="p-2.5 rounded-xl bg-teal-50/50 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/60 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
                       <span className="font-medium text-slate-600">Generated Slot Times:</span>
                       {morningSlots.length > 0 ? (
-                        <span className="font-semibold text-slate-900 inline-flex items-center gap-1">
+                        <span className="font-semibold text-slate-900 dark:text-white inline-flex items-center gap-1">
                           <Sun className="w-3 h-3 text-amber-500" /> Morning: {morningSlots[0].timeLabel} &ndash; {morningSlots[morningSlots.length - 1].endTimeLabel || morningSlots[morningSlots.length - 1].timeLabel} ({morningSlots.length} slots)
                         </span>
                       ) : (
@@ -4773,7 +4773,7 @@ function DoctorProfileAndBookingView({
                       )}
                       <span className="text-slate-300">&bull;</span>
                       {eveningSlots.length > 0 ? (
-                        <span className="font-semibold text-slate-900 inline-flex items-center gap-1">
+                        <span className="font-semibold text-slate-900 dark:text-white inline-flex items-center gap-1">
                           <Moon className="w-3 h-3 text-indigo-500" /> Evening: {eveningSlots[0].timeLabel} &ndash; {eveningSlots[eveningSlots.length - 1].endTimeLabel || eveningSlots[eveningSlots.length - 1].timeLabel} ({eveningSlots.length} slots)
                         </span>
                       ) : (
@@ -4782,7 +4782,7 @@ function DoctorProfileAndBookingView({
                         </span>
                       )}
                     </div>
-                    <span className="text-teal-800 font-bold bg-teal-100/70 px-2 py-0.5 rounded-md flex-shrink-0">
+                    <span className="text-teal-800 dark:text-emerald-300 font-bold bg-teal-100/70 dark:bg-emerald-950/60 border border-transparent dark:border-emerald-800 px-2 py-0.5 rounded-md flex-shrink-0">
                       {consultationDurationMinutes} min / slot
                     </span>
                   </div>
@@ -4837,7 +4837,7 @@ function DoctorProfileAndBookingView({
                             ? 'bg-[#0f766e] text-white shadow-sm ring-2 ring-[#0f766e]/30'
                             : isMorning
                               ? 'bg-amber-50/50 border border-amber-200/90 text-amber-950 hover:border-amber-400 hover:bg-amber-50'
-                              : 'bg-indigo-50/50 border border-indigo-200/90 text-indigo-950 hover:border-indigo-400 hover:bg-indigo-50'
+                              : 'bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/90 dark:border-indigo-800/40 text-indigo-950 dark:text-indigo-200 hover:border-indigo-400 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40'
                             }`}
                         >
                           {isMorning ? (
@@ -4876,14 +4876,14 @@ function DoctorProfileAndBookingView({
                         onClick={() => setApplyLoyaltyCard(false)}
                         className={`p-4 rounded-2xl border cursor-pointer transition-all ${!applyLoyaltyCard
                             ? 'border-[#0f766e] bg-teal-50/70 ring-2 ring-[#0f766e]/20 shadow-xs'
-                            : 'border-slate-200 bg-white hover:border-slate-300'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                           }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                            <User className="w-3.5 h-3.5 text-[#0f766e]" /> Standard Appointment
+                          <span className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-[#0f766e] dark:text-emerald-400" /> Standard Appointment
                           </span>
-                          <span className="font-extrabold text-xs text-slate-900 font-mono">
+                          <span className="font-extrabold text-xs text-slate-900 dark:text-white font-mono">
                             {formatCurrency(doctor.fee_clinic)}
                           </span>
                         </div>
@@ -4944,13 +4944,13 @@ function DoctorProfileAndBookingView({
                 {/* Booking for Toggle */}
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-medium text-slate-600">Booking for</span>
-                  <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+                  <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                     <button
                       type="button"
                       onClick={() => setBookingFor('myself')}
                       className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${bookingFor === 'myself'
-                        ? 'bg-white text-slate-900 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-900'
+                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                     >
                       <User className="w-3 h-3 text-[#0f766e]" /> Myself
@@ -4959,8 +4959,8 @@ function DoctorProfileAndBookingView({
                       type="button"
                       onClick={() => setBookingFor('someone_else')}
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${bookingFor === 'someone_else'
-                        ? 'bg-white text-slate-900 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-900'
+                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                         }`}
                     >
                       Someone else
@@ -5245,7 +5245,7 @@ function DoctorProfileAndBookingView({
                 </div>
 
                 {/* Summary Pill */}
-                <div className="bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-3 flex items-center gap-2.5 text-xs text-slate-800 font-semibold">
+                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 rounded-xl px-4 py-3 flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 font-semibold">
                   <Calendar className="w-4 h-4 text-[#0f766e]" />
                   <span>{selectedDayObj?.label} &middot; {selectedTimeSlot} &middot; In-person</span>
                 </div>
@@ -5275,11 +5275,11 @@ function DoctorProfileAndBookingView({
                   ) : (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-xs text-slate-900">Total consultation fee</p>
+                        <p className="font-bold text-xs text-slate-900 dark:text-white">Total consultation fee</p>
                         <p className="text-[11px] text-slate-400 mt-0.5">Pay at the clinic &middot; No online payment required</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-2xl font-black text-slate-900 font-mono">
+                        <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                           {formatCurrency(doctor.fee_clinic)}
                         </span>
                       </div>
@@ -5771,7 +5771,7 @@ function DoctorProfileAndBookingView({
                             }}
                             className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${isSelected
                               ? 'border-[#0f766e] bg-teal-50/70 ring-1 ring-[#0f766e]'
-                              : 'border-slate-200 bg-white hover:border-slate-300'
+                              : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                               }`}
                           >
                             <div className="flex items-center gap-2.5">

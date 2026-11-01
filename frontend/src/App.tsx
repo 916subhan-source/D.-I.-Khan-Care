@@ -2045,43 +2045,43 @@ export default function App() {
 
       {/* Staff Sign In Modal (Doctor & Assistant only - Admin hidden) */}
       {showStaffModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-7 shadow-modal border border-slate-100 animate-scale-in">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-7 shadow-2xl border border-slate-100 dark:border-slate-800 animate-scale-in">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="font-extrabold text-slate-900 text-lg" style={{ fontFamily: 'Outfit, sans-serif' }}>Staff Portal</h3>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-lg" style={{ fontFamily: 'Outfit, sans-serif' }}>Staff Portal</h3>
                 <p className="text-[11px] text-slate-400 mt-0.5">Select your workspace to sign in</p>
               </div>
-              <button onClick={() => setShowStaffModal(false)} className="text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-100 rounded-xl transition-all">
+              <button onClick={() => setShowStaffModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-3">
               <button
                 onClick={() => { setShowStaffModal(false); handleSwitchRole('doctor'); }}
-                className="w-full p-4 rounded-2xl border border-slate-200 hover:border-clinic-400 hover:bg-clinic-50 text-left transition-all group flex items-center gap-4 shadow-xs hover:shadow-card-hover"
+                className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-clinic-500/50 dark:hover:border-emerald-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/90 text-left transition-all group flex items-center gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f0faf8, #d9f2ed)' }}>
-                  <Stethoscope className="w-5 h-5 text-clinic-700" />
+                <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/50 dark:border-emerald-800/60">
+                  <Stethoscope className="w-5 h-5 text-clinic-700 dark:text-emerald-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 group-hover:text-clinic-800">Doctor Portal</p>
-                  <p className="text-[11px] text-slate-500">Schedule, slots & patient queue</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-clinic-700 dark:group-hover:text-emerald-300 transition-colors">Doctor Portal</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Schedule, slots & patient queue</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-clinic-600 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-clinic-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
               </button>
               <button
                 onClick={() => { setShowStaffModal(false); handleSwitchRole('assistant'); }}
-                className="w-full p-4 rounded-2xl border border-slate-200 hover:border-clinic-400 hover:bg-clinic-50 text-left transition-all group flex items-center gap-4 shadow-xs hover:shadow-card-hover"
+                className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-clinic-500/50 dark:hover:border-amber-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/90 text-left transition-all group flex items-center gap-4 shadow-xs cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #fffbeb, #fef3c7)' }}>
-                  <Headphones className="w-5 h-5 text-amber-700" />
+                <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center bg-amber-50 dark:bg-amber-950/60 border border-amber-200/50 dark:border-amber-800/60">
+                  <Headphones className="w-5 h-5 text-amber-700 dark:text-amber-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 group-hover:text-clinic-800">Assistant Desk</p>
-                  <p className="text-[11px] text-slate-500">Reception queue & approvals</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-clinic-700 dark:group-hover:text-amber-300 transition-colors">Assistant Desk</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Reception queue & approvals</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-clinic-600 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-clinic-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
               </button>
             </div>
           </div>

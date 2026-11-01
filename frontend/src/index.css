@@ -675,3 +675,36 @@ html.dark [class*="shadow-"] {
 html.dark .group.relative.bg-white {
   box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.9) !important;
 }
+
+
+/* Dark Mode Hover Rules — Prevents white blinding backgrounds on hover across the entire application */
+html.dark [class*="hover:bg-clinic-50"]:hover,
+html.dark [class*="hover:bg-teal-50"]:hover {
+  background-color: rgba(20, 61, 56, 0.45) !important;
+  border-color: rgba(45, 212, 191, 0.4) !important;
+}
+
+html.dark [class*="hover:bg-slate-50"]:hover,
+html.dark [class*="hover:bg-slate-100"]:hover,
+html.dark [class*="hover:bg-slate-200"]:hover,
+html.dark [class*="hover:bg-white"]:hover {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+html.dark [class*="hover:bg-amber-50"]:hover,
+html.dark [class*="hover:bg-amber-100"]:hover {
+  background-color: rgba(120, 53, 15, 0.35) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+}
+
+html.dark [class*="hover:bg-rose-50"]:hover,
+html.dark [class*="hover:bg-rose-100"]:hover {
+  background-color: rgba(136, 19, 55, 0.35) !important;
+  border-color: rgba(251, 113, 133, 0.35) !important;
+}
+
+html.dark [class*="hover:bg-emerald-50"]:hover,
+html.dark [class*="hover:bg-emerald-100"]:hover {
+  background-color: rgba(6, 78, 59, 0.35) !important;
+  border-color: rgba(52, 211, 153, 0.35) !important;
+}

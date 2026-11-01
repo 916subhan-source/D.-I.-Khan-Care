@@ -5428,21 +5428,21 @@ function DoctorProfileAndBookingView({
       {/* ── Confirmed Appointment Slip Modal ── */}
       {bookingState === 'confirmed' && confirmedSlip && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 p-8 relative">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 p-8 relative">
             <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-3">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mx-auto mb-3">
                 <Check className="w-8 h-8 stroke-[3]" />
               </div>
-              <h3 className="text-2xl font-black text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 Appointment Confirmed!
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Your consultation slot has been reserved. Please bring this slip to the reception desk.
               </p>
             </div>
 
             {/* Slip Paper Card */}
-            <div className="bg-gradient-to-b from-teal-50/60 to-slate-50 border border-teal-200/80 rounded-2xl p-5 mb-6 space-y-3 font-sans shadow-2xs">
+            <div className="bg-gradient-to-b from-teal-50/60 to-slate-50 dark:from-slate-900 dark:to-[#0c1424] border border-teal-200/80 dark:border-slate-700 rounded-2xl p-5 mb-6 space-y-3 font-sans shadow-2xs">
               <div className="flex items-center justify-between border-b border-teal-200/60 pb-3">
                 <div>
                   <span className="text-[10px] font-bold text-[#0f766e] uppercase tracking-wider block">CLINIC SLIP NUMBER</span>
@@ -11881,86 +11881,86 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
           {/* ── POS Success Thermal Slip / Receipt Modal ── */}
           {posSuccessReceipt && (
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-              <div className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 shadow-2xl border border-slate-200 space-y-4 relative">
+            <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 relative">
                 <button
                   type="button"
                   onClick={() => setPosSuccessReceipt(null)}
-                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 absolute top-4 right-4 flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 absolute top-4 right-4 flex items-center justify-center transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
 
                 {/* Print receipt card */}
-                <div id="printable-pos-slip" className="border-2 border-dashed border-slate-300 rounded-2xl p-5 bg-slate-50/50 space-y-3 font-sans">
+                <div id="printable-pos-slip" className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-5 bg-slate-50/50 dark:bg-[#0c1424] space-y-3 font-sans">
                   {/* Clinic & Doctor Header */}
-                  <div className="text-center pb-2 border-b border-dashed border-slate-300">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                  <div className="text-center pb-2 border-b border-dashed border-slate-300 dark:border-slate-700">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-full inline-block mb-1 border border-transparent dark:border-emerald-700/50">
                       Confirmed Walk-In Slip
                     </span>
-                    <h3 className="font-extrabold text-slate-900 text-base" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit,sans-serif' }}>
                       {formatDoctorName(posSuccessReceipt.doctor_name || currentDoctor?.doctor_name)} Clinic
                     </h3>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
                       {posSuccessReceipt.doctor_specialty || currentDoctor?.specialty}
                     </p>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
                       {posSuccessReceipt.clinic_address || currentDoctor?.clinic_address}
                     </p>
                   </div>
 
                   {/* Token Highlight */}
-                  <div className="text-center py-2 bg-emerald-50/90 rounded-xl border border-emerald-200">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 block">
+                  <div className="text-center py-2 bg-emerald-50/90 dark:bg-emerald-950/60 rounded-xl border border-emerald-200 dark:border-emerald-700/60">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 block">
                       Queue / Daily Token Number
                     </span>
-                    <span className="text-4xl font-extrabold font-mono text-emerald-700 block my-0.5">
+                    <span className="text-4xl font-extrabold font-mono text-emerald-700 dark:text-emerald-400 block my-0.5">
                       #{String(posSuccessReceipt.token_number || 1).padStart(2, '0')}
                     </span>
-                    <span className="font-mono text-xs font-semibold text-emerald-800">
+                    <span className="font-mono text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                       SLIP #{posSuccessReceipt.slip_number}
                     </span>
                   </div>
 
                   {/* Patient & Appointment Details */}
-                  <div className="text-xs space-y-1.5 py-1 border-b border-dashed border-slate-300 text-slate-700">
+                  <div className="text-xs space-y-1.5 py-1 border-b border-dashed border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Patient:</span>
-                      <strong className="text-slate-900">{posSuccessReceipt.patient_name}</strong>
+                      <span className="text-slate-500 dark:text-slate-400">Patient:</span>
+                      <strong className="text-slate-900 dark:text-white">{posSuccessReceipt.patient_name}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Phone:</span>
-                      <span className="font-mono">{posSuccessReceipt.patient_phone}</span>
+                      <span className="text-slate-500 dark:text-slate-400">Phone:</span>
+                      <span className="font-mono text-slate-900 dark:text-slate-200">{posSuccessReceipt.patient_phone}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Visit Date:</span>
-                      <strong>{posSuccessReceipt.slot_date}</strong>
+                      <span className="text-slate-500 dark:text-slate-400">Visit Date:</span>
+                      <strong className="text-slate-900 dark:text-slate-200">{posSuccessReceipt.slot_date}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Scheduled Time:</span>
-                      <strong>{posSuccessReceipt.slot_time}</strong>
+                      <span className="text-slate-500 dark:text-slate-400">Scheduled Time:</span>
+                      <strong className="text-slate-900 dark:text-slate-200">{posSuccessReceipt.slot_time}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Visit Status:</span>
-                      <span className="px-1.5 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800">
+                      <span className="text-slate-500 dark:text-slate-400">Visit Status:</span>
+                      <span className="px-1.5 py-0.5 rounded font-bold text-[10px] bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-transparent dark:border-emerald-700/50">
                         CONFIRMED
                       </span>
                     </div>
                   </div>
 
                   {/* Fee & Payment Breakdown */}
-                  <div className="text-xs space-y-1.5 py-1 text-slate-700">
+                  <div className="text-xs space-y-1.5 py-1 text-slate-700 dark:text-slate-300">
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Consultation Fee:</span>
-                      <strong className="font-mono">{formatCurrency(posSuccessReceipt.fee_amount)}</strong>
+                      <span className="text-slate-500 dark:text-slate-400">Consultation Fee:</span>
+                      <strong className="font-mono text-slate-900 dark:text-white">{formatCurrency(posSuccessReceipt.fee_amount)}</strong>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Payment Status:</span>
+                      <span className="text-slate-500 dark:text-slate-400">Payment Status:</span>
                       <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${posSuccessReceipt.payment_status === 'PAID'
-                        ? 'bg-emerald-100 text-emerald-800'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-transparent dark:border-emerald-700/50'
                         : posSuccessReceipt.payment_status === 'PARTIAL'
-                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                          : 'bg-amber-100 text-amber-800'
+                          ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60'
+                          : 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
                         }`}>
                         {posSuccessReceipt.payment_status === 'PAID'
                           ? '✓ PAID IN FULL'
@@ -11972,12 +11972,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     {posSuccessReceipt.payment_status === 'PARTIAL' && (
                       <>
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Advance Paid at Desk:</span>
-                          <span className="font-mono font-bold text-emerald-800">
+                          <span className="text-slate-500 dark:text-slate-400">Advance Paid at Desk:</span>
+                          <span className="font-mono font-bold text-emerald-800 dark:text-emerald-400">
                             {formatCurrency(posSuccessReceipt.amount_paid || posSuccessReceipt.cash_tendered)}
                           </span>
                         </div>
-                        <div className="flex justify-between font-bold text-rose-700 bg-rose-50/70 p-1 rounded">
+                        <div className="flex justify-between font-bold text-rose-700 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 p-1.5 rounded-lg">
                           <span>Remaining Due on Calling:</span>
                           <span className="font-mono">
                             {formatCurrency(posSuccessReceipt.amount_due !== undefined ? posSuccessReceipt.amount_due : (posSuccessReceipt.fee_amount - (posSuccessReceipt.amount_paid || posSuccessReceipt.cash_tendered)))}
@@ -11988,10 +11988,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     {posSuccessReceipt.payment_status === 'PAID' && posSuccessReceipt.cash_tendered !== undefined && (
                       <>
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Cash Received:</span>
-                          <span className="font-mono">{formatCurrency(posSuccessReceipt.cash_tendered)}</span>
+                          <span className="text-slate-500 dark:text-slate-400">Cash Received:</span>
+                          <span className="font-mono text-slate-900 dark:text-slate-200">{formatCurrency(posSuccessReceipt.cash_tendered)}</span>
                         </div>
-                        <div className="flex justify-between font-bold text-emerald-800">
+                        <div className="flex justify-between font-bold text-emerald-800 dark:text-emerald-400">
                           <span>Change Returned:</span>
                           <span className="font-mono">{formatCurrency(posSuccessReceipt.change_amount)}</span>
                         </div>
@@ -11999,7 +11999,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     )}
                   </div>
 
-                  <p className="text-[10px] text-center text-slate-400 italic pt-1 border-t border-dashed border-slate-300">
+                  <p className="text-[10px] text-center text-slate-400 dark:text-slate-500 italic pt-1 border-t border-dashed border-slate-300 dark:border-slate-700">
                     Please present this slip at the reception desk when your token number is called.
                   </p>
                 </div>
@@ -12009,7 +12009,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <button
                     type="button"
                     onClick={() => window.print()}
-                    className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    className="w-full py-2.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm border border-transparent dark:border-slate-700"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Print Thermal Slip / Receipt</span>

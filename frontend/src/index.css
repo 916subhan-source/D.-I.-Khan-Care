@@ -748,6 +748,21 @@ html.dark .text-rose-700 {
   color: #fca5a5 !important;
 }
 
+/* POS Thermal Slip & Receipt Dark Styling */
+html.dark #printable-pos-slip {
+  background-color: #0c1424 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .bg-slate-50\/50 {
+  background-color: rgba(12, 20, 36, 0.95) !important;
+}
+
+html.dark .bg-emerald-50\/90 {
+  background-color: rgba(6, 78, 59, 0.5) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
 /* Smooth Transitions for Theme Toggle */
 html {
   transition: background-color 0.25s ease, color 0.25s ease;

@@ -143,7 +143,7 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
 
           {/* ── Layer 1: Top Bar (translateZ 22px) ── */}
           <div
-            className="flex items-center justify-between pb-2.5 border-b border-white/40"
+            className="flex items-center justify-between pb-2.5 border-b border-white/40 dark:border-white/10"
             style={{ transform: 'translateZ(22px)' }}
           >
             <div className="inline-flex items-center gap-1.5">
@@ -151,13 +151,13 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22C55E]" />
               </span>
-              <span className="text-[10px] font-bold text-slate-800 tracking-wider uppercase font-mono">
+              <span className="text-[10px] font-bold text-slate-800 dark:text-emerald-300 tracking-wider uppercase font-mono">
                 TOKEN #042
               </span>
             </div>
 
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-900 border border-emerald-500/20 text-[9px] font-bold uppercase tracking-wider">
-              <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-700/60 text-[9px] font-bold uppercase tracking-wider">
+              <Sparkles className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
               Verified
             </span>
           </div>
@@ -178,7 +178,7 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
                 Instant Reception Pass
               </h4>
               <p className="text-[9.5px] font-medium text-slate-600 dark:text-slate-300 mt-0.5 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 Guaranteed Queue Slot
               </p>
             </div>
@@ -188,7 +188,7 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
               className="relative p-1.5 rounded-xl bg-white/95 dark:bg-slate-800 border border-white dark:border-slate-700 shadow-sm flex items-center justify-center shrink-0 text-slate-800 dark:text-slate-200 transition-transform"
               style={{ transform: 'translateZ(38px)' }}
             >
-              <QrCode className="w-6 h-6 text-slate-800" />
+              <QrCode className="w-6 h-6 text-slate-800 dark:text-slate-200" />
               <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[7px] font-black shadow-xs">
                 ✓
               </div>
@@ -197,15 +197,15 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
 
           {/* ── Layer 3: Bottom Trust Bar (translateZ 20px) ── */}
           <div
-            className="pt-2 border-t border-white/40 flex items-center justify-between text-[9px] font-semibold text-slate-700 dark:text-slate-300"
+            className="pt-2 border-t border-white/40 dark:border-white/10 flex items-center justify-between text-[9px] font-semibold text-slate-700 dark:text-slate-300"
             style={{ transform: 'translateZ(20px)' }}
           >
             <div className="flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-clinic-700 shrink-0" />
+              <ShieldCheck className="w-3 h-3 text-clinic-700 dark:text-emerald-400 shrink-0" />
               <span>Zero Waiting Queue</span>
             </div>
             <div className="flex items-center gap-1 text-[8.5px] font-bold text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-white/60 dark:border-slate-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
               Live Hospital Sync
             </div>
           </div>

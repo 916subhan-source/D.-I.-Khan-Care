@@ -110,6 +110,13 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const conversationHistoryRef = useRef<Array<{ role: string; parts: Array<{ text: string }> }>>([]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasUnreadAlert(false);
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const initialBotMessage: Message = {
     id: 'welcome_1',
     sender: 'bot',

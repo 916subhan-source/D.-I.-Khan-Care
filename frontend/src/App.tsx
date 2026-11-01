@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Stethoscope,
   Printer,
@@ -1912,29 +1912,29 @@ export default function App() {
           </button>
 
           {/* Desktop Nav Links (Completely Unaltered) */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1.5">
             <button
               onClick={() => handleSwitchRole('patient')}
-              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${activeTab === 'patient'
-                ? 'text-clinic-700 font-semibold bg-clinic-50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'patient'
+                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
                 }`}
             >
               Find a doctor
             </button>
             <button
               onClick={() => handleSwitchRole('track')}
-              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all ${activeTab === 'track'
-                ? 'text-clinic-700 font-semibold bg-clinic-50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'track'
+                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
                 }`}
             >
               Track appointment
             </button>
             <button
               onClick={() => setShowStaffModal(true)}
-              className="ml-2 text-sm font-bold px-5 py-2 rounded-xl text-white transition-all shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #1a6359, #143d38)' }}
+              className="ml-2 text-sm font-bold px-5 py-2 rounded-xl text-white transition-all shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:scale-95 cursor-pointer"
+              style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)' }}
             >
               Staff sign in
             </button>
@@ -1943,11 +1943,11 @@ export default function App() {
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="ml-2 p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center justify-center cursor-pointer border border-transparent hover:border-slate-200"
+              className="ml-2 p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center cursor-pointer border border-slate-200/70 dark:border-slate-700 shadow-2xs"
               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label="Toggle theme mode"
             >
-              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700 dark:text-slate-200" />}
             </button>
           </nav>
 
@@ -2168,9 +2168,6 @@ export default function App() {
           </button>
         </div>
       </nav>
-
-      {/* ── Global Floating Theme Toggle (Light / Dark) ── */}
-      <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
     </div>
   );
 }
@@ -6304,12 +6301,12 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
   return (
     <div style={{ zoom: zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1' }} className="transition-all duration-300 mobile-zoom-safe">
       {/* ── Official District Verification Protocol Banner (AI Studio Reference) ── */}
-      <div className="bg-[#eaf5ef] border-b border-clinic-200/70 text-slate-800 text-[11px] sm:text-xs py-2 sm:py-2.5 px-4 sm:px-6">
+      <div className="bg-[#eaf5ef] dark:bg-slate-900/90 border-b border-clinic-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-300 text-[11px] sm:text-xs py-2 sm:py-2.5 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
           <div className="flex items-center gap-2 font-medium">
-            <span className="w-4 h-4 rounded-full bg-clinic-700 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>
+            <span className="w-4 h-4 rounded-full bg-clinic-700 dark:bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>
             <span className="leading-tight sm:leading-normal">
-              <strong className="font-bold text-slate-900">District Verification Protocol:</strong> Pre-registered digital tokens are valid at all counters across D.I. Khan.
+              <strong className="font-bold text-slate-900 dark:text-white">District Verification Protocol:</strong> Pre-registered digital tokens are valid at all counters across D.I. Khan.
             </span>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-semibold">
@@ -6320,7 +6317,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
             <span className="text-slate-300 dark:text-slate-600">|</span>
             <button
               onClick={() => setShowTrack(t => !t)}
-              className="text-clinic-800 dark:text-clinic-300 hover:text-clinic-900 dark:hover:text-clinic-200 hover:underline font-semibold cursor-pointer"
+              className="text-clinic-800 dark:text-emerald-400 hover:text-clinic-900 dark:hover:text-emerald-300 hover:underline font-semibold cursor-pointer"
             >
               Counter Guidelines
             </button>
@@ -6329,59 +6326,61 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       </div>
 
       {/* ── Modern Hero Section with Image Banner ── */}
-      <div className="relative bg-[#f0f6f3] border-b border-clinic-100/80 pt-5 sm:pt-9 lg:pt-11 pb-0">
+      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-0 overflow-hidden">
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <img
             src="/images/private-clinic-consultation.jpg"
             alt="Doctor consultation in a private clinic in Dera Ismail Khan"
-            className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-15"
+            className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-20 dark:mix-blend-luminosity"
             style={{
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.7) 35%, black 60%)',
-              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 15%, rgba(0,0,0,0.7) 35%, black 60%)'
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)',
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)'
             }}
             loading="eager"
           />
-          {/* Broad, soft linear gradient wash matching container background (#f0f6f3) */}
+          {/* Broad, soft linear gradient wash matching container background */}
           <div
-            className="absolute inset-y-0 left-0 w-full sm:w-1/2 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/90 sm:via-[#f0f6f3]/80 to-transparent pointer-events-none"
+            className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/95 sm:via-[#f0f6f3]/85 to-transparent dark:from-[#071317] dark:via-[#071317]/95 sm:dark:via-[#071317]/85 dark:to-transparent pointer-events-none"
           />
+          {/* Subtle top & bottom dark fade in dark mode */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071317] via-transparent to-[#071317]/40 pointer-events-none hidden dark:block" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-clinic-200/80 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-clinic-800 dark:text-clinic-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-clinic-200/80 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-clinic-800 dark:text-emerald-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
             <span>Local Care. A Clearer Next Step.</span>
           </div>
 
           {/* Heading */}
           <div className="max-w-xl lg:max-w-2xl">
             <h1
-              className="text-2xl sm:text-4xl lg:text-[2.85rem] font-black text-slate-900 leading-[1.25] sm:leading-[1.3] lg:leading-[1.35] tracking-wide"
+              className="text-2xl sm:text-4xl lg:text-[2.85rem] font-black text-slate-900 dark:text-white leading-[1.25] sm:leading-[1.3] lg:leading-[1.35] tracking-wide"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
               Book a trusted doctor
-              <span className="block mt-1 sm:mt-2 text-slate-900">of D.I. Khan</span>
+              <span className="block mt-1 sm:mt-2 text-slate-900 dark:text-slate-100">of D.I. Khan</span>
             </h1>
             <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-4 leading-relaxed font-normal max-w-lg">
               Explore clinics across Dera Ismail Khan. Choose a time, verify your request, and pay cash at reception.
             </p>
 
             {/* Reassurance Badges */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 sm:mt-4 text-xs sm:text-sm text-slate-700 font-semibold">
-              <span className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 shadow-2xs text-[11px] sm:text-xs">
-                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 sm:mt-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-semibold">
+              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
                 No patient password
               </span>
-              <span className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 shadow-2xs text-[11px] sm:text-xs">
-                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
+              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
                 Live in-app tracking
               </span>
             </div>
 
             {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
-            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 w-full max-w-[270px]">
+            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[270px]">
               <Hero3DPass isStatic={true} />
             </div>
           </div>
@@ -6401,17 +6400,17 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
 
         {/* ── Unified Horizontal Search Bar docked: exactly half on image banner on desktop, clean spaced on mobile ── */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-5 sm:mt-10 lg:mt-12 mb-3 sm:-mb-12">
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl p-3 sm:p-4">
+          <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
               {/* Specialty Dropdown */}
-              <div className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus-within:bg-white focus-within:border-clinic-500 transition-all">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
-                  <Stethoscope className="w-3.5 h-3.5 text-clinic-700" /> Specialty
+              <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <Stethoscope className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Specialty
                 </div>
                 <select
                   value={selectedSpecialty}
                   onChange={e => { setSelectedSpecialty(e.target.value); setQuickFilter('all'); }}
-                  className="w-full bg-transparent text-sm font-semibold text-slate-900 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                 >
                   {['All specialties', 'General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Dentist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
                     <option key={s} value={s}>{s === 'All specialties' ? 'All Specialties' : s}</option>
@@ -6420,14 +6419,14 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
               </div>
 
               {/* Area / Vicinity Dropdown */}
-              <div className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus-within:bg-white focus-within:border-clinic-500 transition-all">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-clinic-700" /> Area / Vicinity
+              <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <MapPin className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Area / Vicinity
                 </div>
                 <select
                   value={selectedLocality}
                   onChange={e => { setSelectedLocality(e.target.value); setQuickFilter('all'); }}
-                  className="w-full bg-transparent text-sm font-semibold text-slate-900 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                 >
                   {subRegions.map(r => (
                     <option key={r} value={r}>{r === 'All D.I. Khan' ? 'All Areas' : r}</option>
@@ -6436,15 +6435,15 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
               </div>
 
               {/* Shift Timing Dropdown */}
-              <div className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white focus-within:bg-white focus-within:border-clinic-500 transition-all">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
-                  <Clock className="w-3.5 h-3.5 text-clinic-700" /> Shift Timing
+              <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <Clock className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Shift Timing
                 </div>
 
                 <select
                   value={selectedShift}
                   onChange={e => setSelectedShift(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-slate-900 focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                 >
                   {shifts.map(s => (
                     <option key={s} value={s}>{s === 'Any shift' ? 'All Shifts' : s}</option>
@@ -6459,7 +6458,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                   const el = document.getElementById('doctors-results-grid');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full h-full min-h-[46px] sm:min-h-[50px] px-6 py-2.5 sm:py-3 bg-clinic-800 hover:bg-clinic-900 text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 tracking-wide group cursor-pointer"
+                className="w-full h-full min-h-[46px] sm:min-h-[50px] px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 tracking-wide group cursor-pointer"
               >
                 <Search className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
                 <span>Search Doctors</span>
@@ -6470,10 +6469,10 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       </div>
 
       {/* ── Outside Image Box: Horizontal Specialty Filters Row (Responsive spacing) ── */}
-      <div className="bg-white border-b border-slate-100 pt-3 sm:pt-[60px] lg:pt-[60px] pb-3 sm:pb-3.5 shadow-2xs">
+      <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 pt-3 sm:pt-[60px] lg:pt-[60px] pb-3 sm:pb-3.5 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-scroll">
-            <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
+            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
               Specialties:
             </span>
             {[
@@ -6503,8 +6502,8 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                     setQuickFilter('all');
                   }}
                   className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
-                    ? 'bg-clinic-800 text-white shadow-sm border border-clinic-800 font-bold'
-                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/90 hover:border-clinic-300 hover:bg-clinic-50/50'
+                    ? 'bg-clinic-800 dark:bg-emerald-600 text-white shadow-sm border border-clinic-800 dark:border-emerald-500 font-bold'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200/90 dark:border-slate-700/80 hover:border-clinic-300 dark:hover:border-emerald-500 hover:bg-clinic-50/50 dark:hover:bg-slate-800'
                     }`}
                 >
                   <span

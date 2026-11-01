@@ -36,12 +36,20 @@ YOUR CORE RULES:
    🏥 **Dastyabi (D.I. Khan):**
    [State whether available on this portal to book below, or direct to DHQ Hospital Emergency/OPD]
 
+   👨‍⚕️ **Recommended Doctor Profile:**
+   (Whenever the condition is treatable on this application such as heart, BP, chest, fever, weakness, diabetes, or general adult medical consultation, ALWAYS provide the doctor profile at the end):
+   • **Doctor:** Dr. Waqar Khan Gandapur (MBBS, FCPS)
+   • **Specialty:** Consultant Cardiologist & General Adult Physician
+   • **Clinic:** Opposite China Plaza, Circular Road, D.I. Khan
+   • **Shift & Fee:** Evening Shift (5:00 PM – 9:00 PM) • Rs. 1,500 Consultation Fee
+   • **Profile Highlights:** 5+ Years Clinical Experience • 98% Patient Satisfaction • PMDC Verified
+
    🚨 **Emergency Disclaimer (if chest pain/breathing issue/emergency):**
    Shadeed takleef ki soorat me foran DHQ Hospital Emergency D.I. Khan tashreef le jayein.
 
 4. Keep responses concise, clean, scannable, and respectful. Use Roman Urdu mixed with clear English medical terms.
 5. NEVER formulate a definitive diagnosis — only recommend the correct medical specialist field.
-6. When the patient describes symptoms related to heart, chest pain, blood pressure, diabetes, adult fever, weakness, or general medical checkup, recommend consulting **Dr. Waqar Khan Gandapur** (Consultant Cardiologist & Physician) who is verified and available on this application!
+6. When the patient describes symptoms related to heart, chest pain, blood pressure, diabetes, adult fever, weakness, or general medical checkup, ALWAYS recommend **Dr. Waqar Khan Gandapur** (Consultant Cardiologist & Physician) who is verified and available on this application!
 
 ACTIVE VERIFIED DOCTORS ON THIS PORTAL:
 - **Dr. Waqar Khan Gandapur** (MBBS, FCPS) — Consultant Cardiologist & General Adult Medicine Specialist.
@@ -153,7 +161,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             contents,
             generationConfig: {
               temperature: 0.3,
-              maxOutputTokens: 400,
+              maxOutputTokens: 450,
               topP: 0.85,
             },
             safetySettings: [
@@ -184,9 +192,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const lower = userMessage.toLowerCase();
 
       if (lower.includes('dil') || lower.includes('seene') || lower.includes('chest') || lower.includes('heart') || lower.includes('bp') || lower.includes('blood pressure')) {
-        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Cardiologist (Dil ke Specialist Doctor)** se foran mashwara karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Seene ka dabao ya blood pressure ki takleef ko foran check karwayein.\n• Is portal par **Dr. Waqar Khan Gandapur** (Cardiologist) ke appointment slots dastyab hain.\n\n🚨 **Emergency Disclaimer:**\nAgar seene me shadeed dard ya sans ruk rahi ho to foran **DHQ Hospital Emergency D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Cardiologist (Dil ke Specialist Doctor)** se foran mashwara karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Seene ka dabao ya blood pressure ki takleef ko foran check karwayein.\n• Is portal par **Dr. Waqar Khan Gandapur** (Cardiologist) ke appointment slots dastyab hain.\n\n👨‍⚕️ **Recommended Doctor Profile:**\n• **Doctor:** Dr. Waqar Khan Gandapur (MBBS, FCPS)\n• **Specialty:** Consultant Cardiologist & General Physician\n• **Clinic:** Opposite China Plaza, Circular Road, D.I. Khan\n• **Shift & Fee:** Evening Shift (5:00 PM – 9:00 PM) • Rs. 1,500\n• **Highlights:** 5 Years Experience • 98% Patient Satisfaction • PMDC Verified\n\n🚨 **Emergency Disclaimer:**\nAgar seene me shadeed dard ya sans ruk rahi ho to foran **DHQ Hospital Emergency D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('bacha') || lower.includes('bachon') || lower.includes('child') || lower.includes('baby') || lower.includes('bukhar')) {
-        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Pediatrician (Bachon ke Specialist Doctor)** se rujoo karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Bachon me bukhar, ulti ya sans ki takleef ko nazar-andaz na karein.\n• Portal par mojood Pediatricians ke slots dekhne ke liye neeche button dabayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Pediatrician (Bachon ke Specialist Doctor)** se rujoo karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Bachon me bukhar, ulti ya sans ki takleef ko nazar-andaz na karein.\n• Portal par mojood Pediatricians ke slots dekhne ke liye neeche button dabayein.\n\n👨‍⚕️ **Recommended Doctor Profile:**\n• **Doctor:** Dr. Waqar Khan Gandapur (MBBS, FCPS)\n• **Specialty:** General Medicine & Adult / Child Care Consultant\n• **Clinic:** Opposite China Plaza, Circular Road, D.I. Khan\n• **Shift & Fee:** Evening Shift (5:00 PM – 9:00 PM) • Rs. 1,500";
       } else if (lower.includes('khwateen') || lower.includes('lady') || lower.includes('pregnancy') || lower.includes('aurat') || lower.includes('gynae')) {
         reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Gynecologist (Khwateen ki Specialist Doctor)** se appointment leni chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Portal par Lady Doctors ke auqaat aur appointment slots dastyab hain.\n• Neeche profile dekh kar appointment confirm karein.";
       } else if (lower.includes('kaan') || lower.includes('kan') || lower.includes('ear') || lower.includes('naak') || lower.includes('nose') || lower.includes('gala') || lower.includes('throat') || lower.includes('ent')) {
@@ -206,7 +214,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       } else if (lower.includes('meda') || lower.includes('pait') || lower.includes('stomach') || lower.includes('gas') || lower.includes('hazma') || lower.includes('gastro') || lower.includes('ulcer')) {
         reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Gastroenterologist (Meda/Pait ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Mede me shadeed jalan ya ulcer ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('sugar') || lower.includes('diabetes') || lower.includes('thyroid') || lower.includes('physician') || lower.includes('medical specialist')) {
-        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Consultant Physician / Cardiologist** se milna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Sugar, BP aur general health checkup ke liye portal par **Dr. Waqar Khan Gandapur** dastyab hain.\n• Neeche diye gaye card se unki appointment book karein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Consultant Physician / Cardiologist** se milna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Sugar, BP aur general health checkup ke liye portal par **Dr. Waqar Khan Gandapur** dastyab hain.\n• Neeche diye gaye card se unki appointment book karein.\n\n👨‍⚕️ **Recommended Doctor Profile:**\n• **Doctor:** Dr. Waqar Khan Gandapur (MBBS, FCPS)\n• **Specialty:** Consultant Cardiologist & General Physician\n• **Clinic:** Opposite China Plaza, Circular Road, D.I. Khan\n• **Shift & Fee:** Evening Shift (5:00 PM – 9:00 PM) • Rs. 1,500\n• **Highlights:** 5 Years Experience • 98% Patient Satisfaction • PMDC Verified";
       } else {
         reply = "👋 **D.I. Khan Care AI Assistant:**\nMain doctor dhoondne aur appointment book karne me aapki madad ke liye tayyar hoon.\n\n📋 **Aap yeh pooch sakte hain:**\n• *'Dil me dard aur blood pressure'* (Dr. Waqar Khan Gandapur)\n• *'Bache ko bukhar hai'* (Pediatrician)\n• *'Appointment kaise book karein'* ya *'Trace visit'*";
       }

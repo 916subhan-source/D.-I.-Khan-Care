@@ -18,6 +18,7 @@ import {
   Activity,
   Flame,
   Award,
+  Eye,
   Search
 } from 'lucide-react';
 
@@ -158,7 +159,7 @@ const FormattedChatText: React.FC<{ text: string }> = ({ text }) => {
         }
 
         // Header lines with emojis
-        if (trimmed.startsWith('🩺') || trimmed.startsWith('📋') || trimmed.startsWith('🏥') || trimmed.startsWith('🚨') || trimmed.startsWith('⚠️') || trimmed.startsWith('👋') || trimmed.startsWith('💳') || trimmed.startsWith('⏰') || trimmed.startsWith('✅')) {
+        if (trimmed.startsWith('👨‍⚕️') || trimmed.startsWith('🩺') || trimmed.startsWith('📋') || trimmed.startsWith('🏥') || trimmed.startsWith('🚨') || trimmed.startsWith('⚠️') || trimmed.startsWith('👋') || trimmed.startsWith('💳') || trimmed.startsWith('⏰') || trimmed.startsWith('✅')) {
           return (
             <div key={idx} className="font-semibold text-slate-900 dark:text-white pt-1">
               {renderInlineFormatted(trimmed)}
@@ -793,10 +794,11 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
                                   setIsOpen(false);
                                   onProfile(doc);
                                 }}
-                                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors"
-                                title="Doctor Profile"
+                                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-750 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl transition-colors flex items-center gap-1 shadow-2xs"
+                                title="View Full Doctor Profile"
                               >
-                                View
+                                <Eye className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+                                <span>Profile</span>
                               </button>
                             )}
                           </div>

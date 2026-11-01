@@ -9017,10 +9017,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               ) : item.payment_status === 'PARTIAL' ? (
                                 <div className="space-y-0.5 text-xs">
                                   <span className="text-amber-400 font-medium inline-flex items-center gap-1">
-                                    <span>Advance: {formatCurrency(item.amount_paid || 0)}</span>
+                                    <span>Advance: {formatCurrency(Number(item.amount_paid || 0))}</span>
                                   </span>
                                   <div className="text-[11px] font-semibold text-rose-400">
-                                    Due: {formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))}
+                                    Due: {formatCurrency(item.amount_due !== undefined ? Number(item.amount_due) : Math.max(0, Number(item.fee_amount || 1000) - Number(item.amount_paid || 0)))}
                                   </div>
                                 </div>
                               ) : (
@@ -9171,7 +9171,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                             ) : (
                                               <>
                                                 <CreditCard className="w-3 h-3 text-white" />
-                                                <span>Collect Due ({formatCurrency(item.amount_due !== undefined ? item.amount_due : Math.max(0, (item.fee_amount || 1000) - (item.amount_paid || 0)))})</span>
+                                                <span>Collect Due ({formatCurrency(item.amount_due !== undefined ? Number(item.amount_due) : Math.max(0, Number(item.fee_amount || 1000) - Number(item.amount_paid || 0)))})</span>
                                               </>
                                             )}
                                           </button>

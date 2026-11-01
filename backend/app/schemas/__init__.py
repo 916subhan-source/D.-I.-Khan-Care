@@ -222,6 +222,10 @@ class AppointmentResponse(BaseModel):
     slot_time: Optional[str] = None
     payment_status: Optional[str] = None
     fee_amount: Optional[Decimal] = None
+    amount_paid: Optional[Decimal] = None
+    amount_due: Optional[Decimal] = None
+    cash_tendered: Optional[Decimal] = None
+    change_amount: Optional[Decimal] = None
     specialty: Optional[str] = None
     clinic_address: Optional[str] = None
     token_number: Optional[int] = None

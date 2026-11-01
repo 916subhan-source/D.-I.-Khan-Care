@@ -1409,6 +1409,14 @@ async def list_doctor_appointments(
             "fee_amount": float(appt.payment.amount if appt.payment and appt.payment.amount else doc.fee_clinic),
             "notes": appt.notes or "",
             "payment_status": appt.payment.status if appt.payment else "UNPAID",
+            "amount_paid": float(appt.payment.amount_paid) if appt.payment and appt.payment.amount_paid is not None else (
+                float(appt.payment.amount) if appt.payment and appt.payment.status == "PAID" else 0.0
+            ),
+            "amount_due": max(0.0, (float(appt.payment.amount) if appt.payment else float(doc.fee_clinic)) - (
+                float(appt.payment.amount_paid) if appt.payment and appt.payment.amount_paid is not None else (
+                    float(appt.payment.amount) if appt.payment and appt.payment.status == "PAID" else 0.0
+                )
+            )),
             "created_at": appt.created_at.isoformat() if appt.created_at else None,
             "has_loyalty_discount": appt.has_loyalty_discount or False,
             "loyalty_discount_amount": float(appt.loyalty_discount_amount) if appt.loyalty_discount_amount is not None else 0.0,

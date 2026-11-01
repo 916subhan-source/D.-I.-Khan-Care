@@ -431,7 +431,8 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
     const reply = aiReply.toLowerCase();
 
     const specialtyMap: Array<{ keywords: string[]; dbKeyword: string; label: string; unavailable: boolean }> = [
-      { keywords: ['cardiologist', 'cardio', 'dil', 'heart', 'chest', 'bp', 'blood pressure'], dbKeyword: 'Cardio', label: 'Cardiologist', unavailable: false },
+      { keywords: ['cardiologist', 'cardio', 'dil', 'heart', 'chest', 'bp', 'blood pressure', 'hypertension'], dbKeyword: 'Cardio', label: 'Cardiologist', unavailable: false },
+      { keywords: ['general physician', 'physician', 'general medicine', 'medical specialist', 'internal medicine', 'bukhar', 'fever', 'kamzori', 'sugar', 'diabetes'], dbKeyword: '', label: 'General Physician & Adult Care', unavailable: false },
       { keywords: ['laparoscopic', 'laproscopic', 'laparoscopy', 'pait operation', 'hernia', 'gallbladder', 'pitta'], dbKeyword: 'Lap', label: 'Laparoscopic Surgeon', unavailable: false },
       { keywords: ['general surgeon', 'surgery', 'surgeon', 'operation', 'apendx', 'appendix'], dbKeyword: 'Surgeon', label: 'General Surgeon', unavailable: false },
       { keywords: ['face aesthetic', 'face asthetic', 'plastic surgeon', 'rhinoplasty', 'facial', 'cosmetic'], dbKeyword: 'Face', label: 'Face Aesthetic Surgeon', unavailable: false },
@@ -447,20 +448,37 @@ export const HealthChatbot: React.FC<HealthChatbotProps> = ({ doctors, onBook, o
       { keywords: ['gastroenterologist', 'gastro', 'meda', 'stomach'], dbKeyword: 'Gastro', label: 'Gastroenterologist', unavailable: true },
     ];
 
-    for (const spec of specialtyMap) {
+    // Priority 1: Check if an unavailable specialty was explicitly matched
+    const unavailableMatch = specialtyMap.find(spec => spec.unavailable && spec.keywords.some(kw => reply.includes(kw)));
+    if (unavailableMatch) {
+      return { doctors: [], specialty: unavailableMatch.label };
+    }
+
+    // Priority 2: Check available specialties
+    for (const spec of specialtyMap.filter(s => !s.unavailable)) {
       if (spec.keywords.some(kw => reply.includes(kw))) {
-        if (spec.unavailable) {
-          return { doctors: [], specialty: spec.label };
-        }
-        const matched = doctors.filter(doc => {
+        let matched = doctors.filter(doc => {
+          if (!spec.dbKeyword) return true;
           const s = (doc.specialty || '').toLowerCase();
           const b = (doc.bio || '').toLowerCase();
           const e = (doc.expertise || '').toLowerCase();
           const k = spec.dbKeyword.toLowerCase();
           return s.includes(k) || b.includes(k) || e.includes(k);
         }).sort((a, b) => (a.is_spotlight === b.is_spotlight ? 0 : a.is_spotlight ? -1 : 1));
+
+        // If no doctor strictly matched that keyword, fallback to the best spotlight/verified doctor
+        if (matched.length === 0 && doctors.length > 0) {
+          matched = [...doctors].sort((a, b) => (a.is_spotlight === b.is_spotlight ? 0 : a.is_spotlight ? -1 : 1));
+        }
+
         return { doctors: matched.slice(0, 3), specialty: spec.label };
       }
+    }
+
+    // Priority 3: Fallback for any general medical query — recommend the top spotlight / verified doctor on the app
+    if (doctors.length > 0) {
+      const topDoctors = [...doctors].sort((a, b) => (a.is_spotlight === b.is_spotlight ? 0 : a.is_spotlight ? -1 : 1));
+      return { doctors: topDoctors.slice(0, 3), specialty: 'Verified Specialist' };
     }
 
     return { doctors: [], specialty: 'General' };

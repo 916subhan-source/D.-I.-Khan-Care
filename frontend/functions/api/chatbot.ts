@@ -31,7 +31,7 @@ YOUR CORE RULES:
 
    📋 **Hidayat & Agle Iqdamaat:**
    • [Short explanation in Roman Urdu regarding symptoms]
-   • [Actionable step, e.g. booking an appointment]
+   • [Actionable step, e.g. booking an appointment on this portal]
 
    🏥 **Dastyabi (D.I. Khan):**
    [State whether available on this portal to book below, or direct to DHQ Hospital Emergency/OPD]
@@ -41,10 +41,15 @@ YOUR CORE RULES:
 
 4. Keep responses concise, clean, scannable, and respectful. Use Roman Urdu mixed with clear English medical terms.
 5. NEVER formulate a definitive diagnosis — only recommend the correct medical specialist field.
-6. Do NOT fabricate individual doctor names or phone numbers — the portal automatically displays verified clinic doctors below your message.
+6. When the patient describes symptoms related to heart, chest pain, blood pressure, diabetes, adult fever, weakness, or general medical checkup, recommend consulting **Dr. Waqar Khan Gandapur** (Consultant Cardiologist & Physician) who is verified and available on this application!
+
+ACTIVE VERIFIED DOCTORS ON THIS PORTAL:
+- **Dr. Waqar Khan Gandapur** (MBBS, FCPS) — Consultant Cardiologist & General Adult Medicine Specialist.
+  Specialties: Dil, Blood Pressure (BP), Chest, Hypertension, Diabetes Care, and Adult General Checkup.
+  Clinic: Opposite China Plaza, Circular Road, D.I. Khan. Available for in-person consultation booking directly on this portal!
 
 AVAILABLE SPECIALTIES ON THIS PORTAL:
-- Cardiologist (Dil, Blood Pressure, Chest)
+- Cardiologist & General Medicine / Adult Care (Dr. Waqar Khan Gandapur)
 - Pediatrician (Bachon ke Doctor)
 - Gynecologist (Khwateen ke Doctor)
 
@@ -179,7 +184,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const lower = userMessage.toLowerCase();
 
       if (lower.includes('dil') || lower.includes('seene') || lower.includes('chest') || lower.includes('heart') || lower.includes('bp') || lower.includes('blood pressure')) {
-        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Cardiologist (Dil ke Specialist Doctor)** se foran mashwara karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Seene ka dabao ya blood pressure ki takleef ko foran check karwayein.\n• Portal par verified Cardiologists ke appointment slots dastyab hain.\n\n🚨 **Emergency Disclaimer:**\nAgar seene me shadeed dard ya sans ruk rahi ho to foran **DHQ Hospital Emergency D.I. Khan** tashreef le jayein.";
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Cardiologist (Dil ke Specialist Doctor)** se foran mashwara karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Seene ka dabao ya blood pressure ki takleef ko foran check karwayein.\n• Is portal par **Dr. Waqar Khan Gandapur** (Cardiologist) ke appointment slots dastyab hain.\n\n🚨 **Emergency Disclaimer:**\nAgar seene me shadeed dard ya sans ruk rahi ho to foran **DHQ Hospital Emergency D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('bacha') || lower.includes('bachon') || lower.includes('child') || lower.includes('baby') || lower.includes('bukhar')) {
         reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Pediatrician (Bachon ke Specialist Doctor)** se rujoo karna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Bachon me bukhar, ulti ya sans ki takleef ko nazar-andaz na karein.\n• Portal par mojood Pediatricians ke slots dekhne ke liye neeche button dabayein.";
       } else if (lower.includes('khwateen') || lower.includes('lady') || lower.includes('pregnancy') || lower.includes('aurat') || lower.includes('gynae')) {
@@ -200,10 +205,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Urologist (Gurda/Peshab ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Gurde ke ilaj ya ultrasound ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
       } else if (lower.includes('meda') || lower.includes('pait') || lower.includes('stomach') || lower.includes('gas') || lower.includes('hazma') || lower.includes('gastro') || lower.includes('ulcer')) {
         reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Gastroenterologist (Meda/Pait ke Doctor)** se milna chahiye.\n\n🏥 **Dastyabi:**\n• Mede me shadeed jalan ya ulcer ke liye **DHQ Hospital D.I. Khan** tashreef le jayein.";
-      } else if (lower.includes('sugar') || lower.includes('diabetes') || lower.includes('thyroid')) {
-        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **General Physician / Diabetologist** se milna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Sugar aur BP monitoring ke liye portal par mojood doctor se appointment book karein.\n• Makhsoos test ke liye **DHQ Hospital D.I. Khan** se bhi rujoo karein.";
+      } else if (lower.includes('sugar') || lower.includes('diabetes') || lower.includes('thyroid') || lower.includes('physician') || lower.includes('medical specialist')) {
+        reply = "🩺 **Tajweez Karda Specialist:**\nAapko **Consultant Physician / Cardiologist** se milna chahiye.\n\n📋 **Hidayat & Agle Iqdamaat:**\n• Sugar, BP aur general health checkup ke liye portal par **Dr. Waqar Khan Gandapur** dastyab hain.\n• Neeche diye gaye card se unki appointment book karein.";
       } else {
-        reply = "👋 **D.I. Khan Care AI Assistant:**\nMain doctor dhoondne aur appointment book karne me aapki madad ke liye tayyar hoon.\n\n📋 **Aap yeh pooch sakte hain:**\n• *'Dil me dard aur blood pressure'* (Cardiologist)\n• *'Bache ko bukhar hai'* (Pediatrician)\n• *'Appointment kaise book karein'* ya *'Trace visit'*";
+        reply = "👋 **D.I. Khan Care AI Assistant:**\nMain doctor dhoondne aur appointment book karne me aapki madad ke liye tayyar hoon.\n\n📋 **Aap yeh pooch sakte hain:**\n• *'Dil me dard aur blood pressure'* (Dr. Waqar Khan Gandapur)\n• *'Bache ko bukhar hai'* (Pediatrician)\n• *'Appointment kaise book karein'* ya *'Trace visit'*";
       }
       chosenModel = 'system-triage-fallback';
     }

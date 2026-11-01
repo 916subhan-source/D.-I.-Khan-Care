@@ -8499,7 +8499,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   ];
 
   return (
-    <div className="flex min-h-screen bg-white animate-fade-in">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 animate-fade-in">
       <PortalSidebar
         workspaceLabel="Assistant Workspace"
         clinicName={currentDoctor?.clinic_address ? currentDoctor.clinic_address.split(',')[0].trim() : (currentDoctor?.doctor_name || 'Rehmat Polyclinic')}
@@ -16304,43 +16304,43 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
       />
       <div className="portal-content flex-1">
         {/* Top breadcrumb bar */}
-        <div className="h-12 border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="h-14 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20">
+          <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg"
+              className="md:hidden p-2 -ml-1 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
               aria-label="Open navigation menu"
             >
               <Menu className="w-4 h-4" />
             </button>
-            <span className="text-xs text-slate-500 truncate max-w-[170px] sm:max-w-none">
-              Admin portal / {adminTab === 'directory' ? 'Doctor verification' : adminTab === 'system' ? 'Spotlight governance' : 'Audit & infrastructure'}
+            <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[150px] sm:max-w-none font-medium">
+              Admin / {adminTab === 'directory' ? 'Doctor verification' : adminTab === 'system' ? 'Spotlight governance' : 'Audit & infrastructure'}
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => loadAdminData()}
               disabled={doctorsLoading}
-              className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
+              className="px-2.5 sm:px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
               title="Refresh queue and doctor directory"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${doctorsLoading ? 'animate-spin' : ''}`} />
-              <span>{doctorsLoading ? 'Refreshing...' : 'Refresh Queue'}</span>
+              <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 dark:text-emerald-400 ${doctorsLoading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{doctorsLoading ? 'Refreshing...' : 'Refresh'}</span>
             </button>
-            <span className="text-xs text-slate-600 font-medium">Sana Ali &middot; Demo workspace</span>
+            <span className="hidden lg:inline text-xs text-slate-500 dark:text-slate-400 font-medium">Platform Governance</span>
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-xs text-slate-500 hover:text-rose-600 font-medium transition-colors cursor-pointer"
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 font-semibold transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30"
             >
               Sign out
             </button>
           </div>
         </div>
-        <div className="p-8 space-y-6">
-          {/* Sub-nav tabs */}
-          <div className="flex items-center gap-1 border-b border-slate-100">
+        <div className="p-3.5 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto w-full">
+          {/* Sub-nav tabs with horizontal scrolling on mobile */}
+          <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar pb-1 -mx-3.5 sm:mx-0 px-3.5 sm:px-0">
             {[
               ['directory', 'Doctor Directory & Verification'],
               ['system', 'Spotlight Governance'],
@@ -16352,40 +16352,34 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                   setAdminTab(tab as any);
                   if (tab === 'audit' || tab === 'system') checkRedis();
                 }}
-                className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${adminTab === tab ? 'border-clinic-700 text-clinic-700 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700'
-                  }`}
+                className={`whitespace-nowrap px-3.5 py-2 text-xs sm:text-sm font-semibold border-b-2 rounded-t-lg transition-colors cursor-pointer ${
+                  adminTab === tab
+                    ? 'border-clinic-700 dark:border-emerald-400 text-clinic-700 dark:text-emerald-400 bg-clinic-50/50 dark:bg-emerald-950/20'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/40'
+                }`}
               >
                 {label}
               </button>
             ))}
           </div>
 
-          {/* Header (matching media_1791569483061.png) */}
-          <div className="flex items-start justify-between">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 Trust, before discovery.
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Review doctor credentials and curate directory Spotlight &middot; Admin / Developer only
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Review doctor credentials and curate directory Spotlight &middot; Admin Console
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <span className="hidden sm:inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-900 dark:text-amber-300 border border-amber-500/30">
                 Exclusive admin controls
               </span>
               <button
-                onClick={() => loadAdminData()}
-                disabled={doctorsLoading}
-                className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
-                title="Refresh doctor records and queue"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${doctorsLoading ? 'animate-spin' : ''}`} />
-                <span>{doctorsLoading ? 'Refreshing Queue...' : 'Refresh Queue'}</span>
-              </button>
-              <button
                 onClick={openCreateModal}
-                className="px-3.5 py-2 bg-clinic-700 hover:bg-clinic-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
+                className="flex-1 sm:flex-initial px-4 py-2 bg-clinic-700 hover:bg-clinic-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
               >
                 <UserPlus className="w-3.5 h-3.5" /> Add Doctor
               </button>
@@ -16393,25 +16387,27 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
           </div>
 
           {/* Top 3 KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-slate-500 font-medium">Verified doctors</p>
-              <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Verified doctors</p>
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {verifiedCount > 0 ? verifiedCount : 6}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Conceptual directory profiles</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Active directory profiles</p>
             </div>
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-slate-500 font-medium">Pending review</p>
-              <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                {doctors.filter(d => d.verification_status !== 'verified').length > 0 ? doctors.filter(d => d.verification_status !== 'verified').length : 2}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Pending review</p>
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                {doctors.filter(d => d.verification_status !== 'verified').length}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Awaiting license &amp; clinic review</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Awaiting license review</p>
             </div>
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-              <p className="text-xs text-slate-500 font-medium">Rejected applications</p>
-              <p className="text-3xl font-bold text-slate-900 mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>1</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Rejection reason retained in audit log</p>
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Spotlight Doctors</p>
+              <p className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                {spotlightCount}
+              </p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Pinned to homepage top</p>
             </div>
           </div>
 
@@ -16472,20 +16468,20 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                   </div>
                 ) : (
                   filteredDoctors.map(doc => (
-                    <div key={doc.id} className="p-4.5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors">
-                      <div className="flex items-start gap-3.5">
+                    <div key={doc.id} className="p-3.5 sm:p-4.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 hover:bg-slate-50/70 dark:hover:bg-slate-850/60 transition-colors">
+                      <div className="flex items-start gap-3">
                         <InitialsAvatar name={doc.full_name} size="md" />
-                        <div className="space-y-1">
-                          <div className="font-bold text-slate-900 flex items-center gap-2 text-sm">
-                            {doc.full_name}
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-1.5 text-sm">
+                            <span className="truncate">{doc.full_name}</span>
                             <StatusPill status={doc.verification_status} />
                             {doc.is_spotlight && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
                                 <Sparkles className="w-3 h-3 text-amber-500 fill-amber-400" /> Spotlight
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-slate-600 flex flex-wrap gap-x-3 gap-y-1">
+                          <div className="text-xs text-slate-600 dark:text-slate-300 flex flex-wrap gap-x-2.5 gap-y-1">
                             <span><strong>Specialty:</strong> {doc.specialty}</span>
                             <span>&bull;</span>
                             <span><strong>Area:</strong> {doc.sub_region}</span>
@@ -16494,31 +16490,33 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                             <span>&bull;</span>
                             <span><strong>Shift:</strong> {doc.shift}</span>
                           </div>
-                          <div className="text-[11px] text-slate-400 flex flex-wrap gap-x-3">
-                            <span>Email: <strong className="text-slate-600">{doc.email || 'N/A'}</strong></span>
-                            <span>Phone: <strong className="text-slate-600">{doc.phone || 'N/A'}</strong></span>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap gap-x-2.5 gap-y-0.5">
+                            <span>Email: <strong className="text-slate-700 dark:text-slate-300 font-mono">{doc.email || 'N/A'}</strong></span>
+                            <span>Phone: <strong className="text-slate-700 dark:text-slate-300">{doc.phone || 'N/A'}</strong></span>
                             <span>Clinic: {doc.clinic_address}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 self-end md:self-auto flex-wrap">
+                      <div className="flex items-center gap-1.5 flex-wrap w-full lg:w-auto pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800 justify-start sm:justify-end">
                         <button
                           onClick={() => toggleVerify(doc.id, doc.verification_status)}
-                          className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${doc.verification_status === 'verified'
-                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            : 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
-                            }`}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                            doc.verification_status === 'verified'
+                              ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
+                          }`}
                           title="Toggle verification status"
                         >
                           {doc.verification_status === 'verified' ? 'Unverify' : '✓ Verify'}
                         </button>
                         <button
                           onClick={() => toggleSpotlight(doc.id, doc.is_spotlight)}
-                          className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${doc.is_spotlight
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                            }`}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                            doc.is_spotlight
+                              ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                          }`}
                           title="Toggle spotlight directory placement"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -16532,21 +16530,21 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                             setShowDocPassword(false);
                             setShowDocNewPassword(false);
                           }}
-                          className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all"
+                          className="px-3 py-1.5 bg-amber-500/10 dark:bg-amber-500/15 hover:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                           title="View Credentials & Update Login Info"
                         >
                           🔑 Credentials
                         </button>
                         <button
                           onClick={() => openEditModal(doc)}
-                          className="px-2.5 py-1.5 bg-clinic-50 hover:bg-clinic-100 text-clinic-800 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all"
+                          className="px-3 py-1.5 bg-clinic-50 dark:bg-emerald-950/40 hover:bg-clinic-100 dark:hover:bg-emerald-900/50 text-clinic-800 dark:text-emerald-300 border border-clinic-200 dark:border-emerald-800/50 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                           title="Edit Doctor Details"
                         >
                           <Edit className="w-3.5 h-3.5" /> Edit
                         </button>
                         <button
                           onClick={() => handleDeleteDoctor(doc.id, doc.full_name)}
-                          className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all"
+                          className="px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
                           title="Delete Doctor"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -16561,33 +16559,33 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
 
           {/* ── Tab: Audit Trail ── */}
           {adminTab === 'audit' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">Immutable Audit Trail</h3>
-                  <p className="text-xs text-slate-500">Security event log tracking booking updates, financial cash desk entries, and doctor administration.</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Immutable Audit Trail</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Security event log tracking booking updates, financial cash desk entries, and doctor administration.</p>
                 </div>
                 <button
                   onClick={() => loadAdminData()}
-                  className="text-xs text-clinic-700 hover:text-clinic-900 font-semibold flex items-center gap-1"
+                  className="text-xs text-clinic-700 dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer self-start sm:self-auto"
                 >
                   <RefreshCw className="w-3.5 h-3.5" /> Refresh Logs
                 </button>
               </div>
-              <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-96 overflow-y-auto">
                 {auditLogs.length === 0 ? (
                   <p className="text-xs text-slate-400 py-8 text-center">No audit logs recorded yet.</p>
                 ) : (
                   auditLogs.map((log: any) => (
-                    <div key={log.id} className="py-2.5 text-xs flex items-center justify-between hover:bg-slate-50 px-2 rounded-lg">
-                      <div>
-                        <span className="font-bold text-clinic-800 font-mono px-2 py-0.5 rounded bg-clinic-50 border border-clinic-200">
+                    <div key={log.id} className="py-2.5 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 hover:bg-slate-50 dark:hover:bg-slate-850 px-2 rounded-lg">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-bold text-clinic-800 dark:text-emerald-300 font-mono px-2 py-0.5 rounded bg-clinic-50 dark:bg-emerald-950/40 border border-clinic-200 dark:border-emerald-800/50">
                           [{log.action}]
                         </span>
-                        <span className="text-slate-700 font-medium ml-2">{log.entity}</span>
-                        <span className="text-slate-400 ml-1">#{log.entity_id?.slice(0, 8)}</span>
+                        <span className="text-slate-700 dark:text-slate-300 font-medium">{log.entity}</span>
+                        <span className="text-slate-400 font-mono text-[11px]">#{log.entity_id?.slice(0, 8)}</span>
                       </div>
-                      <span className="text-slate-400 text-[11px] font-mono">
+                      <span className="text-slate-400 dark:text-slate-500 text-[11px] font-mono">
                         {new Date(log.created_at).toLocaleString()}
                       </span>
                     </div>
@@ -16599,37 +16597,37 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
 
           {/* ── Tab: System & Infrastructure ── */}
           {adminTab === 'system' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 space-y-5 shadow-2xs">
               <div>
-                <h3 className="text-base font-bold text-slate-900">System Infrastructure &amp; Cache Status</h3>
-                <p className="text-xs text-slate-500">Inspect server connectivity, local directory cache layer, and regional settings.</p>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">System Infrastructure &amp; Cache Status</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Inspect server connectivity, local directory cache layer, and regional settings.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-850/80 border border-slate-200 dark:border-slate-750 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-800 text-xs">Redis Cache &amp; Directory Acceleration</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">Redis Cache &amp; Directory Acceleration</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                       {redisStatus?.connected ? 'CONNECTED' : 'STANDBY'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Directory queries and doctor spotlights are cached in-memory. Modifying a doctor automatically purges related caches.
                   </p>
                   <button
                     onClick={checkRedis}
-                    className="text-xs text-clinic-700 font-semibold hover:underline"
+                    className="text-xs text-clinic-700 dark:text-emerald-400 font-semibold hover:underline cursor-pointer"
                   >
                     Ping Redis Status &rarr;
                   </button>
                 </div>
 
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                  <span className="font-bold text-slate-800 text-xs">Supported D.I. Khan Sub-Regions</span>
-                  <p className="text-xs text-slate-500">
+                <div className="p-4 bg-slate-50 dark:bg-slate-850/80 border border-slate-200 dark:border-slate-750 rounded-xl space-y-2">
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">Supported D.I. Khan Sub-Regions</span>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Circular Road, University Road, Topanwala, Bannu Road, Mufti Mahmood Hospital Road.
                   </p>
-                  <span className="text-[11px] text-emerald-700 font-semibold block">5 Local Zones Active</span>
+                  <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold block">5 Local Zones Active</span>
                 </div>
               </div>
             </div>
@@ -16638,7 +16636,7 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
           {/* Doctor Add / Edit Modal */}
           {showDoctorModal && (
             <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-              <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-[calc(100vw-24px)] sm:w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto animate-fade-in text-slate-900 dark:text-slate-100">
                 <div className="flex items-center justify-between mb-4 border-b pb-3">
                   <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                     <UserPlus className="w-5 h-5 text-clinic-700" />
@@ -16889,7 +16887,7 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
           {/* Doctor Credentials & Password Reset Modal */}
           {resetDocModal && (
             <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-[calc(100vw-24px)] sm:w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 animate-fade-in text-slate-900 dark:text-slate-100">
                 <div className="flex items-center justify-between mb-3 border-b pb-3">
                   <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                     🔑 Doctor Credentials Manager

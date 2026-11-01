@@ -553,6 +553,10 @@ html.dark .bg-\[\#f0f6f3\] {
   border-color: #11282c !important;
 }
 
+html.dark .bg-\[\#fafbfc\] {
+  background-color: #080d14 !important;
+}
+
 /* Hero photo blend in dark mode */
 html.dark img[src*="private-clinic-consultation"] {
   opacity: 0.28 !important;

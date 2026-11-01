@@ -654,6 +654,100 @@ html.dark .bg-teal-100 {
   color: #5eead4 !important;
 }
 
+/* Dark mode gradients: Eliminate glaring pastel/white gradient banners in dark mode */
+html.dark [class*="bg-gradient-"][class*="from-amber-50"],
+html.dark [class*="bg-gradient-"][class*="from-orange-50"],
+html.dark [class*="bg-gradient-"][class*="from-yellow-50"] {
+  background-image: linear-gradient(135deg, rgba(69, 26, 3, 0.75), rgba(41, 15, 2, 0.9)) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html.dark [class*="bg-gradient-"][class*="from-rose-50"],
+html.dark [class*="bg-gradient-"][class*="from-red-50"] {
+  background-image: linear-gradient(135deg, rgba(76, 5, 25, 0.55), rgba(30, 2, 10, 0.75)) !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+}
+
+html.dark [class*="bg-gradient-"][class*="from-emerald-50"],
+html.dark [class*="bg-gradient-"][class*="from-teal-50"] {
+  background-image: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(4, 47, 46, 0.75)) !important;
+  border-color: rgba(20, 184, 166, 0.35) !important;
+}
+
+/* Tinted Off-Day, Amber & Emerald Surfaces in Dark Mode */
+html.dark .bg-rose-50\/90,
+html.dark .bg-rose-50\/80,
+html.dark .bg-rose-50\/70,
+html.dark .bg-rose-50\/60,
+html.dark .bg-rose-50\/40 {
+  background-color: rgba(76, 5, 25, 0.45) !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+html.dark .bg-amber-50\/90,
+html.dark .bg-amber-50\/80,
+html.dark .bg-amber-50\/70,
+html.dark .bg-amber-50\/60,
+html.dark .bg-amber-50\/40 {
+  background-color: rgba(69, 26, 3, 0.5) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html.dark .bg-emerald-50\/70,
+html.dark .bg-emerald-50\/60,
+html.dark .bg-emerald-50\/50 {
+  background-color: rgba(6, 78, 59, 0.45) !important;
+  border-color: rgba(20, 184, 166, 0.35) !important;
+}
+
+html.dark .border-amber-300,
+html.dark .border-amber-200 {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html.dark .border-rose-300,
+html.dark .border-rose-200 {
+  border-color: rgba(244, 63, 94, 0.35) !important;
+}
+
+html.dark .border-emerald-300,
+html.dark .border-emerald-200 {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+html.dark .ring-rose-200 {
+  --tw-ring-color: rgba(244, 63, 94, 0.35) !important;
+}
+
+html.dark .ring-emerald-200 {
+  --tw-ring-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+html.dark .ring-amber-200,
+html.dark .ring-amber-300 {
+  --tw-ring-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html.dark .text-amber-950,
+html.dark .text-amber-900 {
+  color: #fef3c7 !important;
+}
+
+html.dark .text-amber-800,
+html.dark .text-amber-700 {
+  color: #fde68a !important;
+}
+
+html.dark .text-rose-950,
+html.dark .text-rose-900 {
+  color: #ffe4e6 !important;
+}
+
+html.dark .text-rose-800,
+html.dark .text-rose-700 {
+  color: #fca5a5 !important;
+}
+
 /* Smooth Transitions for Theme Toggle */
 html {
   transition: background-color 0.25s ease, color 0.25s ease;

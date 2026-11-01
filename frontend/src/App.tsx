@@ -5286,7 +5286,7 @@ function DoctorProfileAndBookingView({
                 {/* Fee and Payment Notice */}
                 <div className="pt-2 space-y-2">
                   {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard ? (
-                    <div className="bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-200 rounded-xl p-3.5 space-y-1.5">
+                    <div className="bg-gradient-to-r from-amber-50 to-amber-100/60 dark:from-amber-950/40 dark:to-amber-900/30 border border-amber-200 dark:border-amber-700/50 rounded-xl p-3.5 space-y-1.5">
                       <div className="flex items-center justify-between text-xs text-slate-500">
                         <span>Standard Consultation Fee:</span>
                         <span className="line-through font-mono">{formatCurrency(doctor.fee_clinic)}</span>
@@ -11037,16 +11037,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 const isTodayFull = todayItem && todayItem.available_count === 0;
                 if (isTodayFull) {
                   return (
-                    <div className="bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="bg-gradient-to-r from-amber-50 via-orange-50/60 to-amber-50 dark:from-amber-950/70 dark:via-orange-950/50 dark:to-amber-950/70 border-2 border-amber-300 dark:border-amber-700/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                       <div className="flex items-start sm:items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-xs">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-300 flex items-center justify-center flex-shrink-0 font-bold text-lg shadow-xs">
                           ⚠️
                         </div>
                         <div className="text-xs">
-                          <strong className="block font-extrabold text-amber-950 text-sm">
+                          <strong className="block font-extrabold text-amber-950 dark:text-amber-200 text-sm">
                             All consultation slots for Today are fully booked!
                           </strong>
-                          <span className="text-amber-900 mt-0.5 block">
+                          <span className="text-amber-900 dark:text-amber-300/80 mt-0.5 block">
                             Have an urgent walk-in patient at the desk? Generate an emergency slot immediately with priority token numbering.
                           </span>
                         </div>
@@ -11115,24 +11115,24 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               }}
                               className={`flex-shrink-0 px-3.5 py-2.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
                                 ? isOff
-                                  ? 'border-rose-500 bg-rose-50/80 ring-2 ring-rose-200 shadow-xs'
-                                  : 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-200 shadow-xs'
+                                  ? 'border-rose-500 dark:border-rose-600 bg-rose-50/80 dark:bg-rose-950/50 ring-2 ring-rose-200 dark:ring-rose-900/50 shadow-xs'
+                                  : 'border-emerald-600 dark:border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/50 ring-2 ring-emerald-200 dark:ring-emerald-900/50 shadow-xs'
                                 : isOff
-                                  ? 'border-rose-200 bg-rose-50/40 hover:bg-rose-50'
-                                  : 'border-slate-200 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300'
+                                  ? 'border-rose-200 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/40'
+                                  : 'border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                                 }`}
                             >
                               <div className="flex items-center justify-between gap-2">
-                                <span className={`text-xs font-bold ${isSelected ? (isOff ? 'text-rose-950' : 'text-emerald-950') : 'text-slate-800'}`}>
+                                <span className={`text-xs font-bold ${isSelected ? (isOff ? 'text-rose-950 dark:text-rose-200' : 'text-emerald-950 dark:text-emerald-200') : 'text-slate-800 dark:text-slate-200'}`}>
                                   {day.label}
                                 </span>
                                 <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${isOff
-                                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                  ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
                                   : hasOpen
                                     ? isSelected
                                       ? 'bg-emerald-600 text-white'
-                                      : 'bg-emerald-100 text-emerald-800'
-                                    : 'bg-slate-200 text-slate-700'
+                                      : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                                   }`}>
                                   {isOff ? 'OFF DAY' : hasOpen ? `${upcomingCount} open` : (isDayToday ? 'All Passed' : 'Full')}
                                 </span>
@@ -11159,11 +11159,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                       if (curDay.is_off_day) {
                         return (
-                          <div className="py-8 text-center bg-rose-50/60 rounded-xl border border-dashed border-rose-200 px-4 space-y-3">
-                            <Calendar className="w-8 h-8 text-rose-400 mx-auto" />
+                          <div className="py-8 text-center bg-rose-50/60 dark:bg-rose-950/30 rounded-xl border border-dashed border-rose-200 dark:border-rose-900/60 px-4 space-y-3">
+                            <Calendar className="w-8 h-8 text-rose-400 dark:text-rose-400 mx-auto" />
                             <div>
-                              <p className="text-xs font-bold text-rose-900">Clinic Closed on {curDay.label} ({curDay.date_fmt}) &mdash; Weekly Off Day</p>
-                              <p className="text-[11px] text-rose-700 mt-1 max-w-sm mx-auto">
+                              <p className="text-xs font-bold text-rose-900 dark:text-rose-200">Clinic Closed on {curDay.label} ({curDay.date_fmt}) &mdash; Weekly Off Day</p>
+                              <p className="text-[11px] text-rose-700 dark:text-rose-300/80 mt-1 max-w-sm mx-auto">
                                 {currentDoctor?.doctor_name} has scheduled this day as an Off Day. However, for urgent walk-in patients, you can select specific consultation timing below.
                               </p>
                             </div>
@@ -11190,15 +11190,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                       if (availableUpcomingSlots.length === 0) {
                         return (
-                          <div className="p-6 text-center bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-slate-50 rounded-2xl border-2 border-dashed border-amber-300 px-4 space-y-4">
-                            <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 text-amber-700 flex items-center justify-center mx-auto shadow-xs">
-                              <AlertCircle className="w-6 h-6 text-amber-600" />
+                          <div className="p-6 text-center bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-slate-50 dark:from-amber-950/50 dark:via-orange-950/30 dark:to-slate-900/80 rounded-2xl border-2 border-dashed border-amber-300 dark:border-amber-700/60 px-4 space-y-4">
+                            <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700/60 text-amber-700 dark:text-amber-300 flex items-center justify-center mx-auto shadow-xs">
+                              <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-extrabold text-amber-950">
+                              <p className="text-sm font-extrabold text-amber-950 dark:text-amber-200">
                                 {isCurDayToday ? `All Standard Slots Ended or Booked Today` : `All Standard Slots Booked on ${curDay.label}`} ({curDay.date_fmt})
                               </p>
-                              <p className="text-[11px] text-amber-900/90 max-w-md mx-auto">
+                              <p className="text-[11px] text-amber-900/90 dark:text-amber-300/80 max-w-md mx-auto">
                                 {isCurDayToday
                                   ? `All regular consultation slots for earlier today (${passedSlotsCount} slots) have already passed in time or are booked. As the reception assistant, you can choose specific timing for an Emergency Walk-In Slot right now.`
                                   : `All regular consultation slots for this date are fully booked or past. As the reception assistant, you can choose specific timing for an Emergency Walk-In Slot right now.`}
@@ -11220,7 +11220,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 type="button"
                                 onClick={() => handleCreateEmergencySlot('NOW', 20, curDay.date)}
                                 disabled={creatingEmergencySlot}
-                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-slate-700 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
                               >
                                 <span>⚡ Immediate Slot (Right Now)</span>
                               </button>
@@ -12122,7 +12122,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   </div>
 
                   {/* Consultation Fee & Privilege Card Summary */}
-                  <div className="bg-gradient-to-r from-amber-50 to-amber-100/70 border border-amber-200 rounded-2xl p-4 space-y-2 text-xs">
+                  <div className="bg-gradient-to-r from-amber-50 to-amber-100/70 dark:from-amber-950/40 dark:to-amber-900/30 border border-amber-200 dark:border-amber-700/50 rounded-2xl p-4 space-y-2 text-xs">
                     <div className="flex items-center justify-between font-medium text-slate-600">
                       <span>Standard Consultation Fee:</span>
                       <span className="font-mono">{formatCurrency(currentDoctor?.fee_clinic || 1000)}</span>

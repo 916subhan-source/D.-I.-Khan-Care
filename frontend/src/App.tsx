@@ -1894,7 +1894,7 @@ export default function App() {
 
   // ── Public Patient-Facing Page ──
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#080d14] text-slate-900 dark:text-slate-100 flex flex-col">
       {/* ── Public Top Navbar — Responsive & Desktop-Preserved ── */}
       <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-100" style={{ backdropFilter: 'blur(12px)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -2089,7 +2089,7 @@ export default function App() {
       )}
 
       {/* ── Content ── */}
-      <main className="flex-1 pb-20 md:pb-0">
+      <main className="flex-1 pb-20 md:pb-0 dark:bg-[#080d14]">
         {activeTab === 'track' ? (
           <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('patient')} />
         ) : (
@@ -2101,7 +2101,7 @@ export default function App() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-slate-100 bg-white py-6">
+      <footer className="border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-6">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1a6359, #2a9488)' }}>

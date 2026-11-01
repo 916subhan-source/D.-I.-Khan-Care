@@ -277,11 +277,25 @@
 @layer utilities {
   .font-heading { font-family: 'Outfit', 'Inter', system-ui, sans-serif; }
 
-  /* Premium scrollbar */
-  ::-webkit-scrollbar       { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-  ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+/* Premium scrollbar */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+html.dark ::-webkit-scrollbar-thumb { background: #1e293b !important; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
+
+/* Hide scrollbars completely on scrollbar-none elements */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.scrollbar-none {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
 
   /* White/8 utility for sidebar links */
   .nav-link-hover:hover { background-color: rgba(255,255,255,0.08); }
@@ -559,9 +573,9 @@ html.dark .bg-\[\#fafbfc\] {
 
 /* Hero photo blend in dark mode */
 html.dark img[src*="private-clinic-consultation"] {
-  opacity: 0.28 !important;
-  filter: contrast(1.15) brightness(0.85);
-  mix-blend-mode: luminosity;
+  opacity: 0.16 !important;
+  filter: contrast(1.1) brightness(0.65) grayscale(35%) !important;
+  mix-blend-mode: luminosity !important;
 }
 
 /* Tables in Dark Mode */

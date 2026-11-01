@@ -7054,13 +7054,13 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
   return (
-    <div className={`group relative bg-white rounded-3xl border transition-all duration-300 ease-out flex flex-col justify-between overflow-hidden ${doctor.is_spotlight
-      ? 'border-amber-200/90 shadow-md shadow-amber-50 hover:shadow-2xl hover:shadow-amber-100/60 hover:border-amber-300 hover:-translate-y-1.5 hover:scale-[1.018]'
-      : 'border-slate-200/90 shadow-sm hover:shadow-2xl hover:shadow-slate-200/70 hover:border-clinic-300 hover:-translate-y-1.5 hover:scale-[1.018]'
+    <div className={`group relative bg-white dark:bg-[#0d1624] rounded-3xl border transition-all duration-300 ease-out flex flex-col justify-between overflow-hidden shadow-xl dark:shadow-[0_24px_50px_-10px_rgba(0,0,0,0.92)] hover:shadow-2xl dark:hover:shadow-[0_32px_65px_-10px_rgba(0,0,0,0.98)] hover:-translate-y-1.5 hover:scale-[1.015] ${doctor.is_spotlight
+      ? 'border-amber-200/90 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50'
+      : 'border-slate-200/90 dark:border-slate-800 hover:border-clinic-300 dark:hover:border-emerald-500/40'
       }`}>
       {/* Subtle luxury ambient glow for spotlight cards */}
       {doctor.is_spotlight && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 dark:bg-amber-500/5 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
       )}
 
       {/* ── Full Box Width Doctor Image Header ── */}

@@ -4396,26 +4396,26 @@ function DoctorProfileAndBookingView({
 
             {/* VIP Loyalty Card Showcase on Doctor Profile Page (Only visible when doctor has enabled it) */}
             {Boolean(doctor.loyalty_card_enabled) && (
-              <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-3xl p-5 shadow-sm space-y-3.5 relative overflow-hidden animate-fade-in">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-2xs space-y-3.5 relative overflow-hidden animate-fade-in">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
+                    <span className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-xs">
                       💳
                     </span>
                     <div>
-                      <h4 className="font-extrabold text-amber-950 text-sm">
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">
                         {doctor.loyalty_card_title || 'RK Loyalty Card'}
                       </h4>
-                      <p className="text-[11px] text-amber-800 font-medium">VIP Clinic Privilege Card</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">VIP Clinic Privilege Card</p>
                     </div>
                   </div>
-                  <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-xs">
+                  <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full">
                     {doctor.loyalty_discount_percent ? `${doctor.loyalty_discount_percent}% OFF` : '20% OFF'}
                   </span>
                 </div>
 
                 {/* Loyalty Card Photo Uploaded by Doctor */}
-                <div className="rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-md bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1]">
+                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1]">
                   <img
                     src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
                     alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
@@ -4454,11 +4454,11 @@ function DoctorProfileAndBookingView({
                   </div>
                 </div>
 
-                <div className="bg-amber-100/70 border border-amber-300/80 rounded-xl p-3 text-xs text-amber-950 space-y-1">
-                  <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs space-y-1">
+                  <div className="font-semibold flex items-center gap-1.5 text-amber-400">
                     <span>✨</span> Save {Number(doctor.loyalty_discount_percent ?? 20)}% on Every Consultation
                   </div>
-                  <p className="text-[11px] text-amber-800 leading-relaxed font-normal">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
                     Select <strong>"Apply for VIP Loyalty Card"</strong> in the booking form. When the assistant desk confirms your appointment, collect your physical Golden VIP card at reception!
                   </p>
                 </div>
@@ -4466,10 +4466,10 @@ function DoctorProfileAndBookingView({
             )}
 
             {/* Helpline Card */}
-            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-teal-50/60 dark:bg-slate-800/60 border border-teal-100/90 dark:border-slate-700/60 shadow-2xs">
-              <Headphones className="w-5 h-5 text-[#0f766e] flex-shrink-0" />
+            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+              <Headphones className="w-5 h-5 text-clinic-600 dark:text-emerald-400 flex-shrink-0" />
               <div>
-                <p className="text-[11px] text-slate-500 font-medium">Need help with your appointment?</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Need help with your appointment?</p>
                 <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 font-mono">0966 123 456 &middot; Mon&ndash;Sat, 9am&ndash;8pm</p>
               </div>
             </div>
@@ -4875,19 +4875,19 @@ function DoctorProfileAndBookingView({
                       <div
                         onClick={() => setApplyLoyaltyCard(false)}
                         className={`p-4 rounded-2xl border cursor-pointer transition-all ${!applyLoyaltyCard
-                            ? 'border-[#0f766e] bg-teal-50/70 ring-2 ring-[#0f766e]/20 shadow-xs'
-                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
+                            ? 'border-emerald-500/60 bg-emerald-950/20 shadow-xs'
+                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700'
                           }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
-                            <User className="w-3.5 h-3.5 text-[#0f766e] dark:text-emerald-400" /> Standard Appointment
+                          <span className={`font-bold text-xs flex items-center gap-1.5 ${!applyLoyaltyCard ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                            <User className={`w-3.5 h-3.5 ${!applyLoyaltyCard ? 'text-emerald-400' : 'text-slate-400'}`} /> Standard Appointment
                           </span>
                           <span className="font-extrabold text-xs text-slate-900 dark:text-white font-mono">
                             {formatCurrency(doctor.fee_clinic)}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
                           Standard clinic fee &bull; Fast 10-second booking with simple details
                         </p>
                       </div>
@@ -4896,20 +4896,20 @@ function DoctorProfileAndBookingView({
                       <div
                         onClick={() => setApplyLoyaltyCard(true)}
                         className={`p-4 rounded-2xl border cursor-pointer transition-all ${applyLoyaltyCard
-                            ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100/70 ring-2 ring-amber-500/30 shadow-xs'
-                            : 'border-amber-300/80 bg-amber-50/30 hover:border-amber-400'
+                            ? 'border-amber-500/60 bg-amber-950/20 shadow-xs'
+                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700'
                           }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             <span className="text-sm">💳</span>
-                            <span className="font-extrabold text-xs text-amber-950">VIP Loyalty Card</span>
+                            <span className={`font-bold text-xs ${applyLoyaltyCard ? 'text-amber-300' : 'text-slate-700 dark:text-slate-300'}`}>VIP Loyalty Card</span>
                           </div>
-                          <span className="font-extrabold text-xs text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full font-mono">
+                          <span className="font-semibold text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono">
                             {Number(doctor.loyalty_discount_percent ?? 20)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
                           </span>
                         </div>
-                        <p className="text-[11px] text-amber-900/80 mt-1.5 font-medium">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
                           Save {Number(doctor.loyalty_discount_percent ?? 20)}% &bull; Complete verification details to receive Golden Card at clinic
                         </p>
                       </div>
@@ -4917,8 +4917,8 @@ function DoctorProfileAndBookingView({
 
                     {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
                     {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
-                      <div className="mt-3 bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
-                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-400 shadow-xs flex-shrink-0">
+                      <div className="mt-3 bg-slate-850/80 dark:bg-slate-850/80 border border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
+                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-slate-700 shadow-xs flex-shrink-0">
                           <img
                             src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
                             alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
@@ -4927,12 +4927,12 @@ function DoctorProfileAndBookingView({
                         </div>
                         <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
                           <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
-                            <span className="font-extrabold text-xs text-amber-950">{doctor.loyalty_card_title || 'RK Loyalty Card'}</span>
-                            <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-2xs">
+                            <span className="font-bold text-xs text-slate-100 dark:text-white">{doctor.loyalty_card_title || 'RK Loyalty Card'}</span>
+                            <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px] px-2 py-0.5 rounded-full font-mono">
                               {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
                             </span>
                           </div>
-                          <p className="text-[11px] text-amber-900 leading-snug">
+                          <p className="text-[11px] text-slate-300 dark:text-slate-400 leading-snug">
                             Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
                           </p>
                         </div>
@@ -4971,7 +4971,7 @@ function DoctorProfileAndBookingView({
                 {/* 2x2 Input Fields Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Full name *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full name *</label>
                     <input
                       type="text"
                       value={patientName}
@@ -4983,7 +4983,7 @@ function DoctorProfileAndBookingView({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Mobile number *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile number *</label>
                     <input
                       type="text"
                       value={patientPhone}
@@ -4995,7 +4995,7 @@ function DoctorProfileAndBookingView({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Age *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Age *</label>
                     <input
                       type="text"
                       value={patientAge}
@@ -5007,7 +5007,7 @@ function DoctorProfileAndBookingView({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Gender *</label>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Gender *</label>
                     <select
                       value={patientGender}
                       onChange={(e) => setPatientGender(e.target.value)}
@@ -5023,11 +5023,11 @@ function DoctorProfileAndBookingView({
                 {/* Email address field for patient notifications */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-slate-700">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                       Email address (for slip receipt, reminders &amp; doctor review link) *
                     </label>
-                    <span className="text-[10px] font-semibold text-[#0f766e] bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200/60 flex items-center gap-1">
-                      <Mail className="w-3 h-3 text-[#0f766e]" /> Email Alerts
+                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
+                      <Mail className="w-3 h-3 text-emerald-400" /> Email Alerts
                     </span>
                   </div>
                   <div className="relative">
@@ -5213,7 +5213,7 @@ function DoctorProfileAndBookingView({
 
                 {/* Reason for visit (optional) */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Reason for your visit (optional)</label>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Reason for your visit (optional)</label>
                   <textarea
                     value={patientReason}
                     onChange={(e) => setPatientReason(e.target.value)}

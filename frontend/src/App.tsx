@@ -4404,7 +4404,7 @@ function DoctorProfileAndBookingView({
                     </span>
                     <div>
                       <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-                        {doctor.loyalty_card_title || 'RK Loyalty Card'}
+                        {doctor.loyalty_card_title || 'VIP Loyalty Card'}
                       </h4>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">VIP Clinic Privilege Card</p>
                     </div>
@@ -4414,44 +4414,30 @@ function DoctorProfileAndBookingView({
                   </span>
                 </div>
 
-                {/* Loyalty Card Photo Uploaded by Doctor */}
-                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1]">
-                  <img
-                    src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
-                    alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                    className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                      const fb = (e.target as HTMLElement).nextElementSibling;
-                      if (fb) (fb as HTMLElement).style.display = 'flex';
-                    }}
-                  />
-                  <div
-                    style={{ display: doctor.loyalty_card_image_url ? 'none' : 'flex' }}
-                    className="w-full h-44 bg-gradient-to-br from-amber-700 via-amber-500 to-yellow-400 text-slate-950 p-4 flex flex-col justify-between"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="text-[10px] font-black tracking-widest uppercase bg-slate-950 text-amber-300 px-2 py-0.5 rounded">
-                          VIP GOLDEN CARD
-                        </span>
-                        <h5 className="text-base font-black tracking-tight mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                          {doctor.loyalty_card_title || 'RK Loyalty Card'}
-                        </h5>
+                {/* Loyalty Card Photo Uploaded by Doctor or Clean Placeholder */}
+                <div className="rounded-xl overflow-hidden border border-slate-700/80 shadow-sm bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1] flex items-center justify-center">
+                  {doctor.loyalty_card_image_url ? (
+                    <img
+                      src={doctor.loyalty_card_image_url}
+                      alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                      className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full p-4 flex flex-col items-center justify-center text-center bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-2.5 shadow-inner">
+                        <CreditCard className="w-6 h-6" />
                       </div>
-                      <span className="text-sm font-black text-amber-950 bg-white/70 px-2 py-0.5 rounded">
-                        {Number(doctor.loyalty_discount_percent ?? 20)}% OFF
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300 font-semibold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 mb-1">
+                        VIP Privilege Card
                       </span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-bold text-amber-950">
-                        Dr. {doctor.full_name} &bull; {doctor.specialty}
-                      </p>
-                      <p className="text-[10px] text-amber-900/90 font-mono">
-                        Physical Card Issued at Reception &bull; {doctor.clinic_address}
+                      <h5 className="text-sm font-semibold text-slate-100 tracking-tight">
+                        {doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                      </h5>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Physical card issued at clinic reception
                       </p>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs space-y-1">
@@ -4918,16 +4904,23 @@ function DoctorProfileAndBookingView({
                     {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
                     {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
                       <div className="mt-3 bg-slate-850/80 dark:bg-slate-850/80 border border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
-                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-slate-700 shadow-xs flex-shrink-0">
-                          <img
-                            src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
-                            alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                            className="w-full h-full object-contain bg-slate-950"
-                          />
+                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center">
+                          {doctor.loyalty_card_image_url ? (
+                            <img
+                              src={doctor.loyalty_card_image_url}
+                              alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                              className="w-full h-full object-contain bg-slate-950"
+                            />
+                          ) : (
+                            <div className="w-full h-full min-h-[72px] flex flex-col items-center justify-center p-2 text-center bg-slate-900 text-slate-400">
+                              <CreditCard className="w-6 h-6 text-amber-400 mb-1" />
+                              <span className="text-[10px] font-medium">VIP Card</span>
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
                           <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
-                            <span className="font-bold text-xs text-slate-100 dark:text-white">{doctor.loyalty_card_title || 'RK Loyalty Card'}</span>
+                            <span className="font-bold text-xs text-slate-100 dark:text-white">{doctor.loyalty_card_title || 'VIP Loyalty Card'}</span>
                             <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px] px-2 py-0.5 rounded-full font-mono">
                               {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
                             </span>
@@ -14979,7 +14972,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     </span>
                     <div>
                       <h4 className="font-extrabold text-amber-950 dark:text-amber-200 text-sm">
-                        {doctorProfile?.loyalty_card_title || 'RK Loyalty Card'} &bull; VIP Loyalty Program
+                        {doctorProfile?.loyalty_card_title || 'VIP Loyalty Card'} &bull; VIP Loyalty Program
                       </h4>
                       <p className="text-[11px] text-amber-800 dark:text-amber-300/90 font-medium">
                         Consultation fee discount program for returning &amp; registered patients.
@@ -14996,7 +14989,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             method: 'PUT',
                             body: JSON.stringify({
                               loyalty_card_enabled: newStatus,
-                              loyalty_card_title: doctorProfile?.loyalty_card_title || 'RK Loyalty Card',
+                              loyalty_card_title: doctorProfile?.loyalty_card_title || 'VIP Loyalty Card',
                               loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 20.0
                             })
                           });
@@ -15018,24 +15011,20 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                 <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
                   {/* Card Image Preview */}
-                  <div className="relative group w-48 h-32 rounded-2xl overflow-hidden bg-slate-950 border-2 border-amber-400 shadow-md flex-shrink-0">
-                    <img
-                      src={doctorProfile?.loyalty_card_image_url || '/rk-loyalty-card.png'}
-                      alt="Loyalty Card"
-                      className="w-full h-full object-cover object-center"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none';
-                        const fb = (e.target as HTMLElement).nextElementSibling;
-                        if (fb) (fb as HTMLElement).style.display = 'flex';
-                      }}
-                    />
-                    <div
-                      style={{ display: doctorProfile?.loyalty_card_image_url ? 'none' : 'flex' }}
-                      className="w-full h-full bg-gradient-to-tr from-amber-600 to-yellow-400 text-slate-950 font-black text-xs flex flex-col justify-center items-center text-center p-2"
-                    >
-                      <span>{doctorProfile?.loyalty_card_title || 'RK Loyalty Card'}</span>
-                      <span className="text-[10px] opacity-80 mt-1">Upload Card Photo</span>
-                    </div>
+                  <div className="relative group w-48 h-32 rounded-2xl overflow-hidden bg-slate-950 border-2 border-slate-700 dark:border-slate-700 shadow-md flex-shrink-0 flex items-center justify-center">
+                    {doctorProfile?.loyalty_card_image_url ? (
+                      <img
+                        src={doctorProfile.loyalty_card_image_url}
+                        alt="Loyalty Card"
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-900 text-slate-300 text-xs flex flex-col justify-center items-center text-center p-3">
+                        <CreditCard className="w-7 h-7 text-amber-400 mb-1.5" />
+                        <span className="font-semibold text-slate-200">{doctorProfile?.loyalty_card_title || 'VIP Loyalty Card'}</span>
+                        <span className="text-[10px] text-slate-400 mt-1">No custom image uploaded</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Upload Controls & Settings */}
@@ -15083,7 +15072,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         <label className="block text-[11px] font-bold text-amber-950 dark:text-amber-200 mb-1">Card Title / Clinic Branding</label>
                         <input
                           type="text"
-                          value={doctorProfile?.loyalty_card_title || 'RK Loyalty Card'}
+                          value={doctorProfile?.loyalty_card_title || 'VIP Loyalty Card'}
                           onChange={(e) => setDoctorProfile((prev: any) => ({ ...prev, loyalty_card_title: e.target.value }))}
                           className="w-full text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-600/50 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                         />
@@ -15111,7 +15100,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   method: 'PUT',
                                   body: JSON.stringify({
                                     loyalty_card_enabled: Boolean(doctorProfile?.loyalty_card_enabled),
-                                    loyalty_card_title: doctorProfile?.loyalty_card_title || 'RK Loyalty Card',
+                                    loyalty_card_title: doctorProfile?.loyalty_card_title || 'VIP Loyalty Card',
                                     loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 20.0
                                   })
                                 });

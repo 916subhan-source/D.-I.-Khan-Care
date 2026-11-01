@@ -2123,11 +2123,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => handleSwitchRole('patient')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${
-              activeTab === 'patient'
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'patient'
                 ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
+              }`}
           >
             <Search className={`w-5 h-5 mb-0.5 ${activeTab === 'patient' ? 'stroke-[2.5]' : 'stroke-2'}`} />
             <span className="text-[10px] leading-tight tracking-tight">Doctors</span>
@@ -2137,11 +2136,10 @@ export default function App() {
           <button
             type="button"
             onClick={() => handleSwitchRole('track')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${
-              activeTab === 'track'
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'track'
                 ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
+              }`}
           >
             <Clock className={`w-5 h-5 mb-0.5 ${activeTab === 'track' ? 'stroke-[2.5]' : 'stroke-2'}`} />
             <span className="text-[10px] leading-tight tracking-tight">Track Slip</span>
@@ -4198,11 +4196,10 @@ function DoctorProfileAndBookingView({
           <button
             type="button"
             onClick={() => setMobileActiveTab('booking')}
-            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              mobileActiveTab === 'booking'
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${mobileActiveTab === 'booking'
                 ? 'bg-[#0f766e] text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
+              }`}
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>1. Pick Time &amp; Book</span>
@@ -4210,11 +4207,10 @@ function DoctorProfileAndBookingView({
           <button
             type="button"
             onClick={() => setMobileActiveTab('profile')}
-            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              mobileActiveTab === 'profile'
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${mobileActiveTab === 'profile'
                 ? 'bg-[#0f766e] text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
+              }`}
           >
             <User className="w-3.5 h-3.5" />
             <span>2. Doctor &amp; Loyalty Info</span>
@@ -4400,73 +4396,73 @@ function DoctorProfileAndBookingView({
 
             {/* VIP Loyalty Card Showcase on Doctor Profile Page (Only visible when doctor has enabled it) */}
             {Boolean(doctor.loyalty_card_enabled) && (
-            <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-3xl p-5 shadow-sm space-y-3.5 relative overflow-hidden animate-fade-in">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
-                    💳
-                  </span>
-                  <div>
-                    <h4 className="font-extrabold text-amber-950 text-sm">
-                      {doctor.loyalty_card_title || 'RK Loyalty Card'}
-                    </h4>
-                    <p className="text-[11px] text-amber-800 font-medium">VIP Clinic Privilege Card</p>
-                  </div>
-                </div>
-                <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-xs">
-                  {doctor.loyalty_discount_percent ? `${doctor.loyalty_discount_percent}% OFF` : '20% OFF'}
-                </span>
-              </div>
-
-              {/* Loyalty Card Photo Uploaded by Doctor */}
-              <div className="rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-md bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1]">
-                <img
-                  src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
-                  alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                  className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                    const fb = (e.target as HTMLElement).nextElementSibling;
-                    if (fb) (fb as HTMLElement).style.display = 'flex';
-                  }}
-                />
-                <div
-                  style={{ display: doctor.loyalty_card_image_url ? 'none' : 'flex' }}
-                  className="w-full h-44 bg-gradient-to-br from-amber-700 via-amber-500 to-yellow-400 text-slate-950 p-4 flex flex-col justify-between"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] font-black tracking-widest uppercase bg-slate-950 text-amber-300 px-2 py-0.5 rounded">
-                        VIP GOLDEN CARD
-                      </span>
-                      <h5 className="text-base font-black tracking-tight mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                        {doctor.loyalty_card_title || 'RK Loyalty Card'}
-                      </h5>
-                    </div>
-                    <span className="text-sm font-black text-amber-950 bg-white/70 px-2 py-0.5 rounded">
-                      {Number(doctor.loyalty_discount_percent ?? 20)}% OFF
+              <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-3xl p-5 shadow-sm space-y-3.5 relative overflow-hidden animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow-xs">
+                      💳
                     </span>
+                    <div>
+                      <h4 className="font-extrabold text-amber-950 text-sm">
+                        {doctor.loyalty_card_title || 'RK Loyalty Card'}
+                      </h4>
+                      <p className="text-[11px] text-amber-800 font-medium">VIP Clinic Privilege Card</p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-bold text-amber-950">
-                      Dr. {doctor.full_name} &bull; {doctor.specialty}
-                    </p>
-                    <p className="text-[10px] text-amber-900/90 font-mono">
-                      Physical Card Issued at Reception &bull; {doctor.clinic_address}
-                    </p>
-                  </div>
+                  <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-xs">
+                    {doctor.loyalty_discount_percent ? `${doctor.loyalty_discount_percent}% OFF` : '20% OFF'}
+                  </span>
                 </div>
-              </div>
 
-              <div className="bg-amber-100/70 border border-amber-300/80 rounded-xl p-3 text-xs text-amber-950 space-y-1">
-                <div className="font-bold flex items-center gap-1.5 text-amber-900">
-                  <span>✨</span> Save {Number(doctor.loyalty_discount_percent ?? 20)}% on Every Consultation
+                {/* Loyalty Card Photo Uploaded by Doctor */}
+                <div className="rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-md bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1]">
+                  <img
+                    src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
+                    alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                    className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                      const fb = (e.target as HTMLElement).nextElementSibling;
+                      if (fb) (fb as HTMLElement).style.display = 'flex';
+                    }}
+                  />
+                  <div
+                    style={{ display: doctor.loyalty_card_image_url ? 'none' : 'flex' }}
+                    className="w-full h-44 bg-gradient-to-br from-amber-700 via-amber-500 to-yellow-400 text-slate-950 p-4 flex flex-col justify-between"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-black tracking-widest uppercase bg-slate-950 text-amber-300 px-2 py-0.5 rounded">
+                          VIP GOLDEN CARD
+                        </span>
+                        <h5 className="text-base font-black tracking-tight mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                          {doctor.loyalty_card_title || 'RK Loyalty Card'}
+                        </h5>
+                      </div>
+                      <span className="text-sm font-black text-amber-950 bg-white/70 px-2 py-0.5 rounded">
+                        {Number(doctor.loyalty_discount_percent ?? 20)}% OFF
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-bold text-amber-950">
+                        Dr. {doctor.full_name} &bull; {doctor.specialty}
+                      </p>
+                      <p className="text-[10px] text-amber-900/90 font-mono">
+                        Physical Card Issued at Reception &bull; {doctor.clinic_address}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[11px] text-amber-800 leading-relaxed font-normal">
-                  Select <strong>"Apply for VIP Loyalty Card"</strong> in the booking form. When the assistant desk confirms your appointment, collect your physical Golden VIP card at reception!
-                </p>
+
+                <div className="bg-amber-100/70 border border-amber-300/80 rounded-xl p-3 text-xs text-amber-950 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                    <span>✨</span> Save {Number(doctor.loyalty_discount_percent ?? 20)}% on Every Consultation
+                  </div>
+                  <p className="text-[11px] text-amber-800 leading-relaxed font-normal">
+                    Select <strong>"Apply for VIP Loyalty Card"</strong> in the booking form. When the assistant desk confirms your appointment, collect your physical Golden VIP card at reception!
+                  </p>
+                </div>
               </div>
-            </div>
             )}
 
             {/* Helpline Card */}
@@ -4872,79 +4868,77 @@ function DoctorProfileAndBookingView({
 
                 {/* Option to Choose Standard Appointment vs VIP Loyalty Card (Only if doctor enabled) */}
                 {Boolean(doctor.loyalty_card_enabled) && (
-                <div className="space-y-2 pt-1">
-                  <label className="block text-xs font-bold text-slate-700">Choose Consultation Plan</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* Plan A: Standard Appointment */}
-                    <div
-                      onClick={() => setApplyLoyaltyCard(false)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                        !applyLoyaltyCard
-                          ? 'border-[#0f766e] bg-teal-50/70 ring-2 ring-[#0f766e]/20 shadow-xs'
-                          : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-[#0f766e]" /> Standard Appointment
-                        </span>
-                        <span className="font-extrabold text-xs text-slate-900 font-mono">
-                          {formatCurrency(doctor.fee_clinic)}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-1.5">
-                        Standard clinic fee &bull; Fast 10-second booking with simple details
-                      </p>
-                    </div>
-
-                    {/* Plan B: VIP Loyalty Card */}
-                    <div
-                      onClick={() => setApplyLoyaltyCard(true)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                        applyLoyaltyCard
-                          ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100/70 ring-2 ring-amber-500/30 shadow-xs'
-                          : 'border-amber-300/80 bg-amber-50/30 hover:border-amber-400'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-sm">💳</span>
-                          <span className="font-extrabold text-xs text-amber-950">VIP Loyalty Card</span>
-                        </div>
-                        <span className="font-extrabold text-xs text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full font-mono">
-                          {Number(doctor.loyalty_discount_percent ?? 20)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-amber-900/80 mt-1.5 font-medium">
-                        Save {Number(doctor.loyalty_discount_percent ?? 20)}% &bull; Complete verification details to receive Golden Card at clinic
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
-                  {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
-                    <div className="mt-3 bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
-                      <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-400 shadow-xs flex-shrink-0">
-                        <img
-                          src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
-                          alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                          className="w-full h-full object-contain bg-slate-950"
-                        />
-                      </div>
-                      <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
-                        <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
-                          <span className="font-extrabold text-xs text-amber-950">{doctor.loyalty_card_title || 'RK Loyalty Card'}</span>
-                          <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-2xs">
-                            {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
+                  <div className="space-y-2 pt-1">
+                    <label className="block text-xs font-bold text-slate-700">Choose Consultation Plan</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Plan A: Standard Appointment */}
+                      <div
+                        onClick={() => setApplyLoyaltyCard(false)}
+                        className={`p-4 rounded-2xl border cursor-pointer transition-all ${!applyLoyaltyCard
+                            ? 'border-[#0f766e] bg-teal-50/70 ring-2 ring-[#0f766e]/20 shadow-xs'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-[#0f766e]" /> Standard Appointment
+                          </span>
+                          <span className="font-extrabold text-xs text-slate-900 font-mono">
+                            {formatCurrency(doctor.fee_clinic)}
                           </span>
                         </div>
-                        <p className="text-[11px] text-amber-900 leading-snug">
-                          Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
+                        <p className="text-[11px] text-slate-500 mt-1.5">
+                          Standard clinic fee &bull; Fast 10-second booking with simple details
+                        </p>
+                      </div>
+
+                      {/* Plan B: VIP Loyalty Card */}
+                      <div
+                        onClick={() => setApplyLoyaltyCard(true)}
+                        className={`p-4 rounded-2xl border cursor-pointer transition-all ${applyLoyaltyCard
+                            ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100/70 ring-2 ring-amber-500/30 shadow-xs'
+                            : 'border-amber-300/80 bg-amber-50/30 hover:border-amber-400'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm">💳</span>
+                            <span className="font-extrabold text-xs text-amber-950">VIP Loyalty Card</span>
+                          </div>
+                          <span className="font-extrabold text-xs text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full font-mono">
+                            {Number(doctor.loyalty_discount_percent ?? 20)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-amber-900/80 mt-1.5 font-medium">
+                          Save {Number(doctor.loyalty_discount_percent ?? 20)}% &bull; Complete verification details to receive Golden Card at clinic
                         </p>
                       </div>
                     </div>
-                  )}
-                </div>
+
+                    {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
+                    {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
+                      <div className="mt-3 bg-gradient-to-br from-amber-500/10 via-amber-400/20 to-amber-600/10 border-2 border-amber-400/70 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
+                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-400 shadow-xs flex-shrink-0">
+                          <img
+                            src={doctor.loyalty_card_image_url || '/rk-loyalty-card.png'}
+                            alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                            className="w-full h-full object-contain bg-slate-950"
+                          />
+                        </div>
+                        <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
+                          <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-xs text-amber-950">{doctor.loyalty_card_title || 'RK Loyalty Card'}</span>
+                            <span className="bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-2xs">
+                              {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-900 leading-snug">
+                            Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {/* Booking for Toggle */}
@@ -6190,7 +6184,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
     const matchLoc = selectedLocality === 'All D.I. Khan' || doc.sub_region.toLowerCase().includes(selectedLocality.split('/')[0].trim().toLowerCase());
     const matchShift = selectedShift === 'Any shift' || doc.shift.toLowerCase().includes(selectedShift.toLowerCase());
     const matchSearch = !searchTerm || doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doc.clinic_address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchSpecialty = selectedSpecialty === 'All specialties' || 
+    const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
       (selectedSpecialty.toLowerCase().includes('lap') && doc.specialty.toLowerCase().includes('lap')) ||
       (selectedSpecialty.toLowerCase().includes('face') && doc.specialty.toLowerCase().includes('face'));
@@ -6326,7 +6320,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       </div>
 
       {/* ── Modern Hero Section with Image Banner ── */}
-      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-0 overflow-hidden">
+      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10">
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <img
@@ -6398,8 +6392,8 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
           <Hero3DPass />
         </div>
 
-        {/* ── Unified Horizontal Search Bar docked: exactly half on image banner on desktop, clean spaced on mobile ── */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-5 sm:mt-10 lg:mt-12 mb-3 sm:-mb-12">
+        {/* ── Unified Horizontal Search Bar docked: fully visible and beautifully spaced ── */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-6 sm:mt-10 lg:mt-12 mb-2 sm:mb-3">
           <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
               {/* Specialty Dropdown */}
@@ -6469,7 +6463,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       </div>
 
       {/* ── Outside Image Box: Horizontal Specialty Filters Row (Responsive spacing) ── */}
-      <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 pt-3 sm:pt-[60px] lg:pt-[60px] pb-3 sm:pb-3.5 shadow-2xs">
+      <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 py-3 sm:py-3.5 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-scroll">
             <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
@@ -8935,11 +8929,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     }
                                     if (qNum) {
                                       return (
-                                        <span className={`px-2 py-0.5 rounded-md text-xs font-bold font-sans border ${
-                                          item.has_loyalty_discount
+                                        <span className={`px-2 py-0.5 rounded-md text-xs font-bold font-sans border ${item.has_loyalty_discount
                                             ? 'bg-amber-100 border-amber-300 text-amber-950 font-black shadow-xs'
                                             : 'bg-teal-50 border border-teal-200 text-teal-800'
-                                        }`}>
+                                          }`}>
                                           Token #{qNum} {item.has_loyalty_discount ? '🌟 VIP' : ''}
                                         </span>
                                       );
@@ -9265,13 +9258,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     return (
                       <div
                         key={`m-asst-${item.id}`}
-                        className={`p-4 transition-colors ${
-                          isCurrentActive
+                        className={`p-4 transition-colors ${isCurrentActive
                             ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500'
                             : isNextInLineWaiting
-                            ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'
-                            : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850'
-                        }`}
+                              ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'
+                              : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850'
+                          }`}
                       >
                         {/* Calling Status Banner if active */}
                         {isCurrentActive && (
@@ -9321,11 +9313,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <div className="flex flex-col items-end gap-1 flex-shrink-0">
                             <StatusPill status={item.status} />
                             {qNum ? (
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-sans ${
-                                item.has_loyalty_discount
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-sans ${item.has_loyalty_discount
                                   ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
                                   : 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
-                              }`}>
+                                }`}>
                                 Token #{qNum}
                               </span>
                             ) : (
@@ -9486,11 +9477,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   type="button"
                                   disabled={Boolean(appointmentActionLoading)}
                                   onClick={() => handleCompleteAppointment(item.id)}
-                                  className={`w-full h-9 px-4 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer ${
-                                    isCurrentActive
+                                  className={`w-full h-9 px-4 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer ${isCurrentActive
                                       ? 'bg-gradient-to-r from-emerald-600 to-teal-700 ring-2 ring-emerald-300 shadow-sm'
                                       : 'bg-gradient-to-r from-clinic-700 to-clinic-800'
-                                  }`}
+                                    }`}
                                 >
                                   {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
                                     <>
@@ -10274,15 +10264,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             </div>
 
                             <div className="flex items-center gap-2 flex-shrink-0">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                slot.status === 'available'
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${slot.status === 'available'
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                   : slot.status === 'hold'
                                     ? 'bg-amber-50 text-amber-700 border border-amber-200'
                                     : slot.status === 'booked'
                                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                                       : 'bg-rose-50 text-rose-700 border border-rose-200'
-                              }`}>
+                                }`}>
                                 {slot.status === 'available' && '● Available'}
                                 {slot.status === 'hold' && '⏳ In Review'}
                                 {slot.status === 'booked' && '✓ Booked'}
@@ -12031,9 +12020,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4">
                     <div className="text-xs font-black uppercase tracking-wider text-amber-900 mb-3 flex items-center justify-between">
                       <span>📋 10 Patient Verification Fields</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                        selectedLoyaltyAppt.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-200 text-amber-900'
-                      }`}>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${selectedLoyaltyAppt.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-200 text-amber-900'
+                        }`}>
                         {selectedLoyaltyAppt.status === 'CONFIRMED' ? '✓ Card Approved' : '⏳ Awaiting Assistant Approval'}
                       </span>
                     </div>
@@ -12363,7 +12351,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         setAppointments(appts);
         try {
           localStorage.setItem('doc_cached_appts', JSON.stringify(appts));
-        } catch {}
+        } catch { }
       }
       setLoadingAppointments(false);
       setIsRefreshingAppts(false);
@@ -12374,7 +12362,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         setAnalytics(analy);
         try {
           localStorage.setItem('doc_cached_analytics', JSON.stringify(analy));
-        } catch {}
+        } catch { }
       }
     });
 
@@ -14008,17 +13996,15 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 </div>
                               </div>
                               <div className="flex flex-col items-end gap-1">
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                                  isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' :
-                                  isCancelled ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300' :
-                                  appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
-                                  'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
-                                }`}>
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' :
+                                    isCancelled ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300' :
+                                      appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
+                                        'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
+                                  }`}>
                                   {appt.status}
                                 </span>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                                  appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:border-emerald-700' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:border-amber-700'
-                                }`}>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:border-emerald-700' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:border-amber-700'
+                                  }`}>
                                   {appt.payment_status || 'PENDING'}
                                 </span>
                               </div>
@@ -15018,11 +15004,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           alert(err.message || 'Failed to update loyalty settings');
                         }
                       }}
-                      className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-xs flex items-center gap-1.5 ${
-                        doctorProfile?.loyalty_card_enabled
+                      className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-xs flex items-center gap-1.5 ${doctorProfile?.loyalty_card_enabled
                           ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                           : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
-                      }`}
+                        }`}
                     >
                       {doctorProfile?.loyalty_card_enabled ? `✓ Program Active (${doctorProfile?.loyalty_discount_percent ?? 20}% OFF)` : '✕ Program Inactive (Hidden)'}
                     </button>

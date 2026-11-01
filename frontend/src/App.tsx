@@ -1804,6 +1804,18 @@ export default function App() {
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
 
+  // Prevent browser history scroll-restoration fighting React view state
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  // Always scroll to top when active tab / role view changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [activeTab]);
+
   // Global Theme Mode: Light or Dark
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -1841,6 +1853,7 @@ export default function App() {
   // Sync tab with browser URL history
   const handleSwitchRole = (newRole: 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => {
     setActiveTab(newRole as any);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     try {
       const targetPath = newRole === 'admin' ? '/admin'
         : newRole === 'doctor' ? '/doctor'
@@ -2180,9 +2193,21 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string>('');
   const [trackError, setTrackError] = useState<string>('');
 
+  // Always scroll to top when mounting TrackAppointmentSection
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, []);
+
   const appointment = useMemo(() => {
     return appointmentList.find(a => a.id === selectedAppointmentId) || appointmentList[0] || null;
   }, [appointmentList, selectedAppointmentId]);
+
+  // When tracked appointment is found, scroll smoothly to show details
+  useEffect(() => {
+    if (appointment) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }
+  }, [appointment?.id]);
 
   useEffect(() => {
     try {
@@ -3624,7 +3649,22 @@ function DoctorProfileAndBookingView({
     }
   };
 
+  // Always scroll to top when opening doctor profile/booking view or changing doctor
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [doctor?.id]);
+
+  // Scroll smoothly to top when switching mobile tabs (booking <-> profile)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [mobileActiveTab]);
+
   const [bookingState, setBookingState] = useState<'form' | 'otp' | 'confirmed'>('form');
+
+  // Scroll smoothly to top when advancing booking steps (form -> otp -> confirmed)
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, [bookingState]);
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [devCode, setDevCode] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -6027,6 +6067,7 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
   }, []);
 
   const openBookingModal = async (doctor: DoctorData) => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     setProfileDoctor(doctor);
     setBookingDoctor(doctor);
     setSelectedSlot(null);
@@ -6274,9 +6315,13 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
     return (
       <DoctorProfileAndBookingView
         doctor={profileDoctor}
-        onBack={() => setProfileDoctor(null)}
+        onBack={() => {
+          setProfileDoctor(null);
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }}
         onTrackNav={() => {
           setProfileDoctor(null);
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
           if (onSwitchRole) onSwitchRole('track' as any);
           else setShowTrack(true);
         }}
@@ -6745,7 +6790,10 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
                       key={doctor.id}
                       doctor={doctor}
                       onBook={openBookingModal}
-                      onProfile={setProfileDoctor}
+                      onProfile={(doc) => {
+                        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                        setProfileDoctor(doc);
+                      }}
                     />
                   ))}
                 </div>
@@ -6775,7 +6823,10 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
       <HealthChatbot
         doctors={doctors}
         onBook={openBookingModal}
-        onProfile={setProfileDoctor}
+        onProfile={(doc) => {
+                        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                        setProfileDoctor(doc);
+                      }}
         onTrack={() => {
           setShowTrack(true);
           const el = document.getElementById('doctors-results-grid');
@@ -7303,6 +7354,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     return localStorage.getItem('assistant_selected_doctor_id') ? 'portal' : 'select';
   });
   const [deskTab, setDeskTab] = useState<'queue' | 'schedule' | 'smart_resched' | 'cash' | 'all' | 'pos'>('queue');
+
+  // Always scroll to top when changing views or tabs in Assistant Section
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [portalView, deskTab]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [callingOrderActive, setCallingOrderActive] = useState<boolean>(() => {
     return localStorage.getItem('asst_calling_order') === 'true';
@@ -12149,6 +12205,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   });
   const [slots, setSlots] = useState<SlotData[]>([]);
   const [activePortalTab, setActivePortalTab] = useState<'overview' | 'schedule' | 'assistants' | 'profile'>('overview');
+
+  // Always scroll to top when changing tabs in Doctor Section
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [activePortalTab]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [assistants, setAssistants] = useState<any[]>([]);
 
@@ -15895,6 +15956,11 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
   const [statusMsg, setStatusMsg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [adminTab, setAdminTab] = useState<'directory' | 'audit' | 'system'>('directory');
+
+  // Always scroll to top when mounting AdminSection or switching tabs
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [adminTab]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Doctor Form Modal state

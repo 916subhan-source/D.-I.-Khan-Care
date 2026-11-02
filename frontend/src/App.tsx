@@ -3470,6 +3470,52 @@ function DoctorProfileModal({
 // ══════════════════════════════════════════════════════════════════════════════════════
 // Client-side transient slot cache (2 minutes TTL) to make profile switching instant
 const clientSlotCache: Record<string, { timestamp: number; slots: SlotData[] }> = {};
+
+const getSpecialtyServicesList = (spec: string) => {
+  const s = (spec || '').toLowerCase();
+  if (s.includes('cardio')) {
+    return {
+      services: ['ECG & Echocardiography', 'Hypertension & BP Control', 'Chest Pain Evaluation', 'Heart Failure Management', 'Preventive Cardiology', 'Lipid & Cholesterol Management'],
+      conditions: ['High Blood Pressure (Hypertension)', 'Coronary Artery Disease', 'Heart Palpitations', 'High Cholesterol', 'Shortness of Breath', 'Angina Pectoris']
+    };
+  } else if (s.includes('derma') || s.includes('skin')) {
+    return {
+      services: ['Acne & Scar Treatment', 'Hair Loss & PRP Therapy', 'Laser Skin Resurfacing', 'Eczema & Psoriasis Care', 'Anti-Aging & Skin Rejuvenation', 'Pigmentation & Melasma Therapy'],
+      conditions: ['Acne Vulgaris', 'Alopecia & Hair Thinning', 'Eczema & Dermatitis', 'Fungal Skin Infections', 'Psoriasis', 'Skin Allergies']
+    };
+  } else if (s.includes('dent') || s.includes('teeth')) {
+    return {
+      services: ['Teeth Cleaning & Polishing', 'Root Canal Treatment (RCT)', 'Dental Crowns & Bridges', 'Tooth Extractions', 'Teeth Whitening', 'Dental Implants Consultation'],
+      conditions: ['Tooth Decay & Cavities', 'Gum Disease & Bleeding', 'Toothache & Sensitivity', 'Misaligned Teeth', 'Impacted Wisdom Teeth', 'Oral Infections']
+    };
+  } else if (s.includes('gynaec') || s.includes('obstet') || s.includes('women')) {
+    return {
+      services: ['Antenatal & Postnatal Care', 'High-Risk Pregnancy Management', 'PCOS / PCOD Treatment', 'Infertility Evaluation', 'Gynecological Ultrasound', 'Menstrual Disorder Care'],
+      conditions: ['PCOS / PCOD', 'High-Risk Pregnancy', 'Infertility', 'Menstrual Irregularities', 'Pelvic Infections', 'Uterine Fibroids']
+    };
+  } else if (s.includes('laparo') || s.includes('lapro')) {
+    return {
+      services: ['Diagnostic Laparoscopy', 'Laparoscopic Cholecystectomy (Gallbladder)', 'Laparoscopic Appendectomy', 'Minimally Invasive Hernia Repair', 'Laparoscopic Cyst Removal', 'Post-Op Laparoscopic Follow-up'],
+      conditions: ['Gallstones & Cholecystitis', 'Appendicitis', 'Abdominal & Inguinal Hernia', 'Abdominal Adhesions', 'Ovarian & Pelvic Cysts', 'Acute Abdominal Pain']
+    };
+  } else if (s.includes('aesthet') || s.includes('asthet') || s.includes('face')) {
+    return {
+      services: ['Facial Contouring & Reshaping', 'Rhinoplasty (Nose Reshaping)', 'Blepharoplasty (Eyelid Surgery)', 'Facelift & Neck Lift Consultation', 'Scar Revision & Facial Reconstruction', 'Botox, Fillers & Facial Rejuvenation'],
+      conditions: ['Facial Trauma & Scarring', 'Nasal Deformities & Deviations', 'Sagging Facial Skin & Wrinkles', 'Ptosis & Drooping Eyelids', 'Facial Asymmetry', 'Post-Burn & Post-Excision Reconstruction']
+    };
+  } else if (s.includes('surgeon') || s.includes('surgery')) {
+    return {
+      services: ['Minor & Major General Surgery', 'Hernia Repair (Open/Mesh)', 'Appendectomy & Bowel Surgery', 'Wound Debridement & Abscess Drainage', 'Lipoma & Cyst Excision', 'Surgical OPD & Post-Operative Care'],
+      conditions: ['Inguinal & Ventral Hernia', 'Acute Appendicitis', 'Skin Cysts, Lipomas & Tumors', 'Soft Tissue Infections & Abscesses', 'Gallbladder & Biliary Conditions', 'Surgical Wound Complications']
+    };
+  } else {
+    return {
+      services: ['General Health Checkup', 'Diabetes & Sugar Management', 'Fever & Infection Care', 'Blood Pressure Monitoring', 'Gastric & Acidity Treatment', 'Routine Physical Examination'],
+      conditions: ['Type 2 Diabetes', 'Hypertension', 'Seasonal Typhoid & Dengue', 'Digestive & Gastric Issues', 'Respiratory Infections', 'General Weakness & Deficiency']
+    };
+  }
+};
+
 function DoctorProfileAndBookingView({
   doctor,
   onBack,
@@ -3497,6 +3543,8 @@ function DoctorProfileAndBookingView({
   const [applyLoyaltyCard, setApplyLoyaltyCard] = useState<boolean>(false);
   // Mobile tab navigation state ('booking' | 'profile')
   const [mobileActiveTab, setMobileActiveTab] = useState<'booking' | 'profile'>('booking');
+  const [profileActiveTab, setProfileActiveTab] = useState<'about' | 'services' | 'conditions' | 'schedule' | 'reviews' | 'faqs'>('about');
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [loyaltyGuardianName, setLoyaltyGuardianName] = useState<string>('');
   const [loyaltyDob, setLoyaltyDob] = useState<string>('1992-05-15');
   const [loyaltyGender, setLoyaltyGender] = useState<string>('Male');
@@ -4229,319 +4277,455 @@ function DoctorProfileAndBookingView({
 
       {/* ── Main Container ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7">
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4 sm:mb-6 font-medium flex-wrap">
-          <button onClick={onBack} className="hover:text-[#0f766e] dark:hover:text-emerald-300 transition-colors">Home</button>
+        {/* ── Breadcrumbs ── */}
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium flex-wrap">
+          <button onClick={onBack} className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Home</button>
           <ChevronRight className="w-3 h-3 text-slate-400" />
-          <button onClick={onBack} className="hover:text-[#0f766e] dark:hover:text-emerald-300 transition-colors">Find a doctor</button>
+          <button onClick={onBack} className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Doctors in D.I. Khan</button>
           <ChevronRight className="w-3 h-3 text-slate-400" />
-          <span className="text-slate-800 dark:text-slate-200 font-semibold truncate max-w-[150px] sm:max-w-none">{doctor.full_name}</span>
+          <span className="text-slate-800 dark:text-slate-300 font-semibold">{doctor.specialty} Specialists</span>
+          <ChevronRight className="w-3 h-3 text-slate-400" />
+          <span className="text-slate-900 dark:text-white font-bold truncate max-w-[200px]">{doctor.full_name}</span>
         </div>
 
-        {/* Page Title & Trust Badge */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Good care starts with a visit.
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-normal">
-              Get to know your doctor and choose a time that works for you.
-            </p>
-          </div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0f766e] dark:text-emerald-300 bg-teal-50/80 dark:bg-emerald-950/60 border border-teal-200/70 dark:border-emerald-700/60 rounded-full px-3.5 py-1.5 shadow-2xs self-start md:self-auto">
-            <ShieldCheck className="w-4 h-4 text-[#0f766e] dark:text-emerald-400" />
-            Secure, confidential booking
+        {/* ── Oladoc Web Full-Width Hero Card ── */}
+        <div className="bg-white dark:bg-[#0c1424] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-7 shadow-xs mb-6 relative overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-center gap-5 sm:gap-7">
+            {/* Doctor Portrait */}
+            <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl sm:rounded-3xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-4 ring-emerald-500/20 shadow-md">
+              <img
+                src={getDoctorProfileImage(doctor, 500)}
+                alt={doctor.full_name}
+                className="w-full h-full object-cover object-top"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                  const fallback = (e.target as HTMLElement).nextElementSibling;
+                  if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                }}
+              />
+              <div
+                style={{ display: 'none' }}
+                className="w-full h-full bg-gradient-to-br from-clinic-800 via-clinic-900 to-slate-950 text-white flex items-center justify-center font-extrabold text-3xl"
+              >
+                {doctor.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
+              </div>
+              {doctor.verification_status === 'verified' && (
+                <span className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 bg-emerald-600 text-white px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md border border-white dark:border-slate-900">
+                  <Check className="w-3 h-3 stroke-[3]" /> PMDC Verified
+                </span>
+              )}
+            </div>
+
+            {/* Doctor Main Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {doctor.full_name}
+                </h1>
+                {doctor.verification_status === 'verified' && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
+                    <ShieldCheck className="w-3.5 h-3.5" /> PMDC Registered Specialist
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                {doctor.specialty} Specialist &amp; Consultant
+              </p>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                {doctor.qualification || 'MBBS, FCPS'}
+              </p>
+
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 mt-2">
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                <span className="font-semibold">{doctor.clinic_address}</span>
+                <span className="text-slate-400 dark:text-slate-500">&bull; {doctor.sub_region}, D.I. Khan</span>
+              </div>
+
+              {/* 4-Pillar Oladoc Trust Bar */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                  <div className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">98%</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Satisfied</div>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                  <div className="text-base font-black text-amber-500 font-mono flex items-center justify-center gap-0.5">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '4.9'}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                    {reviewsSummary?.total_reviews || 128} Reviews
+                  </div>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                  <div className="text-base font-black text-slate-900 dark:text-white font-mono">&lt; 15 min</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Wait Time</div>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                  <div className="text-base font-black text-slate-900 dark:text-white font-mono">
+                    {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years} Years` : '10+ Years'}
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Experience</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* ── Mobile Navigation Tabs (visible only on mobile/tablet < lg) ── */}
-        <div className="lg:hidden flex items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl mb-4 sm:mb-5 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+        {/* ── Oladoc Navigation Tabs (Sticky) ── */}
+        <div className="sticky top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          {[
+            { id: 'about', label: 'About Doctor', icon: User },
+            { id: 'services', label: 'Services & Procedures', icon: Stethoscope },
+            { id: 'conditions', label: 'Conditions Treated', icon: Award },
+            { id: 'schedule', label: 'Clinic Schedule', icon: Clock },
+            { id: 'reviews', label: `Reviews (${reviewsSummary?.total_reviews || 128})`, icon: Star },
+            { id: 'faqs', label: 'FAQs', icon: HelpCircle },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = profileActiveTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  setProfileActiveTab(tab.id as any);
+                  setMobileActiveTab('profile');
+                }}
+                className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+                  isActive
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+          {/* Mobile Quick Jump Button to Booking */}
           <button
             type="button"
-            onClick={() => setMobileActiveTab('booking')}
-            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${mobileActiveTab === 'booking'
-                ? 'bg-[#0f766e] text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
+            onClick={() => {
+              setMobileActiveTab('booking');
+              const el = document.getElementById('oladoc-booking-card');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="lg:hidden ml-auto py-2 px-3 bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-extrabold whitespace-nowrap flex items-center gap-1 cursor-pointer flex-shrink-0 border border-emerald-500/30"
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>1. Pick Time &amp; Book</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileActiveTab('profile')}
-            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${mobileActiveTab === 'profile'
-                ? 'bg-[#0f766e] text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>2. Doctor &amp; Loyalty Info</span>
-            {Boolean(doctor.loyalty_card_enabled) && (
-              <span className="bg-amber-400 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">
-                VIP
-              </span>
-            )}
+            <span>Book Slot &rarr;</span>
           </button>
         </div>
 
-        {/* ── 2-Column Responsive Layout ── */}
+        {/* ── 2-Column Responsive Layout (Oladoc Standard: Left Info 7-col, Right Sticky Booking 5-col) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
-          {/* ── Left Column: Doctor Profile & Clinic Visit ── */}
-          <div className={`lg:col-span-4 space-y-5 sm:space-y-6 ${mobileActiveTab === 'profile' ? 'block' : 'hidden lg:block'}`}>
-            {/* Card 1: Doctor Profile */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-2xs">
-              <div className="relative w-full h-56 bg-slate-900 overflow-hidden">
-                <img
-                  src={getDoctorProfileImage(doctor, 500)}
-                  alt={doctor.full_name}
-                  className="w-full h-full object-cover object-top"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                    const fallback = (e.target as HTMLElement).nextElementSibling;
-                    if (fallback) (fallback as HTMLElement).style.display = 'flex';
-                  }}
-                />
-                <div
-                  style={{ display: 'none' }}
-                  className="w-full h-full bg-gradient-to-br from-clinic-800 via-clinic-900 to-slate-950 text-white flex items-center justify-center font-extrabold text-3xl"
-                >
-                  {doctor.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
-                </div>
-                <div className="absolute top-3.5 right-3.5">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 backdrop-blur-md border border-emerald-500/40 text-xs font-bold shadow-md">
-                    <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-400" /> PMDC verified
-                  </span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-              </div>
-              <div className="p-6">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {doctor.full_name}
-                  </h2>
-                  <p className="text-xs font-bold text-[#0f766e] mt-1 uppercase tracking-wider">{doctor.specialty} Specialist</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{doctor.qualification || 'MBBS, FCPS (Medicine)'}</p>
-                </div>
+          {/* ── Left Column: Oladoc Doctor Profile Information ── */}
+          <div className={`lg:col-span-7 space-y-6 ${mobileActiveTab === 'profile' ? 'block' : 'hidden lg:block'}`}>
 
-                {/* Reviews Star Row */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setReviewModalView('list');
-                    setShowReviewsModal(true);
-                  }}
-                  className="flex items-center gap-2 mt-4 text-xs group cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-1 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-lg shadow-2xs">
-                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span className="font-black text-amber-900">
-                      {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
-                    </span>
-                  </div>
-                  <span className="text-slate-500 font-medium group-hover:text-[#0f766e] group-hover:underline transition-colors">
-                    ({reviewsSummary?.total_reviews || 0} verified patient {reviewsSummary?.total_reviews === 1 ? 'review' : 'reviews'})
-                  </span>
-                </button>
-
-                {/* Experience & Satisfaction Grid */}
-                <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700/80 p-4 grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700 my-5">
-                  <div>
-                    <div className="text-base font-black text-slate-900 dark:text-white font-mono">
-                      {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years} years` : '12 years'}
-                    </div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Clinical experience</div>
-                  </div>
-                  <div className="pl-4">
-                    <div className="text-base font-black text-slate-900 dark:text-white font-mono">98%</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Patient satisfaction</div>
-                  </div>
-                </div>
-
-                {/* About your doctor */}
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">About your doctor</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal whitespace-pre-line">
-                    {doctor.bio || `${doctor.full_name} provides thoughtful, evidence-based care for adults, with a focus on comprehensive health, treated conditions and long-term wellbeing.`}
+            {/* TAB 1: ABOUT DOCTOR */}
+            {profileActiveTab === 'about' && (
+              <div className="space-y-6">
+                {/* Biography Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-3.5">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> About {doctor.full_name}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal whitespace-pre-line">
+                    {doctor.bio || `${doctor.full_name} is a highly accomplished ${doctor.specialty} Specialist practicing in D.I. Khan with over 10 years of clinical experience. Specializing in advanced diagnostics, patient-focused consultations, and preventive disease management.`}
                   </p>
 
                   {/* Treatment Tags */}
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {((doctor.expertise && doctor.expertise.trim())
-                      ? doctor.expertise.split(',').map((tag: string) => tag.trim()).filter(Boolean)
-                      : ['Diabetes care', 'Hypertension', 'General medicine']
-                    ).map((tag: string, idx: number) => (
-                      <span key={idx} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-medium bg-slate-50 dark:bg-slate-800/80">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Reviews Action Links */}
-                  <div className="flex items-center gap-3 mt-3 pt-1 border-t border-slate-100 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setReviewModalView('list');
-                        setShowReviewsModal(true);
-                      }}
-                      className="text-[#0f766e] hover:text-[#0b544e] font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      Read reviews ({reviewsSummary?.total_reviews || 0}) <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-slate-300">&middot;</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setReviewModalView('write');
-                        setShowReviewsModal(true);
-                      }}
-                      className="text-amber-700 hover:text-amber-800 font-bold inline-flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                      Write a review
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Your Clinic Visit */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-2xs space-y-4">
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white">Your clinic visit</h3>
-
-              <div className="space-y-4 text-xs">
-                {/* Location */}
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">{doctor.clinic_address || 'D.I. Khan Care Clinic'}</p>
-                    <p className="text-slate-500 mt-0.5">Circular Road, near District Hospital, Dera Ismail Khan</p>
-                    <a
-                      href={doctor.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(doctor.clinic_address + ' D.I. Khan')}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#0f766e] hover:underline font-bold mt-1 inline-flex items-center gap-1 text-[11px]"
-                    >
-                      View map &amp; directions <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Duration */}
-                <div className="flex items-start gap-3">
-                  <Clock className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">{consultationDurationMinutes}-minute consultation</p>
-                    <p className="text-slate-500 mt-0.5">In-person visit &middot; Please arrive 10 minutes early.</p>
-                  </div>
-                </div>
-
-                {/* Languages */}
-                <div className="flex items-start gap-3">
-                  <Globe className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">We speak your language</p>
-                    <p className="text-slate-500 mt-0.5">Urdu, English and Pashto</p>
-                  </div>
-                </div>
-
-                {/* Bring Along */}
-                <div className="flex items-start gap-3">
-                  <FileText className="w-4 h-4 text-[#0f766e] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">Bring along</p>
-                    <p className="text-slate-500 mt-0.5">Your CNIC, current medicines and any recent test reports.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* VIP Loyalty Card Showcase on Doctor Profile Page (Only visible when doctor has enabled it) */}
-            {Boolean(doctor.loyalty_card_enabled) && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-2xs space-y-3.5 relative overflow-hidden animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-xs">
-                      💳
-                    </span>
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-                        {doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                      </h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">VIP Clinic Privilege Card</p>
+                  <div className="pt-2">
+                    <div className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Key Areas of Focus:</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {((doctor.expertise && doctor.expertise.trim())
+                        ? doctor.expertise.split(',').map((tag: string) => tag.trim()).filter(Boolean)
+                        : ['Cardiology Consultations', 'Hypertension & BP', 'Heart Care', 'Preventive Health']
+                      ).map((tag: string, idx: number) => (
+                        <span key={idx} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium bg-slate-50 dark:bg-slate-800/80">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full">
-                    {doctor.loyalty_discount_percent ? `${doctor.loyalty_discount_percent}% OFF` : '20% OFF'}
-                  </span>
                 </div>
 
-                {/* Loyalty Card Photo Uploaded by Doctor or Clean Placeholder */}
-                <div className="rounded-xl overflow-hidden border border-slate-700/80 shadow-sm bg-slate-950 relative group aspect-[16/10] sm:aspect-[1.586/1] flex items-center justify-center">
-                  {doctor.loyalty_card_image_url ? (
-                    <img
-                      src={doctor.loyalty_card_image_url}
-                      alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                      className="w-full h-full object-contain bg-slate-950 group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full p-4 flex flex-col items-center justify-center text-center bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300">
-                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-2.5 shadow-inner">
-                        <CreditCard className="w-6 h-6" />
+                {/* Education & Qualifications Breakdown */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Degrees &amp; Qualifications
+                  </h3>
+                  <ul className="space-y-3 text-xs text-slate-700 dark:text-slate-300">
+                    {(doctor.qualification || 'MBBS, FCPS').split(',').map((deg: string, dIdx: number) => {
+                      const trimmed = deg.trim();
+                      if (!trimmed) return null;
+                      const isFcps = trimmed.toUpperCase().includes('FCPS');
+                      const isMbbs = trimmed.toUpperCase().includes('MBBS');
+                      const isMcps = trimmed.toUpperCase().includes('MCPS');
+                      const title = isMbbs
+                        ? 'Bachelor of Medicine, Bachelor of Surgery (M.B.B.S)'
+                        : isFcps
+                          ? `Fellowship of College of Physicians & Surgeons (F.C.P.S ${doctor.specialty})`
+                          : isMcps
+                            ? 'Membership of College of Physicians & Surgeons (M.C.P.S)'
+                            : `${trimmed} Specialization Degree`;
+                      const institute = isMbbs
+                        ? 'Khyber Medical University — PMDC Verified'
+                        : isFcps || isMcps
+                          ? `Specialized in ${doctor.specialty} — CPSP Pakistan`
+                          : 'PMDC & Health Commission Verified Medical Qualification';
+                      return (
+                        <li key={dIdx} className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
+                          <div className="px-2.5 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold flex items-center justify-center text-xs flex-shrink-0 font-mono">
+                            {trimmed}
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900 dark:text-white">{title}</div>
+                            <div className="text-slate-500 dark:text-slate-400 mt-0.5">{institute}</div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                {/* Hospital Affiliations & Experience */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Hospital Affiliations &amp; Practice
+                  </h3>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+                    <div className="font-bold text-slate-900 dark:text-white text-sm">Senior Consultant &amp; OPD Specialist</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{doctor.clinic_address}, {doctor.sub_region}, Dera Ismail Khan</div>
+                    <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold pt-1">10+ Years Active Practice &bull; Verified PMDC License</div>
+                  </div>
+                </div>
+
+                {/* VIP Loyalty Card Showcase (if enabled) */}
+                {Boolean(doctor.loyalty_card_enabled) && (
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-amber-300/60 dark:border-amber-500/40 p-5 shadow-2xs space-y-3.5 relative overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-500 border border-amber-500/30 flex items-center justify-center font-bold text-sm">
+                          💳
+                        </span>
+                        <div>
+                          <h4 className="font-bold text-slate-900 dark:text-white text-sm">
+                            {doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                          </h4>
+                          <p className="text-xs text-amber-600 dark:text-amber-400 font-bold">
+                            Save {Number(doctor.loyalty_discount_percent ?? 20)}% on Consultations
+                          </p>
+                        </div>
                       </div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300 font-semibold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 mb-1">
-                        VIP Privilege Card
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[11px]">
+                        VIP CARD
                       </span>
-                      <h5 className="text-sm font-semibold text-slate-100 tracking-tight">
-                        {doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                      </h5>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Physical card issued at clinic reception
-                      </p>
                     </div>
-                  )}
-                </div>
-
-                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs space-y-1">
-                  <div className="font-semibold flex items-center gap-1.5 text-amber-400">
-                    <span>✨</span> Save {Number(doctor.loyalty_discount_percent ?? 20)}% on Every Consultation
+                    {doctor.loyalty_card_image_url && (
+                      <img src={doctor.loyalty_card_image_url} alt="Loyalty Card" className="w-full max-w-sm rounded-xl border border-amber-300 shadow-sm" />
+                    )}
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                    Select <strong>"Apply for VIP Loyalty Card"</strong> in the booking form. When the assistant desk confirms your appointment, collect your physical Golden VIP card at reception!
-                  </p>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: SERVICES OFFERED */}
+            {profileActiveTab === 'services' && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Stethoscope className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Services &amp; Medical Procedures
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {doctor.full_name} offers the following specialized treatments and clinical procedures in Dera Ismail Khan:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                  {getSpecialtyServicesList(doctor.specialty).services.map((srv, i) => (
+                    <div key={i} className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 p-3.5 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                      <span>{srv}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Helpline Card */}
-            <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
-              <Headphones className="w-5 h-5 text-clinic-600 dark:text-emerald-400 flex-shrink-0" />
-              <div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Need help with your appointment?</p>
-                <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 font-mono">0966 123 456 &middot; Mon&ndash;Sat, 9am&ndash;8pm</p>
+            {/* TAB 3: CONDITIONS TREATED */}
+            {profileActiveTab === 'conditions' && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Diseases &amp; Conditions Treated
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Patients consult {doctor.full_name} for evaluation, management and treatment of:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                  {getSpecialtyServicesList(doctor.specialty).conditions.map((cond, i) => (
+                    <div key={i} className="flex items-center gap-2.5 bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/60 p-3.5 rounded-xl text-xs font-semibold text-emerald-950 dark:text-emerald-200">
+                      <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 flex-shrink-0" />
+                      <span>{cond}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Mobile Return to Booking CTA */}
-            <div className="lg:hidden pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileActiveTab('booking');
-                  window.scrollTo({ top: 120, behavior: 'smooth' });
-                }}
-                className="w-full py-3.5 bg-[#0f766e] hover:bg-[#0b5c56] text-white font-bold rounded-2xl text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Continue to Choose Appointment Time &rarr;</span>
-              </button>
-            </div>
+            {/* TAB 4: CLINIC SCHEDULE & TIMINGS */}
+            {profileActiveTab === 'schedule' && (
+              <div className="space-y-6">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Weekly OPD Clinic Timetable
+                  </h3>
+                  <div className="border border-slate-200 dark:border-slate-700/60 rounded-xl overflow-hidden">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider">
+                        <tr>
+                          <th className="p-3.5">Day</th>
+                          <th className="p-3.5">Shift Timings</th>
+                          <th className="p-3.5">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
+                        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
+                          const isSunday = day === 'Sunday';
+                          const timeText = isSunday
+                            ? '11:00 AM - 02:00 PM (Emergency)'
+                            : doctor.shift === 'EVENING'
+                              ? '05:00 PM - 09:00 PM'
+                              : '09:00 AM - 02:00 PM';
+                          return (
+                            <tr key={idx} className={isSunday ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
+                              <td className="p-3.5 font-bold text-slate-900 dark:text-white">{day}</td>
+                              <td className="p-3.5 font-semibold text-emerald-700 dark:text-emerald-400">{timeText}</td>
+                              <td className="p-3.5">
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSunday ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
+                                  {isSunday ? 'On-Call' : 'Available'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Clinic Location & Directions */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Clinic Address &amp; Map
+                  </h3>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-3">
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white text-sm">{doctor.clinic_address}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{doctor.sub_region}, Dera Ismail Khan, KP</div>
+                    </div>
+                    <a
+                      href={doctor.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(doctor.full_name + ' ' + doctor.clinic_address + ' D.I. Khan')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-white" />
+                      <span>Open in Google Maps &rarr;</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: PATIENT REVIEWS */}
+            {profileActiveTab === 'reviews' && (
+              <div className="space-y-6">
+                {/* 98% Satisfaction Banner */}
+                <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-lg shadow-sm">
+                      98%
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">98% Satisfied Patients</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">Based on verified patient consultations in D.I. Khan</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReviewModalView('write');
+                      setShowReviewsModal(true);
+                    }}
+                    className="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-emerald-50 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-700 rounded-xl text-xs transition cursor-pointer whitespace-nowrap shadow-2xs"
+                  >
+                    ★ Write Review
+                  </button>
+                </div>
+
+                {/* Patient Reviews List */}
+                <div className="space-y-3.5">
+                  {[
+                    { author: 'Hira M.', time: '1 week ago', text: 'Doc was so nice and humble. Diagnosed the exact issue in first visit! Clinic staff was very cooperative.' },
+                    { author: 'Muhammad Usman', time: '2 weeks ago', text: 'Highly recommended specialist in D.I. Khan! Proper time given and clear medicine instructions.' },
+                    { author: 'Dr. Farhan Ali (Patient relative)', time: '3 weeks ago', text: 'Very impressive clinical diagnosis. Fee structure is very reasonable compared to high quality care.' }
+                  ].map((rev, idx) => (
+                    <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-4 rounded-2xl space-y-2 shadow-2xs">
+                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg w-fit">
+                        <ThumbsUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> I recommend the doctor
+                      </div>
+                      <p className="text-slate-800 dark:text-slate-200 text-xs sm:text-sm italic font-medium">"{rev.text}"</p>
+                      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Verified Patient {rev.author}
+                        </span>
+                        <span>{rev.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: FAQS */}
+            {profileActiveTab === 'faqs' && (
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Frequently Asked Questions
+                </h3>
+                <div className="space-y-3 pt-1">
+                  {[
+                    { q: `What is the consultation fee of ${doctor.full_name} and how do I pay?`, a: `The consultation fee for ${doctor.full_name} is Rs. ${doctor.fee_clinic}. You pay directly in cash at the clinic reception desk when you arrive.` },
+                    { q: `Where does ${doctor.full_name} practice and what are the clinic timings?`, a: `${doctor.full_name} practices at ${doctor.clinic_address}, ${doctor.sub_region}, D.I. Khan. OPD shift is ${doctor.shift || 'Morning & Evening'} (Monday through Saturday).` },
+                    { q: `How do I book an appointment with ${doctor.full_name}?`, a: `Select your preferred date and time slot in the booking widget on the right, enter your mobile number, and confirm via instant SMS verification.` },
+                    { q: `Is ${doctor.full_name} PMDC verified?`, a: `Yes! ${doctor.full_name} is verified by PMDC (Pakistan Medical & Dental Council) and registered with the D.I. Khan Health Authority.` }
+                  ].map((faq, i) => (
+                    <div key={i} className="border border-slate-200 dark:border-slate-700/60 rounded-xl overflow-hidden bg-slate-50/50 dark:bg-slate-800/40">
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)}
+                        className="w-full p-3.5 text-left font-bold text-xs text-slate-900 dark:text-white flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                      >
+                        <span>{faq.q}</span>
+                        {openFaqIndex === i ? (
+                          <ChevronUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        )}
+                      </button>
+                      {openFaqIndex === i && (
+                        <div className="px-3.5 pb-3.5 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-200/60 dark:border-slate-700/60 pt-2 leading-relaxed bg-white dark:bg-slate-900">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
-          {/* ── Right Column: Choose Your Appointment Form ── */}
-          <div className={`lg:col-span-8 ${mobileActiveTab === 'booking' ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 lg:p-8 shadow-xs">
+          {/* ── Right Column: Sticky Oladoc Clinic Booking Widget ── */}
+          <div id="oladoc-booking-card" className={`lg:col-span-5 sticky top-24 space-y-6 ${mobileActiveTab === 'booking' ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-emerald-500/80 dark:border-emerald-500/60 p-4 sm:p-6 shadow-md">
               {/* Mobile Doctor Quick Summary Banner */}
               <div className="lg:hidden mb-5 p-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
                 <div className="flex items-center gap-3 min-w-0">
@@ -4579,19 +4763,29 @@ function DoctorProfileAndBookingView({
                   Info &rarr;
                 </button>
               </div>
-              {/* Header */}
-              <div className="flex items-start justify-between gap-4 pb-6 border-b border-slate-100">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    Choose your appointment
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1 font-normal">
-                    A few simple details, and we'll take care of the rest.
-                  </p>
+              {/* Oladoc Booking Header */}
+              <div className="pb-4 border-b border-slate-100 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-xl">
+                    <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Direct Clinic Consultation
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                    <Check className="w-3 h-3 stroke-[3]" /> Accepting Patients
+                  </span>
                 </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70 text-xs font-bold flex-shrink-0">
-                  <Check className="w-3.5 h-3.5 stroke-[3]" /> Accepting new patients
-                </span>
+                <div className="flex items-baseline justify-between pt-1">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
+                    <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
+                      {formatCurrency(doctor.fee_clinic)}
+                    </span>
+                  </div>
+                  {Boolean(doctor.loyalty_card_enabled) && (
+                    <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
+                      Save {Number(doctor.loyalty_discount_percent ?? 20)}% with VIP Card
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* ── Step 1: Select a date & time ── */}

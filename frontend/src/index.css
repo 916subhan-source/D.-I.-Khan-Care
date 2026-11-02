@@ -555,6 +555,16 @@ html.dark .portal-sidebar {
   border-right: 1px solid #1e293b !important;
 }
 
+html.dark .portal-topbar {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+html.dark .chip-group {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  border-color: #1e293b !important;
+}
+
 /* Public Banner & Headers */
 html.dark .bg-\[\#eaf5ef\] {
   background-color: #061713 !important;

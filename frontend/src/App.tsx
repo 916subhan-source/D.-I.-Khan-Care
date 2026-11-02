@@ -13418,19 +13418,19 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       />
       <div className="portal-content flex-1">
         {/* Top breadcrumb bar */}
-        <div className="portal-topbar sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+        <div className="portal-topbar sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg flex-shrink-0"
+              className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 rounded-lg flex-shrink-0"
               aria-label="Open navigation menu"
             >
               <Menu className="w-4 h-4" />
             </button>
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest hidden sm:inline">Doctor Portal</span>
-            <ChevronRight className="w-3 h-3 text-slate-300 hidden sm:inline" />
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest truncate max-w-[120px] sm:max-w-none">
+            <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:inline">Doctor Portal</span>
+            <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 hidden sm:inline" />
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest truncate max-w-[120px] sm:max-w-none">
               {activePortalTab === 'overview' ? 'Overview' : activePortalTab === 'schedule' ? 'Schedule & Slots' : activePortalTab === 'assistants' ? 'Assistants' : 'Clinic Profile'}
             </span>
           </div>
@@ -13438,14 +13438,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             <button
               onClick={() => loadDoctorData(undefined, true)}
               disabled={isRefreshingAppts}
-              className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-card"
+              className="px-2.5 sm:px-3 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-75 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all hover:shadow-card"
               title="Refresh clinic appointments and live queue"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 dark:text-clinic-400 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{isRefreshingAppts ? 'Refreshing...' : 'Refresh'}</span>
             </button>
-            <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-100">
-              <div className="w-7 h-7 rounded-lg overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100 shadow-xs">
+            <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-100 dark:border-slate-800">
+              <div className="w-7 h-7 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0 bg-slate-100 dark:bg-slate-800 shadow-xs">
                 <img
                   src={getDoctorProfileImage({
                     full_name: doctorProfile?.full_name,
@@ -13456,12 +13456,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   className="w-full h-full object-cover object-top"
                 />
               </div>
-              <span className="text-xs text-slate-700 font-semibold hidden md:inline">Dr. {doctorName.replace(/^Dr\.\s*/i, '')}</span>
+              <span className="text-xs text-slate-700 dark:text-slate-200 font-semibold hidden md:inline">Dr. {doctorName.replace(/^Dr\.?\s*/i, '').trim()}</span>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-xs text-slate-400 hover:text-rose-600 font-medium transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50 flex-shrink-0"
+              className="text-xs text-slate-400 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 font-medium transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 flex-shrink-0"
             >
               Sign out
             </button>
@@ -13471,14 +13471,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         <div className="p-3 sm:p-5 md:p-8 space-y-4 sm:space-y-6">
           {/* Portal sub-nav — Premium pill tabs with horizontal swipe on mobile */}
           <div className="flex items-center gap-1 pb-1 overflow-x-auto scrollbar-none touch-scroll flex-nowrap">
-            <div className="flex items-center gap-1 bg-slate-100/80 p-1 sm:p-1.5 rounded-2xl border border-slate-200/60 flex-nowrap">
+            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/90 p-1 sm:p-1.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex-nowrap shadow-xs">
               {([['overview', 'Overview'], ['schedule', 'Schedule & Slots'], ['assistants', 'Assistants Desk'], ['profile', 'Clinic Profile']] as const).map(([tab, label]) => (
                 <button
                   key={tab}
                   onClick={() => setActivePortalTab(tab as any)}
                   className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap flex-shrink-0 ${activePortalTab === tab
                     ? 'text-white shadow-md'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-white/70'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-white/70 dark:hover:bg-slate-800'
                     }`}
                   style={activePortalTab === tab ? { background: 'linear-gradient(135deg, #1a6359, #143d38)' } : {}}
                 >
@@ -13488,7 +13488,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             </div>
             <div className="ml-auto items-center gap-3 hidden sm:flex">
               <RealtimeLive />
-              <span className="text-xs text-slate-400 font-medium">{doctorProfile?.clinic_address || 'Clinic'}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{doctorProfile?.clinic_address || 'Clinic'}</span>
             </div>
           </div>
 
@@ -13498,8 +13498,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               {/* Premium Header */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.\s*/i, '')}</span>.
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.?\s*/i, '').trim()}</span>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-400 mt-1 font-medium">
                     {todayStr} &middot; Live operational overview
@@ -13524,20 +13524,20 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   </span>
                 </div>
                 {/* 4 Timeframe Filter Buttons: Today, This Week, This Month, All (swipeable scroll strip on mobile) */}
-                <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/90 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={() => setTimeframe('today')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'today'
                       ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                       }`}
                   >
                     <span>Today</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'today' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'today' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                       {todayCount}
                     </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'today' ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'today' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
                       ({formatCurrency(todayIncome)})
                     </span>
                   </button>
@@ -13546,14 +13546,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     onClick={() => setTimeframe('week')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'week'
                       ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                       }`}
                   >
                     <span>This Week</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'week' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'week' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                       {weekCount}
                     </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'week' ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'week' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
                       ({formatCurrency(weekIncome)})
                     </span>
                   </button>
@@ -13562,14 +13562,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     onClick={() => setTimeframe('month')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'month'
                       ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                       }`}
                   >
                     <span>This Month</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'month' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'month' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                       {monthCount}
                     </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'month' ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'month' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
                       ({formatCurrency(monthIncome)})
                     </span>
                   </button>
@@ -13578,14 +13578,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     onClick={() => setTimeframe('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'all'
                       ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                       }`}
                   >
                     <span>All</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
                       {totalAllCount}
                     </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'all' ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'all' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
                       ({formatCurrency(allIncome)})
                     </span>
                   </button>
@@ -13671,27 +13671,23 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* Clinic agenda table with REAL appointment data & working action buttons */}
-              <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-card">
-                <div className="p-6 border-b border-slate-50 flex items-center justify-between"
-                  style={{ background: 'linear-gradient(180deg, #fafcfb 0%, #ffffff 100%)' }}
-                >
+              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-card">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-b from-slate-50/70 to-white dark:from-slate-900 dark:to-slate-900">
                   <div>
-                    <h3 className="font-extrabold text-slate-900 text-lg tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-lg tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
                       {agendaTitle}
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 font-medium">
                       {agendaSubtitle} &middot; Real-time queue
                     </p>
                   </div>
-                  <span className="text-xs font-bold px-3.5 py-1.5 rounded-full border"
-                    style={{ background: 'linear-gradient(135deg, #f0faf8, #d9f2ed)', color: '#1a6359', borderColor: '#b3e4db' }}
-                  >
+                  <span className="text-xs font-bold px-3.5 py-1.5 rounded-full border bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800">
                     {displayAppts.length} appointments
                   </span>
                 </div>
 
                 {/* Filter Toolbar: Search Bar + Status Chips */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3.5 sm:px-5 py-3 border-b border-slate-50" style={{ background: 'linear-gradient(180deg, #f8fafc, #ffffff)' }}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3.5 sm:px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/80">
                   <div className="relative flex-1 w-full sm:max-w-xs">
                     <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
@@ -13699,13 +13695,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       value={apptSearch}
                       onChange={e => setApptSearch(e.target.value)}
                       placeholder="Search patient, phone, slip #..."
-                      className="w-full pl-9 pr-7 py-2 rounded-xl border border-slate-100 bg-white text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-clinic-300 shadow-xs"
+                      className="w-full pl-9 pr-7 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-clinic-300 shadow-xs"
                     />
                     {apptSearch && (
                       <button
                         type="button"
                         onClick={() => setApptSearch('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -13720,7 +13716,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         onClick={() => setApptStatusFilter(st)}
                         className={`px-3 py-1.5 rounded-lg font-semibold text-[11px] transition-all whitespace-nowrap flex-shrink-0 ${apptStatusFilter === st
                           ? 'text-white shadow-sm'
-                          : 'text-slate-500 hover:bg-slate-100/80'
+                          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-800 dark:hover:text-white'
                           }`}
                         style={apptStatusFilter === st ? { background: 'linear-gradient(135deg, #1a6359, #143d38)' } : {}}
                       >
@@ -13733,12 +13729,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       type="button"
                       onClick={() => setIncludeArchived(!includeArchived)}
                       className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
-                        ? 'bg-amber-50 border-amber-300 text-amber-800 shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                        ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 shadow-sm'
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                         }`}
                       title="Past closed consultations from previous days are automatically hidden to keep your daily active queue clean."
                     >
-                      <Archive className="w-3.5 h-3.5 text-slate-500" />
+                      <Archive className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                       <span>{includeArchived ? 'Past History: ON' : 'Past History: Hidden'}</span>
                     </button>
 
@@ -13751,7 +13747,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       }}
                       className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${callingOrderActive
                         ? 'bg-emerald-600 border-emerald-500 text-white ring-1 ring-emerald-300'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
                         }`}
                       title="Arrange appointments in live calling sequence (Today's Time & Token order). Completed visits automatically move down."
                     >
@@ -13763,10 +13759,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       type="button"
                       onClick={() => loadDoctorData(undefined, true)}
                       disabled={isRefreshingAppts}
-                      className="ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-60 shadow-sm flex-shrink-0"
+                      className="ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 shadow-sm flex-shrink-0"
                       title="Refresh clinic appointments and live queue"
                     >
-                      <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 dark:text-clinic-400 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
                       <span>{isRefreshingAppts ? 'Refreshing...' : 'Refresh Queue'}</span>
                     </button>
                   </div>
@@ -14159,10 +14155,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 {/* Left 7 cols: Recurring weekly hours + Generate slots */}
                 <div className="lg:col-span-7 space-y-6">
                   {/* Recurring hours card */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h3 className="font-bold text-slate-900 text-sm">Operating Shift Hours & Schedule</h3>
+                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">Operating Shift Hours & Schedule</h3>
                         <p className="text-xs text-slate-400 mt-0.5">Configure your custom morning and evening consultation hours</p>
                       </div>
                       <div className="flex items-center gap-1.5 self-start sm:self-auto">
@@ -14173,7 +14169,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             onClick={() => setSelectedShift(sh)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${selectedShift === sh
                               ? 'bg-clinic-700 text-white shadow-sm'
-                              : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                              : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                               }`}
                           >
                             {sh === 'BOTH' ? 'Both Shifts' : sh}
@@ -14314,10 +14310,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   </div>
 
                   {/* Generate appointment slots card */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-bold text-slate-900 text-sm">Generate consultation slots</h3>
+                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">Generate consultation slots</h3>
                         <p className="text-xs text-slate-400 mt-0.5">Batch create available slots for online patient booking.</p>
                       </div>
                       <button
@@ -14517,8 +14513,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 {/* Right 5 cols: Blackout dates & Calendar exceptions */}
                 <div className="lg:col-span-5 space-y-6">
                   {/* Add a date blackout card */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-                    <h3 className="font-bold text-slate-900 text-sm">Add a clinic blackout date</h3>
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Add a clinic blackout date</h3>
                     <p className="text-xs text-slate-400">Instantly blocks all available slots on this day for leave or maintenance.</p>
 
                     <div>
@@ -14864,10 +14860,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
           {/* ── Assistants Desk Tab ── */}
           {activePortalTab === 'assistants' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Linked Clinic Receptionists &amp; Assistants</h3>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Linked Clinic Receptionists &amp; Assistants</h3>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Self-service: add or revoke assistants directly. Receptionists can approve queues and record cash at your desk.
                   </p>
@@ -15009,10 +15005,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
           {/* ── Clinic Profile Tab ── */}
           {activePortalTab === 'profile' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6 text-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6 text-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">Doctor &amp; Clinic Profile</h3>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Doctor &amp; Clinic Profile</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Your public practitioner and clinic details shown to patients.</p>
                 </div>
                 <button
@@ -15432,10 +15428,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       {doctorProfile?.experience_years !== undefined && doctorProfile?.experience_years !== null ? `${doctorProfile.experience_years} Years` : '12 Years'}
                     </span>
                   </div>
-                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Operating Shift &amp; Hours</span>
-                    <span className="font-bold text-slate-800 text-sm">{doctorProfile?.shift}</span>
-                    <span className="text-[11px] text-clinic-700 font-medium block mt-0.5">
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Operating Shift &amp; Hours</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm">{doctorProfile?.shift}</span>
+                    <span className="text-[11px] text-clinic-700 dark:text-clinic-400 font-medium block mt-0.5">
                       {doctorProfile?.shift === 'MORNING'
                         ? `Morning: ${doctorProfile?.morning_start || '09:00'} – ${doctorProfile?.morning_end || '13:00'}`
                         : doctorProfile?.shift === 'EVENING'
@@ -15443,41 +15439,41 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           : `Morning: ${doctorProfile?.morning_start || '09:00'}–${doctorProfile?.morning_end || '13:00'} · Evening: ${doctorProfile?.evening_start || '17:00'}–${doctorProfile?.evening_end || '21:00'}`}
                     </span>
                   </div>
-                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Weekly Off Days</span>
-                    <span className="font-bold text-slate-800 text-sm capitalize">
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Weekly Off Days</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm capitalize">
                       {doctorProfile?.off_days ? doctorProfile.off_days.split(',').join(', ') : 'Sunday'}
                     </span>
-                    <span className="text-[11px] text-slate-500 block mt-0.5">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
                       Clinic is closed on these days &mdash; slots will not be generated.
                     </span>
                   </div>
                   {/* About Doctor Bio View */}
-                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-semibold">About Doctor &amp; Treated Diseases / Diagnoses</span>
-                    <p className="text-slate-700 text-xs mt-1 leading-relaxed whitespace-pre-line">
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px] font-semibold">About Doctor &amp; Treated Diseases / Diagnoses</span>
+                    <p className="text-slate-700 dark:text-slate-200 text-xs mt-1 leading-relaxed whitespace-pre-line">
                       {doctorProfile?.bio || (
-                        <span className="text-slate-400 italic">No bio configured yet. Click &quot;Edit Profile Details&quot; to add a description of your treated diseases and clinical diagnoses.</span>
+                        <span className="text-slate-400 dark:text-slate-500 italic">No bio configured yet. Click &quot;Edit Profile Details&quot; to add a description of your treated diseases and clinical diagnoses.</span>
                       )}
                     </p>
                   </div>
                   {/* Expertise Badges View */}
-                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px] font-semibold mb-1.5">Doctor Specialties &amp; Clinical Expertise</span>
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px] font-semibold mb-1.5">Doctor Specialties &amp; Clinical Expertise</span>
                     <div className="flex flex-wrap gap-2">
                       {((doctorProfile?.expertise && doctorProfile.expertise.trim())
                         ? doctorProfile.expertise.split(',').map((t: string) => t.trim()).filter(Boolean)
                         : ['Cardiology', 'Hypertension', 'General medicine']
                       ).map((t: string, i: number) => (
-                        <span key={i} className="px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-semibold text-xs shadow-2xs">
+                        <span key={i} className="px-3 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold text-xs shadow-2xs">
                           {t}
                         </span>
                       ))}
                     </div>
                   </div>
-                  <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span className="text-slate-400 block text-[11px]">Clinic Address</span>
-                    <span className="font-medium text-slate-800">{doctorProfile?.clinic_address}</span>
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Clinic Address</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{doctorProfile?.clinic_address}</span>
                   </div>
                   {doctorProfile?.google_maps_url && (
                     <div className="col-span-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -15496,13 +15492,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
       {/* ── Modal: Add Assistant ── */}
       {showAddAsstModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 Add New Clinic Receptionist
               </h3>
-              <button onClick={() => setShowAddAsstModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowAddAsstModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -15583,27 +15579,27 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
       {/* ── Modal: Reset Assistant Password ── */}
       {resetAsstModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 animate-fade-in border border-slate-100">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 animate-fade-in">
             {/* Header */}
-            <div className="flex items-start justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-clinic-100 text-clinic-800 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-clinic-100 dark:bg-clinic-900/60 text-clinic-800 dark:text-clinic-200 flex items-center justify-center flex-shrink-0">
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     Reset Assistant Password
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    Front-desk staff: <strong className="text-slate-800">{resetAsstModal.name}</strong>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Front-desk staff: <strong className="text-slate-800 dark:text-white">{resetAsstModal.name}</strong>
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setResetAsstModal(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -15732,16 +15728,16 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
       {/* ── Modal: Appointment Details / Complete Consultation ── */}
       {selectedAppt && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
               <div>
-                <h3 className="font-bold text-slate-900 text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <h3 className="font-bold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                   Consultation Details
                 </h3>
                 <span className="text-xs text-slate-400">Slip #{selectedAppt.slip_number || `SLIP-${selectedAppt.id.slice(0, 6).toUpperCase()}`}</span>
               </div>
-              <button onClick={() => setSelectedAppt(null)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setSelectedAppt(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                 <X className="w-5 h-5" />
               </button>
             </div>

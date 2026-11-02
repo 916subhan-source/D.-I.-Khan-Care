@@ -6275,7 +6275,8 @@ function PatientSection({
     const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
       (selectedSpecialty.toLowerCase().includes('lap') && doc.specialty.toLowerCase().includes('lap')) ||
-      (selectedSpecialty.toLowerCase().includes('face') && doc.specialty.toLowerCase().includes('face'));
+      (selectedSpecialty.toLowerCase().includes('face') && doc.specialty.toLowerCase().includes('face')) ||
+      (selectedSpecialty.toLowerCase().includes('sex') && (doc.specialty.toLowerCase().includes('uro') || doc.specialty.toLowerCase().includes('general') || doc.specialty.toLowerCase().includes('cardio') || (doc.bio && doc.bio.toLowerCase().includes('sex')) || (doc.expertise && doc.expertise.toLowerCase().includes('sex'))));
     if (!matchLoc || !matchShift || !matchSearch || !matchSpecialty) return false;
 
     if (selectedCondition) {

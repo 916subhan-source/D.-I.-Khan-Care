@@ -3520,12 +3520,14 @@ function DoctorProfileAndBookingView({
   doctor,
   onBack,
   onTrackNav,
-  onSwitchRole
+  onSwitchRole,
+  initialMobileTab = 'profile'
 }: {
   doctor: DoctorData;
   onBack: () => void;
   onTrackNav: () => void;
   onSwitchRole?: (r: 'patient' | 'assistant' | 'doctor' | 'admin') => void;
+  initialMobileTab?: 'booking' | 'profile';
 }) {
   const [selectedDayDate, setSelectedDayDate] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('10:30 AM');
@@ -3541,9 +3543,15 @@ function DoctorProfileAndBookingView({
 
   // VIP Loyalty Card states
   const [applyLoyaltyCard, setApplyLoyaltyCard] = useState<boolean>(false);
-  // Mobile tab navigation state ('booking' | 'profile')
-  const [mobileActiveTab, setMobileActiveTab] = useState<'booking' | 'profile'>('booking');
+  // Mobile tab navigation state ('booking' | 'profile') - Default to 'profile' so About Doctor shows first
+  const [mobileActiveTab, setMobileActiveTab] = useState<'booking' | 'profile'>(initialMobileTab);
   const [profileActiveTab, setProfileActiveTab] = useState<'about' | 'services' | 'conditions' | 'schedule' | 'reviews' | 'faqs'>('about');
+
+  // Synchronize when doctor changes or initialMobileTab changes
+  useEffect(() => {
+    setMobileActiveTab(initialMobileTab);
+    setProfileActiveTab('about');
+  }, [doctor?.id, initialMobileTab]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [loyaltyGuardianName, setLoyaltyGuardianName] = useState<string>('');
   const [loyaltyDob, setLoyaltyDob] = useState<string>('1992-05-15');
@@ -4408,25 +4416,23 @@ function DoctorProfileAndBookingView({
           </div>
         </div>
 
-        {/* ── Oladoc Doctor Menu Navigation (Sticky & Optimized for Immediate Booking & Reviews Access) ── */}
+        {/* ── Oladoc Doctor Menu Navigation (About Doctor First, then Reviews, Timings, Services) ── */}
         <div id="doctor-menu-tabs" className="sticky top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          {/* TAB 1: BOOK SLOTS (Highlighted First-Class Action with Live Indicator) */}
+          {/* TAB 1: ABOUT DOCTOR (Active Default on Profile Open) */}
           <button
             type="button"
             onClick={() => {
-              setMobileActiveTab('booking');
-              const el = document.getElementById('oladoc-booking-card');
-              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              setProfileActiveTab('about');
+              setMobileActiveTab('profile');
             }}
-            className={`py-2 px-4 rounded-xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 shadow-xs active:scale-95 ${
-              mobileActiveTab === 'booking'
-                ? 'bg-emerald-600 text-white shadow-emerald-950/20 ring-2 ring-emerald-400/40'
-                : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600 hover:text-white'
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'about'
+                ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
-            <span>📅 Book Slots</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-0.5" />
+            <User className="w-3.5 h-3.5" />
+            <span>About Doctor</span>
           </button>
 
           {/* TAB 2: REVIEWS (Prominent Second Tab with Star & Count) */}
@@ -4446,21 +4452,21 @@ function DoctorProfileAndBookingView({
             <span>Reviews ({reviewsSummary?.total_reviews || 128})</span>
           </button>
 
-          {/* TAB 3: ABOUT DOCTOR */}
+          {/* TAB 3: CLINIC TIMINGS */}
           <button
             type="button"
             onClick={() => {
-              setProfileActiveTab('about');
+              setProfileActiveTab('schedule');
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'about'
+              mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <User className="w-3.5 h-3.5" />
-            <span>About Doctor</span>
+            <Clock className="w-3.5 h-3.5" />
+            <span>Clinic Timings</span>
           </button>
 
           {/* TAB 4: CLINIC SCHEDULE */}
@@ -6391,6 +6397,7 @@ function PatientSection({
 
   // Profile / booking
   const [profileDoctor, setProfileDoctor] = useState<DoctorData | null>(null);
+  const [profileDoctorInitialTab, setProfileDoctorInitialTab] = useState<'booking' | 'profile'>('profile');
   const [bookingDoctor, setBookingDoctor] = useState<DoctorData | null>(null);
   const [availableSlots, setAvailableSlots] = useState<SlotData[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<SlotData | null>(null);
@@ -6455,6 +6462,7 @@ function PatientSection({
 
   const openBookingModal = async (doctor: DoctorData) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    setProfileDoctorInitialTab('booking');
     setProfileDoctor(doctor);
     setBookingDoctor(doctor);
     setSelectedSlot(null);
@@ -6715,6 +6723,7 @@ function PatientSection({
     return (
       <DoctorProfileAndBookingView
         doctor={profileDoctor}
+        initialMobileTab={profileDoctorInitialTab}
         onBack={() => {
           setProfileDoctor(null);
           window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -7323,6 +7332,7 @@ function PatientSection({
                       onBook={openBookingModal}
                       onProfile={(doc) => {
                         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                        setProfileDoctorInitialTab('profile');
                         setProfileDoctor(doc);
                       }}
                     />

@@ -4880,7 +4880,7 @@ function DoctorProfileAndBookingView({
                 <button
                   type="button"
                   onClick={() => setMobileActiveTab('profile')}
-                  className="text-[11px] font-bold text-[#0f766e] bg-white px-2.5 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50 transition shadow-2xs flex-shrink-0 cursor-pointer"
+                  className="text-[11px] font-bold text-[#0f766e] dark:text-emerald-400 bg-white dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-teal-200 dark:border-teal-700/60 hover:bg-teal-50 dark:hover:bg-slate-700 transition shadow-2xs flex-shrink-0 cursor-pointer"
                 >
                   Info &rarr;
                 </button>
@@ -4911,13 +4911,13 @@ function DoctorProfileAndBookingView({
               </div>
 
               {/* ── Step 1: Select a date & time ── */}
-              <div className="py-6 border-b border-slate-100 space-y-4">
+              <div className="py-6 border-b border-slate-100 dark:border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
                       1
                     </span>
-                    <h3 className="font-bold text-sm text-slate-900">Select a date &amp; time</h3>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Select a date &amp; time</h3>
                   </div>
                   <span className="text-xs text-slate-400 font-medium">Pakistan time (PKT)</span>
                 </div>
@@ -5126,7 +5126,7 @@ function DoctorProfileAndBookingView({
                   <div className="p-2.5 rounded-xl bg-teal-50/50 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/60 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
-                      <span className="font-medium text-slate-600">Generated Slot Times:</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-400">Generated Slot Times:</span>
                       {morningSlots.length > 0 ? (
                         <span className="font-semibold text-slate-900 dark:text-white inline-flex items-center gap-1">
                           <Sun className="w-3 h-3 text-amber-500" /> Morning: {morningSlots[0].timeLabel} &ndash; {morningSlots[morningSlots.length - 1].endTimeLabel || morningSlots[morningSlots.length - 1].timeLabel} ({morningSlots.length} slots)
@@ -5198,20 +5198,18 @@ function DoctorProfileAndBookingView({
                             setSelectedSlotId(slot.id);
                             setSelectedTimeSlot(slot.timeLabel);
                           }}
-                          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${isSelected
-                            ? 'bg-[#0f766e] text-white shadow-sm ring-2 ring-[#0f766e]/30'
-                            : isMorning
-                              ? 'bg-amber-50/50 border border-amber-200/90 text-amber-950 hover:border-amber-400 hover:bg-amber-50'
-                              : 'bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/90 dark:border-indigo-800/40 text-indigo-950 dark:text-indigo-200 hover:border-indigo-400 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/40'
+                          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-2xs ${isSelected
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-md shadow-emerald-950/40 ring-2 ring-emerald-400 border border-emerald-500 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50/60 dark:bg-[#111c2e] dark:hover:bg-slate-800 border border-slate-200/90 dark:border-slate-700/80 hover:border-emerald-500 dark:hover:border-emerald-400 text-slate-800 dark:text-slate-100 hover:text-emerald-700 dark:hover:text-emerald-300'
                             }`}
                         >
                           {isMorning ? (
-                            <Sun className={`w-3 h-3 ${isSelected ? 'text-amber-200' : 'text-amber-500'}`} />
+                            <Sun className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-amber-200' : 'text-amber-500 dark:text-amber-400'}`} />
                           ) : (
-                            <Moon className={`w-3 h-3 ${isSelected ? 'text-indigo-200' : 'text-indigo-500'}`} />
+                            <Moon className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-indigo-200' : 'text-indigo-400 dark:text-indigo-300'}`} />
                           )}
-                          {slot.timeLabel}
-                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          <span className="tracking-tight">{slot.timeLabel}</span>
+                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3] text-white flex-shrink-0" />}
                         </button>
                       );
                     })}
@@ -5220,13 +5218,13 @@ function DoctorProfileAndBookingView({
               </div>
 
               {/* ── Step 2: Patient details ── */}
-              <div className="py-6 border-b border-slate-100 space-y-4">
+              <div className="py-6 border-b border-slate-100 dark:border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
                       2
                     </span>
-                    <h3 className="font-bold text-sm text-slate-900">Appointment Type &amp; Patient Details</h3>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Appointment Type &amp; Patient Details</h3>
                   </div>
                   <span className="text-xs text-slate-400 font-medium">* Required fields</span>
                 </div>
@@ -5350,7 +5348,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientName(e.target.value)}
                       placeholder="Ahmed Khan"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
                     />
                   </div>
 
@@ -5362,7 +5360,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientPhone(e.target.value)}
                       placeholder="+92 300 123 4567"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition font-mono"
                     />
                   </div>
 
@@ -5374,7 +5372,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientAge(e.target.value)}
                       placeholder="34 years"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
                     />
                   </div>
 
@@ -5383,7 +5381,7 @@ function DoctorProfileAndBookingView({
                     <select
                       value={patientGender}
                       onChange={(e) => setPatientGender(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition bg-white"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -5410,7 +5408,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientEmail(e.target.value)}
                       placeholder="e.g. yourname@gmail.com"
                       required
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
+                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
                     />
                   </div>
                   <p className="text-[10px] text-slate-500 mt-1">
@@ -5591,12 +5589,12 @@ function DoctorProfileAndBookingView({
                     onChange={(e) => setPatientReason(e.target.value)}
                     rows={2}
                     placeholder="Follow-up for blood pressure and a review of my current medication."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition resize-none"
                   />
                 </div>
 
                 {/* SMS Reminder Checkbox */}
-                <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-slate-700 pt-1">
+                <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300 pt-1">
                   <input
                     type="checkbox"
                     checked={sendSmsReminder}
@@ -5613,7 +5611,7 @@ function DoctorProfileAndBookingView({
                   <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
                     3
                   </span>
-                  <h3 className="font-bold text-sm text-slate-900">Review &amp; book</h3>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; book</h3>
                 </div>
 
                 {/* Summary Pill */}
@@ -5730,7 +5728,7 @@ function DoctorProfileAndBookingView({
       {/* ── Interactive OTP Verification Modal ── */}
       {bookingState === 'otp' && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 p-7 relative">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 p-7 relative">
             <button
               onClick={() => setBookingState('form')}
               className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
@@ -5739,10 +5737,10 @@ function DoctorProfileAndBookingView({
             </button>
 
             <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#0f766e] flex items-center justify-center mx-auto mb-3 font-bold">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-emerald-950/80 text-[#0f766e] dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 font-bold">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Verify your mobile</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Verify your mobile</h3>
               <p className="text-xs text-slate-500 mt-1">
                 Enter the 6-digit verification code sent to <strong className="text-slate-800">{patientPhone}</strong>
               </p>
@@ -5782,7 +5780,7 @@ function DoctorProfileAndBookingView({
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
-                    className="w-9 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0f766e] focus:border-[#0f766e] shadow-2xs"
+                    className="w-9 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f766e] focus:border-[#0f766e] shadow-2xs"
                   />
                 ))}
               </div>
@@ -5820,7 +5818,7 @@ function DoctorProfileAndBookingView({
               <div className="flex items-center justify-between border-b border-teal-200/60 pb-3">
                 <div>
                   <span className="text-[10px] font-bold text-[#0f766e] uppercase tracking-wider block">CLINIC SLIP NUMBER</span>
-                  <span className="text-base font-extrabold text-slate-900 font-mono">{confirmedSlip.slipNumber}</span>
+                  <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{confirmedSlip.slipNumber}</span>
                 </div>
                 <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
                   CONFIRMED
@@ -5830,19 +5828,19 @@ function DoctorProfileAndBookingView({
               <div className="grid grid-cols-2 gap-3 text-xs pt-1">
                 <div>
                   <span className="text-slate-400 block text-[11px]">Doctor</span>
-                  <strong className="text-slate-900 font-bold">{confirmedSlip.doctorName}</strong>
+                  <strong className="text-slate-900 dark:text-white font-bold">{confirmedSlip.doctorName}</strong>
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[11px]">Patient</span>
-                  <strong className="text-slate-900 font-bold">{confirmedSlip.patientName}</strong>
+                  <strong className="text-slate-900 dark:text-white font-bold">{confirmedSlip.patientName}</strong>
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[11px]">Scheduled Date</span>
-                  <strong className="text-slate-900 font-bold">{confirmedSlip.date}</strong>
+                  <strong className="text-slate-900 dark:text-white font-bold">{confirmedSlip.date}</strong>
                 </div>
                 <div>
                   <span className="text-slate-400 block text-[11px]">Time Slot</span>
-                  <strong className="text-slate-900 font-bold">{confirmedSlip.time}</strong>
+                  <strong className="text-slate-900 dark:text-white font-bold">{confirmedSlip.time}</strong>
                 </div>
               </div>
 
@@ -5851,7 +5849,7 @@ function DoctorProfileAndBookingView({
                   <span className="text-slate-500 block text-[11px]">Consultation Fee (Pay at clinic desk)</span>
                   <span className="text-xs text-slate-400">Cash upon arrival</span>
                 </div>
-                <span className="text-lg font-black text-slate-900 font-mono">
+                <span className="text-lg font-black text-slate-900 dark:text-white font-mono">
                   {formatCurrency(confirmedSlip.fee)}
                 </span>
               </div>

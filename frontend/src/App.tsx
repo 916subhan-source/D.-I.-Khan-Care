@@ -1154,9 +1154,7 @@ function PortalSidebar({
           {/* Logo & Mobile Close */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-md bg-[#20b29a] flex items-center justify-center flex-shrink-0 shadow-sm text-[#0D1927]">
-                <Stethoscope className="w-5 h-5 text-[#0D1927]" />
-              </div>
+              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 rounded-full object-contain flex-shrink-0 shadow-sm bg-white" />
               <div>
                 <div className="text-white font-extrabold text-sm leading-tight tracking-wide" style={{ fontFamily: 'Outfit,sans-serif' }}>
                   D.I. Khan Care
@@ -1410,9 +1408,7 @@ function StaffLoginSplitView({
         <div>
           {/* Brand header */}
           <div className="flex items-center gap-3 mb-4 sm:mb-6">
-            <div className="w-8 h-8 rounded-md bg-teal-400 flex items-center justify-center text-[#0c2823] shadow-md flex-shrink-0 font-bold">
-              <IconComponent className="w-4.5 h-4.5" />
-            </div>
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-10 h-10 rounded-full object-contain shadow-md flex-shrink-0 bg-white" />
             <div>
               <div className="text-white font-extrabold text-sm tracking-wide" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 D.I. Khan Care
@@ -1917,15 +1913,11 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-100" style={{ backdropFilter: 'blur(12px)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
-          <button onClick={() => handleSwitchRole('home')} className="flex items-center gap-2.5 sm:gap-3 text-left group">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-glow-clinic transition-all" style={{ background: 'linear-gradient(135deg, #1a6359, #2a9488)' }}>
-              <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-            </div>
+          <button onClick={() => handleSwitchRole('home')} className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer">
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform bg-white" />
             <div>
-              <div className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</div>
-              <div className="text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-[0.12em] sm:tracking-[0.15em]">Doctor Appointment System</div>
+              <div className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base leading-tight tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</div>
+              <div className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-400 uppercase tracking-[0.12em] sm:tracking-[0.15em]">Doctor Appointment System</div>
             </div>
           </button>
 
@@ -2012,10 +2004,8 @@ export default function App() {
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg, #1a6359, #2a9488)' }}>
-                    <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
-                  </div>
-                  <span className="font-bold text-slate-900 text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</span>
+                  <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white" />
+                  <span className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</span>
                 </div>
                 <button onClick={() => setShowMobileNav(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
                   <X className="w-4 h-4" />
@@ -2139,10 +2129,8 @@ export default function App() {
       <footer className="border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-6">
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1a6359, #2a9488)' }}>
-              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
-            </div>
-            <span className="text-xs font-bold text-slate-600" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-6 h-6 rounded-full object-contain shadow-xs bg-white" />
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-slate-400">
             <span>Concept preview · Illustrative data</span>
@@ -12058,6 +12046,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 <div id="printable-pos-slip" className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-5 bg-slate-50/50 dark:bg-[#0c1424] space-y-3 font-sans">
                   {/* Clinic & Doctor Header */}
                   <div className="text-center pb-2 border-b border-dashed border-slate-300 dark:border-slate-700">
+                    <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-12 h-12 mx-auto mb-1.5 rounded-full object-contain bg-white shadow-xs" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-full inline-block mb-1 border border-transparent dark:border-emerald-700/50">
                       Confirmed Walk-In Slip
                     </span>

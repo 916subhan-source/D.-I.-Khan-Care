@@ -7285,138 +7285,101 @@ function PatientSection({
   );
 }
 
-// ── Doctor Card Component (Luxurious elevated design with subtle hover zoom) ──────
+// ── Doctor Card Component (Compact, modern design with Picture, Name, Specialty, Availability & Fee) ──────
 function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void }) {
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
+
   return (
-    <div className={`group relative bg-white dark:bg-[#0d1624] rounded-3xl border transition-all duration-300 ease-out flex flex-col justify-between overflow-hidden shadow-xl dark:shadow-[0_24px_50px_-10px_rgba(0,0,0,0.92)] hover:shadow-2xl dark:hover:shadow-[0_32px_65px_-10px_rgba(0,0,0,0.98)] hover:-translate-y-1.5 hover:scale-[1.015] ${doctor.is_spotlight
-      ? 'border-amber-200/90 dark:border-amber-500/30 hover:border-amber-300 dark:hover:border-amber-500/50'
-      : 'border-slate-200/90 dark:border-slate-800 hover:border-clinic-300 dark:hover:border-emerald-500/40'
+    <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:shadow-md hover:-translate-y-1 ${doctor.is_spotlight
+      ? 'border-amber-300 dark:border-amber-500/40 bg-gradient-to-b from-amber-50/20 to-white dark:from-amber-950/10 dark:to-[#0f172a]'
+      : 'border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/50'
       }`}>
-      {/* Subtle luxury ambient glow for spotlight cards */}
-      {doctor.is_spotlight && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 dark:bg-amber-500/5 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
-      )}
-
-      {/* ── Full Box Width Doctor Image Header ── */}
-      <div className="relative w-full h-56 sm:h-72 bg-slate-900 overflow-hidden flex-shrink-0">
-        <img
-          src={getDoctorProfileImage(doctor, 500)}
-          alt={doctor.full_name}
-          className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
-          onError={(e) => {
-            (e.target as HTMLElement).style.display = 'none';
-            const fallback = (e.target as HTMLElement).nextElementSibling;
-            if (fallback) (fallback as HTMLElement).style.display = 'flex';
-          }}
-        />
-        <div
-          style={{ display: 'none' }}
-          className="w-full h-full bg-gradient-to-br from-clinic-800 via-clinic-900 to-slate-950 text-white flex items-center justify-center font-extrabold text-4xl"
-        >
-          {initials}
-        </div>
-
-        {/* Gradient dark vignette over bottom & top of image for contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-black/15 to-slate-950/40 pointer-events-none" />
-
-        {/* Top Badges (floating over image) */}
-        <div className="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between pointer-events-none">
-          {doctor.is_spotlight ? (
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs font-bold text-amber-950 bg-amber-300/95 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-md border border-amber-200/80">
-              <span className="text-amber-600">★</span> Spotlight Specialist
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs font-bold text-emerald-950 bg-emerald-300/95 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-md border border-emerald-200/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" /> Verified Doctor
-            </span>
-          )}
-          <span className="text-[10px] sm:text-[11px] font-bold text-white bg-slate-900/85 backdrop-blur-md px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 capitalize shadow-sm inline-flex items-center gap-1.5">
-            <Clock className="w-3 h-3 text-clinic-300" />
-            <span>{avail.shiftBadge}</span>
-          </span>
-        </div>
-
-        {/* Bottom doctor label on image */}
-        <div className="absolute bottom-2.5 sm:bottom-3 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between pointer-events-none gap-2">
-          {doctor.verification_status === 'verified' && (
-            <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-emerald-300 bg-slate-950/80 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-emerald-500/30 shadow-xs flex-shrink-0">
-              <Check className="w-3 h-3 stroke-[3] text-emerald-400" /> PMDC Verified
-            </span>
-          )}
-          <span className="text-[10px] sm:text-[11px] font-medium text-slate-200 bg-slate-950/80 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-white/10 ml-auto shadow-xs truncate max-w-[140px] sm:max-w-none">
-            {doctor.sub_region}, D.I. Khan
-          </span>
-        </div>
-      </div>
-
-      {/* ── Card Body Content ── */}
-      <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
-        <div>
-          {/* Doctor Name & Specialty */}
-          <div className="mb-4">
-            <h3 className="font-extrabold text-slate-900 text-xl leading-tight group-hover:text-clinic-800 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              {doctor.full_name}
-            </h3>
-            <p className="text-xs font-bold text-clinic-700 mt-1 uppercase tracking-wider">
-              {doctor.specialty} Specialist
-            </p>
-            {doctor.qualification && (
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                {doctor.qualification}
-              </p>
+      <div>
+        {/* Top Header: Doctor Picture + Name & Specialty */}
+        <div className="flex items-start gap-3.5 mb-3.5">
+          {/* Doctor Picture / Avatar */}
+          <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-800 shadow-2xs">
+            <img
+              src={getDoctorProfileImage(doctor, 300)}
+              alt={doctor.full_name}
+              className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+                const fallback = (e.target as HTMLElement).nextElementSibling;
+                if (fallback) (fallback as HTMLElement).style.display = 'flex';
+              }}
+            />
+            <div
+              style={{ display: 'none' }}
+              className="w-full h-full bg-gradient-to-br from-clinic-800 to-slate-900 text-white flex items-center justify-center font-bold text-xl"
+            >
+              {initials}
+            </div>
+            {doctor.verification_status === 'verified' && (
+              <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs" title="PMDC Verified">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </span>
             )}
           </div>
 
-          {/* Location line - Clean, unboxed, airy */}
-          <div className="flex items-center gap-2 text-xs text-slate-600 mb-4">
-            <MapPin className="w-3.5 h-3.5 text-clinic-600 flex-shrink-0" />
-            <div className="truncate">
-              <span className="font-semibold text-slate-800">{doctor.clinic_address}</span>
-              <span className="text-slate-300 mx-1.5">&bull;</span>
-              <span className="text-slate-500">{doctor.sub_region}</span>
+          {/* Name & Specialty */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors line-clamp-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                {doctor.full_name}
+              </h3>
             </div>
-          </div>
-
-          {/* Real-Time Today Availability Badge */}
-          <div className="flex items-center justify-between mb-3.5 pt-2 border-t border-slate-100">
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 sm:py-1 rounded-full border shadow-2xs ${avail.todayBadgeClass}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${avail.isAvailableToday ? 'bg-emerald-600 animate-pulse' : 'bg-amber-600'}`} />
-              {avail.todayBadgeText}
-            </span>
-            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium truncate">
-              {avail.statusText}
-            </span>
-          </div>
-
-          {/* Fee & Next Available - Clean, balanced typography with live indicator */}
-          <div className="pt-2 pb-1 border-t border-slate-100 mb-4 flex items-end justify-between">
-            <div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Fee</p>
-              <p className="font-extrabold text-slate-900 text-lg font-mono tracking-tight leading-none mt-1">
-                {formatCurrency(doctor.fee_clinic)}
+            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 truncate uppercase tracking-wider">
+              {doctor.specialty} Specialist
+            </p>
+            {doctor.qualification && (
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5 font-medium">
+                {doctor.qualification}
               </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Next Slot</p>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.nextSlotClass}`} />
-                <span>{avail.nextSlotText}</span>
-              </div>
+            )}
+            <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+              <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+              <span className="truncate">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
             </div>
           </div>
         </div>
 
-        {/* View Profile & Book CTA */}
-        <button
-          onClick={() => onProfile(doctor)}
-          className="w-full py-3.5 bg-gradient-to-r from-clinic-700 via-clinic-800 to-clinic-900 hover:from-clinic-800 hover:to-slate-950 text-white font-bold rounded-2xl text-sm transition-all duration-200 shadow-md hover:shadow-xl hover:scale-[1.015] active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide group/btn"
-        >
-          <span>Book Appointment</span>
-          <span className="text-xs opacity-80 group-hover/btn:translate-x-1 transition-transform">&rarr;</span>
-        </button>
+        {/* Availability & Fee Strip */}
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+          {/* Availability */}
+          <div className="min-w-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
+              Availability
+            </span>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                {avail.isAvailableToday ? 'Available Today' : (avail.nextSlotText || 'Consultation by Slot')}
+              </span>
+            </div>
+          </div>
+
+          {/* Fee */}
+          <div className="text-right flex-shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
+              Fee
+            </span>
+            <span className="font-black text-slate-900 dark:text-white text-sm sm:text-base font-mono">
+              {formatCurrency(doctor.fee_clinic)}
+            </span>
+          </div>
+        </div>
       </div>
+
+      {/* Book Appointment Button */}
+      <button
+        onClick={() => onProfile(doctor)}
+        className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-clinic-700 via-clinic-800 to-clinic-900 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all duration-200 shadow-xs hover:shadow-md flex items-center justify-center gap-1.5 cursor-pointer group/btn"
+      >
+        <span>Book Appointment</span>
+        <span className="text-xs opacity-80 group-hover/btn:translate-x-1 transition-transform">&rarr;</span>
+      </button>
     </div>
   );
 }

@@ -56,11 +56,13 @@ import {
   Terminal,
   LogOut,
   Menu,
-  Upload
+  Upload,
+  Home
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
+import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
 
 interface DoctorData {
   id: string;
@@ -1778,28 +1780,30 @@ function StaffLoginSplitView({
 }
 
 export default function App() {
-  const getTabFromUrl = (): 'patient' | 'track' | 'assistant' | 'doctor' | 'admin' => {
+  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'assistant' | 'doctor' | 'admin' => {
     try {
       const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
       if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
       if (pathname === '/doctor' || pathname.startsWith('/doctor/')) return 'doctor';
       if (pathname === '/assistant' || pathname.startsWith('/assistant/')) return 'assistant';
       if (pathname === '/track' || pathname.startsWith('/track/')) return 'track';
+      if (pathname === '/doctors' || pathname.startsWith('/doctors/')) return 'patient';
+      if (pathname === '/home') return 'home';
 
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'admin' || tabParam === 'doctor' || tabParam === 'assistant' || tabParam === 'track') {
-        return tabParam;
+      if (tabParam === 'admin' || tabParam === 'doctor' || tabParam === 'assistant' || tabParam === 'track' || tabParam === 'patient' || tabParam === 'home') {
+        return tabParam as any;
       }
       const hash = window.location.hash.replace('#', '').replace(/^\/+/, '').toLowerCase();
-      if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track') {
-        return hash as any;
+      if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track' || hash === 'doctors' || hash === 'home') {
+        return hash === 'doctors' ? 'patient' : hash as any;
       }
     } catch (_) { }
-    return 'patient';
+    return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'patient' | 'track' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
+  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
   const [openTrackTrigger, setOpenTrackTrigger] = useState(0);
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
@@ -1851,7 +1855,7 @@ export default function App() {
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   // Sync tab with browser URL history
-  const handleSwitchRole = (newRole: 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => {
+  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => {
     setActiveTab(newRole as any);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     try {
@@ -1859,7 +1863,8 @@ export default function App() {
         : newRole === 'doctor' ? '/doctor'
           : newRole === 'assistant' ? '/assistant'
             : newRole === 'track' ? '/track'
-              : '/';
+              : newRole === 'patient' ? '/doctors'
+                : '/';
       if (window.location.pathname.toLowerCase().replace(/\/+$/, '') !== targetPath.replace(/\/+$/, '')) {
         window.history.pushState(null, '', targetPath);
       }
@@ -1912,7 +1917,7 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-100" style={{ backdropFilter: 'blur(12px)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
-          <button onClick={() => handleSwitchRole('patient')} className="flex items-center gap-2.5 sm:gap-3 text-left group">
+          <button onClick={() => handleSwitchRole('home')} className="flex items-center gap-2.5 sm:gap-3 text-left group">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-glow-clinic transition-all" style={{ background: 'linear-gradient(135deg, #1a6359, #2a9488)' }}>
               <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -1924,8 +1929,17 @@ export default function App() {
             </div>
           </button>
 
-          {/* Desktop Nav Links (Completely Unaltered) */}
+          {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-1.5">
+            <button
+              onClick={() => handleSwitchRole('home')}
+              className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'home'
+                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                }`}
+            >
+              Home
+            </button>
             <button
               onClick={() => handleSwitchRole('patient')}
               className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'patient'
@@ -2009,6 +2023,13 @@ export default function App() {
               </div>
 
               <div className="space-y-1.5">
+                <button
+                  onClick={() => { handleSwitchRole('home'); setShowMobileNav(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === 'home' ? 'bg-clinic-50 text-clinic-800 font-bold' : 'text-slate-700 hover:bg-slate-50'}`}
+                >
+                  <Home className="w-4 h-4 text-clinic-700" />
+                  <span>Home</span>
+                </button>
                 <button
                   onClick={() => { handleSwitchRole('patient'); setShowMobileNav(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === 'patient' ? 'bg-clinic-50 text-clinic-800 font-bold' : 'text-slate-700 hover:bg-slate-50'}`}
@@ -2104,11 +2125,12 @@ export default function App() {
       {/* ── Content ── */}
       <main className="flex-1 pb-20 md:pb-0 dark:bg-[#080d14]">
         {activeTab === 'track' ? (
-          <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('patient')} />
+          <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('home')} />
         ) : (
           <PatientSection
             openTrackTrigger={openTrackTrigger}
             onSwitchRole={handleSwitchRole}
+            isHomeView={activeTab === 'home'}
           />
         )}
       </main>
@@ -2132,7 +2154,20 @@ export default function App() {
       {/* ── Modern Mobile Bottom Sticky Navigation Bar (< 768px) ── */}
       <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5 transition-all">
         <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
-          {/* Tab 1: Find Doctor (Home/Directory) */}
+          {/* Tab 1: Home */}
+          <button
+            type="button"
+            onClick={() => handleSwitchRole('home')}
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'home'
+                ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+          >
+            <Home className={`w-5 h-5 mb-0.5 ${activeTab === 'home' ? 'stroke-[2.5]' : 'stroke-2'}`} />
+            <span className="text-[10px] leading-tight tracking-tight">Home</span>
+          </button>
+
+          {/* Tab 2: Find Doctor (Directory) */}
           <button
             type="button"
             onClick={() => handleSwitchRole('patient')}
@@ -2142,7 +2177,7 @@ export default function App() {
               }`}
           >
             <Search className={`w-5 h-5 mb-0.5 ${activeTab === 'patient' ? 'stroke-[2.5]' : 'stroke-2'}`} />
-            <span className="text-[10px] leading-tight tracking-tight">Doctors</span>
+            <span className="text-[10px] leading-tight tracking-tight">Find Doctor</span>
           </button>
 
           {/* Tab 2: Track Appointment */}
@@ -5991,14 +6026,33 @@ function DoctorProfileAndBookingView({
   );
 }
 
-function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?: number; onSwitchRole?: (r: 'patient' | 'assistant' | 'doctor' | 'admin') => void }) {
+function PatientSection({
+  openTrackTrigger,
+  onSwitchRole,
+  isHomeView = false
+}: {
+  openTrackTrigger?: number;
+  onSwitchRole?: (r: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => void;
+  isHomeView?: boolean;
+}) {
   const [doctors, setDoctors] = useState<DoctorData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLocality, setSelectedLocality] = useState('All D.I. Khan');
   const [selectedShift, setSelectedShift] = useState('Any shift');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All specialties');
+  const [selectedCondition, setSelectedCondition] = useState('');
+  const [selectedConditionLabel, setSelectedConditionLabel] = useState('');
   const [quickFilter, setQuickFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const scrollToResults = () => {
+    setTimeout(() => {
+      const el = document.getElementById('doctors-results-grid');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
   const [showTrack, setShowTrack] = useState(false);
   const [zoomLevel, setZoomLevel] = useState<'105' | '100' | '110'>('105');
 
@@ -6217,12 +6271,24 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
   const filteredDoctors = doctors.filter(doc => {
     const matchLoc = selectedLocality === 'All D.I. Khan' || doc.sub_region.toLowerCase().includes(selectedLocality.split('/')[0].trim().toLowerCase());
     const matchShift = selectedShift === 'Any shift' || doc.shift.toLowerCase().includes(selectedShift.toLowerCase());
-    const matchSearch = !searchTerm || doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doc.clinic_address.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchSearch = !searchTerm || doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doc.clinic_address.toLowerCase().includes(searchTerm.toLowerCase()) || (doc.bio && doc.bio.toLowerCase().includes(searchTerm.toLowerCase())) || (doc.expertise && doc.expertise.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
       (selectedSpecialty.toLowerCase().includes('lap') && doc.specialty.toLowerCase().includes('lap')) ||
       (selectedSpecialty.toLowerCase().includes('face') && doc.specialty.toLowerCase().includes('face'));
     if (!matchLoc || !matchShift || !matchSearch || !matchSpecialty) return false;
+
+    if (selectedCondition) {
+      const cond = HOME_CONDITIONS.find(c => c.id === selectedCondition);
+      if (cond) {
+        const textToSearch = `${doc.full_name} ${doc.specialty} ${doc.bio || ''} ${doc.expertise || ''}`.toLowerCase();
+        const matchesKeyword = cond.keywords.some(k => textToSearch.includes(k.toLowerCase()));
+        const matchesHint = cond.specialtyHint && doc.specialty.toLowerCase().includes(cond.specialtyHint.toLowerCase());
+        if (!matchesKeyword && !matchesHint) {
+          return false;
+        }
+      }
+    }
 
     if (quickFilter === 'top_rated') {
       return doc.is_spotlight;
@@ -6411,6 +6477,37 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
               </span>
             </div>
 
+            {/* Quick Action Buttons on Home View */}
+            {isHomeView && (
+              <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSpecialty('All specialties');
+                    setSelectedCondition('');
+                    setSelectedConditionLabel('');
+                    setSearchTerm('');
+                    scrollToResults();
+                  }}
+                  className="px-5 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Find a Doctor</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('home-filters-container');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-xl text-xs sm:text-sm shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer transition-all"
+                >
+                  <span>Browse Categories &amp; Symptoms</span>
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                </button>
+              </div>
+            )}
+
             {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
             <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[270px]">
               <Hero3DPass isStatic={true} />
@@ -6419,7 +6516,6 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
         </div>
 
         {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop >= 1024px) ── */}
-        {/* Moved rightwards near patient so the bottom edge touches the subject's mouth level */}
         <div
           className="absolute z-10 pointer-events-auto hidden lg:block -translate-x-1/2 select-none"
           style={{
@@ -6430,130 +6526,232 @@ function PatientSection({ openTrackTrigger, onSwitchRole }: { openTrackTrigger?:
           <Hero3DPass />
         </div>
 
-        {/* ── Unified Horizontal Search Bar docked: fully visible and beautifully spaced ── */}
+        {/* ── In Home View: Search Bar / In Directory View: 4-part Search Bar ── */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-6 sm:mt-10 lg:mt-12 mb-2 sm:mb-3">
-          <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
-              {/* Specialty Dropdown */}
-              <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  <Stethoscope className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Specialty
+          {isHomeView ? (
+            <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="relative flex-1 w-full">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search doctor by name, specialty, condition, or clinic address..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-400"
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-                <select
-                  value={selectedSpecialty}
-                  onChange={e => { setSelectedSpecialty(e.target.value); setQuickFilter('all'); }}
-                  className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
+                <button
+                  type="button"
+                  onClick={scrollToResults}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all"
                 >
-                  {['All specialties', 'General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Dentist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
-                    <option key={s} value={s}>{s === 'All specialties' ? 'All Specialties' : s}</option>
-                  ))}
-                </select>
+                  <Search className="w-4 h-4" />
+                  <span>Search Doctors</span>
+                </button>
               </div>
-
-              {/* Area / Vicinity Dropdown */}
-              <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Area / Vicinity
-                </div>
-                <select
-                  value={selectedLocality}
-                  onChange={e => { setSelectedLocality(e.target.value); setQuickFilter('all'); }}
-                  className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
-                >
-                  {subRegions.map(r => (
-                    <option key={r} value={r}>{r === 'All D.I. Khan' ? 'All Areas' : r}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Shift Timing Dropdown */}
-              <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                  <Clock className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Shift Timing
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
+                {/* Specialty Dropdown */}
+                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    <Stethoscope className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Specialty
+                  </div>
+                  <select
+                    value={selectedSpecialty}
+                    onChange={e => { setSelectedSpecialty(e.target.value); setSelectedCondition(''); setSelectedConditionLabel(''); setQuickFilter('all'); }}
+                    className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
+                  >
+                    {['All specialties', 'General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Dentist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
+                      <option key={s} value={s}>{s === 'All specialties' ? 'All Specialties' : s}</option>
+                    ))}
+                  </select>
                 </div>
 
-                <select
-                  value={selectedShift}
-                  onChange={e => setSelectedShift(e.target.value)}
-                  className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
-                >
-                  {shifts.map(s => (
-                    <option key={s} value={s}>{s === 'Any shift' ? 'All Shifts' : s}</option>
-                  ))}
-                </select>
-              </div>
+                {/* Area / Vicinity Dropdown */}
+                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    <MapPin className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Area / Vicinity
+                  </div>
+                  <select
+                    value={selectedLocality}
+                    onChange={e => { setSelectedLocality(e.target.value); setQuickFilter('all'); }}
+                    className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
+                  >
+                    {subRegions.map(r => (
+                      <option key={r} value={r}>{r === 'All D.I. Khan' ? 'All Areas' : r}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Search Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  const el = document.getElementById('doctors-results-grid');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-full h-full min-h-[46px] sm:min-h-[50px] px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 tracking-wide group cursor-pointer"
-              >
-                <Search className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-                <span>Search Doctors</span>
-              </button>
+                {/* Shift Timing Dropdown */}
+                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    <Clock className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Shift Timing
+                  </div>
+
+                  <select
+                    value={selectedShift}
+                    onChange={e => setSelectedShift(e.target.value)}
+                    className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
+                  >
+                    {shifts.map(s => (
+                      <option key={s} value={s}>{s === 'Any shift' ? 'All Shifts' : s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Search Button */}
+                <button
+                  type="button"
+                  onClick={scrollToResults}
+                  className="w-full h-full min-h-[46px] sm:min-h-[50px] px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 tracking-wide group cursor-pointer"
+                >
+                  <Search className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
+                  <span>Search Doctors</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── In Home View: Visual Filter Carousels / In Directory View: Horizontal Specialty Pills ── */}
+      {isHomeView ? (
+        <div id="home-filters-container" className="max-w-7xl mx-auto px-4 sm:px-6">
+          <HomeVisualFilters
+            selectedSpecialty={selectedSpecialty}
+            selectedCondition={selectedCondition}
+            onSelectSpecialty={(spec) => {
+              if (selectedSpecialty.toLowerCase() === spec.toLowerCase()) {
+                setSelectedSpecialty('All specialties');
+              } else {
+                setSelectedSpecialty(spec);
+                setSelectedCondition('');
+                setSelectedConditionLabel('');
+              }
+              scrollToResults();
+            }}
+            onSelectCondition={(condId, label) => {
+              if (selectedCondition.toLowerCase() === condId.toLowerCase()) {
+                setSelectedCondition('');
+                setSelectedConditionLabel('');
+              } else {
+                setSelectedCondition(condId);
+                setSelectedConditionLabel(label);
+                setSelectedSpecialty('All specialties');
+              }
+              scrollToResults();
+            }}
+            onViewAll={() => {
+              setSelectedSpecialty('All specialties');
+              setSelectedCondition('');
+              setSelectedConditionLabel('');
+              setSearchTerm('');
+              onSwitchRole?.('patient');
+            }}
+          />
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 py-3 sm:py-3.5 shadow-2xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-scroll">
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
+                Specialties:
+              </span>
+              {[
+                { name: 'All specialties', label: 'All Specialties', emoji: '⚪' },
+                { name: 'General Physician', label: 'General Physician', emoji: '🩺' },
+                { name: 'General Surgeon', label: 'General Surgeon', emoji: '🩹' },
+                { name: 'Laparoscopic Surgeon', label: 'Laparoscopic Surgeon', emoji: '🔬' },
+                { name: 'Face Aesthetic Surgeon', label: 'Face Aesthetic Surgeon', emoji: '🪞' },
+                { name: 'Cardiologist', label: 'Cardiologist', emoji: '🫀' },
+                { name: 'Dermatologist', label: 'Dermatologist', emoji: '✨' },
+                { name: 'Gynaecologist', label: 'Gynaecologist', emoji: '🌸' },
+                { name: 'Pediatrician', label: 'Pediatrician', emoji: '👶' },
+                { name: 'ENT Specialist', label: 'ENT Specialist', emoji: '👂' },
+                { name: 'Orthopedic Surgeon', label: 'Orthopedic Surgeon', emoji: '🦴' },
+                { name: 'Ophthalmologist', label: 'Eye Specialist', emoji: '👁️' },
+                { name: 'Dentist', label: 'Dentist', emoji: '🦷' },
+                { name: 'Neurologist', label: 'Neurologist', emoji: '🧠' },
+                { name: 'Urologist', label: 'Urologist', emoji: '🔬' },
+              ].map(spec => {
+                const isActive = selectedSpecialty.toLowerCase() === spec.name.toLowerCase();
+                return (
+                  <button
+                    key={spec.name}
+                    type="button"
+                    onClick={() => {
+                      setSelectedSpecialty(spec.name);
+                      setSelectedCondition('');
+                      setSelectedConditionLabel('');
+                      setQuickFilter('all');
+                    }}
+                    className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
+                      ? 'bg-clinic-800 dark:bg-emerald-600 text-white shadow-sm border border-clinic-800 dark:border-emerald-500 font-bold'
+                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200/90 dark:border-slate-700/80 hover:border-clinic-300 dark:hover:border-emerald-500 hover:bg-clinic-50/50 dark:hover:bg-slate-800'
+                      }`}
+                  >
+                    <span
+                      className="inline-block text-xs mr-1.5 select-none transition-transform group-hover:scale-110"
+                      style={{ filter: 'grayscale(100%)', opacity: isActive ? 1 : 0.7 }}
+                    >
+                      {spec.emoji}
+                    </span>
+                    <span>{spec.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
-      </div>
-
-      {/* ── Outside Image Box: Horizontal Specialty Filters Row (Responsive spacing) ── */}
-      <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 py-3 sm:py-3.5 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-scroll">
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
-              Specialties:
-            </span>
-            {[
-              { name: 'All specialties', label: 'All Specialties', emoji: '⚪' },
-              { name: 'General Physician', label: 'General Physician', emoji: '🩺' },
-              { name: 'General Surgeon', label: 'General Surgeon', emoji: '🩹' },
-              { name: 'Laparoscopic Surgeon', label: 'Laparoscopic Surgeon', emoji: '🔬' },
-              { name: 'Face Aesthetic Surgeon', label: 'Face Aesthetic Surgeon', emoji: '🪞' },
-              { name: 'Cardiologist', label: 'Cardiologist', emoji: '🫀' },
-              { name: 'Dermatologist', label: 'Dermatologist', emoji: '✨' },
-              { name: 'Gynaecologist', label: 'Gynaecologist', emoji: '🌸' },
-              { name: 'Pediatrician', label: 'Pediatrician', emoji: '👶' },
-              { name: 'ENT Specialist', label: 'ENT Specialist', emoji: '👂' },
-              { name: 'Orthopedic Surgeon', label: 'Orthopedic Surgeon', emoji: '🦴' },
-              { name: 'Ophthalmologist', label: 'Eye Specialist', emoji: '👁️' },
-              { name: 'Dentist', label: 'Dentist', emoji: '🦷' },
-              { name: 'Neurologist', label: 'Neurologist', emoji: '🧠' },
-              { name: 'Urologist', label: 'Urologist', emoji: '🔬' },
-            ].map(spec => {
-              const isActive = selectedSpecialty.toLowerCase() === spec.name.toLowerCase();
-              return (
-                <button
-                  key={spec.name}
-                  type="button"
-                  onClick={() => {
-                    setSelectedSpecialty(spec.name);
-                    setQuickFilter('all');
-                  }}
-                  className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
-                    ? 'bg-clinic-800 dark:bg-emerald-600 text-white shadow-sm border border-clinic-800 dark:border-emerald-500 font-bold'
-                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200/90 dark:border-slate-700/80 hover:border-clinic-300 dark:hover:border-emerald-500 hover:bg-clinic-50/50 dark:hover:bg-slate-800'
-                    }`}
-                >
-                  <span
-                    className="inline-block text-xs mr-1.5 select-none transition-transform group-hover:scale-110"
-                    style={{ filter: 'grayscale(100%)', opacity: isActive ? 1 : 0.7 }}
-                  >
-                    {spec.emoji}
-                  </span>
-                  <span>{spec.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* ── Full-Width Doctor Results Grid (Responsive padding) ── */}
       <div id="doctors-results-grid" className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Active Filter Notification Bar */}
+        {(selectedSpecialty !== 'All specialties' || selectedCondition || (isHomeView && searchTerm)) && (
+          <div className="mb-6 p-3.5 sm:p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-wrap items-center justify-between gap-3 shadow-2xs animate-fade-in">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
+              <span className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-emerald-200">
+                {selectedSpecialty !== 'All specialties'
+                  ? `Specialty: ${selectedSpecialty}`
+                  : selectedCondition
+                    ? `Condition: ${selectedConditionLabel || selectedCondition}`
+                    : `Search: "${searchTerm}"`}
+              </span>
+              <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+                &bull; {sortedDoctors.length} matching doctor{sortedDoctors.length === 1 ? '' : 's'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedSpecialty('All specialties');
+                setSelectedCondition('');
+                setSelectedConditionLabel('');
+                setSearchTerm('');
+              }}
+              className="px-3 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Show All Doctors</span>
+            </button>
+          </div>
+        )}
         {/* Track appointment panel (expandable) */}
         {showTrack && (
           <div className="mb-8 bg-white rounded-2xl border border-slate-200 shadow-md p-6 animate-fade-in">

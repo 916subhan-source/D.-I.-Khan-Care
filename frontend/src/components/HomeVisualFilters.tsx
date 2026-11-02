@@ -50,10 +50,10 @@ export const HOME_SPECIALTIES: SpecialtyItem[] = [
     image: '/filters/spec_gastroenterologist.png'
   },
   {
-    id: 'Dentist',
-    label: 'Dentist',
-    sublabel: 'Teeth & Gums',
-    image: '/filters/spec_dentist.png'
+    id: 'Cardiologist',
+    label: 'Cardiologist',
+    sublabel: 'Heart & Vascular',
+    image: '/filters/spec_cardiologist.png'
   },
   {
     id: 'General Surgeon',

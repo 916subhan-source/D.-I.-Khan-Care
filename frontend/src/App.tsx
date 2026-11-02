@@ -3446,7 +3446,7 @@ function DoctorProfileModal({
             <div>
               <h3 className="text-base font-bold text-slate-900 mb-3">Top Specialties in D.I. Khan</h3>
               <div className="flex flex-wrap gap-2 text-xs">
-                {['General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynecologist', 'Pediatrician', 'ENT Specialist', 'Orthopedic Surgeon', 'Eye Specialist', 'Dentist'].map((spec, i) => (
+                {['General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynecologist', 'Pediatrician', 'ENT Specialist', 'Orthopedic Surgeon', 'Eye Specialist'].map((spec, i) => (
                   <span key={i} className="px-3 py-1.5 bg-slate-100 hover:bg-teal-100 text-slate-700 hover:text-teal-900 rounded-xl border border-slate-200 font-medium cursor-pointer transition-colors">
                     {spec} in D.I. Khan
                   </span>
@@ -6575,7 +6575,7 @@ function PatientSection({
                     onChange={e => { setSelectedSpecialty(e.target.value); setSelectedCondition(''); setSelectedConditionLabel(''); setQuickFilter('all'); }}
                     className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                   >
-                    {['All specialties', 'General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Dentist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
+                    {['All specialties', 'General Physician', 'General Surgeon', 'Laparoscopic Surgeon', 'Face Aesthetic Surgeon', 'Cardiologist', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Orthopedic Surgeon', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
                       <option key={s} value={s}>{s === 'All specialties' ? 'All Specialties' : s}</option>
                     ))}
                   </select>
@@ -6685,7 +6685,6 @@ function PatientSection({
                 { name: 'ENT Specialist', label: 'ENT Specialist', emoji: '👂' },
                 { name: 'Orthopedic Surgeon', label: 'Orthopedic Surgeon', emoji: '🦴' },
                 { name: 'Ophthalmologist', label: 'Eye Specialist', emoji: '👁️' },
-                { name: 'Dentist', label: 'Dentist', emoji: '🦷' },
                 { name: 'Neurologist', label: 'Neurologist', emoji: '🧠' },
                 { name: 'Urologist', label: 'Urologist', emoji: '🔬' },
               ].map(spec => {

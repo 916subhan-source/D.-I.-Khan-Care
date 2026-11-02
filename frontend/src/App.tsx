@@ -4341,78 +4341,205 @@ function DoctorProfileAndBookingView({
                 <span className="text-slate-400 dark:text-slate-500">&bull; {doctor.sub_region}, D.I. Khan</span>
               </div>
 
-              {/* 4-Pillar Oladoc Trust Bar */}
+              {/* 4-Pillar Oladoc Trust Bar (Interactive: Tap to Jump to Reviews/Schedule) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileActiveTab('reviews');
+                    setMobileActiveTab('profile');
+                    const el = document.getElementById('doctor-menu-tabs');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-emerald-50/50 hover:bg-emerald-50 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
+                  title="Click to view patient satisfaction details"
+                >
                   <div className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">98%</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Satisfied</div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 flex items-center justify-center gap-0.5">
+                    Satisfied &rarr;
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileActiveTab('reviews');
+                    setMobileActiveTab('profile');
+                    const el = document.getElementById('doctor-menu-tabs');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-amber-50/50 hover:bg-amber-50 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 border border-amber-300/70 dark:border-amber-700/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98] ring-1 ring-amber-400/30"
+                  title="Click to view all patient reviews"
+                >
                   <div className="text-base font-black text-amber-500 font-mono flex items-center justify-center gap-0.5">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '4.9'}
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                    {reviewsSummary?.total_reviews || 128} Reviews
+                  <div className="text-[10px] text-amber-800 dark:text-amber-300 font-bold uppercase tracking-wider mt-0.5 group-hover:underline flex items-center justify-center gap-0.5">
+                    {reviewsSummary?.total_reviews || 128} Reviews &rarr;
                   </div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileActiveTab('schedule');
+                    setMobileActiveTab('profile');
+                    const el = document.getElementById('doctor-menu-tabs');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
+                  title="Click to view OPD clinic schedule"
+                >
                   <div className="text-base font-black text-slate-900 dark:text-white font-mono">&lt; 15 min</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Wait Time</div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center">
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-slate-800 dark:group-hover:text-slate-200">
+                    Wait Time &rarr;
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileActiveTab('about');
+                    setMobileActiveTab('profile');
+                    const el = document.getElementById('doctor-menu-tabs');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
+                  title="Click to view clinical experience"
+                >
                   <div className="text-base font-black text-slate-900 dark:text-white font-mono">
                     {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years} Years` : '10+ Years'}
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Experience</div>
-                </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-slate-800 dark:group-hover:text-slate-200">
+                    Experience &rarr;
+                  </div>
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── Oladoc Navigation Tabs (Sticky) ── */}
-        <div className="sticky top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          {[
-            { id: 'about', label: 'About Doctor', icon: User },
-            { id: 'services', label: 'Services & Procedures', icon: Stethoscope },
-            { id: 'conditions', label: 'Conditions Treated', icon: Award },
-            { id: 'schedule', label: 'Clinic Schedule', icon: Clock },
-            { id: 'reviews', label: `Reviews (${reviewsSummary?.total_reviews || 128})`, icon: Star },
-            { id: 'faqs', label: 'FAQs', icon: HelpCircle },
-          ].map(tab => {
-            const Icon = tab.icon;
-            const isActive = profileActiveTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setProfileActiveTab(tab.id as any);
-                  setMobileActiveTab('profile');
-                }}
-                className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-                  isActive
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-          {/* Mobile Quick Jump Button to Booking */}
+        {/* ── Oladoc Doctor Menu Navigation (Sticky & Optimized for Immediate Booking & Reviews Access) ── */}
+        <div id="doctor-menu-tabs" className="sticky top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          {/* TAB 1: BOOK SLOTS (Highlighted First-Class Action with Live Indicator) */}
           <button
             type="button"
             onClick={() => {
               setMobileActiveTab('booking');
               const el = document.getElementById('oladoc-booking-card');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className="lg:hidden ml-auto py-2 px-3 bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-extrabold whitespace-nowrap flex items-center gap-1 cursor-pointer flex-shrink-0 border border-emerald-500/30"
+            className={`py-2 px-4 rounded-xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 shadow-xs active:scale-95 ${
+              mobileActiveTab === 'booking'
+                ? 'bg-emerald-600 text-white shadow-emerald-950/20 ring-2 ring-emerald-400/40'
+                : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600 hover:text-white'
+            }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Book Slot &rarr;</span>
+            <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
+            <span>📅 Book Slots</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-0.5" />
+          </button>
+
+          {/* TAB 2: REVIEWS (Prominent Second Tab with Star & Count) */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('reviews');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
+                : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950'
+            }`}
+          >
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <span>Reviews ({reviewsSummary?.total_reviews || 128})</span>
+          </button>
+
+          {/* TAB 3: ABOUT DOCTOR */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('about');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'about'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>About Doctor</span>
+          </button>
+
+          {/* TAB 4: CLINIC SCHEDULE */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('schedule');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>Clinic Timings</span>
+          </button>
+
+          {/* TAB 5: SERVICES & PROCEDURES */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('services');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'services'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Stethoscope className="w-3.5 h-3.5" />
+            <span>Services</span>
+          </button>
+
+          {/* TAB 6: CONDITIONS TREATED */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('conditions');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>Conditions</span>
+          </button>
+
+          {/* TAB 7: FAQS */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('faqs');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>FAQs</span>
           </button>
         </div>
 
@@ -5569,6 +5696,41 @@ function DoctorProfileAndBookingView({
           </div>
         </div>
       </main>
+
+      {/* ── Mobile Persistent Bottom Quick-Booking Bar ── */}
+      <div className="lg:hidden fixed bottom-[57px] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg">
+        <div>
+          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee &middot; Direct Clinic</span>
+          <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('reviews');
+              setMobileActiveTab('profile');
+              const el = document.getElementById('doctor-menu-tabs');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="py-2.5 px-3 rounded-xl border border-amber-300 dark:border-amber-600/50 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1 cursor-pointer"
+          >
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <span>Reviews</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMobileActiveTab('booking');
+              const el = document.getElementById('oladoc-booking-card');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold rounded-xl text-xs shadow-md shadow-emerald-950/20 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Calendar className="w-3.5 h-3.5 text-white" />
+            <span>Book Slots &rarr;</span>
+          </button>
+        </div>
+      </div>
 
       {/* ── Interactive OTP Verification Modal ── */}
       {bookingState === 'otp' && (

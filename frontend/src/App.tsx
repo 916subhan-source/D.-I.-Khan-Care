@@ -2991,7 +2991,7 @@ function DoctorProfileModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-5xl w-full my-auto shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-white dark:bg-[#0c1424] rounded-3xl max-w-5xl w-full my-auto shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Top Bar */}
         <div className="bg-slate-900 text-white px-6 py-3.5 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2 text-xs font-semibold text-teal-400">
@@ -3094,7 +3094,7 @@ function DoctorProfileModal({
           </div>
 
           {/* Oladoc Sub-Navigation Tabs — Horizontal Swipeable on Mobile */}
-          <div className="border-b border-slate-200 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-1 flex-nowrap touch-scroll text-xs sm:text-sm font-semibold -mx-1 px-1 sm:mx-0 sm:px-0">
+          <div className="border-b border-slate-200 dark:border-slate-800 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-1 flex-nowrap touch-scroll text-xs sm:text-sm font-semibold -mx-1 px-1 sm:mx-0 sm:px-0">
             {[
               { id: 'reviews', label: 'Reviews (128)', icon: Star },
               { id: 'services', label: 'Services & Conditions', icon: Stethoscope },
@@ -3109,8 +3109,8 @@ function DoctorProfileModal({
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`pb-2.5 px-3 sm:px-4 flex items-center gap-1.5 sm:gap-2 border-b-2 whitespace-nowrap flex-shrink-0 transition-all cursor-pointer ${isActive
-                    ? 'border-teal-700 text-teal-800 font-bold'
-                    : 'border-transparent text-slate-500 hover:text-slate-900'
+                    ? 'border-emerald-600 text-emerald-700 dark:border-emerald-400 dark:text-emerald-400 font-bold'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
@@ -3130,27 +3130,27 @@ function DoctorProfileModal({
               {activeTab === 'reviews' && (
                 <div className="space-y-6">
                   {/* Satisfaction Banner */}
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-4">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-lg shadow-sm">
                       98%
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm">98% Satisfied Patients</h4>
-                      <p className="text-xs text-slate-600">Based on 128 verified patient consultations in D.I. Khan</p>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">98% Satisfied Patients</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">Based on 128 verified patient consultations in D.I. Khan</p>
                     </div>
                   </div>
 
                   {/* Patient Review Cards */}
                   <div className="space-y-4">
                     {reviewsList.map((rev, idx) => (
-                      <div key={idx} className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
-                        <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-lg w-fit">
-                          <ThumbsUp className="w-3.5 h-3.5 text-emerald-700" /> I recommend the doctor
+                      <div key={idx} className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-4 rounded-2xl space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg w-fit">
+                          <ThumbsUp className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" /> I recommend the doctor
                         </div>
-                        <p className="text-slate-800 text-sm italic font-medium">"{rev.comment}"</p>
-                        <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200/60">
-                          <span className="font-semibold text-slate-700 flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" /> Verified Patient {rev.author}
+                        <p className="text-slate-800 dark:text-slate-200 text-sm italic font-medium">"{rev.comment}"</p>
+                        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Verified Patient {rev.author}
                           </span>
                           <span>{rev.timeAgo}</span>
                         </div>
@@ -3158,7 +3158,7 @@ function DoctorProfileModal({
                     ))}
                   </div>
 
-                  <button className="w-full py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold border border-slate-300 rounded-xl text-xs transition-colors shadow-2xs">
+                  <button className="w-full py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold border border-slate-300 dark:border-slate-700 rounded-xl text-xs transition-colors shadow-2xs">
                     Load More Patient Reviews
                   </button>
                 </div>
@@ -3168,13 +3168,13 @@ function DoctorProfileModal({
               {activeTab === 'services' && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                      <Stethoscope className="w-4 h-4 text-teal-700" /> Services Offered
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                      <Stethoscope className="w-4 h-4 text-emerald-500" /> Services Offered
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {dynamicInfo.services.map((srv, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-semibold text-slate-800">
-                          <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                        <div key={i} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-3 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                           <span>{srv}</span>
                         </div>
                       ))}
@@ -3182,13 +3182,13 @@ function DoctorProfileModal({
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-                      <Award className="w-4 h-4 text-teal-700" /> Conditions Treated
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                      <Award className="w-4 h-4 text-emerald-500" /> Conditions Treated
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {dynamicInfo.conditions.map((cond, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-teal-50/60 border border-teal-100 p-3 rounded-xl text-xs font-semibold text-teal-950">
-                          <span className="w-2 h-2 rounded-full bg-teal-600 flex-shrink-0"></span>
+                        <div key={i} className="flex items-center gap-2 bg-teal-50/60 dark:bg-teal-950/30 border border-teal-100 dark:border-teal-900/50 p-3 rounded-xl text-xs font-semibold text-teal-950 dark:text-teal-200">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
                           <span>{cond}</span>
                         </div>
                       ))}
@@ -3200,11 +3200,11 @@ function DoctorProfileModal({
               {/* TAB 3: EDUCATION & EXPERIENCE */}
               {activeTab === 'education' && (
                 <div className="space-y-6">
-                  <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
-                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <GraduationCap className="w-5 h-5 text-teal-700" /> Degrees & Qualifications
+                  <div className="bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-5 space-y-4">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-emerald-500" /> Degrees & Qualifications
                     </h3>
-                    <ul className="space-y-3 text-xs text-slate-700">
+                    <ul className="space-y-3 text-xs text-slate-700 dark:text-slate-300">
                       {(doctor.qualification || 'MBBS, FCPS').split(',').map((deg: string, dIdx: number) => {
                         const trimmed = deg.trim();
                         if (!trimmed) return null;
@@ -3238,15 +3238,15 @@ function DoctorProfileModal({
                     </ul>
                   </div>
 
-                  <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
-                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <Building2 className="w-5 h-5 text-teal-700" /> Hospital Affiliations & Experience
+                  <div className="bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-5 space-y-4">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-emerald-500" /> Hospital Affiliations & Experience
                     </h3>
-                    <div className="space-y-2 text-xs text-slate-700">
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div className="font-bold text-slate-900">Senior Specialist & OPD Consultant</div>
-                        <div className="text-slate-500">DHQ Hospital D.I. Khan & Private Clinic Desk</div>
-                        <div className="text-teal-700 font-semibold mt-1">10+ Years Active Practice</div>
+                    <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+                      <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700/60">
+                        <div className="font-bold text-slate-900 dark:text-white">Senior Specialist & OPD Consultant</div>
+                        <div className="text-slate-500 dark:text-slate-400">DHQ Hospital D.I. Khan & Private Clinic Desk</div>
+                        <div className="text-emerald-600 dark:text-emerald-400 font-semibold mt-1">10+ Years Active Practice</div>
                       </div>
                     </div>
                   </div>
@@ -3256,20 +3256,20 @@ function DoctorProfileModal({
               {/* TAB 4: CLINIC TIMINGS & SCHEDULE TABLE (OLADOC FORMAT) */}
               {activeTab === 'timings' && (
                 <div className="space-y-4">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-teal-700" /> Clinic OPD Schedule
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-emerald-500" /> Clinic OPD Schedule
                   </h3>
 
-                  <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+                  <div className="border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-2xs">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
+                      <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider">
                         <tr>
                           <th className="p-3.5">Day</th>
                           <th className="p-3.5">Shift Timings</th>
                           <th className="p-3.5">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
                           const isEvening = doctor.shift === 'EVENING';
                           const timeText = day === 'Sunday'
@@ -3278,9 +3278,9 @@ function DoctorProfileModal({
                               ? '05:00 PM - 09:00 PM'
                               : '09:00 AM - 01:00 PM';
                           return (
-                            <tr key={idx} className={day === 'Sunday' ? 'bg-amber-50/40' : 'bg-white hover:bg-slate-50'}>
-                              <td className="p-3.5 font-bold text-slate-900">{day}</td>
-                              <td className="p-3.5 font-semibold text-teal-800">{timeText}</td>
+                            <tr key={idx} className={day === 'Sunday' ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
+                              <td className="p-3.5 font-bold text-slate-900 dark:text-white">{day}</td>
+                              <td className="p-3.5 font-semibold text-emerald-700 dark:text-emerald-400">{timeText}</td>
                               <td className="p-3.5">
                                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${day === 'Sunday' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
                                   }`}>
@@ -3299,26 +3299,26 @@ function DoctorProfileModal({
               {/* TAB 5: FAQS */}
               {activeTab === 'faqs' && (
                 <div className="space-y-4">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-teal-700" /> Frequently Asked Questions
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-emerald-500" /> Frequently Asked Questions
                   </h3>
 
                   <div className="space-y-3">
                     {faqs.map((faq, i) => (
-                      <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden bg-white">
+                      <div key={i} className="border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden bg-white dark:bg-slate-800/70">
                         <button
                           onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)}
-                          className="w-full p-4 text-left font-bold text-xs text-slate-900 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                          className="w-full p-4 text-left font-bold text-xs text-slate-900 dark:text-white flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                         >
                           <span>{faq.q}</span>
                           {openFaqIndex === i ? (
-                            <ChevronUp className="w-4 h-4 text-teal-700 flex-shrink-0" />
+                            <ChevronUp className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                           ) : (
                             <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
                           )}
                         </button>
                         {openFaqIndex === i && (
-                          <div className="px-4 pb-4 text-xs text-slate-600 border-t border-slate-100 pt-2 leading-relaxed bg-slate-50/50">
+                          <div className="px-4 pb-4 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-700/60 pt-2 leading-relaxed bg-slate-50/50 dark:bg-slate-900/40">
                             {faq.a}
                           </div>
                         )}
@@ -3332,24 +3332,24 @@ function DoctorProfileModal({
 
             {/* Right Column: Sticky Oladoc Booking Card */}
             <div className="space-y-6">
-              <div className="bg-white border-2 border-teal-600 rounded-2xl p-6 shadow-xl sticky top-4 space-y-5">
-                <div className="flex items-center gap-2 text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-200">
-                  <Building2 className="w-4 h-4 text-teal-700" /> Direct Clinic Consultation
+              <div className="bg-white dark:bg-slate-850 border-2 border-emerald-500 rounded-2xl p-6 shadow-xl sticky top-4 space-y-5">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                  <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Direct Clinic Consultation
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-xs text-slate-500 font-medium">Consultation Fee</div>
-                  <div className="text-3xl font-black text-slate-900">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Consultation Fee</div>
+                  <div className="text-3xl font-black text-slate-900 dark:text-white">
                     {formatCurrency(doctor.fee_clinic)}
                   </div>
                 </div>
 
-                <div className="space-y-2 text-xs border-t border-b border-slate-100 py-3">
-                  <div className="flex items-start gap-2 text-slate-700">
-                    <MapPin className="w-4 h-4 text-teal-600 mt-0.5 flex-shrink-0" />
+                <div className="space-y-2 text-xs border-t border-b border-slate-100 dark:border-slate-700/60 py-3">
+                  <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                    <MapPin className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <strong className="block text-slate-900">{doctor.clinic_address}</strong>
-                      <span className="text-slate-500">{doctor.sub_region}, D.I. Khan</span>
+                      <strong className="block text-slate-900 dark:text-white">{doctor.clinic_address}</strong>
+                      <span className="text-slate-500 dark:text-slate-400">{doctor.sub_region}, D.I. Khan</span>
                     </div>
                   </div>
 
@@ -3357,11 +3357,11 @@ function DoctorProfileModal({
                     href={googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-teal-50 text-teal-800 font-semibold border border-slate-200 hover:border-teal-300 rounded-xl text-xs transition-colors w-full mt-1.5"
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 text-emerald-800 dark:text-emerald-300 font-semibold border border-slate-200 dark:border-slate-700 hover:border-emerald-300 rounded-xl text-xs transition-colors w-full mt-1.5"
                   >
-                    <MapPin className="w-3.5 h-3.5 text-teal-600" />
+                    <MapPin className="w-3.5 h-3.5 text-emerald-500" />
                     Open Location on Google Maps
-                    <ExternalLink className="w-3 h-3 text-teal-600" />
+                    <ExternalLink className="w-3 h-3 text-emerald-500" />
                   </a>
 
                   {(() => {
@@ -3380,7 +3380,7 @@ function DoctorProfileModal({
 
                 <button
                   onClick={onBook}
-                  className="w-full py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all shadow-md shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Calendar className="w-4 h-4" /> Book Clinic Appointment
                 </button>
@@ -3402,10 +3402,10 @@ function DoctorProfileModal({
           </div>
 
           {/* Similar Doctors & Top Specialties Section */}
-          <div className="pt-8 border-t border-slate-200 space-y-6">
+          <div className="pt-8 border-t border-slate-200 dark:border-slate-800 space-y-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-teal-700" /> Similar Doctors in D.I. Khan
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <User className="w-5 h-5 text-emerald-500" /> Similar Doctors in D.I. Khan
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {similarDocs.map(simDoc => (
@@ -3446,14 +3446,14 @@ function DoctorProfileModal({
         </div>
 
         {/* Sticky Mobile Book CTA Bar */}
-        <div className="md:hidden sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 flex items-center justify-between gap-3 shadow-lg z-20">
+        <div className="md:hidden sticky bottom-0 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between gap-3 shadow-lg z-20">
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Fee</span>
-            <span className="text-base font-extrabold text-teal-800 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+            <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
           </div>
           <button
             onClick={onBook}
-            className="flex-1 py-2.5 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white font-bold rounded-xl text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-950/20 flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5 text-white" />
             <span>Book Clinic Visit &rarr;</span>
@@ -7362,14 +7362,25 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         </div>
       </div>
 
-      {/* Book Appointment Button */}
-      <button
-        onClick={() => onProfile(doctor)}
-        className="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl text-xs sm:text-sm transition-all duration-150 shadow-md shadow-emerald-950/20 flex items-center justify-center gap-1.5 cursor-pointer group/btn"
-      >
-        <span>Book Appointment</span>
-        <span className="text-xs opacity-80 group-hover/btn:translate-x-1 transition-transform">&rarr;</span>
-      </button>
+      {/* Dual Action Buttons (Oladoc Style: View Profile & Book Appointment) */}
+      <div className="grid grid-cols-2 gap-2 pt-1 mt-auto">
+        <button
+          type="button"
+          onClick={() => onProfile(doctor)}
+          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50/70 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
+        >
+          <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
+          <span>View Profile</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => onBook(doctor)}
+          className="py-2.5 px-2 sm:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
+        >
+          <span>Book Appointment</span>
+          <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>
+        </button>
+      </div>
     </div>
   );
 }

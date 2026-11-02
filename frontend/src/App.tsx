@@ -2153,7 +2153,7 @@ export default function App() {
       </footer>
       {/* ── Modern Mobile Bottom Sticky Navigation Bar (< 768px) ── */}
       <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5 transition-all">
-        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
+        <div className="max-w-md mx-auto grid grid-cols-5 gap-1">
           {/* Tab 1: Home */}
           <button
             type="button"
@@ -7291,15 +7291,12 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
   const avail = getDoctorAvailability(doctor);
 
   return (
-    <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:shadow-md hover:-translate-y-1 ${doctor.is_spotlight
-      ? 'border-amber-300 dark:border-amber-500/40 bg-gradient-to-b from-amber-50/20 to-white dark:from-amber-950/10 dark:to-[#0f172a]'
-      : 'border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/50'
-      }`}>
+    <div className="group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/50 dark:hover:border-emerald-500/60 transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:shadow-md hover:-translate-y-1">
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">
           {/* Doctor Picture / Avatar */}
-          <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-800 shadow-2xs">
+          <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-700/80 shadow-2xs">
             <img
               src={getDoctorProfileImage(doctor, 300)}
               alt={doctor.full_name}
@@ -7326,15 +7323,20 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
           {/* Name & Specialty */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors line-clamp-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {doctor.full_name}
               </h3>
+              {doctor.is_spotlight && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded-full">
+                  ★ Featured
+                </span>
+              )}
             </div>
-            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 truncate uppercase tracking-wider">
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate uppercase tracking-wider">
               {doctor.specialty} Specialist
             </p>
             {doctor.qualification && (
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5 font-medium">
+              <p className="text-[11px] text-slate-400 dark:text-slate-400 truncate mt-0.5 font-medium">
                 {doctor.qualification}
               </p>
             )}
@@ -7346,7 +7348,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         </div>
 
         {/* Availability & Fee Strip */}
-        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+        <div className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
           {/* Availability */}
           <div className="min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
@@ -7375,7 +7377,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
       {/* Book Appointment Button */}
       <button
         onClick={() => onProfile(doctor)}
-        className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-clinic-700 via-clinic-800 to-clinic-900 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all duration-200 shadow-xs hover:shadow-md flex items-center justify-center gap-1.5 cursor-pointer group/btn"
+        className="w-full py-2.5 sm:py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl text-xs sm:text-sm transition-all duration-150 shadow-md shadow-emerald-950/20 flex items-center justify-center gap-1.5 cursor-pointer group/btn"
       >
         <span>Book Appointment</span>
         <span className="text-xs opacity-80 group-hover/btn:translate-x-1 transition-transform">&rarr;</span>

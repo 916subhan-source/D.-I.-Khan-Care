@@ -4289,132 +4289,121 @@ function DoctorProfileAndBookingView({
         </div>
 
         {/* ── Oladoc Web Full-Width Hero Card ── */}
-        <div className="bg-white dark:bg-[#0c1424] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-7 shadow-xs mb-6 relative overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-center gap-5 sm:gap-7">
-            {/* Doctor Portrait */}
-            <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl sm:rounded-3xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-4 ring-emerald-500/20 shadow-md">
-              <img
-                src={getDoctorProfileImage(doctor, 500)}
-                alt={doctor.full_name}
-                className="w-full h-full object-cover object-top"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                  const fallback = (e.target as HTMLElement).nextElementSibling;
-                  if (fallback) (fallback as HTMLElement).style.display = 'flex';
-                }}
-              />
-              <div
-                style={{ display: 'none' }}
-                className="w-full h-full bg-gradient-to-br from-clinic-800 via-clinic-900 to-slate-950 text-white flex items-center justify-center font-extrabold text-3xl"
-              >
-                {doctor.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
-              </div>
-              {doctor.verification_status === 'verified' && (
-                <span className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 bg-emerald-600 text-white px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md border border-white dark:border-slate-900">
-                  <Check className="w-3 h-3 stroke-[3]" /> PMDC Verified
-                </span>
-              )}
-            </div>
-
-            {/* Doctor Main Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {doctor.full_name}
-                </h1>
+        <div className="bg-white dark:bg-[#0c1424] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-7 shadow-xs mb-4 sm:mb-6 relative overflow-hidden">
+          <div className="flex flex-col gap-4 sm:gap-6">
+            {/* Top row on mobile / Left on desktop: Portrait + Name & Details */}
+            <div className="flex items-start sm:items-center gap-3.5 sm:gap-6">
+              {/* Doctor Portrait */}
+              <div className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 sm:ring-4 ring-emerald-500/20 shadow-md">
+                <img
+                  src={getDoctorProfileImage(doctor, 500)}
+                  alt={doctor.full_name}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                    const fallback = (e.target as HTMLElement).nextElementSibling;
+                    if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                  }}
+                />
+                <div
+                  style={{ display: 'none' }}
+                  className="w-full h-full bg-gradient-to-br from-clinic-800 via-clinic-900 to-slate-950 text-white flex items-center justify-center font-extrabold text-2xl sm:text-3xl"
+                >
+                  {doctor.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
+                </div>
                 {doctor.verification_status === 'verified' && (
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
-                    <ShieldCheck className="w-3.5 h-3.5" /> PMDC Registered Specialist
+                  <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-emerald-600 text-white px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black flex items-center gap-0.5 sm:gap-1 shadow-md border border-white dark:border-slate-900">
+                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" /> PMDC
                   </span>
                 )}
               </div>
-              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
-                {doctor.specialty} Specialist &amp; Consultant
-              </p>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                {doctor.qualification || 'MBBS, FCPS'}
-              </p>
 
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 mt-2">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                <span className="font-semibold">{doctor.clinic_address}</span>
-                <span className="text-slate-400 dark:text-slate-500">&bull; {doctor.sub_region}, D.I. Khan</span>
+              {/* Doctor Main Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5">
+                  <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    {doctor.full_name}
+                  </h1>
+                  {doctor.verification_status === 'verified' && (
+                    <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
+                      <ShieldCheck className="w-3.5 h-3.5" /> PMDC Registered
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                  {doctor.specialty} Specialist &amp; Consultant
+                </p>
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
+                  {doctor.qualification || 'MBBS, FCPS'}
+                </p>
+
+                <div className="flex items-center gap-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 mt-1 truncate">
+                  <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span className="font-semibold truncate">{doctor.clinic_address}</span>
+                  <span className="text-slate-400 dark:text-slate-500 hidden xs:inline">&bull; {doctor.sub_region}</span>
+                </div>
               </div>
+            </div>
 
-              {/* 4-Pillar Oladoc Trust Bar (Interactive: Tap to Jump to Reviews/Schedule) */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileActiveTab('reviews');
-                    setMobileActiveTab('profile');
-                    const el = document.getElementById('doctor-menu-tabs');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="bg-emerald-50/50 hover:bg-emerald-50 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
-                  title="Click to view patient satisfaction details"
-                >
-                  <div className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">98%</div>
-                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 flex items-center justify-center gap-0.5">
-                    Satisfied &rarr;
-                  </div>
-                </button>
+            {/* 4-Pillar Oladoc Trust Bar (Compact & Interactive: Tap to Jump to Reviews/Schedule) */}
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-3 pt-2 sm:pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileActiveTab('reviews');
+                  setMobileActiveTab('profile');
+                }}
+                className="bg-emerald-50/60 hover:bg-emerald-100/70 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95"
+                title="View satisfaction"
+              >
+                <div className="text-xs sm:text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">98%</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Satisfied &rarr;</div>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileActiveTab('reviews');
-                    setMobileActiveTab('profile');
-                    const el = document.getElementById('doctor-menu-tabs');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="bg-amber-50/50 hover:bg-amber-50 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 border border-amber-300/70 dark:border-amber-700/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98] ring-1 ring-amber-400/30"
-                  title="Click to view all patient reviews"
-                >
-                  <div className="text-base font-black text-amber-500 font-mono flex items-center justify-center gap-0.5">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
-                  </div>
-                  <div className="text-[10px] text-amber-800 dark:text-amber-300 font-bold uppercase tracking-wider mt-0.5 group-hover:underline flex items-center justify-center gap-0.5">
-                    {reviewsSummary?.total_reviews || 128} Reviews &rarr;
-                  </div>
-                </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileActiveTab('reviews');
+                  setMobileActiveTab('profile');
+                }}
+                className="bg-amber-50/70 hover:bg-amber-100/70 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 border border-amber-300/80 dark:border-amber-700/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95 ring-1 ring-amber-400/40"
+                title="View all patient reviews"
+              >
+                <div className="text-xs sm:text-base font-black text-amber-500 font-mono flex items-center justify-center gap-0.5">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
+                </div>
+                <div className="text-[9px] sm:text-[10px] text-amber-800 dark:text-amber-300 font-black uppercase tracking-wider mt-0.5 truncate">
+                  {reviewsSummary?.total_reviews || 128} Reviews &rarr;
+                </div>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileActiveTab('schedule');
-                    setMobileActiveTab('profile');
-                    const el = document.getElementById('doctor-menu-tabs');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
-                  title="Click to view OPD clinic schedule"
-                >
-                  <div className="text-base font-black text-slate-900 dark:text-white font-mono">&lt; 15 min</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-slate-800 dark:group-hover:text-slate-200">
-                    Wait Time &rarr;
-                  </div>
-                </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileActiveTab('schedule');
+                  setMobileActiveTab('profile');
+                }}
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95"
+                title="View OPD clinic timings"
+              >
+                <div className="text-xs sm:text-base font-black text-slate-900 dark:text-white font-mono">&lt; 15m</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Wait Time &rarr;</div>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileActiveTab('about');
-                    setMobileActiveTab('profile');
-                    const el = document.getElementById('doctor-menu-tabs');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-2.5 text-center transition-all cursor-pointer group hover:scale-[1.02] active:scale-[0.98]"
-                  title="Click to view clinical experience"
-                >
-                  <div className="text-base font-black text-slate-900 dark:text-white font-mono">
-                    {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years} Years` : '10+ Years'}
-                  </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 group-hover:text-slate-800 dark:group-hover:text-slate-200">
-                    Experience &rarr;
-                  </div>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileActiveTab('about');
+                  setMobileActiveTab('profile');
+                }}
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95"
+                title="View doctor experience"
+              >
+                <div className="text-xs sm:text-base font-black text-slate-900 dark:text-white font-mono">
+                  {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years}Y` : '10+Y'}
+                </div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Exp. &rarr;</div>
+              </button>
             </div>
           </div>
         </div>

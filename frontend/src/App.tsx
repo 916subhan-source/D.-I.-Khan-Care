@@ -6851,8 +6851,8 @@ function PatientSection({
   return (
     <div style={{ zoom: typeof window !== 'undefined' && window.innerWidth < 768 ? '1' : (zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1') }} className="transition-all duration-300 mobile-zoom-safe overflow-x-hidden w-full max-w-full">
       {/* ── Official District Verification Protocol Banner (AI Studio Reference) ── */}
-      <div className="bg-[#eaf5ef] dark:bg-slate-900/90 border-b border-clinic-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-300 text-[11px] sm:text-xs py-2 sm:py-2.5 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+      <div className="bg-[#eaf5ef] dark:bg-slate-900/90 border-b border-clinic-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-300 text-[11px] sm:text-xs py-2 sm:py-2.5 px-3 sm:px-6 w-full max-w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 w-full">
           <div className="flex items-center gap-2 font-medium">
             <span className="w-4 h-4 rounded-full bg-clinic-700 dark:bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>
             <span className="leading-tight sm:leading-normal">
@@ -6931,7 +6931,7 @@ function PatientSection({
 
             {/* Quick Action Buttons on Home View */}
             {isHomeView && (
-              <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-5 pt-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 mt-4 sm:mt-5 pt-1 w-full max-w-md">
                 <button
                   type="button"
                   onClick={() => {
@@ -6941,7 +6941,7 @@ function PatientSection({
                     setSearchTerm('');
                     scrollToResults();
                   }}
-                  className="px-5 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
+                  className="px-5 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
                 >
                   <Search className="w-4 h-4" />
                   <span>Find a Doctor</span>
@@ -6952,7 +6952,7 @@ function PatientSection({
                     const el = document.getElementById('home-filters-container');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-xl text-xs sm:text-sm shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer transition-all"
+                  className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-xl text-xs sm:text-sm shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
                   <span>Browse Categories &amp; Symptoms</span>
                   <ChevronDown className="w-4 h-4 text-slate-400" />

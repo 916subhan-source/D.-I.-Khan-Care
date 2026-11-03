@@ -57,7 +57,8 @@ import {
   LogOut,
   Menu,
   Upload,
-  Home
+  Home,
+  Maximize2
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
@@ -3739,6 +3740,18 @@ function DoctorProfileAndBookingView({
   }, [mobileActiveTab]);
 
   const [bookingState, setBookingState] = useState<'form' | 'otp' | 'confirmed'>('form');
+  const [expandedLoyaltyCardImage, setExpandedLoyaltyCardImage] = useState<string | null>(null);
+
+  // Close fullscreen loyalty card image on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setExpandedLoyaltyCardImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Scroll smoothly to top when advancing booking steps (form -> otp -> confirmed)
   useEffect(() => {
@@ -4644,7 +4657,20 @@ function DoctorProfileAndBookingView({
                       </span>
                     </div>
                     {doctor.loyalty_card_image_url && (
-                      <img src={doctor.loyalty_card_image_url} alt="Loyalty Card" className="w-full max-w-sm rounded-xl border border-amber-300 shadow-sm" />
+                      <div
+                        onClick={() => doctor.loyalty_card_image_url && setExpandedLoyaltyCardImage(doctor.loyalty_card_image_url)}
+                        className="cursor-pointer group relative inline-block max-w-sm rounded-xl overflow-hidden border border-amber-300 shadow-sm"
+                        title="Click to expand full screen"
+                      >
+                        <img 
+                          src={doctor.loyalty_card_image_url} 
+                          alt="Loyalty Card" 
+                          className="w-full object-contain transition-transform duration-300 group-hover:scale-105" 
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-bold">
+                          <Maximize2 className="w-4 h-4" /> Click to view full screen
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
@@ -5296,13 +5322,22 @@ function DoctorProfileAndBookingView({
                     {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
                     {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
                       <div className="mt-3 bg-amber-50/80 dark:bg-slate-900 border border-amber-200 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
-                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-200 dark:border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center">
+                        <div 
+                          onClick={() => doctor.loyalty_card_image_url && setExpandedLoyaltyCardImage(doctor.loyalty_card_image_url)}
+                          className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-200 dark:border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center cursor-pointer group relative"
+                          title="Click to view full screen"
+                        >
                           {doctor.loyalty_card_image_url ? (
-                            <img
-                              src={doctor.loyalty_card_image_url}
-                              alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                              className="w-full h-full object-contain bg-slate-950"
-                            />
+                            <>
+                              <img
+                                src={doctor.loyalty_card_image_url}
+                                alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                                className="w-full h-full object-contain bg-slate-950 transition-transform duration-300 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-white text-[10px] font-bold">
+                                <Maximize2 className="w-3.5 h-3.5" /> Fullscreen
+                              </div>
+                            </>
                           ) : (
                             <div className="w-full h-full min-h-[72px] flex flex-col items-center justify-center p-2 text-center bg-slate-900 text-slate-400">
                               <CreditCard className="w-6 h-6 text-amber-400 mb-1" />
@@ -5320,6 +5355,15 @@ function DoctorProfileAndBookingView({
                           <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug font-medium">
                             Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
                           </p>
+                          {doctor.loyalty_card_image_url && (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedLoyaltyCardImage(doctor.loyalty_card_image_url!)}
+                              className="text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:underline flex items-center gap-1 cursor-pointer pt-0.5"
+                            >
+                              <Maximize2 className="w-3 h-3" /> Click card to expand full screen &rarr;
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
@@ -5927,6 +5971,72 @@ function DoctorProfileAndBookingView({
               >
                 Track Status →
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Fullscreen Golden Loyalty Card Lightbox Modal ── */}
+      {expandedLoyaltyCardImage && (
+        <div 
+          onClick={() => setExpandedLoyaltyCardImage(null)}
+          className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 animate-fade-in"
+        >
+          {/* Top Bar with Title, Discount Badge, and Close Button */}
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-4xl flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800 text-white z-10"
+          >
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <span className="text-xl sm:text-2xl">💳</span>
+              <div className="min-w-0">
+                <h4 className="font-extrabold text-sm sm:text-base text-white tracking-wide truncate">
+                  {doctor.loyalty_card_title || 'VIP Golden Loyalty Card'}
+                </h4>
+                <p className="text-[11px] text-amber-300 font-medium">
+                  {Number(doctor.loyalty_discount_percent ?? 20)}% Consultation Discount &bull; {doctor.full_name}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-block text-[11px] text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
+                Press Esc or click anywhere to close
+              </span>
+              <button
+                type="button"
+                onClick={() => setExpandedLoyaltyCardImage(null)}
+                className="p-2 sm:p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white hover:text-amber-300 transition border border-slate-700 cursor-pointer flex items-center gap-1.5 shadow-md active:scale-95"
+                title="Close fullscreen preview"
+              >
+                <X className="w-5 h-5 stroke-[2.5]" />
+                <span className="text-xs font-bold hidden sm:inline">Close</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Center Card Display (Maximum resolution, preserve aspect ratio) */}
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="my-auto max-w-4xl w-full flex flex-col items-center justify-center p-2 sm:p-4"
+          >
+            <div className="relative group max-w-full max-h-[75vh] rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-2xl shadow-amber-500/10 bg-slate-950 flex items-center justify-center">
+              <img
+                src={expandedLoyaltyCardImage}
+                alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
+                className="w-auto h-auto max-w-full max-h-[75vh] object-contain rounded-2xl cursor-zoom-out select-none"
+                onClick={() => setExpandedLoyaltyCardImage(null)}
+              />
+            </div>
+            
+            {/* Helper Caption */}
+            <div className="mt-3 sm:mt-4 text-center space-y-1">
+              <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3.5 py-1 rounded-full">
+                ✨ Verified Clinic Golden Card Preview &bull; Click card or Esc to close
+              </span>
+              <p className="text-[11px] text-slate-400">
+                Collect your physical golden card upon arrival at clinic reception after assistant verification.
+              </p>
             </div>
           </div>
         </div>

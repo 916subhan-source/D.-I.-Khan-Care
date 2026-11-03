@@ -2,7 +2,7 @@
  * API client configuration for D.I. Khan Doctor Appointment System.
  */
 
-const CLOUDFLARE_TUNNEL_DEFAULT = 'https://e0ca0c70150435.lhr.life/api/v1';
+const PROD_BACKEND_URL = 'https://d-i-khan-care.vercel.app/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {
@@ -23,16 +23,8 @@ export const getApiBase = () => {
 
     // Clean up known stale/expired tunnel URLs from previous sessions
     const customTunnel = localStorage.getItem('cf_tunnel_url');
-    if (customTunnel && (customTunnel.includes('7c6c9138646ce2') || customTunnel.includes('loca.lt') || customTunnel.includes('pinggy'))) {
+    if (customTunnel && (customTunnel.includes('7c6c9138646ce2') || customTunnel.includes('loca.lt') || customTunnel.includes('pinggy') || customTunnel.includes('lhr.life'))) {
       localStorage.removeItem('cf_tunnel_url');
-    }
-
-    const isHttps = window.location.protocol === 'https:';
-    const isCloudflare = window.location.hostname.includes('pages.dev') || window.location.hostname.includes('workers.dev') || (isHttps && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'));
-
-    // On Cloudflare (Workers or Pages), always use the relative edge proxy /api/v1 for 100% reliability
-    if (isCloudflare) {
-      return '/api/v1';
     }
 
     const activeTunnel = localStorage.getItem('cf_tunnel_url');
@@ -46,23 +38,17 @@ export const getApiBase = () => {
 
     const envBase = (import.meta as any).env?.VITE_API_BASE;
     if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
-      const trimmed = envBase.trim().replace(/\/+$/, '');
-      if (isHttps && trimmed.startsWith('http://')) {
-        return CLOUDFLARE_TUNNEL_DEFAULT;
-      }
-      return trimmed;
+      return envBase.trim().replace(/\/+$/, '');
     }
 
-    if (isHttps) {
-      return CLOUDFLARE_TUNNEL_DEFAULT;
-    }
+    return PROD_BACKEND_URL;
   }
 
   const envBase = (import.meta as any).env?.VITE_API_BASE;
   if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
     return envBase.trim().replace(/\/+$/, '');
   }
-  return 'http://127.0.0.1:8000/api/v1';
+  return PROD_BACKEND_URL;
 };
 
 export const API_BASE = getApiBase();

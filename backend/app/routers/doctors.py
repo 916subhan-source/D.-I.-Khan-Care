@@ -51,6 +51,7 @@ def resolve_doctor_image(name: str, spec: str) -> str:
 
 @router.get("", response_model=List[DoctorResponse])
 async def list_doctors(
+    response: Response,
     sub_region: Optional[str] = Query(None, description="D.I. Khan sub-region (e.g. Circular Road, University Road, Topanwala)"),
     specialty: Optional[str] = Query(None, description="Doctor specialty (e.g. Cardiologist, Gynecologist)"),
     shift: Optional[str] = Query(None, description="Shift (MORNING, EVENING, BOTH)"),
@@ -58,8 +59,10 @@ async def list_doctors(
 ):
     """
     Returns public doctor directory sorted by Spotlight (pinned first) then name.
-    Accelerated with Redis in-memory cache.
+    Accelerated with Redis in-memory cache and Cloudflare Edge HTTP headers.
     """
+    # Edge caching: Serve cached directory from Cloudflare edge nodes in <15ms
+    response.headers["Cache-Control"] = "public, max-age=30, s-maxage=60, stale-while-revalidate=120"
     cache_key = f"doctors:{sub_region or 'all'}:{specialty or 'all'}:{shift or 'all'}"
     cached_data = await redis_manager.get_cache(cache_key)
     if cached_data:
@@ -195,7 +198,9 @@ async def list_doctors(
     return doctor_list
 
 @router.get("/{doctor_id}/slots", response_model=List[SlotResponse])
-async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
+async def get_doctor_slots(doctor_id: str, response: Response, db: AsyncSession = Depends(get_db)):
+    # Edge caching: Rapid slot lookups with short stale-while-revalidate
+    response.headers["Cache-Control"] = "public, max-age=15, s-maxage=30, stale-while-revalidate=60"
     """
     Fetches upcoming available slots for a doctor, actively checking Redis distributed locks.
     Excludes any slots whose scheduled start time has already passed.
@@ -295,8 +300,10 @@ async def get_doctor_slots(doctor_id: str, db: AsyncSession = Depends(get_db)):
 @router.get("/{doctor_id}/reviews", response_model=DoctorReviewsSummaryResponse)
 async def get_doctor_reviews(
     doctor_id: str,
+    response: Response,
     db: AsyncSession = Depends(get_db)
 ):
+    response.headers["Cache-Control"] = "public, max-age=60, s-maxage=120, stale-while-revalidate=300"
     """
     Returns public verified patient reviews and overall rating summary for a doctor.
     """

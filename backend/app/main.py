@@ -5,6 +5,7 @@ FastAPI Application Entry Point for D.I. Khan Doctor Appointment System.
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.core.redis import redis_manager
@@ -114,6 +115,9 @@ async def lifespan(app: FastAPI):
             await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_doctor_slots_doctor_start ON doctor_slots (doctor_id, start_time)"))
             await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_appointments_doctor_created ON appointments (doctor_id, created_at DESC)"))
             await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_appointments_doctor_status ON appointments (doctor_id, status)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_appointments_patient_phone ON appointments (patient_phone)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_appointments_slip_status ON appointments (slip_number, status)"))
+            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_payments_appointment_status ON payments (appointment_id, status)"))
         except Exception:
             pass
 
@@ -189,6 +193,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Compress responses > 1KB automatically to drastically reduce payload size and latency
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

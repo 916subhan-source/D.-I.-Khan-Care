@@ -53,6 +53,27 @@ export const getApiBase = () => {
 
 export const API_BASE = getApiBase();
 
+// ── Scalability: In-Memory SWR Cache & In-Flight Request Deduplication ──
+interface CacheEntry<T = any> {
+  data: T;
+  expiry: number;
+}
+const apiCache = new Map<string, CacheEntry>();
+const inFlightRequests = new Map<string, Promise<any>>();
+
+export function invalidateApiCache(pattern?: string) {
+  if (!pattern) {
+    apiCache.clear();
+  } else {
+    for (const key of apiCache.keys()) {
+      if (key.includes(pattern)) {
+        apiCache.delete(key);
+      }
+    }
+  }
+}
+
+
 
 // Generic API fetcher with token support
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -101,11 +122,35 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     }
   }
 
-  const apiBase = getApiBase();
-  const response = await fetch(`${apiBase}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  const isGet = !options.method || options.method.toUpperCase() === 'GET';
+  const isCacheable = isGet && (endpoint.startsWith('/doctors') || endpoint.startsWith('/health') || endpoint.startsWith('/reviews'));
+  const cacheKey = `${endpoint}::${headers['Authorization'] || 'anon'}`;
+
+  // 1. Check in-memory cache
+  if (isCacheable) {
+    const cached = apiCache.get(cacheKey);
+    if (cached && Date.now() < cached.expiry) {
+      return cached.data as T;
+    }
+    // 2. In-flight request deduplication: merge identical concurrent requests
+    if (inFlightRequests.has(cacheKey)) {
+      return inFlightRequests.get(cacheKey)! as Promise<T>;
+    }
+  }
+
+  // If write operation (POST/PUT/DELETE/PATCH), invalidate related directory caches
+  if (!isGet) {
+    if (endpoint.startsWith('/booking') || endpoint.startsWith('/doctor') || endpoint.startsWith('/assistant')) {
+      invalidateApiCache('/doctors');
+    }
+  }
+
+  const fetchPromise = (async () => {
+    const apiBase = getApiBase();
+    const response = await fetch(`${apiBase}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
   if (!response.ok) {
     let errorMsg = 'An unexpected error occurred';
@@ -157,5 +202,20 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     throw new Error(errorMsg);
   }
 
-  return response.json();
+  const data = await response.json();
+  if (isCacheable) {
+    // Cache for 20 seconds in browser memory
+    apiCache.set(cacheKey, { data, expiry: Date.now() + 20000 });
+  }
+  return data;
+  })();
+
+  if (isCacheable) {
+    inFlightRequests.set(cacheKey, fetchPromise);
+    fetchPromise.finally(() => {
+      inFlightRequests.delete(cacheKey);
+    });
+  }
+
+  return fetchPromise;
 }

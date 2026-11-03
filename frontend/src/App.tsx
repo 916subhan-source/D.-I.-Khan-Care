@@ -5232,25 +5232,30 @@ function DoctorProfileAndBookingView({
                 {/* Option to Choose Standard Appointment vs VIP Loyalty Card (Only if doctor enabled) */}
                 {Boolean(doctor.loyalty_card_enabled) && (
                   <div className="space-y-2 pt-1">
-                    <label className="block text-xs font-bold text-slate-700">Choose Consultation Plan</label>
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">Choose Consultation Plan</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Plan A: Standard Appointment */}
                       <div
                         onClick={() => setApplyLoyaltyCard(false)}
-                        className={`p-4 rounded-2xl border cursor-pointer transition-all ${!applyLoyaltyCard
-                            ? 'border-emerald-500/60 bg-emerald-950/20 shadow-xs'
-                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700'
+                        className={`p-4 rounded-2xl cursor-pointer transition-all ${!applyLoyaltyCard
+                            ? 'border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/30'
+                            : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-emerald-300 dark:hover:border-emerald-700/60'
                           }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className={`font-bold text-xs flex items-center gap-1.5 ${!applyLoyaltyCard ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-                            <User className={`w-3.5 h-3.5 ${!applyLoyaltyCard ? 'text-emerald-400' : 'text-slate-400'}`} /> Standard Appointment
+                          <span className={`font-bold text-xs flex items-center gap-1.5 ${!applyLoyaltyCard ? 'text-emerald-950 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                            <User className={`w-3.5 h-3.5 ${!applyLoyaltyCard ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} /> Standard Appointment
+                            {!applyLoyaltyCard && (
+                              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-900/60 px-1.5 py-0.2 rounded-md flex items-center gap-0.5">
+                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              </span>
+                            )}
                           </span>
-                          <span className="font-extrabold text-xs text-slate-900 dark:text-white font-mono">
+                          <span className={`font-extrabold text-xs font-mono ${!applyLoyaltyCard ? 'text-emerald-950 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
                             {formatCurrency(doctor.fee_clinic)}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
+                        <p className={`text-[11px] mt-1.5 ${!applyLoyaltyCard ? 'text-emerald-800/90 dark:text-slate-300 font-medium' : 'text-slate-500 dark:text-slate-400'}`}>
                           Standard clinic fee &bull; Fast 10-second booking with simple details
                         </p>
                       </div>
@@ -5258,21 +5263,31 @@ function DoctorProfileAndBookingView({
                       {/* Plan B: VIP Loyalty Card */}
                       <div
                         onClick={() => setApplyLoyaltyCard(true)}
-                        className={`p-4 rounded-2xl border cursor-pointer transition-all ${applyLoyaltyCard
-                            ? 'border-amber-500/60 bg-amber-950/20 shadow-xs'
-                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700'
+                        className={`p-4 rounded-2xl cursor-pointer transition-all ${applyLoyaltyCard
+                            ? 'border-2 border-amber-500 dark:border-amber-400 bg-amber-50/80 dark:bg-amber-950/30 shadow-xs ring-1 ring-amber-500/30'
+                            : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-amber-300 dark:hover:border-amber-700/60'
                           }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             <span className="text-sm">💳</span>
-                            <span className={`font-bold text-xs ${applyLoyaltyCard ? 'text-amber-300' : 'text-slate-700 dark:text-slate-300'}`}>VIP Loyalty Card</span>
+                            <span className={`font-bold text-xs ${applyLoyaltyCard ? 'text-amber-950 dark:text-amber-200' : 'text-slate-700 dark:text-slate-300'}`}>
+                              VIP Loyalty Card
+                            </span>
+                            {applyLoyaltyCard && (
+                              <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-200/90 dark:bg-amber-900/60 px-1.5 py-0.2 rounded-md flex items-center gap-0.5">
+                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              </span>
+                            )}
                           </div>
-                          <span className="font-semibold text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono">
+                          <span className={`font-bold text-[11px] px-2 py-0.5 rounded-full font-mono ${applyLoyaltyCard
+                              ? 'text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30'
+                              : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80'
+                            }`}>
                             {Number(doctor.loyalty_discount_percent ?? 20)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
+                        <p className={`text-[11px] mt-1.5 font-medium ${applyLoyaltyCard ? 'text-amber-900 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
                           Save {Number(doctor.loyalty_discount_percent ?? 20)}% &bull; Complete verification details to receive Golden Card at clinic
                         </p>
                       </div>
@@ -5280,8 +5295,8 @@ function DoctorProfileAndBookingView({
 
                     {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
                     {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
-                      <div className="mt-3 bg-slate-850/80 dark:bg-slate-850/80 border border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
-                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center">
+                      <div className="mt-3 bg-amber-50/80 dark:bg-slate-900 border border-amber-200 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
+                        <div className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-200 dark:border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center">
                           {doctor.loyalty_card_image_url ? (
                             <img
                               src={doctor.loyalty_card_image_url}
@@ -5297,12 +5312,12 @@ function DoctorProfileAndBookingView({
                         </div>
                         <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
                           <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
-                            <span className="font-bold text-xs text-slate-100 dark:text-white">{doctor.loyalty_card_title || 'VIP Loyalty Card'}</span>
-                            <span className="bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold text-[10px] px-2 py-0.5 rounded-full font-mono">
+                            <span className="font-bold text-xs text-slate-900 dark:text-white">{doctor.loyalty_card_title || 'VIP Loyalty Card'}</span>
+                            <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 font-semibold text-[10px] px-2 py-0.5 rounded-full font-mono">
                               {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-300 dark:text-slate-400 leading-snug">
+                          <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug font-medium">
                             Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
                           </p>
                         </div>
@@ -5634,10 +5649,10 @@ function DoctorProfileAndBookingView({
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-amber-200/80 gap-3">
                         <div className="min-w-0">
-                          <p className="font-extrabold text-xs text-amber-950">Discounted Fee Payable at Clinic</p>
-                          <p className="text-[10px] text-amber-800">Collect physical VIP Card from reception upon arrival</p>
+                          <p className="font-extrabold text-xs text-amber-950 dark:text-amber-200">Discounted Fee Payable at Clinic</p>
+                          <p className="text-[10px] text-amber-800 dark:text-amber-300">Collect physical VIP Card from reception upon arrival</p>
                         </div>
-                        <span className="text-xl sm:text-2xl font-black text-amber-950 font-mono whitespace-nowrap flex-shrink-0 text-right">
+                        <span className="text-xl sm:text-2xl font-black text-amber-950 dark:text-amber-200 font-mono whitespace-nowrap flex-shrink-0 text-right">
                           {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
                         </span>
                       </div>

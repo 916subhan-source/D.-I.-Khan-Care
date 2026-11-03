@@ -4481,24 +4481,6 @@ function DoctorProfileAndBookingView({
             <Clock className="w-3.5 h-3.5" />
             <span>Clinic Timings</span>
           </button>
-
-          {/* TAB 4: CLINIC SCHEDULE */}
-          <button
-            type="button"
-            onClick={() => {
-              setProfileActiveTab('schedule');
-              setMobileActiveTab('profile');
-            }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5" />
-            <span>Clinic Timings</span>
-          </button>
-
           {/* TAB 5: SERVICES & PROCEDURES */}
           <button
             type="button"
@@ -5149,7 +5131,7 @@ function DoctorProfileAndBookingView({
                     </div>
                   </div>
                 ) : selectedDayObj?.isOffDay ? null : displaySlots.length > 0 ? (
-                  <div className="p-2.5 rounded-xl bg-teal-50/50 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/60 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                  <div className="p-2.5 rounded-xl bg-teal-50/50 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
                       <span className="font-medium text-slate-600 dark:text-slate-400">Generated Slot Times:</span>
@@ -6516,7 +6498,7 @@ function PatientSection({
     }, 100);
   };
   const [showTrack, setShowTrack] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState<'105' | '100' | '110'>('105');
+  const [zoomLevel, setZoomLevel] = useState<'105' | '100' | '110'>('100');
 
   // Profile / booking
   const [profileDoctor, setProfileDoctor] = useState<DoctorData | null>(null);
@@ -6867,7 +6849,7 @@ function PatientSection({
   }
 
   return (
-    <div style={{ zoom: zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1' }} className="transition-all duration-300 mobile-zoom-safe">
+    <div style={{ zoom: typeof window !== 'undefined' && window.innerWidth < 768 ? '1' : (zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1') }} className="transition-all duration-300 mobile-zoom-safe overflow-x-hidden w-full max-w-full">
       {/* ── Official District Verification Protocol Banner (AI Studio Reference) ── */}
       <div className="bg-[#eaf5ef] dark:bg-slate-900/90 border-b border-clinic-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-300 text-[11px] sm:text-xs py-2 sm:py-2.5 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
@@ -7005,7 +6987,7 @@ function PatientSection({
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search doctor by name, specialty, condition, or clinic address..."
+                    placeholder="Search doctor, specialty, condition, or clinic..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
@@ -7859,7 +7841,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
           onClick={() => onBook(doctor)}
           className="py-2.5 px-2 sm:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
         >
-          <span>Book Appointment</span>
+          <span className="hidden sm:inline">Book Appointment</span><span className="sm:hidden">Book Slot</span>
           <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>
         </button>
       </div>

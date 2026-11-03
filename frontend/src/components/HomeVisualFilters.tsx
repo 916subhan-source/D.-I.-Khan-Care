@@ -125,7 +125,7 @@ export default function HomeVisualFilters({
   return (
     <div className="space-y-8 sm:space-y-12 my-6 sm:my-9">
       {/* ── Section 1: Consult Best Doctors by Specialty ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -177,7 +177,7 @@ export default function HomeVisualFilters({
                 </div>
 
                 {/* Clear Label */}
-                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight line-clamp-2 transition-colors max-w-[105px] ${
+                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight line-clamp-2 transition-colors w-full max-w-[135px] px-1 ${
                   isSelected
                     ? 'text-emerald-700 dark:text-emerald-300'
                     : 'text-slate-800 dark:text-slate-200 group-hover:text-clinic-700 dark:group-hover:text-emerald-300'
@@ -191,7 +191,7 @@ export default function HomeVisualFilters({
       </div>
 
       {/* ── Section 2: Search Doctor by Condition ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -243,7 +243,7 @@ export default function HomeVisualFilters({
                 </div>
 
                 {/* Clear Label */}
-                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight transition-colors max-w-[105px] ${
+                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight transition-colors w-full max-w-[135px] px-1 ${
                   isSelected
                     ? 'text-emerald-700 dark:text-emerald-300'
                     : 'text-slate-800 dark:text-slate-200 group-hover:text-clinic-700 dark:group-hover:text-emerald-300'

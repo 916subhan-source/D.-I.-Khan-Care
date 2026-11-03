@@ -58,7 +58,10 @@ import {
   Menu,
   Upload,
   Home,
-  Maximize2
+  Maximize2,
+  ArrowUp,
+  PhoneCall,
+  Share2
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
@@ -1804,6 +1807,16 @@ export default function App() {
   const [openTrackTrigger, setOpenTrackTrigger] = useState(0);
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 350);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent browser history scroll-restoration fighting React view state
   useEffect(() => {
@@ -2182,14 +2195,18 @@ export default function App() {
             <span className="text-[10px] leading-tight tracking-tight">Track Slip</span>
           </button>
 
-          {/* Tab 3: Staff Portal Access */}
+          {/* Tab 4: Patient Emergency & 1122 Help */}
           <button
             type="button"
-            onClick={() => setShowStaffModal(true)}
-            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+            onClick={() => setShowEmergencyModal(true)}
+            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-rose-600 dark:text-rose-400 hover:text-rose-700"
+            title="Emergency & 1122 Rescue Help"
           >
-            <Stethoscope className="w-5 h-5 mb-0.5 stroke-2" />
-            <span className="text-[10px] leading-tight tracking-tight">Staff Portal</span>
+            <div className="relative">
+              <PhoneCall className="w-5 h-5 mb-0.5 stroke-2" />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+            </div>
+            <span className="text-[10px] leading-tight tracking-tight font-bold">1122 Help</span>
           </button>
 
           {/* Tab 4: More / Quick Menu Drawer */}
@@ -5898,19 +5915,50 @@ function DoctorProfileAndBookingView({
               )}
             </div>
 
+            {/* WhatsApp Share & Print Actions */}
+            <div className="space-y-2 mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  const msg = `*D.I. Khan Care — Consultation Token Confirmed*\n\n` +
+                    `*Slip #:* ${confirmedSlip.slipNumber}\n` +
+                    `*Doctor:* ${confirmedSlip.doctorName}\n` +
+                    `*Patient:* ${confirmedSlip.patientName}\n` +
+                    `*Date:* ${confirmedSlip.date}\n` +
+                    `*Time:* ${confirmedSlip.time}\n` +
+                    `*Fee:* ${formatCurrency(confirmedSlip.fee)} (Pay cash at clinic desk)\n` +
+                    `*Clinic:* ${confirmedSlip.clinic}\n\n` +
+                    `Track online: https://dikhan-doctor-appointment.pages.dev/track`;
+                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+                className="w-full py-3 bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.98] text-white font-extrabold rounded-xl text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Share Token via WhatsApp</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition"
+              >
+                <Printer className="w-3.5 h-3.5 text-slate-500" />
+                <span>Print or Save Slip PDF</span>
+              </button>
+            </div>
+
             {/* Action buttons */}
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={onBack}
-                className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs transition"
+                className="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold rounded-xl text-xs transition cursor-pointer"
               >
                 Back to Directory
               </button>
               <button
                 type="button"
                 onClick={onTrackNav}
-                className="flex-1 py-3.5 bg-[#0f766e] hover:bg-[#0b5c56] text-white font-bold rounded-xl text-xs transition shadow-md"
+                className="flex-1 py-3.5 bg-[#0f766e] hover:bg-[#0b5c56] text-white font-bold rounded-xl text-xs transition shadow-md cursor-pointer"
               >
                 Track Status →
               </button>
@@ -7753,10 +7801,17 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
                 {doctor.qualification}
               </p>
             )}
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
-              <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
-              <span className="truncate">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
-            </div>
+            <a
+              href={doctor.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.clinic_address + ' Dera Ismail Khan')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
+              title="Click to view clinic location on Google Maps"
+            >
+              <MapPin className="w-3 h-3 text-slate-400 group-hover/loc:text-emerald-500 flex-shrink-0" />
+              <span className="truncate underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
+            </a>
           </div>
         </div>
 

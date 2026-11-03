@@ -125,10 +125,10 @@ export default function HomeVisualFilters({
   return (
     <div className="space-y-8 sm:space-y-12 my-6 sm:my-9">
       {/* ── Section 1: Consult Best Doctors by Specialty ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
               Consult best doctors online
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -146,7 +146,7 @@ export default function HomeVisualFilters({
         </div>
 
         {/* Clean Symmetrical 7-Column Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-7 gap-x-3 sm:gap-x-5 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-6 gap-x-2 sm:gap-x-5 max-w-6xl mx-auto w-full">
           {HOME_SPECIALTIES.map(item => {
             const isSelected = selectedSpecialty.toLowerCase() === item.id.toLowerCase();
             return (
@@ -191,10 +191,10 @@ export default function HomeVisualFilters({
       </div>
 
       {/* ── Section 2: Search Doctor by Condition ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
               Search doctor by condition
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -212,7 +212,7 @@ export default function HomeVisualFilters({
         </div>
 
         {/* Clean Symmetrical 7-Column Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-7 gap-x-3 sm:gap-x-5 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-6 gap-x-2 sm:gap-x-5 max-w-6xl mx-auto w-full">
           {HOME_CONDITIONS.map(item => {
             const isSelected = selectedCondition.toLowerCase() === item.id.toLowerCase();
             return (

@@ -1912,13 +1912,13 @@ export default function App() {
     <div className="min-h-screen bg-white dark:bg-[#080d14] text-slate-900 dark:text-slate-100 flex flex-col">
       {/* ── Public Top Navbar — Responsive & Desktop-Preserved ── */}
       <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-100" style={{ backdropFilter: 'blur(12px)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between w-full">
           {/* Logo */}
           <button onClick={() => handleSwitchRole('home')} className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer">
             <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform bg-white" />
             <div>
               <div className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base leading-tight tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</div>
-              <div className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-400 uppercase tracking-[0.12em] sm:tracking-[0.15em]">Doctor Appointment System</div>
+              <div className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-400 uppercase tracking-[0.06em] sm:tracking-[0.15em] truncate">Doctor Appointment System</div>
             </div>
           </button>
 

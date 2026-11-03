@@ -4297,7 +4297,7 @@ function DoctorProfileAndBookingView({
       </header>
 
       {/* ── Main Container ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-36 sm:pb-16">
         {/* ── Breadcrumbs ── */}
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium flex-wrap">
           <button onClick={onBack} className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Home</button>
@@ -4378,7 +4378,7 @@ function DoctorProfileAndBookingView({
                 title="View satisfaction"
               >
                 <div className="text-xs sm:text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">98%</div>
-                <div className="text-[9px] sm:text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Satisfied &rarr;</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">Satisfied</div>
               </button>
 
               <button
@@ -4393,8 +4393,8 @@ function DoctorProfileAndBookingView({
                 <div className="text-xs sm:text-base font-black text-amber-500 font-mono flex items-center justify-center gap-0.5">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-amber-800 dark:text-amber-300 font-black uppercase tracking-wider mt-0.5 truncate">
-                  {reviewsSummary?.total_reviews || 128} Reviews &rarr;
+                <div className="text-[9px] sm:text-[10px] text-amber-800 dark:text-amber-300 font-black uppercase tracking-wider mt-0.5 whitespace-nowrap">
+                  {reviewsSummary?.total_reviews || 128} Reviews
                 </div>
               </button>
 
@@ -4408,7 +4408,7 @@ function DoctorProfileAndBookingView({
                 title="View OPD clinic timings"
               >
                 <div className="text-xs sm:text-base font-black text-slate-900 dark:text-white font-mono">&lt; 15m</div>
-                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Wait Time &rarr;</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">Wait Time</div>
               </button>
 
               <button
@@ -4423,7 +4423,7 @@ function DoctorProfileAndBookingView({
                 <div className="text-xs sm:text-base font-black text-slate-900 dark:text-white font-mono">
                   {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years}Y` : '10+Y'}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 truncate">Exp. &rarr;</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">Experience</div>
               </button>
             </div>
           </div>
@@ -4446,6 +4446,24 @@ function DoctorProfileAndBookingView({
           >
             <User className="w-3.5 h-3.5" />
             <span>About Doctor</span>
+          </button>
+
+          {/* TAB 2: BOOK SLOTS (Direct appointment booking on mobile) */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileActiveTab('booking');
+              const el = document.getElementById('oladoc-booking-card');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${
+              mobileActiveTab === 'booking'
+                ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
+                : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 hover:bg-emerald-600 hover:text-white'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Book Slots</span>
           </button>
 
           {/* TAB 2: REVIEWS (Prominent Second Tab with Star & Count) */}
@@ -5731,40 +5749,41 @@ function DoctorProfileAndBookingView({
         </div>
       </main>
 
-      {/* ── Mobile Persistent Bottom Quick-Booking Bar ── */}
-      <div className="lg:hidden fixed bottom-[57px] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg">
-        <div>
-          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee &middot; Direct Clinic</span>
-          <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+      {/* ── Mobile Persistent Bottom Quick-Booking Bar (Visible when in profile mode) ── */}
+      {mobileActiveTab === 'profile' && (
+        <div className="lg:hidden fixed bottom-[57px] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee &middot; Direct Clinic</span>
+            <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setProfileActiveTab('reviews');
+                setMobileActiveTab('profile');
+                const el = document.getElementById('doctor-menu-tabs');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="py-2.5 px-3 rounded-xl border border-amber-300 dark:border-amber-600/50 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>Reviews</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileActiveTab('booking');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold rounded-xl text-xs shadow-md shadow-emerald-950/20 flex items-center gap-1.5 cursor-pointer"
+            >
+              <Calendar className="w-3.5 h-3.5 text-white" />
+              <span>Book Slots &rarr;</span>
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setProfileActiveTab('reviews');
-              setMobileActiveTab('profile');
-              const el = document.getElementById('doctor-menu-tabs');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="py-2.5 px-3 rounded-xl border border-amber-300 dark:border-amber-600/50 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1 cursor-pointer"
-          >
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            <span>Reviews</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMobileActiveTab('booking');
-              const el = document.getElementById('oladoc-booking-card');
-              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-            className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold rounded-xl text-xs shadow-md shadow-emerald-950/20 flex items-center gap-1.5 cursor-pointer"
-          >
-            <Calendar className="w-3.5 h-3.5 text-white" />
-            <span>Book Slots &rarr;</span>
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* ── Interactive OTP Verification Modal ── */}
       {bookingState === 'otp' && (
@@ -5783,7 +5802,7 @@ function DoctorProfileAndBookingView({
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Verify your mobile</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Enter the 6-digit verification code sent to <strong className="text-slate-800">{patientPhone}</strong>
+                Enter the 6-digit verification code sent to <strong className="text-slate-800 dark:text-slate-100">{patientPhone}</strong>
               </p>
             </div>
 

@@ -2114,7 +2114,7 @@ export default function App() {
       )}
 
       {/* ── Content ── */}
-      <main className="flex-1 pb-20 md:pb-0 dark:bg-[#080d14]">
+      <main className="flex-1 pb-20 md:pb-0 dark:bg-[#080d14] overflow-x-hidden w-full max-w-full">
         {activeTab === 'track' ? (
           <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('home')} />
         ) : (
@@ -2133,9 +2133,9 @@ export default function App() {
             <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-6 h-6 rounded-full object-contain shadow-xs bg-white" />
             <span className="text-xs font-bold text-slate-600 dark:text-slate-300" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-slate-400">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-4 text-xs text-slate-400 text-center">
             <span>Concept preview · Illustrative data</span>
-            <span className="text-slate-200">|</span>
+            <span className="hidden sm:inline text-slate-200 dark:text-slate-700">|</span>
             <span>Dera Ismail Khan · Cash at clinic only</span>
           </div>
         </div>
@@ -7171,7 +7171,7 @@ function PatientSection({
       )}
 
       {/* ── Full-Width Doctor Results Grid (Responsive padding) ── */}
-      <div id="doctors-results-grid" className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div id="doctors-results-grid" className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-8 w-full max-w-full overflow-hidden">
         {/* Active Filter Notification Bar */}
         {(selectedSpecialty !== 'All specialties' || selectedCondition || (isHomeView && searchTerm)) && (
           <div className="mb-6 p-3.5 sm:p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-wrap items-center justify-between gap-3 shadow-2xs animate-fade-in">

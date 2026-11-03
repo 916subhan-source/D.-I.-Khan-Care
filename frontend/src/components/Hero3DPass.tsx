@@ -74,17 +74,17 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
         <div className="py-2 flex items-center justify-between gap-2">
           <div>
             <div className="text-[8.5px] font-bold uppercase tracking-widest text-emerald-800/80 dark:text-emerald-400">
-              District Health Pass
+              Instant Clinic Pass
             </div>
             <h4 
               className="text-[13.5px] font-black text-white tracking-tight leading-tight"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Instant Reception Pass
+              Digital Consultation Token
             </h4>
             <p className="text-[9.5px] font-medium text-slate-300 mt-0.5 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              Guaranteed Queue Slot
+              Guaranteed Queue Token
             </p>
           </div>
           <div className="p-1.5 rounded-xl bg-slate-800/90 border border-slate-700 shadow-xs flex items-center justify-center shrink-0">
@@ -95,7 +95,7 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
         <div className="pt-2 border-t border-white/40 dark:border-white/10 flex items-center justify-between text-[9px] font-semibold text-slate-300">
           <div className="flex items-center gap-1">
             <ShieldCheck className="w-3 h-3 text-clinic-700 dark:text-clinic-400 shrink-0" />
-            <span>Zero Waiting Queue</span>
+            <span>Skip Waiting Lines</span>
           </div>
           <div className="text-[8.5px] font-bold text-emerald-800 dark:text-emerald-300 bg-slate-800/90 text-emerald-300 px-1.5 py-0.5 rounded border border-white/60 dark:border-slate-700">
             Live Sync
@@ -169,17 +169,17 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
           >
             <div>
               <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-800/80 dark:text-emerald-400 mb-0.5">
-                District Health Pass
+                Instant Clinic Pass
               </div>
               <h4
                 className="text-[14px] lg:text-[15px] font-black text-white tracking-tight leading-snug"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
               >
-                Instant Reception Pass
+                Digital Consultation Token
               </h4>
               <p className="text-[9.5px] font-medium text-slate-300 mt-0.5 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                Guaranteed Queue Slot
+                Guaranteed Queue Token
               </p>
             </div>
 
@@ -202,11 +202,11 @@ export const Hero3DPass: React.FC<Hero3DPassProps> = ({ className = '', isStatic
           >
             <div className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-clinic-700 dark:text-emerald-400 shrink-0" />
-              <span>Zero Waiting Queue</span>
+              <span>Skip Waiting Lines</span>
             </div>
             <div className="flex items-center gap-1 text-[8.5px] font-bold text-emerald-800 dark:text-emerald-300 bg-slate-800/90 text-emerald-300 px-1.5 py-0.5 rounded border border-white/60 dark:border-slate-700">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-              Live Hospital Sync
+              Live Clinic Sync
             </div>
           </div>
 

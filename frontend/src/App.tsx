@@ -1746,7 +1746,7 @@ function StaffLoginSplitView({
           <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
             <p className="text-xs font-bold text-slate-800 dark:text-white">Looking for your appointment?</p>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 mb-3 leading-relaxed">
-              No patient password needed. Book with a 6-digit code or look up an approved visit using your phone and digital slip number.
+              100% Free Booking needed. Book with a 6-digit code or look up an approved visit using your phone and digital slip number.
             </p>
             <div className="flex gap-2.5">
               <button
@@ -5200,7 +5200,7 @@ function DoctorProfileAndBookingView({
                 {/* Option to Choose Standard Appointment vs VIP Loyalty Card (Only if doctor enabled) */}
                 {Boolean(doctor.loyalty_card_enabled) && (
                   <div className="space-y-2 pt-1">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">Choose Consultation Plan</label>
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">Choose Consultation Option</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Plan A: Standard Appointment */}
                       <div
@@ -5224,7 +5224,7 @@ function DoctorProfileAndBookingView({
                           </span>
                         </div>
                         <p className={`text-[11px] mt-1.5 ${!applyLoyaltyCard ? 'text-emerald-800/90 dark:text-slate-300 font-medium' : 'text-slate-500 dark:text-slate-400'}`}>
-                          Standard clinic fee &bull; Fast 10-second booking with simple details
+                          Regular consultation &bull; Fast 10-second booking, pay at reception
                         </p>
                       </div>
 
@@ -5256,7 +5256,7 @@ function DoctorProfileAndBookingView({
                           </span>
                         </div>
                         <p className={`text-[11px] mt-1.5 font-medium ${applyLoyaltyCard ? 'text-amber-900 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                          Save {Number(doctor.loyalty_discount_percent ?? 20)}% &bull; Complete verification details to receive Golden Card at clinic
+                          Save {Number(doctor.loyalty_discount_percent ?? 20)}% on every visit &bull; Free VIP card issued at clinic reception
                         </p>
                       </div>
                     </div>
@@ -5295,7 +5295,7 @@ function DoctorProfileAndBookingView({
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug font-medium">
-                            Fill the 10 verified fields below. Once approved by the assistant desk, collect your physical Golden VIP Loyalty Card directly at the clinic reception!
+                            Complete your patient details below to save 20% on every visit. Your physical Golden VIP Card will be issued at the clinic counter!
                           </p>
                           {doctor.loyalty_card_image_url && (
                             <button
@@ -5679,11 +5679,11 @@ function DoctorProfileAndBookingView({
                     ? 'Securing your slot...'
                     : activeSlotsToDisplay.length === 0
                       ? 'No slots available for this date'
-                      : 'Book appointment →'}
+                      : 'Confirm Free Token (Pay at Clinic) →'}
                 </button>
 
                 <p className="text-[11px] text-slate-400 text-center font-normal pt-1">
-                  By booking, you agree to our terms and privacy policy. You can reschedule or cancel up to 2 hours before your visit.
+                  100% Free Booking &bull; No credit card required &bull; Pay cash at clinic counter
                 </p>
               </div>
             </div>
@@ -6817,20 +6817,20 @@ function PatientSection({
           <div className="flex items-center gap-2 font-medium">
             <span className="w-4 h-4 rounded-full bg-clinic-700 dark:bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>
             <span className="leading-tight sm:leading-normal">
-              <strong className="font-bold text-slate-900 dark:text-white">District Verification Protocol:</strong> Pre-registered digital tokens are valid at all counters across D.I. Khan.
+              <strong className="font-bold text-slate-900 dark:text-white">Verified Doctor Network:</strong> Book online in 30 seconds & pay cash at the clinic desk.
             </span>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-semibold">
             <span className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300">
               <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse flex-shrink-0" />
-              LIVE HOSPITAL SYNC
+              LIVE CLINIC QUEUE
             </span>
             <span className="text-slate-300 dark:text-slate-600">|</span>
             <button
               onClick={() => setShowTrack(t => !t)}
               className="text-clinic-800 dark:text-emerald-400 hover:text-clinic-900 dark:hover:text-emerald-300 hover:underline font-semibold cursor-pointer"
             >
-              Counter Guidelines
+              How Token Works
             </button>
           </div>
         </div>
@@ -6862,7 +6862,7 @@ function PatientSection({
           {/* Status Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-clinic-200/80 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-clinic-800 dark:text-emerald-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
-            <span>Local Care. A Clearer Next Step.</span>
+            <span>★ D.I. Khan's #1 Healthcare Network</span>
           </div>
 
           {/* Heading */}
@@ -6871,22 +6871,22 @@ function PatientSection({
               className="text-2xl sm:text-4xl lg:text-[2.85rem] font-black text-slate-900 dark:text-white leading-[1.25] sm:leading-[1.3] lg:leading-[1.35] tracking-wide"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Book a trusted doctor
-              <span className="block mt-1 sm:mt-2 text-slate-900 dark:text-slate-100">of D.I. Khan</span>
+              Find & Book Top Doctors
+              <span className="block mt-1 sm:mt-2 text-slate-900 dark:text-slate-100">in D.I. Khan</span>
             </h1>
             <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-4 leading-relaxed font-normal max-w-lg">
-              Explore clinics across Dera Ismail Khan. Choose a time, verify your request, and pay cash at reception.
+              Skip the long waiting lines. Choose a verified specialist, pick your instant token time, and pay cash at clinic arrival.
             </p>
 
             {/* Reassurance Badges */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 sm:mt-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-semibold">
               <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
                 <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
-                No patient password
+                100% Free Booking
               </span>
               <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
                 <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
-                Live in-app tracking
+                Instant Queue Token
               </span>
             </div>
 
@@ -6948,7 +6948,7 @@ function PatientSection({
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search doctor, specialty, condition, or clinic..."
+                    placeholder="Search doctor, specialist, clinic, or symptom..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
@@ -7382,10 +7382,10 @@ function PatientSection({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                   <div>
                     <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                      Verified Specialists &amp; Doctors in D.I. Khan
+                      Top Verified Specialists in D.I. Khan
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      {sortedDoctors.length} available doctor profiles &middot; PMDC-verified specialists with active clinic schedules
+                      {sortedDoctors.length} PMDC-verified doctors ready for consultation &middot; Pay cash on arrival
                     </p>
                   </div>
                   {sortedDoctors.some(d => d.is_spotlight) && (

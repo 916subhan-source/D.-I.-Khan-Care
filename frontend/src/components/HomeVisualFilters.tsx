@@ -129,10 +129,10 @@ export default function HomeVisualFilters({
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Consult best doctors online
+              Top Medical Specialties
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-              Click any specialty to view qualified verified practitioners in D.I. Khan
+              Consult verified specialist doctors with active clinic timings in D.I. Khan
             </p>
           </div>
           <button
@@ -195,10 +195,10 @@ export default function HomeVisualFilters({
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
             <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Search doctor by condition
+              Find Doctors by Health Symptoms
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-              Find specialists who treat your specific health symptoms and clinical diagnoses
+              Select your symptoms to find experienced specialists in D.I. Khan
             </p>
           </div>
           <button

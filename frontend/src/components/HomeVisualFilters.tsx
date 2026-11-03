@@ -26,46 +26,10 @@ interface HomeVisualFiltersProps {
 
 export const HOME_SPECIALTIES: SpecialtyItem[] = [
   {
-    id: 'Dermatologist',
-    label: 'Dermatologist',
-    sublabel: 'Skin & Hair',
-    image: '/filters/spec_dermatologist.png'
-  },
-  {
-    id: 'Gynaecologist',
-    label: 'Gynecologist',
-    sublabel: 'Women Health',
-    image: '/filters/spec_gynecologist.png'
-  },
-  {
-    id: 'Urologist',
-    label: 'Urologist',
-    sublabel: 'Kidney & Bladder',
-    image: '/filters/spec_urologist.png'
-  },
-  {
-    id: 'Gastroenterologist',
-    label: 'Gastroenterologist',
-    sublabel: 'Stomach & Liver',
-    image: '/filters/spec_gastroenterologist.png'
-  },
-  {
     id: 'Cardiologist',
     label: 'Cardiologist',
     sublabel: 'Heart & Vascular',
     image: '/filters/spec_cardiologist.png'
-  },
-  {
-    id: 'General Surgeon',
-    label: 'Obesity Specialist',
-    sublabel: 'Bariatric Care',
-    image: '/filters/spec_obesity_specialist.png'
-  },
-  {
-    id: 'ENT Specialist',
-    label: 'ENT Specialist',
-    sublabel: 'Ear, Nose & Throat',
-    image: '/filters/spec_ent_specialist.png'
   },
   {
     id: 'Orthopedic Surgeon',
@@ -74,40 +38,28 @@ export const HOME_SPECIALTIES: SpecialtyItem[] = [
     image: '/filters/spec_orthopedic_surgeon.png'
   },
   {
-    id: 'Sexologist',
-    label: 'Sexologist',
-    sublabel: 'Sexual Health',
-    image: '/filters/spec_sexologist.png'
-  },
-  {
-    id: 'Neurologist',
-    label: 'Neurologist',
-    sublabel: 'Brain & Nerves',
-    image: '/filters/spec_neurologist.png'
-  },
-  {
-    id: 'Pediatrician',
+    id: 'Child Specialist',
     label: 'Child Specialist',
-    sublabel: 'Baby & Kids',
+    sublabel: 'Pediatrics & Kids',
     image: '/filters/spec_child_specialist.png'
   },
   {
+    id: 'General Surgeon',
+    label: 'General Surgeon',
+    sublabel: 'General Surgery',
+    image: '/filters/spec_general_surgeon.png'
+  },
+  {
     id: 'Laparoscopic Surgeon',
-    label: 'Pulmonologist',
-    sublabel: 'Lungs & Breathing',
-    image: '/filters/spec_pulmonologist.png'
+    label: 'Laparoscopic Surgeon',
+    sublabel: 'Laser & Keyhole',
+    image: '/filters/spec_laparoscopic_surgeon.png'
   },
   {
-    id: 'Ophthalmologist',
-    label: 'Eye Specialist',
-    sublabel: 'Vision & Glasses',
-    image: '/filters/spec_eye_specialist.png'
-  },
-  {
-    id: 'General Physician',
-    label: 'General Physician',
-    sublabel: 'Family Medicine',
-    image: '/filters/spec_general_physician.png'
+    id: 'Face and Skin Surgeon',
+    label: 'Face and Skin Surgeon',
+    sublabel: 'Aesthetics & Plastic',
+    image: '/filters/spec_face_skin_surgeon.png'
   }
 ];
 
@@ -194,7 +146,7 @@ export default function HomeVisualFilters({
         </div>
 
         {/* Clean Symmetrical 7-Column Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-y-7 gap-x-3 sm:gap-x-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-7 gap-x-3 sm:gap-x-5 max-w-6xl mx-auto">
           {HOME_SPECIALTIES.map(item => {
             const isSelected = selectedSpecialty.toLowerCase() === item.id.toLowerCase();
             return (
@@ -260,7 +212,7 @@ export default function HomeVisualFilters({
         </div>
 
         {/* Clean Symmetrical 7-Column Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-y-7 gap-x-3 sm:gap-x-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-7 gap-x-3 sm:gap-x-5 max-w-6xl mx-auto">
           {HOME_CONDITIONS.map(item => {
             const isSelected = selectedCondition.toLowerCase() === item.id.toLowerCase();
             return (

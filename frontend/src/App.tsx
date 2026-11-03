@@ -6738,9 +6738,13 @@ function PatientSection({
     const matchSearch = !searchTerm || doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doc.clinic_address.toLowerCase().includes(searchTerm.toLowerCase()) || (doc.bio && doc.bio.toLowerCase().includes(searchTerm.toLowerCase())) || (doc.expertise && doc.expertise.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
+      (selectedSpecialty.toLowerCase().includes('cardio') && (doc.specialty.toLowerCase().includes('cardio') || doc.specialty.toLowerCase().includes('heart'))) ||
+      (selectedSpecialty.toLowerCase().includes('ortho') && doc.specialty.toLowerCase().includes('ortho')) ||
+      (selectedSpecialty.toLowerCase().includes('child') && (doc.specialty.toLowerCase().includes('child') || doc.specialty.toLowerCase().includes('pediatric'))) ||
+      (selectedSpecialty.toLowerCase().includes('pediatric') && (doc.specialty.toLowerCase().includes('child') || doc.specialty.toLowerCase().includes('pediatric'))) ||
+      (selectedSpecialty.toLowerCase().includes('general surgeon') && (doc.specialty.toLowerCase().includes('general surgeon') || doc.specialty.toLowerCase().includes('surgeon'))) ||
       (selectedSpecialty.toLowerCase().includes('lap') && doc.specialty.toLowerCase().includes('lap')) ||
-      (selectedSpecialty.toLowerCase().includes('face') && doc.specialty.toLowerCase().includes('face')) ||
-      (selectedSpecialty.toLowerCase().includes('sex') && (doc.specialty.toLowerCase().includes('uro') || doc.specialty.toLowerCase().includes('general') || doc.specialty.toLowerCase().includes('cardio') || (doc.bio && doc.bio.toLowerCase().includes('sex')) || (doc.expertise && doc.expertise.toLowerCase().includes('sex'))));
+      (selectedSpecialty.toLowerCase().includes('face') && (doc.specialty.toLowerCase().includes('face') || doc.specialty.toLowerCase().includes('skin') || doc.specialty.toLowerCase().includes('derma')));
     if (!matchLoc || !matchShift || !matchSearch || !matchSpecialty) return false;
 
     if (selectedCondition) {
@@ -7139,16 +7143,16 @@ function PatientSection({
               </span>
               {[
                 { name: 'All specialties', label: 'All Specialties', emoji: '⚪' },
-                { name: 'General Physician', label: 'General Physician', emoji: '🩺' },
+                { name: 'Cardiologist', label: 'Cardiologist', emoji: '🫀' },
+                { name: 'Orthopedic Surgeon', label: 'Orthopedic Surgeon', emoji: '🦴' },
+                { name: 'Child Specialist', label: 'Child Specialist', emoji: '👶' },
                 { name: 'General Surgeon', label: 'General Surgeon', emoji: '🩹' },
                 { name: 'Laparoscopic Surgeon', label: 'Laparoscopic Surgeon', emoji: '🔬' },
-                { name: 'Face Aesthetic Surgeon', label: 'Face Aesthetic Surgeon', emoji: '🪞' },
-                { name: 'Cardiologist', label: 'Cardiologist', emoji: '🫀' },
-                { name: 'Dermatologist', label: 'Dermatologist', emoji: '✨' },
+                { name: 'Face and Skin Surgeon', label: 'Face and Skin Surgeon', emoji: '✨' },
+                { name: 'General Physician', label: 'General Physician', emoji: '🩺' },
+                { name: 'Dermatologist', label: 'Dermatologist', emoji: '🪞' },
                 { name: 'Gynaecologist', label: 'Gynaecologist', emoji: '🌸' },
-                { name: 'Pediatrician', label: 'Pediatrician', emoji: '👶' },
                 { name: 'ENT Specialist', label: 'ENT Specialist', emoji: '👂' },
-                { name: 'Orthopedic Surgeon', label: 'Orthopedic Surgeon', emoji: '🦴' },
                 { name: 'Ophthalmologist', label: 'Eye Specialist', emoji: '👁️' },
                 { name: 'Neurologist', label: 'Neurologist', emoji: '🧠' },
                 { name: 'Urologist', label: 'Urologist', emoji: '🔬' },

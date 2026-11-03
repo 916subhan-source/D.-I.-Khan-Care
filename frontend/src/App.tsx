@@ -4238,64 +4238,6 @@ function DoctorProfileAndBookingView({
 
   return (
     <div className="min-h-screen bg-[#fafbfc] dark:bg-[#080d14] text-slate-800 dark:text-slate-100 font-sans pb-16 selection:bg-[#0f766e]/20 selection:text-[#0f766e]">
-      {/* ── Top Header Navigation Bar ── */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 py-3 sm:py-3.5 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Brand Logo & Name */}
-          <div className="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onClick={onBack}>
-            <div className="w-8 h-8 rounded-xl bg-[#0f766e] flex items-center justify-center text-white font-bold shadow-xs">
-              <Plus className="w-5 h-5 stroke-[2.8]" />
-            </div>
-            <span className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              D.I. Khan Care
-            </span>
-          </div>
-
-          {/* Navigation Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-300">
-            <button
-              type="button"
-              onClick={onBack}
-              className="text-[#0f766e] dark:text-emerald-400 font-bold hover:opacity-80 transition"
-            >
-              Find a doctor
-            </button>
-            <button
-              type="button"
-              onClick={onBack}
-              className="hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              Clinics
-            </button>
-            <button
-              type="button"
-              onClick={onTrackNav}
-              className="hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              My appointments
-            </button>
-          </nav>
-
-          {/* Mobile Back & User Profile Pill */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onBack}
-              className="md:hidden px-3 py-1.5 text-xs font-semibold text-[#0f766e] dark:text-emerald-300 bg-teal-50 dark:bg-emerald-950/60 border border-teal-200/80 dark:border-emerald-700/60 rounded-xl"
-            >
-              &larr; Back
-            </button>
-            <div className="hidden sm:flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-full py-1.5 px-3 shadow-2xs">
-              <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center">
-                AK
-              </div>
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Ahmed Khan</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* ── Main Container ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-36 sm:pb-16">
         {/* ── Breadcrumbs ── */}

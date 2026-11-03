@@ -177,7 +177,7 @@ export default function HomeVisualFilters({
                 </div>
 
                 {/* Clear Label */}
-                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight line-clamp-2 transition-colors w-full max-w-[135px] px-1 ${
+                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight transition-colors w-full text-center break-words px-0.5 leading-snug ${
                   isSelected
                     ? 'text-emerald-700 dark:text-emerald-300'
                     : 'text-slate-800 dark:text-slate-200 group-hover:text-clinic-700 dark:group-hover:text-emerald-300'
@@ -243,7 +243,7 @@ export default function HomeVisualFilters({
                 </div>
 
                 {/* Clear Label */}
-                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight transition-colors w-full max-w-[135px] px-1 ${
+                <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-snug transition-colors w-full text-center break-words px-0.5 ${
                   isSelected
                     ? 'text-emerald-700 dark:text-emerald-300'
                     : 'text-slate-800 dark:text-slate-200 group-hover:text-clinic-700 dark:group-hover:text-emerald-300'

@@ -15704,18 +15704,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           {/* ── Clinic Profile Tab ── */}
           {activePortalTab === 'profile' && (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6 text-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-base">Doctor &amp; Clinic Profile</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Your public practitioner and clinic details shown to patients.</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingProfile(!isEditingProfile)}
-                  className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
-                >
-                  {isEditingProfile ? 'Cancel Editing' : 'Edit Profile Details'}
-                </button>
+              <div className="pb-3 border-b border-slate-100 dark:border-slate-800">
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">Doctor &amp; Clinic Profile</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Your public practitioner and clinic details shown to patients.</p>
               </div>
 
               {/* VIP Loyalty Card Management Section */}
@@ -15877,6 +15868,29 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Doctor Profile & Clinical Details Header & Action */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 pb-1 border-t border-slate-200/80 dark:border-slate-800">
+                <div>
+                  <h4 className="font-bold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    Profile Details &amp; Clinical Information
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Your public doctor portrait, consultation fee, medical qualifications, timings, and clinic address.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingProfile(!isEditingProfile)}
+                  className={`self-start sm:self-auto px-4 py-2 border font-semibold rounded-xl text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${
+                    isEditingProfile
+                      ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                      : 'border-clinic-700 bg-clinic-700 hover:bg-clinic-800 text-white'
+                  }`}
+                >
+                  {isEditingProfile ? 'Cancel Editing' : 'Edit Profile Details'}
+                </button>
               </div>
 
               {/* Doctor Profile Picture Card (Cloudinary Powered) */}
@@ -16087,20 +16101,29 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={profileLoading}
-                    className="px-5 py-2.5 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center gap-2"
-                  >
-                    {profileLoading ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                        <span>Processing profile update...</span>
-                      </>
-                    ) : (
-                      <span>Save Profile Changes</span>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={profileLoading}
+                      className="px-5 py-2.5 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-colors shadow-sm inline-flex items-center gap-2 cursor-pointer"
+                    >
+                      {profileLoading ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                          <span>Processing profile update...</span>
+                        </>
+                      ) : (
+                        <span>Save Profile Changes</span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingProfile(false)}
+                      className="px-4 py-2.5 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-xl text-xs transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </form>
               ) : (
                 <div className="grid grid-cols-2 gap-4">

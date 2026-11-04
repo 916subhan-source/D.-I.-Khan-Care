@@ -1346,11 +1346,7 @@ function StaffLoginSplitView({
       sidebarBg: 'bg-[#082928]',
       badgeBorder: 'border-teal-500/40 text-teal-300',
       badgeText: 'ASSISTANT WORKSPACE • RECEPTION DESK',
-      heading: (
-        <>
-          Front Desk & Reception.<br />Zero-wait counter queues.
-        </>
-      ),
+      heading: null,
       subheading: 'A unified workstation for clinic reception teams across D.I. Khan to issue walk-in tokens, collect cash fees, and triage waiting patients.',
       image: '/assistant_reception_desk.jpg',
       alt: 'D.I. Khan Clinic Reception & Token Counter Desk',

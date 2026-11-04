@@ -89,6 +89,9 @@ interface DoctorData {
   verification_status: string;
   qualification?: string;
   bio?: string;
+  services_offered?: string;
+  conditions_treated?: string;
+  hospital_affiliations?: string;
   profile_image?: string;
   off_days?: string;
   expertise?: string;
@@ -3548,6 +3551,18 @@ const getSpecialtyServicesList = (spec: string) => {
   }
 };
 
+function format24to12String(timeStr?: string): string {
+  if (!timeStr || !timeStr.includes(':')) return '09:00 AM';
+  const [hRaw, mRaw] = timeStr.split(':');
+  let h = parseInt(hRaw, 10);
+  if (isNaN(h)) return '09:00 AM';
+  const m = (mRaw || '00').padStart(2, '0');
+  const period = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${String(h).padStart(2, '0')}:${m} ${period}`;
+}
+
 function DoctorProfileAndBookingView({
   doctor,
   onBack,
@@ -4602,9 +4617,9 @@ function DoctorProfileAndBookingView({
                     <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Hospital Affiliations &amp; Practice
                   </h3>
                   <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/60 space-y-1">
-                    <div className="font-bold text-slate-900 dark:text-white text-sm">Senior Consultant &amp; OPD Specialist</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">{doctor.clinic_address}, {doctor.sub_region}, Dera Ismail Khan</div>
-                    <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold pt-1">10+ Years Active Practice &bull; Verified PMDC License</div>
+                    <div className="font-bold text-slate-900 dark:text-white text-sm">{doctor.hospital_affiliations || 'Senior Consultant & OPD Specialist'}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{doctor.clinic_address}, {doctor.sub_region || 'Circular Road'}, Dera Ismail Khan</div>
+                    <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold pt-1">{(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years}+ Years Active Practice` : '10+ Years Active Practice'} &bull; Verified PMDC License</div>
                   </div>
                 </div>
 
@@ -4660,7 +4675,10 @@ function DoctorProfileAndBookingView({
                   {doctor.full_name} offers the following specialized treatments and clinical procedures in Dera Ismail Khan:
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                  {getSpecialtyServicesList(doctor.specialty).services.map((srv, i) => (
+                  {(doctor.services_offered && doctor.services_offered.trim()
+                    ? doctor.services_offered.split(',').map((s: string) => s.trim()).filter(Boolean)
+                    : getSpecialtyServicesList(doctor.specialty).services
+                  ).map((srv: string, i: number) => (
                     <div key={i} className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 p-3.5 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                       <span>{srv}</span>
@@ -4680,7 +4698,10 @@ function DoctorProfileAndBookingView({
                   Patients consult {doctor.full_name} for evaluation, management and treatment of:
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
-                  {getSpecialtyServicesList(doctor.specialty).conditions.map((cond, i) => (
+                  {(doctor.conditions_treated && doctor.conditions_treated.trim()
+                    ? doctor.conditions_treated.split(',').map((c: string) => c.trim()).filter(Boolean)
+                    : getSpecialtyServicesList(doctor.specialty).conditions
+                  ).map((cond: string, i: number) => (
                     <div key={i} className="flex items-center gap-2.5 bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/60 p-3.5 rounded-xl text-xs font-semibold text-emerald-950 dark:text-emerald-200">
                       <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 flex-shrink-0" />
                       <span>{cond}</span>
@@ -4708,19 +4729,33 @@ function DoctorProfileAndBookingView({
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
-                          const isSunday = day === 'Sunday';
-                          const timeText = isSunday
-                            ? '11:00 AM - 02:00 PM (Emergency)'
-                            : doctor.shift === 'EVENING'
-                              ? '05:00 PM - 09:00 PM'
-                              : '09:00 AM - 02:00 PM';
+                          const docOffDays = (doctor.off_days || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
+                          const isOffDay = docOffDays.includes(day.toLowerCase());
+                          let timeText = '';
+                          if (isOffDay) {
+                            timeText = '11:00 AM - 02:00 PM (Emergency)';
+                          } else if (doctor.shift === 'BOTH') {
+                            const mStart = format24to12String(doctor.morning_start || '09:00');
+                            const mEnd = format24to12String(doctor.morning_end || '13:00');
+                            const eStart = format24to12String(doctor.evening_start || '17:00');
+                            const eEnd = format24to12String(doctor.evening_end || '21:00');
+                            timeText = `${mStart} - ${mEnd} & ${eStart} - ${eEnd}`;
+                          } else if (doctor.shift === 'EVENING') {
+                            const eStart = format24to12String(doctor.evening_start || '17:00');
+                            const eEnd = format24to12String(doctor.evening_end || '21:00');
+                            timeText = `${eStart} - ${eEnd}`;
+                          } else {
+                            const mStart = format24to12String(doctor.morning_start || '09:00');
+                            const mEnd = format24to12String(doctor.morning_end || '13:00');
+                            timeText = `${mStart} - ${mEnd}`;
+                          }
                           return (
-                            <tr key={idx} className={isSunday ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
+                            <tr key={idx} className={isOffDay ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
                               <td className="p-3.5 font-bold text-slate-900 dark:text-white">{day}</td>
                               <td className="p-3.5 font-semibold text-emerald-700 dark:text-emerald-400">{timeText}</td>
                               <td className="p-3.5">
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSunday ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
-                                  {isSunday ? 'On-Call' : 'Available'}
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isOffDay ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
+                                  {isOffDay ? 'On-Call' : 'Available'}
                                 </span>
                               </td>
                             </tr>
@@ -13013,6 +13048,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [editExpertise3, setEditExpertise3] = useState('');
   const [editExpYears, setEditExpYears] = useState<number>(10);
   const [editQualification, setEditQualification] = useState('MBBS, FCPS');
+  const [editServices, setEditServices] = useState('');
+  const [editConditions, setEditConditions] = useState('');
+  const [editHospitalAffiliations, setEditHospitalAffiliations] = useState('');
+  const [editOffDays, setEditOffDays] = useState('sunday');
   const [profileMsg, setProfileMsg] = useState('');
   const [profileLoading, setProfileLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -13154,6 +13193,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             setEditMapsUrl(profile.google_maps_url || '');
             setEditBio(profile.bio || '');
             setEditQualification(profile.qualification || 'MBBS, FCPS');
+            setEditServices(profile.services_offered || '');
+            setEditConditions(profile.conditions_treated || '');
+            setEditHospitalAffiliations(profile.hospital_affiliations || '');
+            setEditOffDays(profile.off_days || 'sunday');
             const expParts = (profile.expertise || '').split(',').map((s: string) => s.trim());
             setEditExpertise1(expParts[0] || '');
             setEditExpertise2(expParts[1] || '');
@@ -13954,7 +13997,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           bio: editBio.trim(),
           expertise: expertisePayload,
           experience_years: Number(editExpYears),
-          qualification: editQualification.trim() || 'MBBS, FCPS'
+          qualification: editQualification.trim() || 'MBBS, FCPS',
+          services_offered: editServices.trim(),
+          conditions_treated: editConditions.trim(),
+          hospital_affiliations: editHospitalAffiliations.trim(),
+          off_days: editOffDays.trim()
         })
       });
       setProfileMsg('✓ Clinic profile updated successfully!');
@@ -13967,7 +14014,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         bio: editBio.trim(),
         expertise: expertisePayload,
         experience_years: Number(editExpYears),
-        qualification: editQualification.trim() || 'MBBS, FCPS'
+        qualification: editQualification.trim() || 'MBBS, FCPS',
+        services_offered: editServices.trim(),
+        conditions_treated: editConditions.trim(),
+        hospital_affiliations: editHospitalAffiliations.trim(),
+        off_days: editOffDays.trim()
       } : prev);
       setIsEditingProfile(false);
       loadDoctorData();
@@ -16027,6 +16078,66 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         <option value="BOTH">BOTH (Morning &amp; Evening Shifts)</option>
                       </select>
                     </div>
+                    <div className="col-span-2 sm:col-span-1">
+                      <label className="font-semibold text-slate-600 block mb-1">Weekly Off Days</label>
+                      <select
+                        value={editOffDays}
+                        onChange={e => setEditOffDays(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white font-medium"
+                      >
+                        <option value="sunday">Sunday (Default Closed / On-Call)</option>
+                        <option value="friday">Friday</option>
+                        <option value="friday,sunday">Friday &amp; Sunday</option>
+                        <option value="thursday,friday">Thursday &amp; Friday</option>
+                        <option value="saturday,sunday">Saturday &amp; Sunday</option>
+                        <option value="none">No Off Days (All 7 Days Open)</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="font-semibold text-slate-700 block mb-1 flex items-center justify-between">
+                        <span>Hospital Affiliations &amp; Practice Role</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Shown under Hospital Affiliations on profile</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={editHospitalAffiliations}
+                        onChange={e => setEditHospitalAffiliations(e.target.value)}
+                        placeholder="e.g. Senior Consultant &amp; OPD Specialist &bull; DHQ Teaching Hospital D.I. Khan"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600 font-medium"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="font-semibold text-slate-700 block mb-1 flex items-center justify-between">
+                        <span>Services &amp; Medical Procedures Offered</span>
+                        <span className="text-[10px] text-emerald-700 font-semibold">Separate with commas</span>
+                      </label>
+                      <textarea
+                        value={editServices}
+                        onChange={e => setEditServices(e.target.value)}
+                        rows={2}
+                        placeholder="e.g. ECG &amp; Echocardiography, Hypertension &amp; BP Control, Chest Pain Evaluation, Heart Failure Management, Preventive Cardiology, Lipid &amp; Cholesterol Management"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600 leading-relaxed font-medium"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        These procedures appear with checkmarks in the &quot;Services &amp; Medical Procedures&quot; tab on your booking profile.
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="font-semibold text-slate-700 block mb-1 flex items-center justify-between">
+                        <span>Diseases &amp; Conditions Treated</span>
+                        <span className="text-[10px] text-emerald-700 font-semibold">Separate with commas</span>
+                      </label>
+                      <textarea
+                        value={editConditions}
+                        onChange={e => setEditConditions(e.target.value)}
+                        rows={2}
+                        placeholder="e.g. High Blood Pressure (Hypertension), Coronary Artery Disease, Heart Palpitations, High Cholesterol, Shortness of Breath, Angina Pectoris"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-clinic-600 leading-relaxed font-medium"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        These conditions appear with bullets in the &quot;Diseases &amp; Conditions Treated&quot; tab on your booking profile.
+                      </p>
+                    </div>
                     <div className="col-span-2">
                       <label className="font-semibold text-slate-600 block mb-1">Clinic Address in D.I. Khan</label>
                       <textarea
@@ -16159,6 +16270,40 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           ? `Evening: ${doctorProfile?.evening_start || '17:00'} – ${doctorProfile?.evening_end || '21:00'}`
                           : `Morning: ${doctorProfile?.morning_start || '09:00'}–${doctorProfile?.morning_end || '13:00'} · Evening: ${doctorProfile?.evening_start || '17:00'}–${doctorProfile?.evening_end || '21:00'}`}
                     </span>
+                  </div>
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Hospital Affiliations &amp; Practice</span>
+                    <span className="font-bold text-slate-800 dark:text-white text-sm">
+                      {doctorProfile?.hospital_affiliations || 'Senior Consultant & OPD Specialist • D.I. Khan Hospital Affiliated'}
+                    </span>
+                  </div>
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px] font-semibold mb-1.5">Services &amp; Medical Procedures Offered</span>
+                    <div className="flex flex-wrap gap-2">
+                      {((doctorProfile?.services_offered && doctorProfile.services_offered.trim())
+                        ? doctorProfile.services_offered.split(',').map((s: string) => s.trim()).filter(Boolean)
+                        : ['ECG & Echocardiography', 'Hypertension & BP Control', 'Chest Pain Evaluation', 'Heart Failure Management']
+                      ).map((srv: string, i: number) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-semibold text-xs shadow-2xs">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                          <span>{srv}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-400 block text-[11px] font-semibold mb-1.5">Diseases &amp; Conditions Treated</span>
+                    <div className="flex flex-wrap gap-2">
+                      {((doctorProfile?.conditions_treated && doctorProfile.conditions_treated.trim())
+                        ? doctorProfile.conditions_treated.split(',').map((c: string) => c.trim()).filter(Boolean)
+                        : ['High Blood Pressure (Hypertension)', 'Coronary Artery Disease', 'Heart Palpitations', 'High Cholesterol']
+                      ).map((cond: string, i: number) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-200 font-semibold text-xs shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
+                          <span>{cond}</span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <div className="col-span-2 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700">
                     <span className="text-slate-400 dark:text-slate-400 block text-[11px]">Weekly Off Days</span>

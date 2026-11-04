@@ -68,6 +68,9 @@ async def get_doctor_profile(
         "expertise": doctor.expertise,
         "experience_years": doctor.experience_years if doctor.experience_years is not None else 5,
         "qualification": doctor.qualification or "MBBS, FCPS",
+        "services_offered": doctor.services_offered,
+        "conditions_treated": doctor.conditions_treated,
+        "hospital_affiliations": doctor.hospital_affiliations,
         "loyalty_card_enabled": doctor.loyalty_card_enabled if doctor.loyalty_card_enabled is not None else False,
         "loyalty_card_title": doctor.loyalty_card_title or "RK Loyalty Card",
         "loyalty_card_image_url": doctor.loyalty_card_image_url,
@@ -1454,6 +1457,9 @@ class DoctorProfileUpdateRequest(PydanticBase):
     expertise: Optional[str] = None
     experience_years: Optional[int] = None
     qualification: Optional[str] = None
+    services_offered: Optional[str] = None
+    conditions_treated: Optional[str] = None
+    hospital_affiliations: Optional[str] = None
 
 @router.put("/profile")
 async def update_doctor_profile(
@@ -1496,6 +1502,12 @@ async def update_doctor_profile(
         doc.experience_years = int(payload.experience_years)
     if payload.qualification is not None:
         doc.qualification = payload.qualification.strip() if payload.qualification else "MBBS, FCPS"
+    if payload.services_offered is not None:
+        doc.services_offered = payload.services_offered.strip() if payload.services_offered else None
+    if payload.conditions_treated is not None:
+        doc.conditions_treated = payload.conditions_treated.strip() if payload.conditions_treated else None
+    if payload.hospital_affiliations is not None:
+        doc.hospital_affiliations = payload.hospital_affiliations.strip() if payload.hospital_affiliations else None
 
     await db.commit()
     await redis_manager.clear_cache_pattern("doctors:*")
@@ -1513,5 +1525,8 @@ async def update_doctor_profile(
         "bio": doc.bio,
         "expertise": doc.expertise,
         "experience_years": doc.experience_years if doc.experience_years is not None else 5,
-        "qualification": doc.qualification or "MBBS, FCPS"
+        "qualification": doc.qualification or "MBBS, FCPS",
+        "services_offered": doc.services_offered,
+        "conditions_treated": doc.conditions_treated,
+        "hospital_affiliations": doc.hospital_affiliations
     }

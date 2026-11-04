@@ -1804,6 +1804,7 @@ export default function App() {
   };
 
   const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
+  const [navResetTrigger, setNavResetTrigger] = useState<number>(0);
   const [openTrackTrigger, setOpenTrackTrigger] = useState(0);
   const [showStaffModal, setShowStaffModal] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
@@ -1867,6 +1868,9 @@ export default function App() {
   // Sync tab with browser URL history
   const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => {
     setActiveTab(newRole as any);
+    setNavResetTrigger(prev => prev + 1);
+    setShowMobileNav(false);
+    setShowStaffModal(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     try {
       const targetPath = newRole === 'admin' ? '/admin'
@@ -1885,6 +1889,7 @@ export default function App() {
   useEffect(() => {
     const handleUrlChange = () => {
       setActiveTab(getTabFromUrl());
+      setNavResetTrigger(prev => prev + 1);
     };
     window.addEventListener('popstate', handleUrlChange);
     window.addEventListener('hashchange', handleUrlChange);
@@ -2028,42 +2033,47 @@ export default function App() {
 
               <div className="space-y-1.5">
                 <button
-                  onClick={() => { handleSwitchRole('home'); setShowMobileNav(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === 'home' ? 'bg-clinic-50 text-clinic-800 font-bold' : 'text-slate-700 hover:bg-slate-50'}`}
+                  type="button"
+                  onClick={() => handleSwitchRole('home')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${activeTab === 'home' ? 'bg-clinic-50 dark:bg-emerald-950/60 text-clinic-800 dark:text-emerald-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                 >
-                  <Home className="w-4 h-4 text-clinic-700" />
+                  <Home className="w-4 h-4 text-clinic-700 dark:text-emerald-400" />
                   <span>Home</span>
                 </button>
                 <button
-                  onClick={() => { handleSwitchRole('patient'); setShowMobileNav(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === 'patient' ? 'bg-clinic-50 text-clinic-800 font-bold' : 'text-slate-700 hover:bg-slate-50'}`}
+                  type="button"
+                  onClick={() => handleSwitchRole('patient')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${activeTab === 'patient' ? 'bg-clinic-50 dark:bg-emerald-950/60 text-clinic-800 dark:text-emerald-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                 >
-                  <Search className="w-4 h-4 text-clinic-700" />
+                  <Search className="w-4 h-4 text-clinic-700 dark:text-emerald-400" />
                   <span>Find a doctor</span>
                 </button>
                 <button
-                  onClick={() => { handleSwitchRole('track'); setShowMobileNav(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === 'track' ? 'bg-clinic-50 text-clinic-800 font-bold' : 'text-slate-700 hover:bg-slate-50'}`}
+                  type="button"
+                  onClick={() => handleSwitchRole('track')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${activeTab === 'track' ? 'bg-clinic-50 dark:bg-emerald-950/60 text-clinic-800 dark:text-emerald-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                 >
-                  <Clock className="w-4 h-4 text-clinic-700" />
+                  <Clock className="w-4 h-4 text-clinic-700 dark:text-emerald-400" />
                   <span>Track appointment</span>
                 </button>
               </div>
 
-              <div className="pt-5 mt-5 border-t border-slate-100 space-y-2">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3">Portals</p>
+              <div className="pt-5 mt-5 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3">Portals</p>
                 <button
-                  onClick={() => { setShowMobileNav(false); handleSwitchRole('doctor'); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-50 text-left"
+                  type="button"
+                  onClick={() => handleSwitchRole('doctor')}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-left cursor-pointer"
                 >
-                  <Stethoscope className="w-4 h-4 text-clinic-700" />
+                  <Stethoscope className="w-4 h-4 text-clinic-700 dark:text-emerald-400" />
                   <span>Doctor Portal</span>
                 </button>
                 <button
-                  onClick={() => { setShowMobileNav(false); handleSwitchRole('assistant'); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-50 text-left"
+                  type="button"
+                  onClick={() => handleSwitchRole('assistant')}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-left cursor-pointer"
                 >
-                  <Headphones className="w-4 h-4 text-amber-600" />
+                  <Headphones className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>Assistant Desk</span>
                 </button>
               </div>
@@ -2132,6 +2142,8 @@ export default function App() {
           <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('home')} />
         ) : (
           <PatientSection
+            activeTab={activeTab}
+            navResetTrigger={navResetTrigger}
             openTrackTrigger={openTrackTrigger}
             onSwitchRole={handleSwitchRole}
             isHomeView={activeTab === 'home'}
@@ -6482,11 +6494,15 @@ function DoctorProfileAndBookingView({
 function PatientSection({
   openTrackTrigger,
   onSwitchRole,
-  isHomeView = false
+  isHomeView = false,
+  activeTab = 'home',
+  navResetTrigger = 0
 }: {
   openTrackTrigger?: number;
   onSwitchRole?: (r: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track') => void;
   isHomeView?: boolean;
+  activeTab?: string;
+  navResetTrigger?: number;
 }) {
   const [doctors, setDoctors] = useState<DoctorData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -6513,6 +6529,37 @@ function PatientSection({
   const [profileDoctor, setProfileDoctor] = useState<DoctorData | null>(null);
   const [profileDoctorInitialTab, setProfileDoctorInitialTab] = useState<'booking' | 'profile'>('profile');
   const [bookingDoctor, setBookingDoctor] = useState<DoctorData | null>(null);
+
+  // Whenever user taps Home, Find Doctor, or Track from any navigation bar/drawer, reset doctor view
+  useEffect(() => {
+    if (navResetTrigger > 0) {
+      setProfileDoctor(null);
+      setBookingDoctor(null);
+      setShowTrack(false);
+
+      if (activeTab === 'patient') {
+        setTimeout(() => {
+          const el = document.getElementById('doctors-results-grid');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else if (activeTab === 'home') {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }
+    }
+  }, [navResetTrigger, activeTab]);
+
+  // Handle browser back button (popstate) to smoothly close doctor profile
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get('doctor') && !params.get('doctor_id')) {
+        setProfileDoctor(null);
+        setBookingDoctor(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   const [availableSlots, setAvailableSlots] = useState<SlotData[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<SlotData | null>(null);
   const [slotsLoading, setSlotsLoading] = useState(false);
@@ -7452,6 +7499,9 @@ function PatientSection({
                         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
                         setProfileDoctorInitialTab('profile');
                         setProfileDoctor(doc);
+                        try {
+                          window.history.pushState({ doctorId: doc.id }, '', `/doctors?doctor=${encodeURIComponent(doc.id)}`);
+                        } catch (_) { }
                       }}
                     />
                   ))}

@@ -6,47 +6,18 @@ const PROD_BACKEND_URL = 'https://d-i-khan-care.vercel.app/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {
-    // Check if a new tunnel URL was provided via query param, e.g. ?cf_tunnel=https://...
     try {
+      // Clean up any stale localhost or tunnel from localStorage so closing laptop never cuts off backend
+      localStorage.removeItem('cf_tunnel_url');
       const urlParams = new URLSearchParams(window.location.search);
-      const queryTunnel = urlParams.get('cf_tunnel') || urlParams.get('tunnel');
+      const queryTunnel = urlParams.get('dev_tunnel') || urlParams.get('cf_tunnel');
       if (queryTunnel && queryTunnel.trim().length > 0) {
         let clean = queryTunnel.trim().replace(/\/+$/, '');
-        if (!clean.endsWith('/api/v1')) {
-          clean += '/api/v1';
-        }
-        localStorage.setItem('cf_tunnel_url', clean);
+        if (!clean.endsWith('/api/v1')) clean += '/api/v1';
+        return clean;
       }
-    } catch {
-      // Ignore URL parsing errors
-    }
-
-    // Clean up known stale/expired tunnel URLs from previous sessions
-    const customTunnel = localStorage.getItem('cf_tunnel_url');
-    if (customTunnel && (customTunnel.includes('7c6c9138646ce2') || customTunnel.includes('loca.lt') || customTunnel.includes('pinggy') || customTunnel.includes('lhr.life'))) {
-      localStorage.removeItem('cf_tunnel_url');
-    }
-
-    const activeTunnel = localStorage.getItem('cf_tunnel_url');
-    if (activeTunnel && activeTunnel.trim().length > 0) {
-      let clean = activeTunnel.trim().replace(/\/+$/, '');
-      if (!clean.endsWith('/api/v1')) {
-        clean += '/api/v1';
-      }
-      return clean;
-    }
-
-    const envBase = (import.meta as any).env?.VITE_API_BASE;
-    if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
-      return envBase.trim().replace(/\/+$/, '');
-    }
-
+    } catch { }
     return PROD_BACKEND_URL;
-  }
-
-  const envBase = (import.meta as any).env?.VITE_API_BASE;
-  if (envBase && typeof envBase === 'string' && envBase.trim().length > 0) {
-    return envBase.trim().replace(/\/+$/, '');
   }
   return PROD_BACKEND_URL;
 };

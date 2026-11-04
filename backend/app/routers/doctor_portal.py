@@ -1384,7 +1384,7 @@ async def get_doctor_analytics(
 
 @router.get("/appointments")
 async def list_doctor_appointments(
-    include_archived: bool = Query(False, description="Whether to include closed visits older than 2 days"),
+    include_archived: bool = Query(True, description="Whether to include closed visits older than 2 days"),
     current_user: User = Depends(require_roles(["DOCTOR"])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -1412,13 +1412,10 @@ async def list_doctor_appointments(
         joinedload(Appointment.payment)
     ).where(Appointment.doctor_id == doc.id)
 
-    if not include_archived:
-        # Hide all past consultations before today by default in Pakistan Standard Time (UTC+5)
-        now_pkt = datetime.now(timezone(timedelta(hours=5)))
-        today_start_pkt = datetime(now_pkt.year, now_pkt.month, now_pkt.day, 0, 0, 0, tzinfo=timezone(timedelta(hours=5)))
-        today_start_utc = today_start_pkt.astimezone(timezone.utc)
-        appt_time = func.coalesce(DoctorSlot.start_time, Appointment.created_at)
-        query = query.where(appt_time >= today_start_utc)
+    # Doctor portal appointment directory & ledger: Return all clinic appointments
+    # so the doctor's Today, This Week (past 6 days + today), This Month (past 29 days + today),
+    # and All Time filters have complete historical records.
+    pass
 
 
     query = query.order_by(Appointment.created_at.desc())

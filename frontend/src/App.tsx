@@ -13397,7 +13397,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     return getApptDateStrGlobal(a);
   };
 
-  const { todayStr: activeTodayStr, weekStartStr, weekEndStr, monthPrefix } = useMemo(() => {
+  const { todayStr: activeTodayStr, weekStartStr, monthStartStr } = useMemo(() => {
     let todayStr = '';
     try {
       todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(new Date());
@@ -13405,15 +13405,15 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       todayStr = new Date().toISOString().split('T')[0];
     }
     const [y, m, d] = todayStr.split('-').map(Number);
-    const monthPrefix = `${y}-${String(m).padStart(2, '0')}`;
-
-    // Current week in PKT: From Monday through Sunday
     const curr = new Date(y, m - 1, d);
-    const day = curr.getDay(); // 0 is Sun, 1 is Mon...
-    const startDay = new Date(curr);
-    startDay.setDate(curr.getDate() - (day === 0 ? 6 : day - 1));
-    const endDay = new Date(curr);
-    endDay.setDate(curr.getDate() + (day === 0 ? 7 : 7 - day));
+
+    // Rolling This Week: Past 6 days + current day (7 days total: [today - 6, today])
+    const past6 = new Date(curr);
+    past6.setDate(curr.getDate() - 6);
+
+    // Rolling This Month: Past 29 days + current day (30 days total: [today - 29, today])
+    const past29 = new Date(curr);
+    past29.setDate(curr.getDate() - 29);
 
     const toIso = (dt: Date) => {
       const yy = dt.getFullYear();
@@ -13424,9 +13424,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
     return {
       todayStr,
-      weekStartStr: toIso(startDay),
-      weekEndStr: toIso(endDay),
-      monthPrefix
+      weekStartStr: toIso(past6),
+      monthStartStr: toIso(past29)
     };
   }, []);
 
@@ -13437,12 +13436,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
   const isMatchWeek = (a: AppointmentItem): boolean => {
     const dt = getApptDateStrGlobal(a);
-    return dt >= weekStartStr && dt <= weekEndStr;
+    // Past 6 days + current day
+    return dt >= weekStartStr && dt <= activeTodayStr;
   };
 
   const isMatchMonth = (a: AppointmentItem): boolean => {
     const dt = getApptDateStrGlobal(a);
-    return dt.startsWith(monthPrefix);
+    // Past 29 days + current day
+    return dt >= monthStartStr && dt <= activeTodayStr;
   };
 
   const isApptTimePassed = (a: AppointmentItem): boolean => {
@@ -13494,29 +13495,22 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
   const weekCount = useMemo(() => {
     return appointments.filter(isMatchWeek).length;
-  }, [appointments, weekStartStr, weekEndStr]);
+  }, [appointments, weekStartStr, activeTodayStr]);
 
   const monthCount = useMemo(() => {
     return appointments.filter(isMatchMonth).length;
-  }, [appointments, monthPrefix]);
+  }, [appointments, monthStartStr, activeTodayStr]);
 
   const totalAllCount = appointments.length;
 
   // Filter appointments according to selected timeframe, status, and search query
   const filteredAppts = useMemo(() => {
     return appointments.filter(a => {
-      // 0. Hide past consultations when includeArchived is false
-      if (!includeArchived) {
-        const itemDate = getApptDateStrGlobal(a) || getApptDateStr(a);
-        if (itemDate && itemDate < activeTodayStr) {
-          return false;
-        }
-      }
-
-      // 1. Timeframe filter
+      // 1. Timeframe filter (Rolling: Today, Past 6 days + Today, Past 29 days + Today, All time passed)
       if (timeframe === 'today' && !isMatchToday(a)) return false;
       if (timeframe === 'week' && !isMatchWeek(a)) return false;
       if (timeframe === 'month' && !isMatchMonth(a)) return false;
+      // timeframe === 'all' includes all consultations across all time passed
 
       // 2. Status filter
       if (apptStatusFilter !== 'ALL') {
@@ -13541,7 +13535,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
       return true;
     });
-  }, [appointments, timeframe, activeTodayStr, weekStartStr, weekEndStr, monthPrefix, apptStatusFilter, apptSearch, includeArchived]);
+  }, [appointments, timeframe, activeTodayStr, weekStartStr, monthStartStr, apptStatusFilter, apptSearch]);
 
   const docCallingShiftInfo = useMemo(() => {
     return getDoctorCallingShiftInfo(doctorProfile, activeTodayStr, appointments);
@@ -13561,9 +13555,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       if (timeframe === 'today') return isMatchToday(a);
       if (timeframe === 'week') return isMatchWeek(a);
       if (timeframe === 'month') return isMatchMonth(a);
-      return true;
+      return true; // 'all' includes all time passed
     });
-  }, [appointments, timeframe, activeTodayStr, weekStartStr, weekEndStr, monthPrefix]);
+  }, [appointments, timeframe, activeTodayStr, weekStartStr, monthStartStr]);
 
   // Income & Revenue calculations (Paid cash vs Pending at desk)
   const calcIncome = (list: AppointmentItem[]) => {
@@ -13579,8 +13573,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   };
 
   const todayIncome = useMemo(() => calcIncome(appointments.filter(isMatchToday)), [appointments, activeTodayStr, doctorProfile]);
-  const weekIncome = useMemo(() => calcIncome(appointments.filter(isMatchWeek)), [appointments, weekStartStr, weekEndStr, doctorProfile]);
-  const monthIncome = useMemo(() => calcIncome(appointments.filter(isMatchMonth)), [appointments, monthPrefix, doctorProfile]);
+  const weekIncome = useMemo(() => calcIncome(appointments.filter(isMatchWeek)), [appointments, weekStartStr, activeTodayStr, doctorProfile]);
+  const monthIncome = useMemo(() => calcIncome(appointments.filter(isMatchMonth)), [appointments, monthStartStr, activeTodayStr, doctorProfile]);
   const allIncome = useMemo(() => calcIncome(appointments), [appointments, doctorProfile]);
 
   const currentTimeframeIncome = useMemo(() => calcIncome(timeframeScopedAppts), [timeframeScopedAppts, doctorProfile]);
@@ -13698,14 +13692,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         : "All Clinic Appointments & Patient Directory";
 
   const agendaSubtitle = timeframe === 'today'
-    ? `Showing appointments scheduled for today (${activeTodayStr})`
+    ? `Showing consultations for today (${activeTodayStr})`
     : timeframe === 'week'
-      ? `Showing appointments scheduled for this week (${weekStartStr} to ${weekEndStr})`
+      ? `Showing consultations from the past 6 days and today (${weekStartStr} to ${activeTodayStr})`
       : timeframe === 'month'
-        ? `Showing appointments scheduled in current month (${monthPrefix})`
-        : includeArchived
-          ? `Showing all ${totalAllCount} booked and requested appointments for your clinic (including past history)`
-          : `Showing ${displayAppts.length} active and upcoming appointments`;
+        ? `Showing consultations from the past 29 days and today (${monthStartStr} to ${activeTodayStr})`
+        : `Showing all ${totalAllCount} consultations across all time passed`;
 
   const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Karachi', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const doctorName = doctorProfile?.full_name || 'Doctor';

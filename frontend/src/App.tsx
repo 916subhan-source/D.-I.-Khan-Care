@@ -3065,7 +3065,7 @@ function DoctorProfileModal({
                     <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{doctor.full_name}</h2>
                     {doctor.verification_status === 'verified' && (
                       <span className="bg-teal-500/20 border border-teal-400/40 text-teal-300 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400" /> PMDC Verified
+                        <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400" /> Verified Specialist
                       </span>
                     )}
                   </div>
@@ -4304,8 +4304,8 @@ function DoctorProfileAndBookingView({
                   {doctor.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
                 </div>
                 {doctor.verification_status === 'verified' && (
-                  <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-emerald-600 text-white px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black flex items-center gap-0.5 sm:gap-1 shadow-md border border-white dark:border-slate-900">
-                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" /> PMDC
+                  <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900" title="Verified Specialist">
+                    <Check className="w-3 h-3 stroke-[3]" />
                   </span>
                 )}
               </div>
@@ -4318,7 +4318,7 @@ function DoctorProfileAndBookingView({
                   </h1>
                   {doctor.verification_status === 'verified' && (
                     <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
-                      <ShieldCheck className="w-3.5 h-3.5" /> PMDC Registered
+                      <ShieldCheck className="w-3.5 h-3.5" /> Verified Specialist
                     </span>
                   )}
                 </div>
@@ -6056,7 +6056,7 @@ function DoctorProfileAndBookingView({
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-bold text-slate-900">Verified Patient Reviews</h3>
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> PMDC Verified
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified Specialist
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -7480,7 +7480,7 @@ function PatientSection({
                       Top Verified Specialists in D.I. Khan
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      {sortedDoctors.length} PMDC-verified doctors ready for consultation &middot; Pay cash on arrival
+                      {sortedDoctors.length} verified specialists ready for consultation &middot; Pay cash on arrival
                     </p>
                   </div>
                   {sortedDoctors.some(d => d.is_spotlight) && (

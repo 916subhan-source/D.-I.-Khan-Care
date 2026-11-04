@@ -9321,7 +9321,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   ];
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 animate-fade-in">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 animate-fade-in w-full overflow-x-hidden">
       <PortalSidebar
         workspaceLabel="Assistant Workspace"
         clinicName={currentDoctor?.clinic_address ? currentDoctor.clinic_address.split(',')[0].trim() : (currentDoctor?.doctor_name || 'Rehmat Polyclinic')}
@@ -9334,7 +9334,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="portal-content flex-1">
+      <div className="portal-content flex-1 min-w-0 w-full overflow-x-hidden">
         {/* Top breadcrumb bar */}
         <div className="h-12 border-b border-slate-200 px-3 sm:px-8 flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -14288,7 +14288,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 animate-fade-in">
+    <div className="flex min-h-screen bg-slate-50 animate-fade-in w-full overflow-x-hidden">
       <PortalSidebar
         workspaceLabel="Doctor Workspace"
         clinicName={doctorProfile?.clinic_address ? doctorProfile.clinic_address.split(',')[0].trim() : (doctorProfile?.full_name || 'Clinic')}
@@ -14301,7 +14301,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="portal-content flex-1">
+      <div className="portal-content flex-1 min-w-0 w-full overflow-x-hidden">
         {/* Top breadcrumb bar */}
         <div className="portal-topbar sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -14382,18 +14382,18 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             <div className="space-y-4 sm:space-y-6">
               {/* Premium Header */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.?\s*/i, '').trim()}</span>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-400 mt-1 font-medium">
                     {todayStr} &middot; Live operational overview
                   </p>
                 </div>
-                <div className="flex items-center gap-2 self-start sm:self-auto">
+                <div className="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
                   <button
                     onClick={() => setActivePortalTab('schedule')}
-                    className="px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
+                    className="px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-all whitespace-nowrap"
                   >
                     Manage schedule
                   </button>
@@ -14402,14 +14402,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
               {/* Sub bar: Realtime + 4 Timeframe Filter Buttons */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <RealtimeLive />
-                  <span className="text-xs text-slate-500 font-medium">
+                  <span className="text-xs text-slate-500 font-medium truncate">
                     {doctorProfile?.clinic_address || 'Rehmat Polyclinic · Circular Road'}
                   </span>
                 </div>
                 {/* 4 Timeframe Filter Buttons: Today, This Week, This Month, All (swipeable scroll strip on mobile) */}
-                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/90 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/90 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap flex-shrink-0 max-w-full">
                   <button
                     type="button"
                     onClick={() => setTimeframe('today')}
@@ -14478,9 +14478,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* 5 Top KPI Cards: Dynamic Income + Operational Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-4">
                 {/* 1. Clinic Income (PAID) Card — Accent Green */}
-                <div className="col-span-2 md:col-span-1 lg:col-span-2 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-kpi-accent border border-emerald-200/80"
+                <div className="col-span-2 md:col-span-2 xl:col-span-2 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-kpi-accent border border-emerald-200/80"
                   style={{ background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)' }}
                 >
                   {/* Decorative glow orb */}
@@ -17432,7 +17432,7 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
   };
 
   return (
-    <div className="flex min-h-screen bg-white animate-fade-in">
+    <div className="flex min-h-screen bg-white animate-fade-in w-full overflow-x-hidden">
       <PortalSidebar
         workspaceLabel="Admin Workspace"
         clinicName="Platform Governance"
@@ -17448,7 +17448,7 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="portal-content flex-1">
+      <div className="portal-content flex-1 min-w-0 w-full overflow-x-hidden">
         {/* Top breadcrumb bar */}
         <div className="h-14 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-3 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2 min-w-0">

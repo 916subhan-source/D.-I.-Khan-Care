@@ -143,16 +143,22 @@
   }
   .portal-content {
     @apply min-h-screen bg-slate-50 transition-all duration-300;
+    min-width: 0;
   }
   @media (min-width: 768px) {
     .portal-content {
       margin-left: 224px;
+      width: calc(100% - 224px) !important;
+      max-width: calc(100% - 224px) !important;
+      min-width: 0 !important;
     }
   }
   @media (max-width: 767px) {
     .portal-content {
       margin-left: 0 !important;
       width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
     }
   }
   .sidebar-link {

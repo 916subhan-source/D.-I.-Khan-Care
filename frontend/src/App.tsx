@@ -2182,8 +2182,8 @@ export default function App() {
             type="button"
             onClick={() => handleSwitchRole('home')}
             className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'home'
-                ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
           >
             <Home className={`w-5 h-5 mb-0.5 ${activeTab === 'home' ? 'stroke-[2.5]' : 'stroke-2'}`} />
@@ -2195,8 +2195,8 @@ export default function App() {
             type="button"
             onClick={() => handleSwitchRole('patient')}
             className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'patient'
-                ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
           >
             <Search className={`w-5 h-5 mb-0.5 ${activeTab === 'patient' ? 'stroke-[2.5]' : 'stroke-2'}`} />
@@ -2208,8 +2208,8 @@ export default function App() {
             type="button"
             onClick={() => handleSwitchRole('track')}
             className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'track'
-                ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
           >
             <Clock className={`w-5 h-5 mb-0.5 ${activeTab === 'track' ? 'stroke-[2.5]' : 'stroke-2'}`} />
@@ -4430,11 +4430,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('about');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'about'
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'profile' && profileActiveTab === 'about'
                 ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             <User className="w-3.5 h-3.5" />
             <span>About Doctor</span>
@@ -4448,11 +4447,10 @@ function DoctorProfileAndBookingView({
               const el = document.getElementById('oladoc-booking-card');
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${
-              mobileActiveTab === 'booking'
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'booking'
                 ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
                 : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 hover:bg-emerald-600 hover:text-white'
-            }`}
+              }`}
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Book Slots</span>
@@ -4465,11 +4463,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('reviews');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
                 ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
                 : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950'
-            }`}
+              }`}
           >
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             <span>Reviews ({reviewsSummary?.total_reviews || 128})</span>
@@ -4482,11 +4479,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('schedule');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             <Clock className="w-3.5 h-3.5" />
             <span>Clinic Timings</span>
@@ -4498,11 +4494,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('services');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'services'
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'services'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             <Stethoscope className="w-3.5 h-3.5" />
             <span>Services</span>
@@ -4515,11 +4510,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('conditions');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             <Award className="w-3.5 h-3.5" />
             <span>Conditions</span>
@@ -4532,11 +4526,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('faqs');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
+            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
             <span>FAQs</span>
@@ -4654,10 +4647,10 @@ function DoctorProfileAndBookingView({
                         className="cursor-pointer group relative inline-block max-w-sm rounded-xl overflow-hidden border border-amber-300 shadow-sm"
                         title="Click to expand full screen"
                       >
-                        <img 
-                          src={doctor.loyalty_card_image_url} 
-                          alt="Loyalty Card" 
-                          className="w-full object-contain transition-transform duration-300 group-hover:scale-105" 
+                        <img
+                          src={doctor.loyalty_card_image_url}
+                          alt="Loyalty Card"
+                          className="w-full object-contain transition-transform duration-300 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-bold">
                           <Maximize2 className="w-4 h-4" /> Click to view full screen
@@ -5284,8 +5277,8 @@ function DoctorProfileAndBookingView({
                       <div
                         onClick={() => setApplyLoyaltyCard(false)}
                         className={`p-4 rounded-2xl cursor-pointer transition-all ${!applyLoyaltyCard
-                            ? 'border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/30'
-                            : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-emerald-300 dark:hover:border-emerald-700/60'
+                          ? 'border-2 border-emerald-600 dark:border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-xs ring-1 ring-emerald-500/30'
+                          : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-emerald-300 dark:hover:border-emerald-700/60'
                           }`}
                       >
                         <div className="flex items-center justify-between">
@@ -5310,8 +5303,8 @@ function DoctorProfileAndBookingView({
                       <div
                         onClick={() => setApplyLoyaltyCard(true)}
                         className={`p-4 rounded-2xl cursor-pointer transition-all ${applyLoyaltyCard
-                            ? 'border-2 border-amber-500 dark:border-amber-400 bg-amber-50/80 dark:bg-amber-950/30 shadow-xs ring-1 ring-amber-500/30'
-                            : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-amber-300 dark:hover:border-amber-700/60'
+                          ? 'border-2 border-amber-500 dark:border-amber-400 bg-amber-50/80 dark:bg-amber-950/30 shadow-xs ring-1 ring-amber-500/30'
+                          : 'border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-amber-300 dark:hover:border-amber-700/60'
                           }`}
                       >
                         <div className="flex items-center justify-between">
@@ -5327,8 +5320,8 @@ function DoctorProfileAndBookingView({
                             )}
                           </div>
                           <span className={`font-bold text-[11px] px-2 py-0.5 rounded-full font-mono ${applyLoyaltyCard
-                              ? 'text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30'
-                              : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80'
+                            ? 'text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30'
+                            : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80'
                             }`}>
                             {Number(doctor.loyalty_discount_percent ?? 20)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
                           </span>
@@ -5342,7 +5335,7 @@ function DoctorProfileAndBookingView({
                     {/* In-Form VIP Loyalty Card Visual Preview on Mobile */}
                     {Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard && (
                       <div className="mt-3 bg-amber-50/80 dark:bg-slate-900 border border-amber-200 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
-                        <div 
+                        <div
                           onClick={() => doctor.loyalty_card_image_url && setExpandedLoyaltyCardImage(doctor.loyalty_card_image_url)}
                           className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100/90 dark:bg-slate-950 border border-amber-200 dark:border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center cursor-pointer group relative"
                           title="Click to view full screen"
@@ -6030,12 +6023,12 @@ function DoctorProfileAndBookingView({
 
       {/* ── Fullscreen Golden Loyalty Card Lightbox Modal ── */}
       {expandedLoyaltyCardImage && (
-        <div 
+        <div
           onClick={() => setExpandedLoyaltyCardImage(null)}
           className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 animate-fade-in"
         >
           {/* Top Bar with Title, Discount Badge, and Close Button */}
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-4xl flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800 text-white z-10"
           >
@@ -6068,7 +6061,7 @@ function DoctorProfileAndBookingView({
           </div>
 
           {/* Center Card Display (Maximum resolution, preserve aspect ratio) */}
-          <div 
+          <div
             onClick={(e) => e.stopPropagation()}
             className="my-auto max-w-4xl w-full flex flex-col items-center justify-center p-2 sm:p-4"
           >
@@ -6080,7 +6073,7 @@ function DoctorProfileAndBookingView({
                 onClick={() => setExpandedLoyaltyCardImage(null)}
               />
             </div>
-            
+
             {/* Helper Caption */}
             <div className="mt-3 sm:mt-4 text-center space-y-1">
               <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3.5 py-1 rounded-full">
@@ -7582,9 +7575,9 @@ function PatientSection({
         doctors={doctors}
         onBook={openBookingModal}
         onProfile={(doc) => {
-                        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-                        setProfileDoctor(doc);
-                      }}
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          setProfileDoctor(doc);
+        }}
         onTrack={() => {
           setShowTrack(true);
           const el = document.getElementById('doctors-results-grid');
@@ -9763,8 +9756,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     if (qNum) {
                                       return (
                                         <span className={`px-2 py-0.5 rounded-md text-xs font-bold font-sans border ${item.has_loyalty_discount
-                                            ? 'bg-amber-100 border-amber-300 text-amber-950 font-black shadow-xs'
-                                            : 'bg-teal-50 border border-teal-200 text-teal-800'
+                                          ? 'bg-amber-100 border-amber-300 text-amber-950 font-black shadow-xs'
+                                          : 'bg-teal-50 border border-teal-200 text-teal-800'
                                           }`}>
                                           Token #{qNum} {item.has_loyalty_discount ? '🌟 VIP' : ''}
                                         </span>
@@ -10088,10 +10081,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <div
                         key={`m-asst-${item.id}`}
                         className={`p-4 transition-colors ${isCurrentActive
-                            ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500'
-                            : isNextInLineWaiting
-                              ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'
-                              : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850'
+                          ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500'
+                          : isNextInLineWaiting
+                            ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'
+                            : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850'
                           }`}
                       >
                         {/* Calling Status Banner if active */}
@@ -10144,8 +10137,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             <StatusPill status={item.status} />
                             {qNum ? (
                               <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-sans ${item.has_loyalty_discount
-                                  ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
-                                  : 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
+                                ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                                : 'bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
                                 }`}>
                                 Token #{qNum}
                               </span>
@@ -10308,8 +10301,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   disabled={Boolean(appointmentActionLoading)}
                                   onClick={() => handleCompleteAppointment(item.id)}
                                   className={`w-full h-9 px-4 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer ${isCurrentActive
-                                      ? 'bg-gradient-to-r from-emerald-600 to-teal-700 ring-2 ring-emerald-300 shadow-sm'
-                                      : 'bg-gradient-to-r from-clinic-700 to-clinic-800'
+                                    ? 'bg-gradient-to-r from-emerald-600 to-teal-700 ring-2 ring-emerald-300 shadow-sm'
+                                    : 'bg-gradient-to-r from-clinic-700 to-clinic-800'
                                     }`}
                                 >
                                   {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'complete' ? (
@@ -10578,21 +10571,21 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                       {/* Special Sunday Timings Card for Assistant */}
                       <div className={`p-4 rounded-2xl border transition-all ${asstCustomSundayEnabled
-                        ? 'bg-purple-50/70 border-purple-200 shadow-2xs'
-                        : 'bg-slate-50/70 border-slate-200'
+                        ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/60 shadow-2xs'
+                        : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                         }`}>
                         <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">⭐</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-lg">⭐</span>
                             <div>
-                              <span className="font-bold block text-slate-900 text-xs">Sunday Special Schedule</span>
-                              <span className="text-[10px] text-slate-500">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
+                              <span className="font-bold block text-slate-900 dark:text-white text-xs">Sunday Special Schedule</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2.5">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstCustomSundayEnabled
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-slate-200 text-slate-600'
+                              ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                               }`}>
                               {asstCustomSundayEnabled ? 'Active Full Day' : 'Inactive'}
                             </span>
@@ -10609,7 +10602,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 }}
                                 className="sr-only peer"
                               />
-                              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                              <div className="w-10 h-5.5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-purple-600"></div>
                             </label>
                           </div>
                         </div>
@@ -10637,13 +10630,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 onPeriodChange={setAsstSundayEndPeriod}
                               />
                             </div>
-                            <div className="pt-2 border-t border-purple-100/80 flex items-center justify-between text-[11px] text-slate-600">
-                              <span>Sunday Window: <strong className="text-purple-900">{asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}</strong></span>
-                              <span className="text-[10px] text-purple-800 font-mono">({format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod)} – {format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod)})</span>
+                            <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                              <span>Sunday Window: <strong className="text-purple-900 dark:text-purple-300">{asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}</strong></span>
+                              <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">({format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod)} – {format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod)})</span>
                             </div>
                           </div>
                         ) : (
-                          <p className="text-[11px] text-slate-500">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
                             Enable to set separate Sunday consultation hours while Monday–Saturday follows your weekday shift above.
                           </p>
                         )}
@@ -11168,12 +11161,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${slot.status === 'available'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : slot.status === 'hold'
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                    : slot.status === 'booked'
-                                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : slot.status === 'hold'
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                                  : slot.status === 'booked'
+                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
                                 }`}>
                                 {slot.status === 'available' && '● Available'}
                                 {slot.status === 'hold' && '⏳ In Review'}
@@ -14952,9 +14945,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' :
-                                    isCancelled ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300' :
-                                      appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
-                                        'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
+                                  isCancelled ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300' :
+                                    appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
+                                      'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
                                   }`}>
                                   {appt.status}
                                 </span>
@@ -15191,21 +15184,21 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
                       {/* Special Sunday Timings Card for Doctor */}
                       <div className={`p-4 rounded-2xl border transition-all ${customSundayEnabled
-                        ? 'bg-purple-50/70 border-purple-200 shadow-2xs'
-                        : 'bg-slate-50/70 border-slate-200'
+                        ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/60 shadow-2xs'
+                        : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                         }`}>
                         <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base">⭐</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-lg">⭐</span>
                             <div>
-                              <span className="font-bold block text-slate-900 text-xs">Sunday Special Schedule</span>
-                              <span className="text-[10px] text-slate-500">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
+                              <span className="font-bold block text-slate-900 dark:text-white text-xs">Sunday Special Schedule</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2.5">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${customSundayEnabled
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-slate-200 text-slate-600'
+                              ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                               }`}>
                               {customSundayEnabled ? 'Active Full Day' : 'Inactive'}
                             </span>
@@ -15222,7 +15215,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 }}
                                 className="sr-only peer"
                               />
-                              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                              <div className="w-10 h-5.5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-purple-600"></div>
                             </label>
                           </div>
                         </div>
@@ -15250,13 +15243,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 onPeriodChange={setSundayEndPeriod}
                               />
                             </div>
-                            <div className="pt-2 border-t border-purple-100/80 flex items-center justify-between text-[11px] text-slate-600">
-                              <span>Sunday Window: <strong className="text-purple-900">{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong></span>
-                              <span className="text-[10px] text-purple-800 font-mono">({format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod)} – {format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod)})</span>
+                            <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                              <span>Sunday Window: <strong className="text-purple-900 dark:text-purple-300">{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong></span>
+                              <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">({format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod)} – {format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod)})</span>
                             </div>
                           </div>
                         ) : (
-                          <p className="text-[11px] text-slate-500">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
                             Enable to set separate Sunday consultation hours while Monday–Saturday follows your weekday shift above.
                           </p>
                         )}
@@ -16031,8 +16024,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         }
                       }}
                       className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer shadow-xs flex items-center gap-1.5 ${doctorProfile?.loyalty_card_enabled
-                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                          : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                         }`}
                     >
                       {doctorProfile?.loyalty_card_enabled ? `✓ Program Active (${doctorProfile?.loyalty_discount_percent ?? 20}% OFF)` : '✕ Program Inactive (Hidden)'}
@@ -16168,11 +16161,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="button"
                   onClick={() => setIsEditingProfile(!isEditingProfile)}
-                  className={`self-start sm:self-auto px-4 py-2 border font-semibold rounded-xl text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${
-                    isEditingProfile
+                  className={`self-start sm:self-auto px-4 py-2 border font-semibold rounded-xl text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${isEditingProfile
                       ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
                       : 'border-clinic-700 bg-clinic-700 hover:bg-clinic-800 text-white'
-                  }`}
+                    }`}
                 >
                   {isEditingProfile ? 'Cancel Editing' : 'Edit Profile Details'}
                 </button>
@@ -17514,11 +17506,10 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                   setAdminTab(tab as any);
                   if (tab === 'audit' || tab === 'system') checkRedis();
                 }}
-                className={`whitespace-nowrap px-3.5 py-2 text-xs sm:text-sm font-semibold border-b-2 rounded-t-lg transition-colors cursor-pointer ${
-                  adminTab === tab
+                className={`whitespace-nowrap px-3.5 py-2 text-xs sm:text-sm font-semibold border-b-2 rounded-t-lg transition-colors cursor-pointer ${adminTab === tab
                     ? 'border-clinic-700 dark:border-emerald-400 text-clinic-700 dark:text-emerald-400 bg-clinic-50/50 dark:bg-emerald-950/20'
                     : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/40'
-                }`}
+                  }`}
               >
                 {label}
               </button>
@@ -17663,22 +17654,20 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                       <div className="flex items-center gap-1.5 flex-wrap w-full lg:w-auto pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800 justify-start sm:justify-end">
                         <button
                           onClick={() => toggleVerify(doc.id, doc.verification_status)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                            doc.verification_status === 'verified'
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${doc.verification_status === 'verified'
                               ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                               : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
-                          }`}
+                            }`}
                           title="Toggle verification status"
                         >
                           {doc.verification_status === 'verified' ? 'Unverify' : '✓ Verify'}
                         </button>
                         <button
                           onClick={() => toggleSpotlight(doc.id, doc.is_spotlight)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
-                            doc.is_spotlight
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${doc.is_spotlight
                               ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                          }`}
+                            }`}
                           title="Toggle spotlight directory placement"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-amber-500" />

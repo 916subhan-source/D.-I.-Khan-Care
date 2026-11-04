@@ -188,6 +188,7 @@ async def list_doctors(
             "custom_sunday_enabled": doc.custom_sunday_enabled if doc.custom_sunday_enabled is not None else False,
             "sunday_start": doc.sunday_start or "08:00",
             "sunday_end": doc.sunday_end or "20:00",
+            "custom_special_day": getattr(doc, "custom_special_day", "sunday") or "sunday",
             "custom_day_schedule": doc.custom_day_schedule,
             "created_at": doc.created_at.isoformat(),
             "next_available_slot": next_available_slot,

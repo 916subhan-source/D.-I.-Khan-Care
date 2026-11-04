@@ -8186,12 +8186,20 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [asstEveningEndMin, setAsstEveningEndMin] = useState('00');
   const [asstEveningEndPeriod, setAsstEveningEndPeriod] = useState('PM');
   const [asstCustomSundayEnabled, setAsstCustomSundayEnabled] = useState(false);
+  const [asstSpecialDay, setAsstSpecialDay] = useState<string>('sunday');
   const [asstSundayStartHour, setAsstSundayStartHour] = useState('08');
   const [asstSundayStartMin, setAsstSundayStartMin] = useState('00');
   const [asstSundayStartPeriod, setAsstSundayStartPeriod] = useState('AM');
   const [asstSundayEndHour, setAsstSundayEndHour] = useState('08');
   const [asstSundayEndMin, setAsstSundayEndMin] = useState('00');
   const [asstSundayEndPeriod, setAsstSundayEndPeriod] = useState('PM');
+
+  // Assistant Blackout state
+  const tomorrowIso = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  const [asstBlackoutDate, setAsstBlackoutDate] = useState<string>(tomorrowIso);
+  const [asstBlackoutReason, setAsstBlackoutReason] = useState<string>('Clinic leave / maintenance');
+  const [asstBlackoutLoading, setAsstBlackoutLoading] = useState<boolean>(false);
+  const [asstBlackoutMsg, setAsstBlackoutMsg] = useState<string>('');
 
   const [asstShiftMsg, setAsstShiftMsg] = useState('');
   const [asstSavingShift, setAsstSavingShift] = useState(false);
@@ -8282,6 +8290,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           evening_start,
           evening_end,
           custom_sunday_enabled: asstCustomSundayEnabled,
+          custom_special_day: asstSpecialDay,
           sunday_start,
           sunday_end
         })
@@ -8321,9 +8330,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           evening_start,
           evening_end,
           custom_sunday_enabled: asstCustomSundayEnabled,
+          custom_special_day: asstSpecialDay,
           sunday_start,
           sunday_end,
-          off_days: asstCustomSundayEnabled ? asstOffDays.filter(d => d !== 'sunday') : asstOffDays
+          off_days: asstCustomSundayEnabled ? asstOffDays.filter(d => d !== asstSpecialDay) : asstOffDays
         })
       });
       setAsstGenMsg(res.message || `✓ Generated slots successfully!`);
@@ -8385,6 +8395,42 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       alert(err.message || 'Failed to delete slot');
     } finally {
       setAsstSlotActionLoading(null);
+    }
+  };
+
+  const handleAsstApplyBlackout = async () => {
+    if (!selectedDoctorId || !asstBlackoutDate) return;
+    try {
+      setAsstBlackoutLoading(true);
+      setAsstBlackoutMsg('Applying blackout for this doctor...');
+      const res: any = await apiFetch(`/doctor/blackout?date=${asstBlackoutDate}&doctor_id=${selectedDoctorId}`, {
+        method: 'POST'
+      });
+      setAsstBlackoutMsg(`✓ Blackout applied for ${asstBlackoutDate}: ${res.slots_blocked || 0} slots blocked.`);
+      await fetchAsstSlots(selectedDoctorId);
+      setTimeout(() => setAsstBlackoutMsg(''), 5000);
+    } catch (err: any) {
+      setAsstBlackoutMsg(`Error: ${err.message || 'Failed to apply blackout'}`);
+    } finally {
+      setAsstBlackoutLoading(false);
+    }
+  };
+
+  const handleAsstLiftBlackout = async () => {
+    if (!selectedDoctorId || !asstBlackoutDate) return;
+    try {
+      setAsstBlackoutLoading(true);
+      setAsstBlackoutMsg('Lifting blackout for this doctor...');
+      const res: any = await apiFetch(`/doctor/blackout/lift?date=${asstBlackoutDate}&doctor_id=${selectedDoctorId}`, {
+        method: 'POST'
+      });
+      setAsstBlackoutMsg(`✓ Blackout lifted for ${asstBlackoutDate}: ${res.slots_unblocked || 0} slots restored to available.`);
+      await fetchAsstSlots(selectedDoctorId);
+      setTimeout(() => setAsstBlackoutMsg(''), 5000);
+    } catch (err: any) {
+      setAsstBlackoutMsg(`Error: ${err.message || 'Failed to lift blackout'}`);
+    } finally {
+      setAsstBlackoutLoading(false);
     }
   };
 
@@ -8620,6 +8666,9 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         }
         if (doc.custom_sunday_enabled !== undefined) {
           setAsstCustomSundayEnabled(Boolean(doc.custom_sunday_enabled));
+        }
+        if (doc.custom_special_day) {
+          setAsstSpecialDay(doc.custom_special_day);
         }
         if (doc.sunday_start) {
           const sS = parse24to12(doc.sunday_start);
@@ -10569,20 +10618,40 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         </div>
                       </div>
 
-                      {/* Special Sunday Timings Card for Assistant */}
+                      {/* Special Day Schedule Card for Assistant */}
                       <div className={`p-4 rounded-2xl border transition-all ${asstCustomSundayEnabled
                         ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/60 shadow-2xs'
                         : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                         }`}>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                           <div className="flex items-center gap-2.5">
                             <span className="text-lg">⭐</span>
                             <div>
-                              <span className="font-bold block text-slate-900 dark:text-white text-xs">Sunday Special Schedule</span>
-                              <span className="text-[10px] text-slate-500 dark:text-slate-400">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-slate-900 dark:text-white text-xs">Special Day Schedule</span>
+                                <select
+                                  value={asstSpecialDay}
+                                  onChange={e => {
+                                    const nextDay = e.target.value;
+                                    setAsstSpecialDay(nextDay);
+                                    if (asstCustomSundayEnabled && asstOffDays.includes(nextDay)) {
+                                      setAsstOffDays(prev => prev.filter(d => d !== nextDay));
+                                    }
+                                  }}
+                                  className="text-xs font-bold px-2 py-0.5 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-800 text-purple-900 dark:text-purple-300 focus:outline-none cursor-pointer"
+                                  title="Choose which day of the week has custom consultation hours"
+                                >
+                                  {WEEKDAY_OPTIONS.map(d => (
+                                    <option key={d.id} value={d.id}>{d.label} Special</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                                Set dedicated hours for {asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} (e.g. Full Day 8:00 AM – 8:00 PM)
+                              </span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2.5 self-start sm:self-auto">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstCustomSundayEnabled
                               ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -10596,8 +10665,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 onChange={e => {
                                   const checked = e.target.checked;
                                   setAsstCustomSundayEnabled(checked);
-                                  if (checked && asstOffDays.includes('sunday')) {
-                                    setAsstOffDays(prev => prev.filter(d => d !== 'sunday'));
+                                  if (checked && asstOffDays.includes(asstSpecialDay)) {
+                                    setAsstOffDays(prev => prev.filter(d => d !== asstSpecialDay));
                                   }
                                 }}
                                 className="sr-only peer"
@@ -10611,7 +10680,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           <div className="space-y-2.5 pt-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <TimePickerDropdowns
-                                label="Sunday Start"
+                                label={`${asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} Start`}
                                 hour={asstSundayStartHour}
                                 minute={asstSundayStartMin}
                                 period={asstSundayStartPeriod}
@@ -10621,7 +10690,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               />
                               <div className="text-slate-400 font-bold text-xs pt-4">➔</div>
                               <TimePickerDropdowns
-                                label="Sunday End"
+                                label={`${asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} End`}
                                 hour={asstSundayEndHour}
                                 minute={asstSundayEndMin}
                                 period={asstSundayEndPeriod}
@@ -10631,13 +10700,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               />
                             </div>
                             <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
-                              <span>Sunday Window: <strong className="text-purple-900 dark:text-purple-300">{asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}</strong></span>
+                              <span>{asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} Window: <strong className="text-purple-900 dark:text-purple-300">{asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}</strong></span>
                               <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">({format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod)} – {format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod)})</span>
                             </div>
                           </div>
                         ) : (
                           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Enable to set separate Sunday consultation hours while Monday–Saturday follows your weekday shift above.
+                            Enable to set separate consultation hours for {asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} while remaining days follow your standard shift above.
                           </p>
                         )}
                       </div>
@@ -10817,7 +10886,69 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       As an authorized assistant for <strong className="text-slate-900 dark:text-white">{currentDoctor?.doctor_name}</strong>, you have full authority to adjust shift timings, build slots, and block/unblock individual appointment times.
                     </p>
                     <div className="p-3 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 rounded-xl text-[11px] text-slate-600 dark:text-slate-300">
-                      <strong className="text-slate-900 dark:text-white">Note:</strong> Full-day Blackouts / Emergency Leaves are exclusively managed by the Doctor directly in the Doctor Portal.
+                      <strong className="text-slate-900 dark:text-white">✓ Full Authority:</strong> You can manage shift hours, configure special days, remove individual slots, and apply or lift clinic blackout dates for this doctor.
+                    </div>
+                  </div>
+
+                  {/* Clinic Blackout Date & Leave Manager for Assistant */}
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Clinic Blackout &amp; Leave Date</h4>
+                        <p className="text-[11px] text-slate-400">Apply or lift emergency clinic closure on any date.</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 block mb-1">Closure Date</label>
+                        <input
+                          type="date"
+                          value={asstBlackoutDate}
+                          onChange={e => setAsstBlackoutDate(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 block mb-1">Reason / Note</label>
+                        <input
+                          type="text"
+                          value={asstBlackoutReason}
+                          onChange={e => setAsstBlackoutReason(e.target.value)}
+                          placeholder="e.g. Doctor emergency leave / Maintenance"
+                          className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      {asstBlackoutMsg && (
+                        <div className={`p-2.5 rounded-xl text-[11px] font-semibold border ${asstBlackoutMsg.startsWith('Error') ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300' : 'bg-clinic-50 dark:bg-teal-950/40 border-clinic-200 dark:border-teal-800 text-clinic-900 dark:text-teal-300'}`}>
+                          {asstBlackoutMsg}
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleAsstApplyBlackout}
+                          disabled={asstBlackoutLoading || !asstBlackoutDate}
+                          className="px-3 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                          title="Block all available slots on this date"
+                        >
+                          {asstBlackoutLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
+                          <span>Apply Blackout</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleAsstLiftBlackout}
+                          disabled={asstBlackoutLoading || !asstBlackoutDate}
+                          className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                          title="Restore all blocked slots on this date to available"
+                        >
+                          {asstBlackoutLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Unlock className="w-3.5 h-3.5" />}
+                          <span>Lift Blackout</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -11085,14 +11216,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         type="button"
                                         disabled={Boolean(asstSlotActionLoading)}
                                         onClick={() => handleDeleteSlot(slot.id)}
-                                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
-                                        title="Delete slot"
+                                        className="px-2 py-1 text-rose-700 hover:text-white hover:bg-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                                        title="Permanently remove this slot"
                                       >
                                         {asstSlotActionLoading?.id === slot.id && asstSlotActionLoading.action === 'delete' ? (
-                                          <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
+                                          <Loader2 className="w-3 h-3 animate-spin text-rose-600" />
                                         ) : (
-                                          <Trash2 className="w-3.5 h-3.5" />
+                                          <Trash2 className="w-3 h-3" />
                                         )}
+                                        <span>Remove</span>
                                       </button>
                                     )}
                                   </div>
@@ -11213,14 +11345,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   type="button"
                                   disabled={Boolean(asstSlotActionLoading)}
                                   onClick={() => handleDeleteSlot(slot.id)}
-                                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
-                                  title="Delete slot"
+                                  className="px-2 py-1 text-rose-700 hover:text-white hover:bg-rose-600 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                                  title="Permanently remove this slot"
                                 >
                                   {asstSlotActionLoading?.id === slot.id && asstSlotActionLoading.action === 'delete' ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
+                                    <Loader2 className="w-3 h-3 animate-spin text-rose-600" />
                                   ) : (
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-3 h-3" />
                                   )}
+                                  <span>Remove</span>
                                 </button>
                               )}
                             </div>
@@ -13140,6 +13273,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [eveningEndMin, setEveningEndMin] = useState('00');
   const [eveningEndPeriod, setEveningEndPeriod] = useState('PM');
   const [customSundayEnabled, setCustomSundayEnabled] = useState(false);
+  const [specialDay, setSpecialDay] = useState<string>('sunday');
   const [sundayStartHour, setSundayStartHour] = useState('08');
   const [sundayStartMin, setSundayStartMin] = useState('00');
   const [sundayStartPeriod, setSundayStartPeriod] = useState('AM');
@@ -13366,6 +13500,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             setEveningEndPeriod(ee.period);
 
             setCustomSundayEnabled(Boolean(profile.custom_sunday_enabled));
+            if (profile.custom_special_day) {
+              setSpecialDay(profile.custom_special_day);
+            }
             if (profile.sunday_start) {
               const ss = parse24to12(profile.sunday_start);
               setSundayStartHour(ss.hour);
@@ -13746,10 +13883,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           evening_start,
           evening_end,
           custom_sunday_enabled: customSundayEnabled,
+          custom_special_day: specialDay,
           sunday_start,
           sunday_end,
           replace_existing: true,
-          off_days: customSundayEnabled ? docOffDays.filter(d => d !== 'sunday') : docOffDays
+          off_days: customSundayEnabled ? docOffDays.filter(d => d !== specialDay) : docOffDays
         })
       });
       const shiftWindowDesc = selectedShift === 'MORNING'
@@ -13816,6 +13954,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           evening_start,
           evening_end,
           custom_sunday_enabled: customSundayEnabled,
+          custom_special_day: specialDay,
           sunday_start,
           sunday_end
         })
@@ -13854,6 +13993,25 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         headers: { Authorization: `Bearer ${token}` }
       });
       setBlackoutMsg(`✓ Blackout applied for ${blackoutDate}: ${res.slots_blocked || 0} slots blocked.`);
+      await loadDoctorData();
+      setTimeout(() => setBlackoutMsg(''), 5000);
+    } catch (err: any) {
+      setBlackoutMsg(`Error: ${err.message}`);
+    } finally {
+      setBlackoutLoading(false);
+    }
+  };
+
+  const handleLiftBlackout = async () => {
+    if (!blackoutDate) return;
+    try {
+      setBlackoutLoading(true);
+      setBlackoutMsg('Lifting blackout...');
+      const res: any = await apiFetch(`/doctor/blackout/lift?date=${blackoutDate}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setBlackoutMsg(`✓ Blackout lifted for ${blackoutDate}: ${res.slots_unblocked || 0} slots restored to available.`);
       await loadDoctorData();
       setTimeout(() => setBlackoutMsg(''), 5000);
     } catch (err: any) {
@@ -15182,20 +15340,40 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         </div>
                       </div>
 
-                      {/* Special Sunday Timings Card for Doctor */}
+                      {/* Special Day Schedule Card for Doctor */}
                       <div className={`p-4 rounded-2xl border transition-all ${customSundayEnabled
                         ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/60 shadow-2xs'
                         : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                         }`}>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                           <div className="flex items-center gap-2.5">
                             <span className="text-lg">⭐</span>
                             <div>
-                              <span className="font-bold block text-slate-900 dark:text-white text-xs">Sunday Special Schedule</span>
-                              <span className="text-[10px] text-slate-500 dark:text-slate-400">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-slate-900 dark:text-white text-xs">Special Day Schedule</span>
+                                <select
+                                  value={specialDay}
+                                  onChange={e => {
+                                    const nextDay = e.target.value;
+                                    setSpecialDay(nextDay);
+                                    if (customSundayEnabled && docOffDays.includes(nextDay)) {
+                                      setDocOffDays(prev => prev.filter(d => d !== nextDay));
+                                    }
+                                  }}
+                                  className="text-xs font-bold px-2 py-0.5 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-800 text-purple-900 dark:text-purple-300 focus:outline-none cursor-pointer"
+                                  title="Choose which day of the week has custom consultation hours"
+                                >
+                                  {WEEKDAY_OPTIONS.map(d => (
+                                    <option key={d.id} value={d.id}>{d.label} Special</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                                Set dedicated hours for {specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} (e.g. Full Day 8:00 AM – 8:00 PM)
+                              </span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2.5 self-start sm:self-auto">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${customSundayEnabled
                               ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -15209,8 +15387,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 onChange={e => {
                                   const checked = e.target.checked;
                                   setCustomSundayEnabled(checked);
-                                  if (checked && docOffDays.includes('sunday')) {
-                                    setDocOffDays(prev => prev.filter(d => d !== 'sunday'));
+                                  if (checked && docOffDays.includes(specialDay)) {
+                                    setDocOffDays(prev => prev.filter(d => d !== specialDay));
                                   }
                                 }}
                                 className="sr-only peer"
@@ -15224,7 +15402,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           <div className="space-y-2.5 pt-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <TimePickerDropdowns
-                                label="Sunday Start"
+                                label={`${specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} Start`}
                                 hour={sundayStartHour}
                                 minute={sundayStartMin}
                                 period={sundayStartPeriod}
@@ -15234,7 +15412,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               />
                               <div className="text-slate-400 font-bold text-xs pt-4">➔</div>
                               <TimePickerDropdowns
-                                label="Sunday End"
+                                label={`${specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} End`}
                                 hour={sundayEndHour}
                                 minute={sundayEndMin}
                                 period={sundayEndPeriod}
@@ -15244,13 +15422,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               />
                             </div>
                             <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
-                              <span>Sunday Window: <strong className="text-purple-900 dark:text-purple-300">{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong></span>
+                              <span>{specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} Window: <strong className="text-purple-900 dark:text-purple-300">{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong></span>
                               <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">({format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod)} – {format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod)})</span>
                             </div>
                           </div>
                         ) : (
                           <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Enable to set separate Sunday consultation hours while Monday–Saturday follows your weekday shift above.
+                            Enable to set separate consultation hours for {specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} while remaining days follow your standard shift above.
                           </p>
                         )}
                       </div>
@@ -15526,21 +15704,28 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </div>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={handleApplyBlackout}
-                      disabled={blackoutLoading}
-                      className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
-                    >
-                      {blackoutLoading ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Processing blackout...</span>
-                        </>
-                      ) : (
-                        <span>Apply blackout for {blackoutDate}</span>
-                      )}
-                    </button>
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleApplyBlackout}
+                        disabled={blackoutLoading || !blackoutDate}
+                        className="py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Block all available slots on this date"
+                      >
+                        {blackoutLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
+                        <span>Apply Blackout</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleLiftBlackout}
+                        disabled={blackoutLoading || !blackoutDate}
+                        className="py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Restore all blocked slots on this date to available"
+                      >
+                        {blackoutLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Unlock className="w-3.5 h-3.5" />}
+                        <span>Lift Blackout</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Summary of slot counts — Unified Neutral Tiles */}

@@ -74,6 +74,7 @@ async def get_doctor_profile(
         "custom_sunday_enabled": doctor.custom_sunday_enabled if doctor.custom_sunday_enabled is not None else False,
         "sunday_start": doctor.sunday_start or "08:00",
         "sunday_end": doctor.sunday_end or "20:00",
+        "custom_special_day": getattr(doctor, "custom_special_day", "sunday") or "sunday",
         "custom_day_schedule": doctor.custom_day_schedule,
         "loyalty_card_enabled": doctor.loyalty_card_enabled if doctor.loyalty_card_enabled is not None else False,
         "loyalty_card_title": doctor.loyalty_card_title or "RK Loyalty Card",
@@ -563,19 +564,15 @@ async def unblock_slot(
 @router.post("/blackout")
 async def blackout_date(
     date: str,  # YYYY-MM-DD
-    current_user: User = Depends(require_roles(["DOCTOR"])),
+    doctor_id: Optional[str] = Query(None),
+    current_user: User = Depends(require_roles(["DOCTOR", "ASSISTANT", "ADMIN"])),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Bulk Blackout: Blocks ALL available slots on a given date in one call.
-    For emergency leaves or clinic-wide closure days.
+    For emergency leaves or clinic-wide closure days. Accessible by Doctor and Assistant.
     """
-    from datetime import date as date_type
-    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
-    if not doc:
-        raise HTTPException(status_code=404, detail="Doctor profile not found.")
-
-
+    doc = await resolve_target_doctor(current_user, doctor_id, db)
 
     try:
         target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -610,6 +607,51 @@ async def blackout_date(
         "message": f"All {blocked_count} available slots on {date} have been blocked."
     }
 
+
+@router.post("/blackout/lift")
+async def lift_blackout_date(
+    date: str,  # YYYY-MM-DD
+    doctor_id: Optional[str] = Query(None),
+    current_user: User = Depends(require_roles(["DOCTOR", "ASSISTANT", "ADMIN"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Lift Blackout: Unblocks all 'blocked' slots on a given date, restoring them to 'available'.
+    """
+    doc = await resolve_target_doctor(current_user, doctor_id, db)
+
+    try:
+        target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+
+    next_day = target_date + timedelta(days=1)
+    slots_result = await db.execute(
+        select(DoctorSlot).where(
+            and_(
+                DoctorSlot.doctor_id == doc.id,
+                DoctorSlot.start_time >= target_date,
+                DoctorSlot.start_time < next_day,
+                DoctorSlot.status == "blocked"
+            )
+        )
+    )
+    slots = slots_result.scalars().all()
+    unblocked_count = 0
+    for slot in slots:
+        slot.status = "available"
+        unblocked_count += 1
+
+    await db.commit()
+    await redis_manager.clear_cache_pattern("doctors:*")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
+    return {
+        "status": "SUCCESS",
+        "date": date,
+        "slots_unblocked": unblocked_count,
+        "message": f"All {unblocked_count} blocked slots on {date} have been restored to available."
+    }
+
 # --- 3. Schedule & Slot Generation ---
 from pydantic import BaseModel as PydanticBase
 
@@ -631,6 +673,10 @@ class SlotGenerateRequest(PydanticBase):
     custom_sunday_enabled: Optional[bool] = None
     sunday_start: Optional[str] = None
     sunday_end: Optional[str] = None
+    custom_special_day: Optional[str] = None
+    custom_day_enabled: Optional[bool] = None
+    custom_day_start: Optional[str] = None
+    custom_day_end: Optional[str] = None
     custom_day_schedule: Optional[str] = None
 
 @router.post("/slots/generate")
@@ -688,18 +734,27 @@ async def generate_slots(
     if payload.evening_end:
         doc.evening_end = payload.evening_end
 
-    custom_sun_active = payload.custom_sunday_enabled if payload.custom_sunday_enabled is not None else (doc.custom_sunday_enabled or False)
-    if payload.custom_sunday_enabled is not None:
-        doc.custom_sunday_enabled = payload.custom_sunday_enabled
-    if payload.sunday_start:
-        doc.sunday_start = payload.sunday_start
-    if payload.sunday_end:
-        doc.sunday_end = payload.sunday_end
+    special_day = (payload.custom_special_day or getattr(doc, 'custom_special_day', None) or 'sunday').strip().lower()
+    custom_special_active = payload.custom_sunday_enabled if payload.custom_sunday_enabled is not None else (doc.custom_sunday_enabled or False)
+    if payload.custom_day_enabled is not None:
+        custom_special_active = payload.custom_day_enabled
+    
+    if payload.custom_sunday_enabled is not None or payload.custom_day_enabled is not None:
+        doc.custom_sunday_enabled = custom_special_active
+    
+    special_start_time = payload.custom_day_start or payload.sunday_start
+    if special_start_time:
+        doc.sunday_start = special_start_time
+    special_end_time = payload.custom_day_end or payload.sunday_end
+    if special_end_time:
+        doc.sunday_end = special_end_time
+
+    doc.custom_special_day = special_day
     if payload.custom_day_schedule:
         doc.custom_day_schedule = payload.custom_day_schedule
 
-    if custom_sun_active and "sunday" in selected_off_days:
-        selected_off_days = [d for d in selected_off_days if d != "sunday"]
+    if custom_special_active and special_day in selected_off_days:
+        selected_off_days = [d for d in selected_off_days if d != special_day]
         doc.off_days = ",".join(selected_off_days)
 
     range_start_utc = base_dt.astimezone(timezone.utc)
@@ -797,9 +852,9 @@ async def generate_slots(
             continue
 
         day_windows = windows
-        if day_name == "sunday" and custom_sun_active:
-            s_start = payload.sunday_start or doc.sunday_start or "08:00"
-            s_end   = payload.sunday_end   or doc.sunday_end   or "20:00"
+        if day_name == special_day and custom_special_active:
+            s_start = special_start_time or doc.sunday_start or "08:00"
+            s_end   = special_end_time   or doc.sunday_end   or "20:00"
             ssh, ssm = parse_hm(s_start)
             seh, sem = parse_hm(s_end)
             if (ssh * 60 + ssm) < (seh * 60 + sem):
@@ -1019,6 +1074,10 @@ class ShiftHoursUpdateRequest(PydanticBase):
     custom_sunday_enabled: Optional[bool] = None
     sunday_start: Optional[str] = None
     sunday_end: Optional[str] = None
+    custom_special_day: Optional[str] = None
+    custom_day_enabled: Optional[bool] = None
+    custom_day_start: Optional[str] = None
+    custom_day_end: Optional[str] = None
     custom_day_schedule: Optional[str] = None
 
 @router.put("/shift-hours")
@@ -1041,15 +1100,24 @@ async def update_shift_hours(
         doc.evening_end = payload.evening_end
     if payload.custom_sunday_enabled is not None:
         doc.custom_sunday_enabled = payload.custom_sunday_enabled
+    if payload.custom_day_enabled is not None:
+        doc.custom_sunday_enabled = payload.custom_day_enabled
     if payload.sunday_start:
         doc.sunday_start = payload.sunday_start
+    if payload.custom_day_start:
+        doc.sunday_start = payload.custom_day_start
     if payload.sunday_end:
         doc.sunday_end = payload.sunday_end
+    if payload.custom_day_end:
+        doc.sunday_end = payload.custom_day_end
+    if payload.custom_special_day:
+        doc.custom_special_day = payload.custom_special_day.strip().lower()
     if payload.custom_day_schedule:
         doc.custom_day_schedule = payload.custom_day_schedule
 
+    sp_day = getattr(doc, 'custom_special_day', 'sunday') or 'sunday'
     if doc.custom_sunday_enabled and doc.off_days:
-        current_offs = [d.strip() for d in doc.off_days.split(',') if d.strip().lower() != 'sunday']
+        current_offs = [d.strip() for d in doc.off_days.split(',') if d.strip().lower() != sp_day.lower()]
         doc.off_days = ','.join(current_offs)
     await db.commit()
     await db.refresh(doc)
@@ -1063,7 +1131,8 @@ async def update_shift_hours(
         "evening_end": doc.evening_end,
         "custom_sunday_enabled": doc.custom_sunday_enabled,
         "sunday_start": doc.sunday_start,
-        "sunday_end": doc.sunday_end
+        "sunday_end": doc.sunday_end,
+        "custom_special_day": getattr(doc, 'custom_special_day', 'sunday') or 'sunday'
     }
 
 
@@ -1591,5 +1660,6 @@ async def update_doctor_profile(
         "custom_sunday_enabled": doc.custom_sunday_enabled if doc.custom_sunday_enabled is not None else False,
         "sunday_start": doc.sunday_start or "08:00",
         "sunday_end": doc.sunday_end or "20:00",
+        "custom_special_day": getattr(doc, "custom_special_day", "sunday") or "sunday",
         "custom_day_schedule": doc.custom_day_schedule
     }

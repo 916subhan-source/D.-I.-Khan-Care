@@ -13521,7 +13521,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         ? `Showing appointments scheduled in current month (${monthPrefix})`
         : includeArchived
           ? `Showing all ${totalAllCount} booked and requested appointments for your clinic (including past history)`
-          : `Showing ${displayAppts.length} active and upcoming appointments (past history hidden)`;
+          : `Showing ${displayAppts.length} active and upcoming appointments`;
 
   const todayStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Karachi', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const doctorName = doctorProfile?.full_name || 'Doctor';
@@ -14363,18 +14363,21 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
               {/* Clinic agenda table with REAL appointment data & working action buttons */}
               <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-card">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-b from-slate-50/70 to-white dark:from-slate-900 dark:to-slate-900">
-                  <div>
-                    <h3 className="font-extrabold text-slate-900 dark:text-white text-lg tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                      {agendaTitle}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-gradient-to-b from-slate-50/70 to-white dark:from-slate-900 dark:to-slate-900">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        {agendaTitle}
+                      </h3>
+                      <span className="text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800 whitespace-nowrap inline-flex items-center gap-1.5 shrink-0 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                        <span>{displayAppts.length} {displayAppts.length === 1 ? 'appointment' : 'appointments'}</span>
+                      </span>
+                    </div>
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
                       {agendaSubtitle} &middot; Real-time queue
                     </p>
                   </div>
-                  <span className="text-xs font-bold px-3.5 py-1.5 rounded-full border bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800">
-                    {displayAppts.length} appointments
-                  </span>
                 </div>
 
                 {/* Filter Toolbar: Search Bar + Status Chips */}

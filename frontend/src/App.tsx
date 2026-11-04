@@ -9392,17 +9392,35 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {/* Header heading */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                {formatDoctorName(currentDoctor?.doctor_name)} &mdash; Reception Desk
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Reception Desk
+                </span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {currentDoctor?.specialty}
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                {formatDoctorName(currentDoctor?.doctor_name)}
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                {currentDoctor?.specialty} &bull; {currentDoctor?.clinic_address} &bull; Shift: {currentDoctor?.shift} &bull; Weekly Off: <span className="font-bold text-rose-700 capitalize">{currentDoctor?.off_days ? currentDoctor.off_days.split(',').join(', ') : 'Sunday'}</span>
-              </p>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <span className="truncate max-w-[200px]">{currentDoctor?.clinic_address}</span>
+                <span className="text-slate-300 dark:text-slate-600">&bull;</span>
+                <span>Shift: <strong className="text-slate-700 dark:text-slate-200 font-semibold">{currentDoctor?.shift}</strong></span>
+                <span className="text-slate-300 dark:text-slate-600">&bull;</span>
+                <span className="inline-flex items-center gap-1">
+                  <span>Off:</span>
+                  <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-[11px] capitalize">
+                    {currentDoctor?.off_days ? currentDoctor.off_days.split(',').join(', ') : 'Sunday'}
+                  </span>
+                </span>
+              </div>
             </div>
             <button
               onClick={() => fetchQueue(selectedDoctorId)}
               disabled={loading}
-              className="self-start sm:self-auto px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
+              className="self-start sm:self-auto px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Refreshing Queue...' : 'Refresh Queue'}</span>

@@ -5283,7 +5283,7 @@ function DoctorProfileAndBookingView({
                       <div className="mt-3 bg-amber-50/80 dark:bg-slate-900 border border-amber-200 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 animate-fade-in shadow-2xs">
                         <div 
                           onClick={() => doctor.loyalty_card_image_url && setExpandedLoyaltyCardImage(doctor.loyalty_card_image_url)}
-                          className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-slate-950 border border-amber-200 dark:border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center cursor-pointer group relative"
+                          className="w-full sm:w-36 aspect-[16/10] sm:aspect-[1.586/1] rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100/90 dark:bg-slate-950 border border-amber-200 dark:border-slate-700 shadow-xs flex-shrink-0 flex items-center justify-center cursor-pointer group relative"
                           title="Click to view full screen"
                         >
                           {doctor.loyalty_card_image_url ? (
@@ -5291,7 +5291,7 @@ function DoctorProfileAndBookingView({
                               <img
                                 src={doctor.loyalty_card_image_url}
                                 alt={doctor.loyalty_card_title || 'VIP Loyalty Card'}
-                                className="w-full h-full object-contain bg-slate-950 transition-transform duration-300 group-hover:scale-105"
+                                className="w-full h-full object-contain bg-transparent transition-transform duration-300 group-hover:scale-105"
                               />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-white text-[10px] font-bold">
                                 <Maximize2 className="w-3.5 h-3.5" /> Fullscreen
@@ -5769,14 +5769,14 @@ function DoctorProfileAndBookingView({
             {devCode && (
               <div
                 onClick={() => handleFillCode(devCode)}
-                className="mb-5 bg-slate-900 text-white p-3.5 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-slate-800 transition shadow-md group"
+                className="mb-5 bg-emerald-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-emerald-200 dark:border-slate-700 p-3.5 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-100/80 dark:hover:bg-slate-750 transition shadow-xs group"
                 title="Click to auto-fill code"
               >
                 <div>
-                  <span className="text-[#0f766e] text-[10px] font-bold block uppercase tracking-wider">DEMO VERIFICATION CODE</span>
-                  <span className="text-base font-black font-mono tracking-widest text-emerald-400">{devCode}</span>
+                  <span className="text-emerald-800 dark:text-emerald-400 text-[10px] font-bold block uppercase tracking-wider">DEMO VERIFICATION CODE</span>
+                  <span className="text-base font-black font-mono tracking-widest text-emerald-700 dark:text-emerald-400">{devCode}</span>
                 </div>
-                <span className="text-[11px] bg-slate-800 group-hover:bg-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-semibold">
+                <span className="text-[11px] bg-white dark:bg-slate-700 group-hover:bg-emerald-600 group-hover:text-white px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 font-semibold border border-emerald-200 dark:border-transparent transition-colors">
                   Auto-fill →
                 </span>
               </div>
@@ -7406,8 +7406,8 @@ function PatientSection({
                     }
                   }}
                   className={`px-3 py-1 rounded-full font-medium whitespace-nowrap transition-all shadow-2xs cursor-pointer ${isActive
-                    ? 'bg-slate-800 text-white shadow-xs font-semibold'
-                    : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80 border border-slate-200/60'
+                    ? 'bg-emerald-600 dark:bg-emerald-600 text-white shadow-xs font-bold border border-emerald-600'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700'
                     }`}
                 >
                   {chip.label}

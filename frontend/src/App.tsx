@@ -3116,7 +3116,7 @@ function DoctorProfileModal({
                     <img src={doctor.loyalty_card_image_url} alt="Loyalty Card" className="w-10 h-7 object-cover rounded-md border border-amber-400/60" />
                     <div>
                       <div className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">{doctor.loyalty_card_title || 'VIP Loyalty Card'}</div>
-                      <div className="text-[11px] font-extrabold text-white">{Number(doctor.loyalty_discount_percent ?? 20)}% Fee Discount</div>
+                      <div className="text-[11px] font-extrabold text-white">{Number(doctor.loyalty_discount_percent ?? 10)}% Fee Discount</div>
                     </div>
                   </div>
                 )}
@@ -4257,7 +4257,7 @@ function DoctorProfileAndBookingView({
 
       // Set confirmed slip details with real slip from backend
       const slipNum = verifyRes.slip_number || `DIK-${doctor.specialty.slice(0, 4).toUpperCase()}-20261012-004-18`;
-      const discPct = Number(doctor.loyalty_discount_percent ?? 20);
+      const discPct = Number(doctor.loyalty_discount_percent ?? 10);
       const isLoyaltyValid = Boolean(doctor.loyalty_card_enabled) && applyLoyaltyCard;
       const finalCalculatedFee = isLoyaltyValid
         ? Math.round(Number(doctor.fee_clinic || 1000) * (1 - discPct / 100))
@@ -4633,7 +4633,7 @@ function DoctorProfileAndBookingView({
                             {doctor.loyalty_card_title || 'VIP Loyalty Card'}
                           </h4>
                           <p className="text-xs text-amber-600 dark:text-amber-400 font-bold">
-                            Save {Number(doctor.loyalty_discount_percent ?? 20)}% on Consultations
+                            Save {Number(doctor.loyalty_discount_percent ?? 10)}% on Consultations
                           </p>
                         </div>
                       </div>
@@ -4910,7 +4910,7 @@ function DoctorProfileAndBookingView({
                       </span>
                       {Boolean(doctor.loyalty_card_enabled) && (
                         <span className="text-[10px] text-amber-950 font-black bg-amber-300 px-1.5 py-0.2 rounded">
-                          {Number(doctor.loyalty_discount_percent ?? 20)}% OFF VIP
+                          {Number(doctor.loyalty_discount_percent ?? 10)}% OFF VIP
                         </span>
                       )}
                     </div>
@@ -4943,7 +4943,7 @@ function DoctorProfileAndBookingView({
                   </div>
                   {Boolean(doctor.loyalty_card_enabled) && (
                     <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
-                      Save {Number(doctor.loyalty_discount_percent ?? 20)}% with VIP Card
+                      Save {Number(doctor.loyalty_discount_percent ?? 10)}% with VIP Card
                     </span>
                   )}
                 </div>
@@ -5323,11 +5323,11 @@ function DoctorProfileAndBookingView({
                             ? 'text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30'
                             : 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80'
                             }`}>
-                            {Number(doctor.loyalty_discount_percent ?? 20)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
+                            {Number(doctor.loyalty_discount_percent ?? 10)}% OFF &bull; {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 10) / 100)))}
                           </span>
                         </div>
                         <p className={`text-[11px] mt-1.5 font-medium ${applyLoyaltyCard ? 'text-amber-900 dark:text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                          Save {Number(doctor.loyalty_discount_percent ?? 20)}% on every visit &bull; Free VIP card issued at clinic reception
+                          Save {Number(doctor.loyalty_discount_percent ?? 10)}% on every visit &bull; Free VIP card issued at clinic reception
                         </p>
                       </div>
                     </div>
@@ -5362,7 +5362,7 @@ function DoctorProfileAndBookingView({
                           <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
                             <span className="font-bold text-xs text-slate-900 dark:text-white">{doctor.loyalty_card_title || 'VIP Loyalty Card'}</span>
                             <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 font-semibold text-[10px] px-2 py-0.5 rounded-full font-mono">
-                              {Number(doctor.loyalty_discount_percent ?? 20)}% OFF CONSULTATION
+                              {Number(doctor.loyalty_discount_percent ?? 10)}% OFF CONSULTATION
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug font-medium">
@@ -5701,8 +5701,8 @@ function DoctorProfileAndBookingView({
                         <span className="line-through font-mono">{formatCurrency(doctor.fee_clinic)}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs font-bold text-emerald-700">
-                        <span>VIP Golden Loyalty Discount ({Number(doctor.loyalty_discount_percent ?? 20)}% OFF):</span>
-                        <span className="font-mono">-{formatCurrency(Math.round(doctor.fee_clinic * (Number(doctor.loyalty_discount_percent ?? 20) / 100)))}</span>
+                        <span>VIP Golden Loyalty Discount ({Number(doctor.loyalty_discount_percent ?? 10)}% OFF):</span>
+                        <span className="font-mono">-{formatCurrency(Math.round(doctor.fee_clinic * (Number(doctor.loyalty_discount_percent ?? 10) / 100)))}</span>
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-amber-200/80 gap-3">
                         <div className="min-w-0">
@@ -5710,7 +5710,7 @@ function DoctorProfileAndBookingView({
                           <p className="text-[10px] text-amber-800 dark:text-amber-300">Collect physical VIP Card from reception upon arrival</p>
                         </div>
                         <span className="text-xl sm:text-2xl font-black text-amber-950 dark:text-amber-200 font-mono whitespace-nowrap flex-shrink-0 text-right">
-                          {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 20) / 100)))}
+                          {formatCurrency(Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 10) / 100)))}
                         </span>
                       </div>
                     </div>
@@ -6039,7 +6039,7 @@ function DoctorProfileAndBookingView({
                   {doctor.loyalty_card_title || 'VIP Golden Loyalty Card'}
                 </h4>
                 <p className="text-[11px] text-amber-300 font-medium">
-                  {Number(doctor.loyalty_discount_percent ?? 20)}% Consultation Discount &bull; {doctor.full_name}
+                  {Number(doctor.loyalty_discount_percent ?? 10)}% Consultation Discount &bull; {doctor.full_name}
                 </p>
               </div>
             </div>
@@ -13108,7 +13108,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     </div>
                     <div className="flex items-center justify-between font-bold text-emerald-700">
                       <span>VIP Golden Loyalty Discount:</span>
-                      <span className="font-mono">-{formatCurrency(selectedLoyaltyAppt.loyalty_discount_amount || Math.round((currentDoctor?.fee_clinic || 1000) * 0.2))}</span>
+                      <span className="font-mono">-{formatCurrency(selectedLoyaltyAppt.loyalty_discount_amount || Math.round((currentDoctor?.fee_clinic || 1000) * 0.1))}</span>
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-amber-300 font-black text-amber-950 text-sm">
                       <span>Discounted Fee Payable at Desk:</span>
@@ -16199,7 +16199,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             body: JSON.stringify({
                               loyalty_card_enabled: newStatus,
                               loyalty_card_title: doctorProfile?.loyalty_card_title || 'VIP Loyalty Card',
-                              loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 20.0
+                              loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 10.0
                             })
                           });
                           setDoctorProfile((prev: any) => ({ ...prev, loyalty_card_enabled: newStatus }));
@@ -16213,7 +16213,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                         }`}
                     >
-                      {doctorProfile?.loyalty_card_enabled ? `✓ Program Active (${doctorProfile?.loyalty_discount_percent ?? 20}% OFF)` : '✕ Program Inactive (Hidden)'}
+                      {doctorProfile?.loyalty_card_enabled ? `✓ Program Active (${doctorProfile?.loyalty_discount_percent ?? 10}% OFF)` : '✕ Program Inactive (Hidden)'}
                     </button>
                   </div>
                 </div>
@@ -16297,7 +16297,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             min="1"
                             max="99"
                             step="0.5"
-                            value={doctorProfile?.loyalty_discount_percent ?? 20}
+                            value={doctorProfile?.loyalty_discount_percent ?? 10}
                             onChange={(e) => setDoctorProfile((prev: any) => ({ ...prev, loyalty_discount_percent: parseFloat(e.target.value) || 0 }))}
                             className="w-24 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-600/50 bg-white dark:bg-slate-800 text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
                           />
@@ -16310,7 +16310,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   body: JSON.stringify({
                                     loyalty_card_enabled: Boolean(doctorProfile?.loyalty_card_enabled),
                                     loyalty_card_title: doctorProfile?.loyalty_card_title || 'VIP Loyalty Card',
-                                    loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 20.0
+                                    loyalty_discount_percent: doctorProfile?.loyalty_discount_percent ?? 10.0
                                   })
                                 });
                                 alert(`Loyalty settings saved! Consultation discount updated to ${doctorProfile?.loyalty_discount_percent}% OFF.`);

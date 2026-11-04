@@ -57,12 +57,13 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass  # Column already exists — safe to ignore
 
-        # Loyalty VIP Card schema migrations
+        # Loyalty VIP Card and Special Day schema migrations
         loyalty_cols_doc = [
             ("loyalty_card_enabled", "BOOLEAN DEFAULT FALSE"),
             ("loyalty_card_title", "VARCHAR(120) DEFAULT 'VIP Loyalty Card'"),
             ("loyalty_card_image_url", "VARCHAR(500)"),
-            ("loyalty_discount_percent", "NUMERIC(5,2) DEFAULT 20.00")
+            ("loyalty_discount_percent", "NUMERIC(5,2) DEFAULT 10.00"),
+            ("custom_special_day", "VARCHAR(20) DEFAULT 'sunday'")
         ]
         for col_name, col_def in loyalty_cols_doc:
             try:

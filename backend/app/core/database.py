@@ -51,6 +51,8 @@ else:
     connect_args = {}
     if "asyncpg" in db_url:
         connect_args["statement_cache_size"] = 0
+        connect_args["timeout"] = 15
+        connect_args["command_timeout"] = 30
 
     if is_serverless:
         from sqlalchemy.pool import NullPool
@@ -86,9 +88,12 @@ class Base(DeclarativeBase):
     pass
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """Dependency for obtaining an asynchronous DB session."""
+    """Dependency for obtaining an asynchronous DB session with automatic rollback on error."""
     async with AsyncSessionLocal() as session:
         try:
             yield session
+        except Exception:
+            await session.rollback()
+            raise
         finally:
             await session.close()

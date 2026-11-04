@@ -92,6 +92,10 @@ interface DoctorData {
   services_offered?: string;
   conditions_treated?: string;
   hospital_affiliations?: string;
+  custom_sunday_enabled?: boolean;
+  sunday_start?: string;
+  sunday_end?: string;
+  custom_day_schedule?: string;
   profile_image?: string;
   off_days?: string;
   expertise?: string;
@@ -4731,8 +4735,13 @@ function DoctorProfileAndBookingView({
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
                           const docOffDays = (doctor.off_days || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
                           const isOffDay = docOffDays.includes(day.toLowerCase());
+                          const isSundaySpecial = day === 'Sunday' && Boolean(doctor.custom_sunday_enabled);
                           let timeText = '';
-                          if (isOffDay) {
+                          if (isSundaySpecial) {
+                            const sStart = format24to12String(doctor.sunday_start || '08:00');
+                            const sEnd = format24to12String(doctor.sunday_end || '20:00');
+                            timeText = `${sStart} - ${sEnd} (Special Sunday Full Day Clinic)`;
+                          } else if (isOffDay) {
                             timeText = '11:00 AM - 02:00 PM (Emergency)';
                           } else if (doctor.shift === 'BOTH') {
                             const mStart = format24to12String(doctor.morning_start || '09:00');
@@ -4750,12 +4759,15 @@ function DoctorProfileAndBookingView({
                             timeText = `${mStart} - ${mEnd}`;
                           }
                           return (
-                            <tr key={idx} className={isOffDay ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
-                              <td className="p-3.5 font-bold text-slate-900 dark:text-white">{day}</td>
-                              <td className="p-3.5 font-semibold text-emerald-700 dark:text-emerald-400">{timeText}</td>
+                            <tr key={idx} className={isSundaySpecial ? 'bg-purple-50/50 dark:bg-purple-950/20' : isOffDay ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
+                              <td className="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <span>{day}</span>
+                                {isSundaySpecial && <span className="px-1.5 py-0.2 rounded text-[9px] bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-extrabold uppercase">Full Day</span>}
+                              </td>
+                              <td className={`p-3.5 font-semibold ${isSundaySpecial ? 'text-purple-800 dark:text-purple-300 font-bold' : 'text-emerald-700 dark:text-emerald-400'}`}>{timeText}</td>
                               <td className="p-3.5">
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isOffDay ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
-                                  {isOffDay ? 'On-Call' : 'Available'}
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSundaySpecial ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300' : isOffDay ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
+                                  {isSundaySpecial ? 'Special Sunday' : isOffDay ? 'On-Call' : 'Available'}
                                 </span>
                               </td>
                             </tr>
@@ -8180,6 +8192,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [asstEveningEndHour, setAsstEveningEndHour] = useState('09');
   const [asstEveningEndMin, setAsstEveningEndMin] = useState('00');
   const [asstEveningEndPeriod, setAsstEveningEndPeriod] = useState('PM');
+  const [asstCustomSundayEnabled, setAsstCustomSundayEnabled] = useState(false);
+  const [asstSundayStartHour, setAsstSundayStartHour] = useState('08');
+  const [asstSundayStartMin, setAsstSundayStartMin] = useState('00');
+  const [asstSundayStartPeriod, setAsstSundayStartPeriod] = useState('AM');
+  const [asstSundayEndHour, setAsstSundayEndHour] = useState('08');
+  const [asstSundayEndMin, setAsstSundayEndMin] = useState('00');
+  const [asstSundayEndPeriod, setAsstSundayEndPeriod] = useState('PM');
 
   const [asstShiftMsg, setAsstShiftMsg] = useState('');
   const [asstSavingShift, setAsstSavingShift] = useState(false);
@@ -8257,6 +8276,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       const morning_end = format12to24(asstMorningEndHour, asstMorningEndMin, asstMorningEndPeriod);
       const evening_start = format12to24(asstEveningStartHour, asstEveningStartMin, asstEveningStartPeriod);
       const evening_end = format12to24(asstEveningEndHour, asstEveningEndMin, asstEveningEndPeriod);
+      const sunday_start = format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod);
+      const sunday_end = format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod);
 
       await apiFetch('/doctor/shift-hours', {
         method: 'PUT',
@@ -8266,7 +8287,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           morning_start,
           morning_end,
           evening_start,
-          evening_end
+          evening_end,
+          custom_sunday_enabled: asstCustomSundayEnabled,
+          sunday_start,
+          sunday_end
         })
       });
       setAsstShiftMsg('✓ Operating shift hours saved for this clinic!');
@@ -8288,6 +8312,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       const evening_start = format12to24(asstEveningStartHour, asstEveningStartMin, asstEveningStartPeriod);
       const evening_end = format12to24(asstEveningEndHour, asstEveningEndMin, asstEveningEndPeriod);
 
+      const sunday_start = format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod);
+      const sunday_end = format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod);
       const res: any = await apiFetch('/doctor/slots/generate', {
         method: 'POST',
         body: JSON.stringify({
@@ -8301,7 +8327,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           morning_end,
           evening_start,
           evening_end,
-          off_days: asstOffDays
+          custom_sunday_enabled: asstCustomSundayEnabled,
+          sunday_start,
+          sunday_end,
+          off_days: asstCustomSundayEnabled ? asstOffDays.filter(d => d !== 'sunday') : asstOffDays
         })
       });
       setAsstGenMsg(res.message || `✓ Generated slots successfully!`);
@@ -8595,6 +8624,21 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           setAsstEveningEndHour(eE.hour);
           setAsstEveningEndMin(eE.minute);
           setAsstEveningEndPeriod(eE.period);
+        }
+        if (doc.custom_sunday_enabled !== undefined) {
+          setAsstCustomSundayEnabled(Boolean(doc.custom_sunday_enabled));
+        }
+        if (doc.sunday_start) {
+          const sS = parse24to12(doc.sunday_start);
+          setAsstSundayStartHour(sS.hour);
+          setAsstSundayStartMin(sS.minute);
+          setAsstSundayStartPeriod(sS.period);
+        }
+        if (doc.sunday_end) {
+          const sE = parse24to12(doc.sunday_end);
+          setAsstSundayEndHour(sE.hour);
+          setAsstSundayEndMin(sE.minute);
+          setAsstSundayEndPeriod(sE.period);
         }
       }
     }
@@ -10530,6 +10574,79 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             <span className="text-[10px] text-indigo-800 font-mono">({format12to24(asstEveningStartHour, asstEveningStartMin, asstEveningStartPeriod)} – {format12to24(asstEveningEndHour, asstEveningEndMin, asstEveningEndPeriod)})</span>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Special Sunday Timings Card for Assistant */}
+                      <div className={`p-4 rounded-2xl border transition-all ${asstCustomSundayEnabled
+                        ? 'bg-purple-50/70 border-purple-200 shadow-2xs'
+                        : 'bg-slate-50/70 border-slate-200'
+                        }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">⭐</span>
+                            <div>
+                              <span className="font-bold block text-slate-900 text-xs">Sunday Special Schedule</span>
+                              <span className="text-[10px] text-slate-500">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstCustomSundayEnabled
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-slate-200 text-slate-600'
+                              }`}>
+                              {asstCustomSundayEnabled ? 'Active Full Day' : 'Inactive'}
+                            </span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={asstCustomSundayEnabled}
+                                onChange={e => {
+                                  const checked = e.target.checked;
+                                  setAsstCustomSundayEnabled(checked);
+                                  if (checked && asstOffDays.includes('sunday')) {
+                                    setAsstOffDays(prev => prev.filter(d => d !== 'sunday'));
+                                  }
+                                }}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                          </div>
+                        </div>
+
+                        {asstCustomSundayEnabled ? (
+                          <div className="space-y-2.5 pt-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <TimePickerDropdowns
+                                label="Sunday Start"
+                                hour={asstSundayStartHour}
+                                minute={asstSundayStartMin}
+                                period={asstSundayStartPeriod}
+                                onHourChange={setAsstSundayStartHour}
+                                onMinuteChange={setAsstSundayStartMin}
+                                onPeriodChange={setAsstSundayStartPeriod}
+                              />
+                              <div className="text-slate-400 font-bold text-xs pt-4">➔</div>
+                              <TimePickerDropdowns
+                                label="Sunday End"
+                                hour={asstSundayEndHour}
+                                minute={asstSundayEndMin}
+                                period={asstSundayEndPeriod}
+                                onHourChange={setAsstSundayEndHour}
+                                onMinuteChange={setAsstSundayEndMin}
+                                onPeriodChange={setAsstSundayEndPeriod}
+                              />
+                            </div>
+                            <div className="pt-2 border-t border-purple-100/80 flex items-center justify-between text-[11px] text-slate-600">
+                              <span>Sunday Window: <strong className="text-purple-900">{asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}</strong></span>
+                              <span className="text-[10px] text-purple-800 font-mono">({format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod)} – {format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod)})</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-slate-500">
+                            Enable to set separate Sunday consultation hours while Monday–Saturday follows your weekday shift above.
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -13010,6 +13127,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [eveningEndHour, setEveningEndHour] = useState('09');
   const [eveningEndMin, setEveningEndMin] = useState('00');
   const [eveningEndPeriod, setEveningEndPeriod] = useState('PM');
+  const [customSundayEnabled, setCustomSundayEnabled] = useState(false);
+  const [sundayStartHour, setSundayStartHour] = useState('08');
+  const [sundayStartMin, setSundayStartMin] = useState('00');
+  const [sundayStartPeriod, setSundayStartPeriod] = useState('AM');
+  const [sundayEndHour, setSundayEndHour] = useState('08');
+  const [sundayEndMin, setSundayEndMin] = useState('00');
+  const [sundayEndPeriod, setSundayEndPeriod] = useState('PM');
 
   // Assistant management state
   const [showAddAsstModal, setShowAddAsstModal] = useState(false);
@@ -13228,6 +13352,20 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             setEveningEndHour(ee.hour);
             setEveningEndMin(ee.minute);
             setEveningEndPeriod(ee.period);
+
+            setCustomSundayEnabled(Boolean(profile.custom_sunday_enabled));
+            if (profile.sunday_start) {
+              const ss = parse24to12(profile.sunday_start);
+              setSundayStartHour(ss.hour);
+              setSundayStartMin(ss.minute);
+              setSundayStartPeriod(ss.period);
+            }
+            if (profile.sunday_end) {
+              const se = parse24to12(profile.sunday_end);
+              setSundayEndHour(se.hour);
+              setSundayEndMin(se.minute);
+              setSundayEndPeriod(se.period);
+            }
           }
           if (Array.isArray(appts)) {
             setAppointments(appts);
@@ -13589,6 +13727,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       const evening_start = format12to24(eveningStartHour, eveningStartMin, eveningStartPeriod);
       const evening_end = format12to24(eveningEndHour, eveningEndMin, eveningEndPeriod);
 
+      const sunday_start = format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod);
+      const sunday_end = format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod);
       const res: any = await apiFetch('/doctor/slots/generate', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -13601,8 +13741,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           morning_end,
           evening_start,
           evening_end,
+          custom_sunday_enabled: customSundayEnabled,
+          sunday_start,
+          sunday_end,
           replace_existing: true,
-          off_days: docOffDays
+          off_days: customSundayEnabled ? docOffDays.filter(d => d !== 'sunday') : docOffDays
         })
       });
       const shiftWindowDesc = selectedShift === 'MORNING'
@@ -13657,6 +13800,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       const evening_start = format12to24(eveningStartHour, eveningStartMin, eveningStartPeriod);
       const evening_end = format12to24(eveningEndHour, eveningEndMin, eveningEndPeriod);
 
+      const sunday_start = format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod);
+      const sunday_end = format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod);
       await apiFetch('/doctor/profile', {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
@@ -13665,7 +13810,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           morning_start,
           morning_end,
           evening_start,
-          evening_end
+          evening_end,
+          custom_sunday_enabled: customSundayEnabled,
+          sunday_start,
+          sunday_end
         })
       });
       const shiftWindowDesc = selectedShift === 'MORNING'
@@ -15040,6 +15188,79 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           </div>
                         </div>
                       </div>
+
+                      {/* Special Sunday Timings Card for Doctor */}
+                      <div className={`p-4 rounded-2xl border transition-all ${customSundayEnabled
+                        ? 'bg-purple-50/70 border-purple-200 shadow-2xs'
+                        : 'bg-slate-50/70 border-slate-200'
+                        }`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">⭐</span>
+                            <div>
+                              <span className="font-bold block text-slate-900 text-xs">Sunday Special Schedule</span>
+                              <span className="text-[10px] text-slate-500">Dedicated Sunday hours (e.g. Full Day 8:00 AM – 8:00 PM)</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${customSundayEnabled
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-slate-200 text-slate-600'
+                              }`}>
+                              {customSundayEnabled ? 'Active Full Day' : 'Inactive'}
+                            </span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={customSundayEnabled}
+                                onChange={e => {
+                                  const checked = e.target.checked;
+                                  setCustomSundayEnabled(checked);
+                                  if (checked && docOffDays.includes('sunday')) {
+                                    setDocOffDays(prev => prev.filter(d => d !== 'sunday'));
+                                  }
+                                }}
+                                className="sr-only peer"
+                              />
+                              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                          </div>
+                        </div>
+
+                        {customSundayEnabled ? (
+                          <div className="space-y-2.5 pt-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <TimePickerDropdowns
+                                label="Sunday Start"
+                                hour={sundayStartHour}
+                                minute={sundayStartMin}
+                                period={sundayStartPeriod}
+                                onHourChange={setSundayStartHour}
+                                onMinuteChange={setSundayStartMin}
+                                onPeriodChange={setSundayStartPeriod}
+                              />
+                              <div className="text-slate-400 font-bold text-xs pt-4">➔</div>
+                              <TimePickerDropdowns
+                                label="Sunday End"
+                                hour={sundayEndHour}
+                                minute={sundayEndMin}
+                                period={sundayEndPeriod}
+                                onHourChange={setSundayEndHour}
+                                onMinuteChange={setSundayEndMin}
+                                onPeriodChange={setSundayEndPeriod}
+                              />
+                            </div>
+                            <div className="pt-2 border-t border-purple-100/80 flex items-center justify-between text-[11px] text-slate-600">
+                              <span>Sunday Window: <strong className="text-purple-900">{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong></span>
+                              <span className="text-[10px] text-purple-800 font-mono">({format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod)} – {format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod)})</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-slate-500">
+                            Enable to set separate Sunday consultation hours while Monday–Saturday follows your weekday shift above.
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100">
@@ -15244,6 +15465,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     {genMsg && (
                       <div className={`p-3 rounded-xl text-xs font-semibold border ${genMsg.startsWith('Error') ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-clinic-50 border-clinic-200 text-clinic-900'}`}>
                         {genMsg}
+                      </div>
+                    )}
+
+                    {customSundayEnabled && (
+                      <div className="text-xs text-purple-800 bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">
+                        <span className="text-sm">⭐</span>
+                        <span><strong>Sunday Special Active:</strong> Sundays will generate with dedicated hours (<strong>{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong>), while Mon–Sat follow your weekday shift.</span>
                       </div>
                     )}
 

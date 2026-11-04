@@ -71,6 +71,10 @@ async def get_doctor_profile(
         "services_offered": doctor.services_offered,
         "conditions_treated": doctor.conditions_treated,
         "hospital_affiliations": doctor.hospital_affiliations,
+        "custom_sunday_enabled": doctor.custom_sunday_enabled if doctor.custom_sunday_enabled is not None else False,
+        "sunday_start": doctor.sunday_start or "08:00",
+        "sunday_end": doctor.sunday_end or "20:00",
+        "custom_day_schedule": doctor.custom_day_schedule,
         "loyalty_card_enabled": doctor.loyalty_card_enabled if doctor.loyalty_card_enabled is not None else False,
         "loyalty_card_title": doctor.loyalty_card_title or "RK Loyalty Card",
         "loyalty_card_image_url": doctor.loyalty_card_image_url,
@@ -624,6 +628,10 @@ class SlotGenerateRequest(PydanticBase):
     evening_start: Optional[str] = None
     evening_end: Optional[str] = None
     off_days: Optional[List[str]] = None
+    custom_sunday_enabled: Optional[bool] = None
+    sunday_start: Optional[str] = None
+    sunday_end: Optional[str] = None
+    custom_day_schedule: Optional[str] = None
 
 @router.post("/slots/generate")
 async def generate_slots(
@@ -679,6 +687,20 @@ async def generate_slots(
         doc.evening_start = payload.evening_start
     if payload.evening_end:
         doc.evening_end = payload.evening_end
+
+    custom_sun_active = payload.custom_sunday_enabled if payload.custom_sunday_enabled is not None else (doc.custom_sunday_enabled or False)
+    if payload.custom_sunday_enabled is not None:
+        doc.custom_sunday_enabled = payload.custom_sunday_enabled
+    if payload.sunday_start:
+        doc.sunday_start = payload.sunday_start
+    if payload.sunday_end:
+        doc.sunday_end = payload.sunday_end
+    if payload.custom_day_schedule:
+        doc.custom_day_schedule = payload.custom_day_schedule
+
+    if custom_sun_active and "sunday" in selected_off_days:
+        selected_off_days = [d for d in selected_off_days if d != "sunday"]
+        doc.off_days = ",".join(selected_off_days)
 
     range_start_utc = base_dt.astimezone(timezone.utc)
     range_end_utc = (end_dt + timedelta(days=1)).astimezone(timezone.utc)
@@ -774,7 +796,16 @@ async def generate_slots(
             current_day += timedelta(days=1)
             continue
 
-        for (sh, sm, eh, em) in windows:
+        day_windows = windows
+        if day_name == "sunday" and custom_sun_active:
+            s_start = payload.sunday_start or doc.sunday_start or "08:00"
+            s_end   = payload.sunday_end   or doc.sunday_end   or "20:00"
+            ssh, ssm = parse_hm(s_start)
+            seh, sem = parse_hm(s_end)
+            if (ssh * 60 + ssm) < (seh * 60 + sem):
+                day_windows = [(ssh, ssm, seh, sem)]
+
+        for (sh, sm, eh, em) in day_windows:
             curr_time_pkt = current_day.replace(hour=sh, minute=sm, second=0, microsecond=0, tzinfo=PKT)
             boundary_pkt  = current_day.replace(hour=eh, minute=em, second=0, microsecond=0, tzinfo=PKT)
 
@@ -985,6 +1016,10 @@ class ShiftHoursUpdateRequest(PydanticBase):
     morning_end: Optional[str] = None
     evening_start: Optional[str] = None
     evening_end: Optional[str] = None
+    custom_sunday_enabled: Optional[bool] = None
+    sunday_start: Optional[str] = None
+    sunday_end: Optional[str] = None
+    custom_day_schedule: Optional[str] = None
 
 @router.put("/shift-hours")
 async def update_shift_hours(
@@ -1004,6 +1039,18 @@ async def update_shift_hours(
         doc.evening_start = payload.evening_start
     if payload.evening_end:
         doc.evening_end = payload.evening_end
+    if payload.custom_sunday_enabled is not None:
+        doc.custom_sunday_enabled = payload.custom_sunday_enabled
+    if payload.sunday_start:
+        doc.sunday_start = payload.sunday_start
+    if payload.sunday_end:
+        doc.sunday_end = payload.sunday_end
+    if payload.custom_day_schedule:
+        doc.custom_day_schedule = payload.custom_day_schedule
+
+    if doc.custom_sunday_enabled and doc.off_days:
+        current_offs = [d.strip() for d in doc.off_days.split(',') if d.strip().lower() != 'sunday']
+        doc.off_days = ','.join(current_offs)
     await db.commit()
     await db.refresh(doc)
     return {
@@ -1013,7 +1060,10 @@ async def update_shift_hours(
         "morning_start": doc.morning_start,
         "morning_end": doc.morning_end,
         "evening_start": doc.evening_start,
-        "evening_end": doc.evening_end
+        "evening_end": doc.evening_end,
+        "custom_sunday_enabled": doc.custom_sunday_enabled,
+        "sunday_start": doc.sunday_start,
+        "sunday_end": doc.sunday_end
     }
 
 
@@ -1460,6 +1510,10 @@ class DoctorProfileUpdateRequest(PydanticBase):
     services_offered: Optional[str] = None
     conditions_treated: Optional[str] = None
     hospital_affiliations: Optional[str] = None
+    custom_sunday_enabled: Optional[bool] = None
+    sunday_start: Optional[str] = None
+    sunday_end: Optional[str] = None
+    custom_day_schedule: Optional[str] = None
 
 @router.put("/profile")
 async def update_doctor_profile(
@@ -1507,7 +1561,15 @@ async def update_doctor_profile(
     if payload.conditions_treated is not None:
         doc.conditions_treated = payload.conditions_treated.strip() if payload.conditions_treated else None
     if payload.hospital_affiliations is not None:
-        doc.hospital_affiliations = payload.hospital_affiliations.strip() if payload.hospital_affiliations else None
+        doc.hospital_affiliations = payload.hospital_affiliations
+    if payload.custom_sunday_enabled is not None:
+        doc.custom_sunday_enabled = payload.custom_sunday_enabled
+    if payload.sunday_start is not None:
+        doc.sunday_start = payload.sunday_start
+    if payload.sunday_end is not None:
+        doc.sunday_end = payload.sunday_end
+    if payload.custom_day_schedule is not None:
+        doc.custom_day_schedule = payload.custom_day_schedule.strip() if payload.custom_day_schedule else None
 
     await db.commit()
     await redis_manager.clear_cache_pattern("doctors:*")
@@ -1528,5 +1590,9 @@ async def update_doctor_profile(
         "qualification": doc.qualification or "MBBS, FCPS",
         "services_offered": doc.services_offered,
         "conditions_treated": doc.conditions_treated,
-        "hospital_affiliations": doc.hospital_affiliations
+        "hospital_affiliations": doc.hospital_affiliations,
+        "custom_sunday_enabled": doc.custom_sunday_enabled if doc.custom_sunday_enabled is not None else False,
+        "sunday_start": doc.sunday_start or "08:00",
+        "sunday_end": doc.sunday_end or "20:00",
+        "custom_day_schedule": doc.custom_day_schedule
     }

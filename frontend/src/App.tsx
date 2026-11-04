@@ -13026,6 +13026,25 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
 function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assistant' | 'doctor' | 'admin') => void }) {
   const [token, setToken] = useState(localStorage.getItem('doctor_token') || '');
+
+  const formatStatusBadge = (st?: string) => {
+    const s = (st || '').toUpperCase();
+    if (s === 'PENDING_ASSISTANT_APPROVAL') return 'Awaiting Approval';
+    if (s === 'CONFIRMED') return 'Confirmed';
+    if (s === 'COMPLETED') return 'Completed';
+    if (s === 'CANCELLED') return 'Cancelled';
+    if (s === 'REJECTED') return 'Rejected';
+    if (s === 'PENDING') return 'Pending';
+    return s.replace(/_/g, ' ');
+  };
+
+  const formatPaymentBadge = (ps?: string) => {
+    const p = (ps || '').toUpperCase();
+    if (p === 'PAID') return 'Paid';
+    if (p === 'PENDING_CASH') return 'Desk Cash';
+    if (p === 'PENDING') return 'Pending';
+    return p.replace(/_/g, ' ');
+  };
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPass, setLoginPass] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -14575,8 +14594,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* Filter Toolbar: Search Bar + Status Chips */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3.5 sm:px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/80">
-                  <div className="relative flex-1 w-full sm:max-w-xs">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 px-3.5 sm:px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/80">
+                  <div className="relative flex-1 w-full xl:max-w-xs">
                     <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
@@ -14596,7 +14615,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none touch-scroll flex-nowrap pb-1 -mx-3 px-3 sm:mx-0 sm:px-0 sm:pb-0 text-xs w-full sm:w-auto">
+                  <div className="flex items-center gap-1.5 flex-wrap text-xs w-full xl:w-auto">
                     {(['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as const).map(st => (
                       <button
                         key={st}
@@ -14612,11 +14631,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </button>
                     ))}
 
-
                     <button
                       type="button"
                       onClick={() => setIncludeArchived(!includeArchived)}
-                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
+                      className={`px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap flex-shrink-0 ${includeArchived
                         ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 shadow-sm'
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                         }`}
@@ -14633,7 +14651,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         setCallingOrderActive(next);
                         localStorage.setItem('doc_calling_order', String(next));
                       }}
-                      className={`ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${callingOrderActive
+                      className={`px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap shadow-sm flex-shrink-0 ${callingOrderActive
                         ? 'bg-emerald-600 border-emerald-500 text-white ring-1 ring-emerald-300'
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
                         }`}
@@ -14647,7 +14665,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       type="button"
                       onClick={() => loadDoctorData(undefined, true)}
                       disabled={isRefreshingAppts}
-                      className="ml-1.5 px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 shadow-sm flex-shrink-0"
+                      className="px-2.5 py-1 rounded-lg font-semibold text-[11px] flex items-center gap-1.5 transition-all border whitespace-nowrap bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 shadow-sm flex-shrink-0"
                       title="Refresh clinic appointments and live queue"
                     >
                       <RefreshCw className={`w-3.5 h-3.5 text-clinic-700 dark:text-clinic-400 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
@@ -14734,16 +14752,15 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       })()
                     )}
                     <div className="hidden md:block overflow-x-auto touch-scroll">
-                      <table className="w-full text-xs min-w-[760px]">
+                      <table className="w-full text-xs">
                         <thead>
-                          <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider text-left bg-slate-50/50">
-                            <th className="py-3 px-5 font-semibold">Scheduled Date & Time</th>
-                            <th className="py-3 px-5 font-semibold">Patient Name</th>
-                            <th className="py-3 px-5 font-semibold">Phone</th>
-                            <th className="py-3 px-5 font-semibold">Slip #</th>
-                            <th className="py-3 px-5 font-semibold">Visit Status</th>
-                            <th className="py-3 px-5 font-semibold">Payment</th>
-                            <th className="py-3 px-5 font-semibold text-right">Actions</th>
+                          <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 uppercase text-[10px] tracking-wider text-left bg-slate-50/50 dark:bg-slate-900/50">
+                            <th className="py-3 px-3 sm:px-4 font-semibold">Scheduled</th>
+                            <th className="py-3 px-3 sm:px-4 font-semibold">Patient & Phone</th>
+                            <th className="py-3 px-3 sm:px-4 font-semibold">Slip & Queue</th>
+                            <th className="py-3 px-3 sm:px-4 font-semibold">Visit Status</th>
+                            <th className="py-3 px-3 sm:px-4 font-semibold">Payment</th>
+                            <th className="py-3 px-3 sm:px-4 font-semibold text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -14762,20 +14779,20 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             const isNextInLineWaiting = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && !isCallingEligible;
 
                             return (
-                              <tr key={appt.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>
-                                <td className="py-3.5 px-5">
-                                  <div className="space-y-1">
-                                    <div className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
-                                      <Calendar className="w-3.5 h-3.5 text-clinic-700 flex-shrink-0" />
+                              <tr key={appt.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/30 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/50'}`}>
+                                <td className="py-3 px-3 sm:px-4">
+                                  <div className="space-y-0.5">
+                                    <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-xs">
+                                      <Calendar className="w-3.5 h-3.5 text-clinic-700 dark:text-clinic-400 flex-shrink-0" />
                                       <span>{appt.slot_date && appt.slot_date !== 'Date Pending' ? appt.slot_date : slotInfo.date}</span>
                                     </div>
-                                    <div className="text-slate-500 font-medium flex items-center gap-1.5 text-[11px]">
+                                    <div className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1.5 text-[11px]">
                                       <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
                                       <span>{appt.slot_time && appt.slot_time !== 'Time Scheduled' ? appt.slot_time : slotInfo.time}</span>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-3.5 px-5">
+                                <td className="py-3 px-3 sm:px-4">
                                   {isCurrentActive && (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider mb-1 shadow-xs animate-pulse">
                                       🩺 Active Consultation · Now Treating
@@ -14787,62 +14804,61 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                     </span>
                                   )}
                                   {callingOrderActive && idx > 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && (
-                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 mb-1">
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 mb-1">
                                       Calling Line #{idx + 1}
                                     </span>
                                   )}
-                                  <p className="font-bold text-slate-900">{appt.patient_name || 'Walk-in Patient'}</p>
-
+                                  <p className="font-bold text-slate-900 dark:text-white text-xs">{appt.patient_name || 'Walk-in Patient'}</p>
+                                  <p className="text-slate-400 dark:text-slate-500 font-mono text-[11px] mt-0.5">{appt.patient_phone || 'No phone'}</p>
                                 </td>
-                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] whitespace-nowrap">{appt.patient_phone || 'N/A'}</td>
-                                <td className="py-3.5 px-5 text-slate-600 font-mono text-[11px] font-semibold whitespace-nowrap">
+                                <td className="py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-300 font-mono text-[11px] font-semibold whitespace-nowrap">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     {(() => {
                                       const isInactive = appt.status === 'CANCELLED' || appt.status === 'REJECTED';
                                       const qNum = parseQueueNumberFromSlip(appt.slip_number, appt.token_number);
                                       if (isInactive) {
                                         return (
-                                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-400 text-[10px] font-sans font-medium">
+                                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400 text-[10px] font-sans font-medium">
                                             No Queue
                                           </span>
                                         );
                                       }
                                       if (qNum) {
                                         return (
-                                          <span className="px-2 py-0.5 rounded-md bg-teal-50 border border-teal-200 text-teal-800 text-[10px] font-bold font-sans">
+                                          <span className="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 text-teal-800 dark:text-teal-300 text-[10px] font-bold font-sans">
                                             Queue #{qNum}
                                           </span>
                                         );
                                       }
                                       return null;
                                     })()}
-                                    <span className="text-[11px] text-slate-600 font-mono font-medium">
+                                    <span className="text-[11px] text-slate-600 dark:text-slate-400 font-mono font-medium">
                                       {appt.slip_number || `SLIP-${appt.id.slice(0, 6).toUpperCase()}`}
                                     </span>
                                   </div>
                                 </td>
-                                <td className="py-3.5 px-5">
-                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${isDone ? 'bg-emerald-100 text-emerald-800' :
-                                    isCancelled ? 'bg-rose-100 text-rose-800' :
-                                      appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800' :
-                                        'bg-amber-100 text-amber-800'
+                                <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' :
+                                    isCancelled ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300' :
+                                      appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
+                                        'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
                                     }`}>
-                                    {appt.status}
+                                    {formatStatusBadge(appt.status)}
                                   </span>
                                 </td>
-                                <td className="py-3.5 px-5">
-                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:border-emerald-700 dark:text-emerald-300' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:border-amber-700 dark:text-amber-300'
                                     }`}>
-                                    {appt.payment_status || 'PENDING'}
+                                    {formatPaymentBadge(appt.payment_status)}
                                   </span>
                                 </td>
-                                <td className="py-3.5 px-5 text-right space-x-1.5 whitespace-nowrap">
+                                <td className="py-3 px-3 sm:px-4 text-right space-x-1.5 whitespace-nowrap">
                                   {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && appt.payment_status !== 'PAID' && (
                                     <button
                                       type="button"
                                       disabled={doctorMarkPaidLoading === appt.id}
                                       onClick={() => handleDoctorMarkPaid(appt.id)}
-                                      className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                                      className="px-2 py-1 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                                       title="Click to record consultation fee as PAID"
                                     >
                                       {doctorMarkPaidLoading === appt.id ? (
@@ -14853,7 +14869,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                       ) : (
                                         <>
                                           <CreditCard className="w-3 h-3 text-emerald-600" />
-                                          <span>Mark as Paid</span>
+                                          <span>Mark Paid</span>
                                         </>
                                       )}
                                     </button>
@@ -14870,26 +14886,18 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   )}
                                   {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && !canDoctorComplete(appt, isCurrentActive) && (
                                     <span
-                                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 inline-block align-middle"
+                                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 inline-block align-middle"
                                       title="Appointment time has not arrived yet. Doctor can mark as complete once scheduled slot time has passed or when patient is active."
                                     >
                                       Upcoming Slot
                                     </span>
                                   )}
 
-                                  {!isDone && !isCancelled && appt.status?.toUpperCase().includes('PENDING') && (
-                                    <span
-                                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 inline-block align-middle"
-                                      title="Awaiting reception/assistant desk approval"
-                                    >
-                                      Awaiting Desk
-                                    </span>
-                                  )}
                                   {!isDone && !isCancelled && (
                                     <button
                                       type="button"
                                       onClick={() => handleCancelAppointment(appt.id)}
-                                      className="px-2.5 py-1 border border-rose-300 hover:bg-rose-50 text-rose-700 font-semibold rounded-lg text-[11px] transition-colors"
+                                      className="px-2 py-1 border border-rose-300 hover:bg-rose-50 text-rose-700 font-semibold rounded-lg text-[11px] transition-colors"
                                     >
                                       Cancel
                                     </button>
@@ -14897,7 +14905,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   <button
                                     type="button"
                                     onClick={() => setSelectedAppt(appt)}
-                                    className="px-2.5 py-1 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors"
+                                    className="px-2 py-1 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors"
                                   >
                                     Details
                                   </button>
@@ -14941,11 +14949,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                     appt.status?.toUpperCase() === 'CONFIRMED' ? 'bg-clinic-100 text-clinic-800 dark:bg-teal-900/60 dark:text-teal-300' :
                                       'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
                                   }`}>
-                                  {appt.status}
+                                  {formatStatusBadge(appt.status)}
                                 </span>
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${appt.payment_status === 'PAID' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:border-emerald-700' : 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:border-amber-700'
                                   }`}>
-                                  {appt.payment_status || 'PENDING'}
+                                  {formatPaymentBadge(appt.payment_status)}
                                 </span>
                               </div>
                             </div>

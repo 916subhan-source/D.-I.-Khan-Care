@@ -13211,8 +13211,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [assistants, setAssistants] = useState<any[]>([]);
 
-  // Timeframe filter for overview: today, week, month, all
-  const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month' | 'all'>('all');
+  // Timeframe filter for overview: today, week, month, all (defaults to 'today' so portal opens with today's consultations)
+  const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month' | 'all'>('today');
   const [apptSearch, setApptSearch] = useState('');
   const [apptStatusFilter, setApptStatusFilter] = useState<'ALL' | 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'>('ALL');
   const [includeArchived, setIncludeArchived] = useState<boolean>(false);

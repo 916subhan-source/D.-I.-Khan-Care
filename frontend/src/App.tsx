@@ -1304,7 +1304,7 @@ function StaffLoginSplitView({
   const noticeTitle = currentRole === 'assistant'
     ? 'Assistant access is scoped to linked doctors'
     : currentRole === 'doctor'
-      ? 'Doctor portal is restricted to PMDC-verified practitioners'
+      ? 'Doctor portal is restricted to verified medical practitioners'
       : 'Platform governance & developer console';
 
   const noticeSub = currentRole === 'assistant'
@@ -1322,17 +1322,13 @@ function StaffLoginSplitView({
     doctor: {
       sidebarBg: 'bg-[#0c2823]',
       badgeBorder: 'border-emerald-500/40 text-emerald-300',
-      badgeText: 'DOCTOR WORKSPACE • PMDC VERIFIED',
-      heading: (
-        <>
-          Verified PMDC Specialists.<br />Precision clinical care.
-        </>
-      ),
+      badgeText: 'DOCTOR WORKSPACE',
+      heading: null,
       subheading: 'Access your live patient queue, consultation records, and daily counter fee reconciliations across Dera Ismail Khan.',
       image: '/dr_ayesha_khan.jpg',
-      alt: 'D.I. Khan PMDC Doctor Consultation Suite',
+      alt: 'D.I. Khan Doctor Consultation Suite',
       captionTitle: 'Dr. Ayesha Khan Consultation Room',
-      captionBadge: 'PMDC Specialist',
+      captionBadge: 'Verified Specialist',
       gradientOverlay: 'from-[#0c2823]/85',
       bullets: [
         { title: 'Live Token Consultation Queue', desc: 'Call patients in order, review check-in timestamps, and sync room status.' },
@@ -1340,8 +1336,8 @@ function StaffLoginSplitView({
         { title: 'Direct Fee Reconciliation', desc: 'Live visibility into verified reception cash collection and clinic earnings.' },
       ],
       portalTitle: 'Doctor Portal Login',
-      portalSub: 'Verified PMDC Medical Practitioners',
-      tag: 'PMDC Verified',
+      portalSub: 'Verified Medical Practitioners',
+      tag: 'Verified Doctor',
       tagColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20',
       icon: Stethoscope,
       accentColor: '#143d38'
@@ -1431,9 +1427,11 @@ function StaffLoginSplitView({
           </div>
 
           {/* Large Heading */}
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            {visual.heading}
-          </h1>
+          {visual.heading && (
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              {visual.heading}
+            </h1>
+          )}
           <p className="text-teal-100/70 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6 font-normal">
             {visual.subheading}
           </p>

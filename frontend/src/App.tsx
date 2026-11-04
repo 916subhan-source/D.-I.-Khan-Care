@@ -9404,18 +9404,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit,sans-serif' }}>
                 {formatDoctorName(currentDoctor?.doctor_name)}
               </h2>
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                <span className="truncate max-w-[200px]">{currentDoctor?.clinic_address}</span>
-                <span className="text-slate-300 dark:text-slate-600">&bull;</span>
-                <span>Shift: <strong className="text-slate-700 dark:text-slate-200 font-semibold">{currentDoctor?.shift}</strong></span>
-                <span className="text-slate-300 dark:text-slate-600">&bull;</span>
-                <span className="inline-flex items-center gap-1">
-                  <span>Off:</span>
-                  <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-[11px] capitalize">
-                    {currentDoctor?.off_days ? currentDoctor.off_days.split(',').join(', ') : 'Sunday'}
-                  </span>
-                </span>
-              </div>
             </div>
             <button
               onClick={() => fetchQueue(selectedDoctorId)}

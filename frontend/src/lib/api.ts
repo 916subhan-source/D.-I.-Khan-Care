@@ -124,7 +124,13 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     });
 
   if (!response.ok) {
-    let errorMsg = 'An unexpected error occurred';
+    let errorMsg = response.status === 401
+      ? 'Incorrect email or password.'
+      : response.status === 403
+      ? 'Access forbidden. Please verify your account role and privileges.'
+      : response.status >= 500
+      ? `Healthcare cloud server temporary issue (HTTP ${response.status}). Please retry in a few moments.`
+      : 'An unexpected error occurred. Please try again.';
     try {
       const errData = await response.json();
       if (typeof errData.detail === 'string') {

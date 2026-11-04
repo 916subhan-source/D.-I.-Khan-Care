@@ -1400,7 +1400,7 @@ function StaffLoginSplitView({
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden animate-fade-in">
       {/* ── Left Sidebar / Role-Themed Panel ─────────────────────── */}
-      <div className={`w-full lg:w-[480px] xl:w-[530px] ${visual.sidebarBg} flex flex-col justify-between p-5 sm:p-10 lg:p-12 relative overflow-hidden text-white flex-shrink-0 transition-colors duration-500`}>
+      <div className={`hidden lg:flex lg:w-[480px] xl:w-[530px] ${visual.sidebarBg} flex-col justify-between p-10 lg:p-12 relative overflow-hidden text-white flex-shrink-0 transition-colors duration-500`}>
         <div>
           {/* Brand header */}
           <div className="flex items-center gap-3 mb-4 sm:mb-6">
@@ -1471,8 +1471,15 @@ function StaffLoginSplitView({
       {/* ── Right Panel (White / Clean Canvas) ──────────────── */}
       <div className="flex-1 flex flex-col justify-between p-5 sm:p-10 lg:p-14 bg-white dark:bg-[#080d14] overflow-y-auto">
         {/* Top bar */}
-        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-8 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <span>D.I. Khan Doctor Appointment System</span>
+        <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-8 h-8 rounded-full object-contain shadow-xs bg-white lg:hidden" />
+            <div>
+              <span className="font-bold text-slate-900 dark:text-white lg:hidden block text-xs">D.I. Khan Care</span>
+              <span className="hidden lg:inline">D.I. Khan Doctor Appointment System</span>
+              <span className="text-[10px] text-teal-600 dark:text-emerald-400 font-semibold tracking-wide uppercase lg:hidden block">Staff Workspace</span>
+            </div>
+          </div>
           <button
             type="button"
             onClick={() => onSwitchRole?.('patient')}

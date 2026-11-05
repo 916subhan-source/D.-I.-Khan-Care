@@ -4800,23 +4800,29 @@ function DoctorProfileAndBookingView({
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 shadow-sm">
               {/* Clean Header */}
               <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                  <div>
-                    {mobileActiveTab === 'booking' && (
-                      <button
-                        type="button"
-                        onClick={() => setMobileActiveTab('profile')}
-                        className="lg:hidden inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white mb-1.5 cursor-pointer"
-                      >
-                        <ChevronLeft className="w-3.5 h-3.5" /> Back to Profile
-                      </button>
-                    )}
-                    <h3 className="font-extrabold text-base text-slate-900 dark:text-white">Book Appointment</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Direct Clinic Consultation &bull; Pay cash at desk</p>
+                {mobileActiveTab === 'booking' && (
+                  <button
+                    type="button"
+                    onClick={() => setMobileActiveTab('profile')}
+                    className="lg:hidden inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white mb-2.5 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" /> Back to Profile
+                  </button>
+                )}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0 pr-1">
+                    <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                      Book Appointment
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-normal">
+                      Direct Clinic Consultation &bull; Pay at desk
+                    </p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
-                    <span className="text-xl sm:text-2xl font-black text-clinic-700 dark:text-emerald-400 font-mono">
+                  <div className="text-right flex-shrink-0">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block tracking-wider">
+                      Fee
+                    </span>
+                    <span className="text-xl sm:text-2xl font-black text-clinic-700 dark:text-emerald-400 font-mono whitespace-nowrap">
                       {formatCurrency(doctor.fee_clinic)}
                     </span>
                   </div>
@@ -5084,17 +5090,17 @@ function DoctorProfileAndBookingView({
               {/* ── Step 3: Confirm & Book ── */}
               <div className="pt-5 space-y-3.5">
                 {/* Clean Appointment Summary Pill */}
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
                     <Calendar className="w-4 h-4 text-clinic-700 dark:text-clinic-400 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-bold text-slate-900 dark:text-white">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                         {selectedDayObj?.label || 'Selected Day'} &bull; {selectedTimeSlot}
                       </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Pay cash at clinic desk upon arrival</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">Pay cash at clinic desk upon arrival</p>
                     </div>
                   </div>
-                  <span className="text-sm font-extrabold text-slate-900 dark:text-white font-mono">
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white font-mono flex-shrink-0 whitespace-nowrap">
                     {formatCurrency(doctor.fee_clinic)}
                   </span>
                 </div>

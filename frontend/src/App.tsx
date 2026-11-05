@@ -7975,7 +7975,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900" style={{ fontFamily: 'Outfit,sans-serif' }}>Select Doctor Desk</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Select a doctor to open their live reception queue and cash register</p>
             </div>
             <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
               <RealtimeLive />
@@ -7993,8 +7992,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {doctorsLoading ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
               <RefreshCw className="w-8 h-8 mx-auto mb-3 text-slate-400 animate-spin" />
-              <p className="text-sm font-semibold text-slate-700">Loading your assigned clinic portals...</p>
-              <p className="text-xs text-slate-400 mt-1">Checking linked doctor desks for your account...</p>
+              <p className="text-sm font-semibold text-slate-700">Loading clinic desks...</p>
             </div>
           ) : myDoctors.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
@@ -8262,29 +8260,25 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
             </button>
           </div>
 
-          {/* KPI Cards — Unified Neutral Surfaces with Sophisticated Metric Accents */}
+          {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Awaiting Slip</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Awaiting Slip</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{pendingCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Need assistant approval</p>
             </div>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confirmed &amp; Queued</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confirmed</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-clinic-600 dark:text-clinic-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{confirmedCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Digital slips issued</p>
             </div>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Paid at Cash Desk</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Paid at Desk</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{paidCount}</p>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Cash collected</p>
             </div>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Shift Cash</p>
+              <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Cash</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>
                 {formatCurrency(totalRevenue)}
               </p>
-              <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-400 mt-0.5">Reconciliation ledger</p>
             </div>
           </div>
 
@@ -8383,47 +8377,32 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 (() => {
                   const isStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
                   return isStarted ? (
-                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-800 dark:text-slate-200 transition-all">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 px-4 py-2 flex items-center justify-between text-xs text-slate-800 dark:text-slate-200">
+                      <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                         <span className="font-bold text-slate-900 dark:text-white">
-                          Live Calling Active &middot; {callingShiftInfo.shiftName} (Today: {pktTodayYmd})
-                        </span>
-                        <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">
-                          &middot; Started at {callingShiftInfo.callingStartTimeStr} (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftStartTimeStr} shift).
+                          Live Calling Active &middot; {callingShiftInfo.shiftName}
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono tracking-wide bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-medium shadow-2xs whitespace-nowrap self-start sm:self-auto">
-                        Active Patient at Top
-                      </span>
                     </div>
                   ) : (
-                    <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 dark:text-amber-200 transition-all">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800 px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 dark:text-amber-200">
+                      <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping flex-shrink-0" />
                         <span className="font-bold">
                           ⏳ Calling Starts at {callingShiftInfo.callingStartTimeStr}
                         </span>
-                        <span className="text-amber-800 dark:text-amber-300">
-                          (10 mins before {formatDoctorName(currentDoctor?.doctor_name)}&apos;s {callingShiftInfo.shiftName} at {callingShiftInfo.shiftStartTimeStr})
-                        </span>
                         <span className="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded text-[11px] font-semibold border border-amber-200 dark:border-amber-700">
-                          Opens in {callingShiftInfo.minutesUntilCalling} min{callingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
+                          in {callingShiftInfo.minutesUntilCalling} min{callingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => setManualCallingStarted(true)}
-                          className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition-colors cursor-pointer"
-                          title="If the doctor has arrived early, click here to start calling patients right now"
-                        >
-                          ▶ Start Calling Early
-                        </button>
-                        <span className="text-[11px] font-mono bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-700 font-semibold text-amber-800 dark:text-amber-300 whitespace-nowrap">
-                          Queue Arranged
-                        </span>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setManualCallingStarted(true)}
+                        className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+                      >
+                        ▶ Start Calling Early
+                      </button>
                     </div>
                   );
                 })()
@@ -8458,7 +8437,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         <td colSpan={6} className="py-12 text-center text-slate-400">
                           <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
                           <p className="text-sm font-semibold text-slate-600">No appointments in this view</p>
-                          <p className="text-xs text-slate-400 mt-0.5">New bookings will show up here automatically via real-time sync.</p>
                         </td>
                       </tr>
                     ) : (
@@ -8867,7 +8845,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   <div className="py-12 px-4 text-center text-slate-400">
                     <Calendar className="w-8 h-8 mx-auto mb-2 opacity-30" />
                     <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No appointments in this view</p>
-                    <p className="text-xs text-slate-400 mt-1">New bookings will show up here automatically via real-time sync.</p>
                   </div>
                 ) : (
                   filteredQueue.map((item, idx) => {
@@ -13356,8 +13333,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.?\s*/i, '').trim()}</span>
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-1 font-medium">
-                    {todayStr} &middot; Live operational overview
+                  <p className="text-xs sm:text-sm text-slate-400 mt-0.5 font-medium">
+                    {todayStr}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
@@ -13483,45 +13460,35 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* 2. Total Appointments Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Appointments</p>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">
-                    {timeframe === 'today' ? 'Today' : timeframe === 'week' ? 'This Week' : timeframe === 'month' ? 'This Month' : 'All time'}
-                  </p>
-                  <p className="text-4xl font-extrabold text-slate-900 dark:text-white leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Appointments</p>
+                  <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeScopedAppts.length}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-2">{selectedShift} Shift</p>
                 </div>
 
                 {/* 3. Completed Visits Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completed</p>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">Consultations</p>
-                  <p className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Completed</p>
+                  <p className="text-3xl sm:text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeCompletedCount}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-2">Finished visits</p>
                 </div>
 
                 {/* 4. Confirmed Visits Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Confirmed</p>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">Approved visits</p>
-                  <p className="text-4xl font-extrabold text-clinic-600 dark:text-clinic-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Confirmed</p>
+                  <p className="text-3xl sm:text-4xl font-extrabold text-clinic-600 dark:text-clinic-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeConfirmedCount}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-2">Upcoming queue</p>
                 </div>
 
                 {/* 5. Available Slots Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Open Slots</p>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5 mb-3">For booking</p>
-                  <p className="text-4xl font-extrabold text-amber-600 dark:text-amber-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Open Slots</p>
+                  <p className="text-3xl sm:text-4xl font-extrabold text-amber-600 dark:text-amber-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {slots.filter(s => s.status === 'available').length}
                   </p>
-                  <p className="text-[11px] text-slate-400 mt-2">Patient bookable</p>
                 </div>
               </div>
 
@@ -13538,9 +13505,6 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         <span>{displayAppts.length} {displayAppts.length === 1 ? 'appointment' : 'appointments'}</span>
                       </span>
                     </div>
-                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
-                      {agendaSubtitle} &middot; Real-time queue
-                    </p>
                   </div>
                 </div>
 
@@ -13649,8 +13613,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <div className="py-20 text-center">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <Loader2 className="w-10 h-10 animate-spin text-clinic-600" />
-                      <p className="text-sm font-semibold text-slate-800">Loading clinic appointments &amp; queue...</p>
-                      <p className="text-xs text-slate-400">Fetching latest patient requests and today's consultation agenda</p>
+                      <p className="text-sm font-semibold text-slate-800">Loading appointments &amp; queue...</p>
                     </div>
                   </div>
                 ) : displayAppts.length === 0 ? (
@@ -13695,39 +13658,28 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       (() => {
                         const isStarted = docCallingShiftInfo.isCallingStarted || docManualCallingStarted;
                         return isStarted ? (
-                          <div className="bg-emerald-50 border-b border-emerald-200 px-5 py-2.5 flex items-center justify-between text-xs text-emerald-900 transition-all">
-                            <div className="flex items-center gap-2 flex-wrap">
+                          <div className="bg-emerald-50 border-b border-emerald-200 px-4 sm:px-5 py-2 flex items-center justify-between text-xs text-emerald-900">
+                            <div className="flex items-center gap-2">
                               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                              <span className="font-bold">🟢 Live Calling Active &middot; {docCallingShiftInfo.shiftName} (Today: {activeTodayStr})</span>
-                              <span className="text-emerald-700 hidden sm:inline">&middot; Calling started at {docCallingShiftInfo.callingStartTimeStr} (10 mins before your {docCallingShiftInfo.shiftStartTimeStr} shift).</span>
+                              <span className="font-bold">🟢 Live Calling Active &middot; {docCallingShiftInfo.shiftName}</span>
                             </div>
-                            <span className="text-[11px] font-mono bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-semibold shadow-xs">
-                              Active Consultation at Top
-                            </span>
                           </div>
                         ) : (
-                          <div className="bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex items-center justify-between text-xs text-amber-900 transition-all">
-                            <div className="flex items-center gap-2 flex-wrap">
+                          <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-5 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900">
+                            <div className="flex items-center gap-2">
                               <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
                               <span className="font-bold">⏳ Calling Starts at {docCallingShiftInfo.callingStartTimeStr}</span>
-                              <span className="text-amber-800 hidden sm:inline">(10 mins before your {docCallingShiftInfo.shiftName} starts at {docCallingShiftInfo.shiftStartTimeStr})</span>
                               <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-semibold border border-amber-200">
-                                Opens in {docCallingShiftInfo.minutesUntilCalling} min{docCallingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
+                                in {docCallingShiftInfo.minutesUntilCalling} min{docCallingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <button
-                                type="button"
-                                onClick={() => setDocManualCallingStarted(true)}
-                                className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition-colors cursor-pointer"
-                                title="If you have arrived early, click here to start calling patients right now"
-                              >
-                                ▶ Start Calling Early
-                              </button>
-                              <span className="text-[11px] font-mono bg-white px-2 py-0.5 rounded border border-amber-200 font-semibold text-amber-800">
-                                Queue Arranged
-                              </span>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setDocManualCallingStarted(true)}
+                              className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+                            >
+                              ▶ Start Calling Early
+                            </button>
                           </div>
                         );
                       })()

@@ -124,12 +124,9 @@ async def list_doctors(
         doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()]
         is_today_off = today_day_name in doc_off_days
 
-        # Exclude slots that fall on doctor's designated off days
         valid_slots = []
         for s_dt in doc_slots:
             slot_pkt_dt = to_pkt(s_dt)
-            if slot_pkt_dt.strftime("%A").lower() in doc_off_days:
-                continue
             valid_slots.append(slot_pkt_dt)
 
         upcoming_count = len(valid_slots)
@@ -137,10 +134,10 @@ async def list_doctors(
         is_available_today = len(today_slots) > 0
 
         next_available_slot = None
-        if is_today_off:
-            today_status = "OFF_TODAY"
-        elif is_available_today:
+        if is_available_today:
             today_status = "AVAILABLE_TODAY"
+        elif is_today_off:
+            today_status = "OFF_TODAY"
         elif upcoming_count > 0:
             today_status = "NO_SLOTS_TODAY"
         else:
@@ -237,8 +234,6 @@ async def get_doctor_slots(doctor_id: str, response: Response, db: AsyncSession 
                     s_dt = datetime.fromisoformat(s["start_time"].replace("Z", "+00:00"))
                     if s_dt < min_start_time:
                         continue
-                    if to_pkt(s_dt).strftime("%A").lower() in doc_off_days:
-                        continue
                     candidate_slots.append(s)
                 except Exception:
                     pass
@@ -274,10 +269,7 @@ async def get_doctor_slots(doctor_id: str, response: Response, db: AsyncSession 
 
     slots_to_cache = []
     for s in slots:
-        # Strictly skip any slot falling on doctor's designated off days
         pkt_time = to_pkt(s.start_time)
-        if pkt_time.strftime("%A").lower() in doc_off_days:
-            continue
         slots_to_cache.append({
             "id": s.id,
             "doctor_id": s.doctor_id,

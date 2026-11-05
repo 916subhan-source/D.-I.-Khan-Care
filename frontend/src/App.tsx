@@ -2667,6 +2667,12 @@ function DoctorProfileAndBookingView({
   useEffect(() => {
     setMobileActiveTab(initialMobileTab);
     setProfileActiveTab('about');
+    if (initialMobileTab === 'booking') {
+      setTimeout(() => {
+        const el = document.getElementById('oladoc-booking-card');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+    }
   }, [doctor?.id, initialMobileTab]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [loyaltyGuardianName, setLoyaltyGuardianName] = useState<string>('');
@@ -5694,13 +5700,15 @@ function PatientSection({
       const list = Array.isArray(data) ? data : [];
       setDoctors(list);
 
-      // Deep-link from completion notification email: ?doctor_id=...
+      // Deep-link from completion notification email or URL params: ?doctor_id=... or ?action=book
       try {
         const params = new URLSearchParams(window.location.search);
         const docIdParam = params.get('doctor_id') || params.get('doctor');
+        const actionParam = params.get('action') || params.get('tab');
         if (docIdParam && list.length > 0) {
           const match = list.find(d => d.id === docIdParam);
           if (match) {
+            setProfileDoctorInitialTab(actionParam === 'book' || actionParam === 'booking' ? 'booking' : 'profile');
             setProfileDoctor(match);
           }
         }
@@ -5716,54 +5724,14 @@ function PatientSection({
     fetchDoctors();
   }, []);
 
-  const openBookingModal = async (doctor: DoctorData) => {
+  const openBookingModal = (doctor: DoctorData) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    // Directly show the Book Clinic Visit form interface as requested by user
-    setProfileDoctor(null);
-    setBookingDoctor(doctor);
-    setSelectedSlot(null);
-    setOtpSent(false);
-    setVerifySuccess(false);
-    setStatusMessage('');
-    setOtpError('');
-    setDevCodePreview(null);
-    setOtpDigits(['', '', '', '', '', '']);
+    setBookingDoctor(null);
+    setProfileDoctorInitialTab('booking');
+    setProfileDoctor(doctor);
     try {
-      const cached = clientSlotCache[doctor.id];
-      if (cached && (Date.now() - cached.timestamp < 120000)) {
-        const nowMs = Date.now();
-        const validSlots = cached.slots.filter(s => {
-          if (!s.start_time) return false;
-          const iso = s.start_time.endsWith('Z') || s.start_time.includes('+') ? s.start_time : s.start_time + 'Z';
-          const t = new Date(iso).getTime();
-          return !isNaN(t) && t > nowMs;
-        });
-        setAvailableSlots(validSlots);
-        if (validSlots.length > 0) {
-          setSelectedSlot(validSlots[0]);
-        }
-        setSlotsLoading(false);
-        return;
-      }
-      setSlotsLoading(true);
-      const slots = await apiFetch<SlotData[]>(`/doctors/${doctor.id}/slots`);
-      const nowMs = Date.now();
-      const validSlots = (Array.isArray(slots) ? slots : []).filter(s => {
-        if (!s.start_time) return false;
-        const iso = s.start_time.endsWith('Z') || s.start_time.includes('+') ? s.start_time : s.start_time + 'Z';
-        const t = new Date(iso).getTime();
-        return !isNaN(t) && t > nowMs;
-      });
-      clientSlotCache[doctor.id] = { timestamp: Date.now(), slots: Array.isArray(slots) ? slots : [] };
-      setAvailableSlots(validSlots);
-      if (validSlots.length > 0) {
-        setSelectedSlot(validSlots[0]);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSlotsLoading(false);
-    }
+      window.history.pushState({ doctorId: doctor.id, tab: 'booking' }, '', `/doctors?doctor=${encodeURIComponent(doctor.id)}&action=book`);
+    } catch (_) { }
   };
 
   const handleRequestBooking = async (e: React.FormEvent) => {
@@ -6644,255 +6612,7 @@ function PatientSection({
         }}
       />
 
-      {/* ── Rich Doctor Profile View Modal ── */}
-      {profileDoctor && (
-        <DoctorProfileModal
-          doctor={profileDoctor}
-          onClose={() => setProfileDoctor(null)}
-          onBook={() => {
-            const doc = profileDoctor;
-            setProfileDoctor(null);
-            openBookingModal(doc);
-          }}
-          allDoctors={doctors}
-          onSelectDoctor={setProfileDoctor}
-        />
-      )}
 
-      {/* ── Booking Modal (With Interactive OTP) ── */}
-      {bookingDoctor && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 relative max-h-[92vh] overflow-y-auto animate-fade-in">
-            {/* Modal header */}
-            <div className="sticky top-0 bg-white border-b border-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between rounded-t-2xl z-10">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base sm:text-lg" style={{ fontFamily: 'Outfit,sans-serif' }}>Book Clinic Visit</h3>
-                <p className="text-xs text-clinic-700 font-medium">{bookingDoctor.full_name} &bull; {bookingDoctor.specialty}</p>
-              </div>
-              <button onClick={() => setBookingDoctor(null)} className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-6">
-              {/* Step indicator */}
-              <div className="flex items-center gap-2 mb-6 text-xs">
-                <span className={`font-semibold ${!otpSent ? 'text-clinic-700' : 'text-slate-400'}`}>1 &bull; Choose slot</span>
-                <span className="text-slate-300">&rarr;</span>
-                <span className={`font-semibold ${otpSent && !verifySuccess ? 'text-clinic-700' : 'text-slate-400'}`}>2 &bull; Verify code</span>
-                <span className="text-slate-300">&rarr;</span>
-                <span className={`font-semibold ${verifySuccess ? 'text-clinic-700' : 'text-slate-400'}`}>3 &bull; Confirmed</span>
-              </div>
-
-              {statusMessage && (
-                <div className="mb-4 p-3 bg-clinic-50 border border-clinic-200 rounded-xl text-xs text-clinic-900 font-medium">
-                  {statusMessage}
-                </div>
-              )}
-
-              {/* Dev OTP banner (Clickable to auto-fill) */}
-              {devCodePreview && !verifySuccess && (
-                <div
-                  onClick={() => handleFillDevCode(devCodePreview)}
-                  className="mb-4 bg-slate-900 text-white p-3.5 rounded-xl flex items-center justify-between text-xs cursor-pointer hover:bg-slate-800 transition-all shadow-md group"
-                  title="Click to auto-fill this verification code"
-                >
-                  <div>
-                    <span className="text-clinic-400 font-bold uppercase tracking-wider text-[10px] block">DEMO VERIFICATION CODE</span>
-                    <span className="text-slate-300 text-[11px]">Click here to auto-fill into boxes below &rarr;</span>
-                  </div>
-                  <span className="font-mono font-bold text-xl tracking-widest text-emerald-400 bg-white/10 px-3 py-1 rounded-lg group-hover:scale-105 transition-transform">
-                    {devCodePreview}
-                  </span>
-                </div>
-              )}
-
-              {!otpSent ? (
-                <form onSubmit={handleRequestBooking} className="space-y-5">
-                  {/* Slot selection */}
-                  <div>
-                    <label className="text-xs font-semibold text-slate-700 block mb-2">1. Choose your appointment slot</label>
-                    {slotsLoading ? (
-                      <div className="text-xs text-slate-500 py-4 text-center">Checking slot availability...</div>
-                    ) : availableSlots.length === 0 || Object.keys(slotsByDate).length === 0 ? (
-                      <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                        No upcoming slots currently available for this doctor. Please check back soon or choose another doctor.
-                      </div>
-                    ) : (
-                      <div className="space-y-3 max-h-56 overflow-y-auto rounded-xl border border-slate-100 p-2 bg-slate-50/50">
-                        {Object.entries(slotsByDate).map(([dk, dSlots]) => (
-                          <div key={dk} className="bg-white rounded-xl border border-slate-200 p-3">
-                            <p className="text-[11px] font-bold text-clinic-800 mb-2 flex items-center gap-1">
-                              <span>📅</span> {fmtDate(dk)}
-                            </p>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 sm:gap-2">
-                              {dSlots.map(slot => {
-                                const isSelected = selectedSlot?.id === slot.id;
-                                return (
-                                  <button
-                                    type="button"
-                                    key={slot.id}
-                                    onClick={() => setSelectedSlot(slot)}
-                                    className={`py-2 rounded-lg text-[11px] font-semibold border text-center transition-all ${isSelected
-                                      ? 'bg-clinic-700 text-white border-clinic-700 shadow-sm'
-                                      : 'bg-white text-slate-700 border-slate-200 hover:border-clinic-400 hover:bg-clinic-50'
-                                      }`}
-                                  >
-                                    {fmtTime(slot.start_time)}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {selectedSlot && (
-                      <div className="mt-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2 font-medium">
-                        <span>✓</span> Selected time: <strong>{fmtTime(selectedSlot.start_time)}</strong> (10-minute temporary lock)
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Patient details */}
-                  <div className="space-y-3 pt-4 border-t border-slate-100">
-                    <label className="text-xs font-semibold text-slate-700 block">2. Patient Details</label>
-                    <input
-                      type="text"
-                      placeholder="Patient Full Name"
-                      value={fullName}
-                      onChange={e => setFullName(e.target.value)}
-                      required
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-clinic-400 placeholder:text-slate-400"
-                    />
-                    <input
-                      type="text"
-                      placeholder="WhatsApp / Phone (e.g. +923001234567)"
-                      value={whatsappNumber}
-                      onChange={e => setWhatsappNumber(e.target.value)}
-                      required
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-clinic-400 placeholder:text-slate-400"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-clinic-400 placeholder:text-slate-400"
-                    />
-                    <textarea
-                      placeholder="Reason for visit / symptoms (optional)"
-                      value={notes}
-                      onChange={e => setNotes(e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-clinic-400 placeholder:text-slate-400 resize-none"
-                    />
-                  </div>
-
-                  {/* Payment notice */}
-                  <div className="p-3 bg-clinic-50 border border-clinic-100 rounded-xl text-xs text-clinic-900">
-                    <strong>Pay {formatCurrency(bookingDoctor.fee_clinic)} cash at clinic desk</strong>
-                    <p className="text-clinic-700 mt-0.5">No online payment required. Pay at the clinic counter upon arrival.</p>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!selectedSlot || verifyLoading}
-                    className="w-full py-3 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
-                  >
-                    {verifyLoading ? 'Locking slot...' : 'Lock Slot & Send Verification Code'}
-                  </button>
-                </form>
-              ) : !verifySuccess ? (
-                <form onSubmit={handleVerifyOtp} className="space-y-5">
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs font-semibold text-slate-700">Enter Verification Code</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Passwordless</span>
-                    </div>
-                    <p className="text-xs text-slate-500 mb-4">
-                      Enter the 6-digit code for <strong>{whatsappNumber}</strong>. Valid for 10 minutes.
-                    </p>
-
-                    {/* 6 OTP boxes */}
-                    <div className="flex items-center justify-center gap-1 sm:gap-2 mb-4">
-                      {otpDigits.map((d, i) => (
-                        <input
-                          key={i}
-                          id={`otp-${i}`}
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={1}
-                          value={d}
-                          onChange={e => handleOtpDigit(i, e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Backspace' && !d && i > 0) {
-                              (document.getElementById(`otp-${i - 1}`) as HTMLInputElement)?.focus();
-                            }
-                          }}
-                          className={`w-9 sm:w-12 h-11 sm:h-14 text-center text-base sm:text-xl font-bold border rounded-xl focus:outline-none focus:ring-2 transition-all ${otpError
-                            ? 'border-rose-400 focus:ring-rose-300 bg-rose-50'
-                            : 'border-slate-300 focus:ring-clinic-400 focus:border-clinic-400 bg-white'
-                            }`}
-                          style={{ fontFamily: 'Outfit,monospace' }}
-                        />
-                      ))}
-                    </div>
-
-                    {otpError && (
-                      <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 mb-3">{otpError}</div>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={verifyLoading || otpCode.length !== 6}
-                    className="w-full py-3 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
-                  >
-                    {verifyLoading ? 'Verifying...' : 'Verify & Submit Appointment'}
-                  </button>
-                </form>
-              ) : (
-                <div className="text-center py-8 space-y-4">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-9 h-9 text-emerald-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-lg mb-1" style={{ fontFamily: 'Outfit,sans-serif' }}>Appointment Submitted!</h4>
-                    <p className="text-xs text-slate-500 max-w-xs mx-auto">Your visit is in the reception queue. Your digital slip will be issued upon assistant confirmation.</p>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700 font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                    Pending assistant approval
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <button
-                      onClick={() => {
-                        setBookingDoctor(null);
-                        if (onSwitchRole) {
-                          onSwitchRole('track' as any);
-                        } else {
-                          setShowTrack(true);
-                        }
-                      }}
-                      className="block w-full py-3 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
-                    >
-                      Track My Appointment &amp; Slip &rarr;
-                    </button>
-                    <button
-                      onClick={() => setBookingDoctor(null)}
-                      className="block w-full py-2 border border-slate-300 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -6908,7 +6628,11 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">
           {/* Doctor Picture / Avatar */}
-          <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-700/80 shadow-2xs">
+          <div 
+            onClick={() => onProfile(doctor)}
+            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-700/80 shadow-2xs cursor-pointer hover:opacity-90 transition-opacity"
+            title="Click to view doctor profile"
+          >
             <img
               src={getDoctorProfileImage(doctor, 300)}
               alt={doctor.full_name}
@@ -6935,7 +6659,12 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
           {/* Name & Specialty */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h3 
+                onClick={() => onProfile(doctor)}
+                className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1 cursor-pointer" 
+                style={{ fontFamily: 'Outfit, sans-serif' }}
+                title="Click to view doctor profile"
+              >
                 {doctor.full_name}
               </h3>
               {doctor.is_spotlight && (

@@ -73,6 +73,24 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
                 detail="The selected time slot is currently locked. Please select another slot."
             )
 
+    # 1b. Enforce daily limit: only 1 appointment per phone number per doctor per day
+    from app.services.booking_rule_service import booking_rule_service
+    is_allowed, err_msg, _ = await booking_rule_service.check_daily_phone_limit(
+        db=db,
+        doctor_id=slot.doctor_id,
+        visit_date_or_slot_time=slot.start_time,
+        phone=payload.phone,
+        additional_phones=[
+            payload.whatsapp_number,
+            getattr(payload, "loyalty_mobile", None)
+        ]
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=err_msg
+        )
+
     # 2. Find or register patient user record (passwordless)
     patient = None
     clean_phone = payload.phone.strip() if payload.phone else ""
@@ -188,6 +206,24 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
     slot = slot_res.scalar_one_or_none()
     if not slot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Slot record not found.")
+
+    # 2b. Concurrency guard: Enforce daily limit (1 appointment per phone number per doctor per day)
+    from app.services.booking_rule_service import booking_rule_service
+    is_allowed, err_msg, _ = await booking_rule_service.check_daily_phone_limit(
+        db=db,
+        doctor_id=slot.doctor_id,
+        visit_date_or_slot_time=slot.start_time,
+        phone=payload.contact,
+        additional_phones=[
+            payload.patient_phone,
+            getattr(payload, "loyalty_mobile", None)
+        ]
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=err_msg
+        )
 
     # 3. Locate patient
     contact = payload.contact.strip()

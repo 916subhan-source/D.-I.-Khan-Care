@@ -68,988 +68,53 @@ import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
 
-interface DoctorData {
-  id: string;
-  user_id: string;
-  full_name: string;
-  email?: string;
-  phone?: string;
-  plain_password?: string;
-  specialty: string;
-  sub_region: string;
-  clinic_address: string;
-  google_maps_url?: string;
-  fee_clinic: number;
-  shift: string;
-  morning_start?: string;
-  morning_end?: string;
-  evening_start?: string;
-  evening_end?: string;
-  is_spotlight: boolean;
-  verification_status: string;
-  qualification?: string;
-  bio?: string;
-  services_offered?: string;
-  conditions_treated?: string;
-  hospital_affiliations?: string;
-  custom_sunday_enabled?: boolean;
-  sunday_start?: string;
-  sunday_end?: string;
-  custom_day_schedule?: string;
-  profile_image?: string;
-  off_days?: string;
-  expertise?: string;
-  experience_years?: number;
-  next_available_slot?: string | null;
-  is_available_today?: boolean;
-  today_status?: string;
-  upcoming_slots_count?: number;
-  loyalty_card_enabled?: boolean;
-  loyalty_card_title?: string;
-  loyalty_card_image_url?: string;
-  loyalty_discount_percent?: number;
-}
 
-interface SlotData {
-  id: string;
-  doctor_id: string;
-  start_time: string;
-  end_time: string;
-  status: string;
-  slot_date?: string;
-  slot_date_fmt?: string;
-  start_time_fmt?: string;
-  end_time_fmt?: string;
-  duration_minutes?: number;
-}
+// ── Shared Domain Types, Formatters, Calling Order & Constants ──
+import {
+  DoctorData,
+  SlotData,
+  AppointmentItem,
+  DoctorCallingShiftInfo,
+  DoctorAvailabilityInfo,
+  PosDayItem
+} from './types';
+
+import {
+  formatCurrency,
+  parseQueueNumberFromSlip,
+  formatSlotDateTime,
+  parse24to12,
+  format12to24,
+  formatMinutesTo12h,
+  formatDoctorName,
+  optimizeCloudinaryUrl,
+  getDoctorProfileImage
+} from './utils/formatters';
+
+import {
+  getApptDateStrGlobal,
+  getApptMinutesFromMidnight,
+  getApptTokenSeq,
+  isApptTimePassedGlobal,
+  getCurrentMinutesInPkt,
+  parseTimeToMinutes,
+  isPosSlotPassed,
+  getDoctorCallingShiftInfo,
+  sortCallingSequence,
+  getSlotDateKeyGlobal,
+  getSlotMinutesFromMidnightInPkt,
+  isSlotEligibleForReschedule,
+  getDoctorAvailability
+} from './utils/callingOrder';
+
+import {
+  WEEKDAY_OPTIONS,
+  RESCHEDULE_MIN_TRAVEL_BUFFER_MINUTES
+} from './constants';
+
+export type { DoctorData, SlotData, AppointmentItem, DoctorAvailabilityInfo };
+export { formatCurrency, getDoctorAvailability };
 
-interface AppointmentItem {
-  id: string;
-  patient_id: string;
-  doctor_id: string;
-  slot_id: string;
-  status: string;
-  slip_number?: string;
-  notes?: string;
-  patient_name?: string;
-  patient_phone?: string;
-  patient_email?: string;
-  doctor_name?: string;
-  slot_start?: string;
-  start_time?: string;
-  slot_date?: string;
-  slot_time?: string;
-  payment_status?: string;
-  fee_amount?: number;
-  amount_paid?: number;
-  amount_due?: number;
-  token_number?: number;
-  created_at: string;
-  updated_at?: string;
-  appointment_date?: string;
-  time?: string;
-  date?: string;
-  has_loyalty_discount?: boolean;
-  loyalty_discount_amount?: number;
-  loyalty_applicant_name?: string;
-  loyalty_guardian_name?: string;
-  loyalty_dob?: string;
-  loyalty_gender?: string;
-  loyalty_cnic?: string;
-  loyalty_mobile?: string;
-  loyalty_whatsapp?: string;
-  loyalty_email?: string;
-  loyalty_address?: string;
-  loyalty_city?: string;
-  google_maps_url?: string;
-  loyalty_pickup_message?: string;
-  clinic_address?: string;
-}
-
-// Helper to parse sequence queue number from digital slip or token number
-// Format: DIK-[SPECIALTY]-[YYYYMMDD]-[SEQ_NUM:03d]-[JITTER] (e.g., DIK-CARD-20261010-002-95 -> "02")
-function parseQueueNumberFromSlip(slipNumber?: string, tokenNumber?: any): string {
-  if (tokenNumber !== undefined && tokenNumber !== null && !isNaN(Number(tokenNumber)) && Number(tokenNumber) > 0 && Number(tokenNumber) <= 999) {
-    return String(tokenNumber).padStart(2, '0');
-  }
-  if (!slipNumber || typeof slipNumber !== 'string') return '';
-  const parts = slipNumber.trim().split('-');
-  // Official confirmed format: DIK-[SPECIALTY]-[YYYYMMDD]-[SEQ_NUM:03d]-[JITTER] (5 parts)
-  if (parts.length >= 5 && /^\d{1,3}$/.test(parts[3])) {
-    const num = parseInt(parts[3], 10);
-    if (!isNaN(num) && num > 0 && num <= 999) {
-      return String(num).padStart(2, '0');
-    }
-  }
-  // Fallback for 4-part slips with 2-3 digit sequence (e.g. DIK-CARD-20260930-014)
-  if (parts.length === 4 && /^\d{1,3}$/.test(parts[3])) {
-    const num = parseInt(parts[3], 10);
-    if (!isNaN(num) && num > 0 && num <= 999) {
-      return String(num).padStart(2, '0');
-    }
-  }
-  return '';
-}
-
-// Helper to format currency values cleanly without awkward trailing decimals (e.g. 1200.0 -> Rs. 1,200)
-export function formatCurrency(val: any, prefix = 'Rs.\u00A0'): string {
-  if (val === null || val === undefined || val === '') return `${prefix}1,000`;
-  const n = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
-  if (isNaN(n)) return `${prefix}1,000`;
-  return `${prefix}${Math.round(n).toLocaleString('en-US')}`;
-}
-
-// Helper to format slot date and time across assistant & doctor portals
-function formatSlotDateTime(dateVal?: string, slipNumber?: string, createdAt?: string): { date: string; time: string } {
-  if (!dateVal) {
-    if (slipNumber) {
-      const match = slipNumber.match(/(\d{4})(\d{2})(\d{2})/);
-      if (match) {
-        const [, y, m, d] = match;
-        const dt = new Date(Number(y), Number(m) - 1, Number(d));
-        if (!isNaN(dt.getTime())) {
-          const date = dt.toLocaleDateString('en-US', {
-            timeZone: 'Asia/Karachi',
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          });
-          return { date, time: 'Slot Released' };
-        }
-      }
-    }
-    if (createdAt) {
-      try {
-        const d = new Date(createdAt);
-        if (!isNaN(d.getTime())) {
-          const date = d.toLocaleDateString('en-US', {
-            timeZone: 'Asia/Karachi',
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          });
-          return { date, time: 'Slot Released' };
-        }
-      } catch { }
-    }
-    return { date: 'Date Pending', time: 'Time Scheduled' };
-  }
-  try {
-    const d = new Date(dateVal);
-    if (isNaN(d.getTime())) return { date: dateVal, time: '' };
-    const date = d.toLocaleDateString('en-US', {
-      timeZone: 'Asia/Karachi',
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-    const time = d.toLocaleTimeString('en-US', {
-      timeZone: 'Asia/Karachi',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-    return { date, time };
-  } catch {
-    return { date: dateVal, time: '' };
-  }
-}
-
-// ── Calling Sequence Helpers (Time & Token Order) ──────────────────────────
-function getApptDateStrGlobal(a: AppointmentItem): string {
-  // 1. Slip number is generated with the exact PKT local calendar date (e.g. DIK-CARD-20261017-009-15 -> 2026-10-17)
-  if (a.slip_number) {
-    const m = a.slip_number.match(/-(\d{4})(\d{2})(\d{2})-/);
-    if (m) {
-      return `${m[1]}-${m[2]}-${m[3]}`;
-    }
-  }
-  // 2. Format raw slot start time in Asia/Karachi
-  const raw = a.slot_start || (a as any).start_time;
-  if (raw) {
-    try {
-      const d = new Date(raw);
-      if (!isNaN(d.getTime())) {
-        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
-      }
-    } catch { }
-  }
-  // 3. Fallback on slot_date
-  if (a.slot_date) {
-    try {
-      const d = new Date(a.slot_date);
-      if (!isNaN(d.getTime())) {
-        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
-      }
-    } catch { }
-  }
-  // 4. Fallback on created_at in Asia/Karachi
-  if (a.created_at) {
-    try {
-      const d = new Date(a.created_at);
-      if (!isNaN(d.getTime())) {
-        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
-      }
-    } catch { }
-  }
-  return '';
-}
-
-function getApptMinutesFromMidnight(a: AppointmentItem): number {
-  // 1. Parse slot_time directly (e.g. '6:20 PM', '10:50 AM')
-  if (a.slot_time) {
-    const match = a.slot_time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-    if (match) {
-      let h = parseInt(match[1], 10);
-      const m = parseInt(match[2], 10);
-      const ap = match[3]?.toUpperCase();
-      if (ap === 'PM' && h < 12) h += 12;
-      if (ap === 'AM' && h === 12) h = 0;
-      return h * 60 + m;
-    }
-  }
-  // 2. Parse ISO time in Asia/Karachi
-  const rawIso = a.slot_start || (a as any).start_time;
-  if (rawIso) {
-    try {
-      const d = new Date(rawIso);
-      if (!isNaN(d.getTime())) {
-        const parts = new Intl.DateTimeFormat('en-US', {
-          timeZone: 'Asia/Karachi',
-          hour: 'numeric',
-          minute: 'numeric',
-          hourCycle: 'h23'
-        }).formatToParts(d);
-        const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-        const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-        return hour * 60 + minute;
-      }
-    } catch { }
-  }
-  return 9999;
-}
-
-function getApptTokenSeq(slip?: string): number {
-  if (!slip) return 9999;
-  const match = slip.match(/-(\d{3,4})-/);
-  if (match) {
-    return parseInt(match[1], 10);
-  }
-  return 9999;
-}
-
-function isApptTimePassedGlobal(a: AppointmentItem, todayYmd: string): boolean {
-  const apptDate = getApptDateStrGlobal(a);
-  if (!apptDate) return false;
-  if (apptDate < todayYmd) return true;
-  if (apptDate > todayYmd) return false;
-
-  // It is today! Check current time in Pakistan (Asia/Karachi)
-  try {
-    const now = new Date();
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Karachi',
-      hour: 'numeric',
-      minute: 'numeric',
-      hourCycle: 'h23'
-    }).formatToParts(now);
-    const curHour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-    const curMin = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-    const currentMins = curHour * 60 + curMin;
-
-    const apptMins = getApptMinutesFromMidnight(a);
-    if (apptMins === 9999) return true; // If no slot time, don't block
-    return currentMins >= apptMins;
-  } catch {
-    return true;
-  }
-}
-
-interface DoctorCallingShiftInfo {
-  shiftName: string;
-  shiftStartTimeStr: string;
-  callingStartTimeStr: string;
-  shiftStartMins: number;
-  callingStartMins: number;
-  currentMins: number;
-  isCallingStarted: boolean;
-  minutesUntilCalling: number;
-  activeShiftType: 'MORNING' | 'EVENING';
-}
-
-function getCurrentMinutesInPkt(): number {
-  try {
-    const now = new Date();
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Karachi',
-      hour: 'numeric',
-      minute: 'numeric',
-      hourCycle: 'h23'
-    }).formatToParts(now);
-    const curHour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-    const curMin = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-    return curHour * 60 + curMin;
-  } catch {
-    const d = new Date();
-    return d.getHours() * 60 + d.getMinutes();
-  }
-}
-
-function parseTimeToMinutes(str?: string, defaultMins: number = 540): number {
-  if (!str) return defaultMins;
-  const match = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-  if (!match) return defaultMins;
-  let h = parseInt(match[1], 10);
-  const m = parseInt(match[2], 10);
-  const ap = match[3]?.toUpperCase();
-  if (ap === 'PM' && h < 12) h += 12;
-  if (ap === 'AM' && h === 12) h = 0;
-  return h * 60 + m;
-}
-
-function isPosSlotPassed(s: any, isToday: boolean): boolean {
-  if (!isToday || !s) return false;
-  if (s.is_emergency) return false;
-  try {
-    const currentMins = getCurrentMinutesInPkt();
-    let slotMins = 9999;
-    if (s.start_time) {
-      const dt = new Date(s.start_time);
-      const parts = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'Asia/Karachi',
-        hour: 'numeric',
-        minute: 'numeric',
-        hourCycle: 'h23'
-      }).formatToParts(dt);
-      const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-      const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-      slotMins = h * 60 + m;
-    } else if (s.start_time_fmt) {
-      slotMins = parseTimeToMinutes(s.start_time_fmt);
-    }
-    return currentMins >= slotMins;
-  } catch {
-    return false;
-  }
-}
-
-function formatMinutesTo12h(mins: number): string {
-  let normalized = mins % 1440;
-  if (normalized < 0) normalized += 1440;
-  const h = Math.floor(normalized / 60);
-  const m = normalized % 60;
-  const period = h >= 12 ? 'PM' : 'AM';
-  let h12 = h % 12;
-  if (h12 === 0) h12 = 12;
-  return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
-}
-
-function formatDoctorName(name?: string): string {
-  if (!name) return 'Doctor';
-  const clean = name.trim();
-  const titled = clean.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-  if (/^dr\.?\s+/i.test(titled)) {
-    return titled;
-  }
-  return `Dr. ${titled}`;
-}
-
-function getDoctorCallingShiftInfo(
-  doc?: any,
-  todayYmd?: string,
-  appointments?: AppointmentItem[]
-): DoctorCallingShiftInfo {
-  const currentMins = getCurrentMinutesInPkt();
-  const shiftType = (doc?.shift || 'BOTH').toUpperCase();
-
-  let morningStartMins = parseTimeToMinutes(doc?.morning_start, 540); // 09:00 AM (540 mins)
-  let eveningStartMins = parseTimeToMinutes(doc?.evening_start, 1020); // 05:00 PM (1020 mins)
-
-  const todayAppts = (appointments || []).filter(a => {
-    const d = getApptDateStrGlobal(a);
-    const isToday = todayYmd ? d === todayYmd : true;
-    const st = (a.status || '').toUpperCase();
-    return isToday && st !== 'CANCELLED' && st !== 'REJECTED';
-  });
-
-  const morningAppts = todayAppts.filter(a => getApptMinutesFromMidnight(a) < 840);
-  const eveningAppts = todayAppts.filter(a => getApptMinutesFromMidnight(a) >= 840);
-
-  // If earliest appointment in shift is earlier than default time, respect earliest scheduled slot
-  if (morningAppts.length > 0) {
-    const earliestMorning = Math.min(...morningAppts.map(a => getApptMinutesFromMidnight(a)));
-    if (earliestMorning > 0 && earliestMorning < morningStartMins) {
-      morningStartMins = earliestMorning;
-    }
-  }
-  if (eveningAppts.length > 0) {
-    const earliestEvening = Math.min(...eveningAppts.map(a => getApptMinutesFromMidnight(a)));
-    if (earliestEvening > 0 && earliestEvening < eveningStartMins) {
-      eveningStartMins = earliestEvening;
-    }
-  }
-
-  let activeShiftType: 'MORNING' | 'EVENING' = 'MORNING';
-
-  if (shiftType === 'EVENING') {
-    activeShiftType = 'EVENING';
-  } else if (shiftType === 'MORNING') {
-    activeShiftType = 'MORNING';
-  } else {
-    // Doctor works BOTH shifts
-    const hasIncompleteMorning = morningAppts.some(a => {
-      const st = (a.status || '').toUpperCase();
-      return st !== 'COMPLETED';
-    });
-    const hasAnyMorning = morningAppts.length > 0;
-    const hasAnyEvening = eveningAppts.length > 0;
-
-    // Switch to evening if past 2:00 PM (840), or if all morning appointments are finished,
-    // or if NO morning appointments exist today but evening appointments do exist
-    if (currentMins >= 840 || (!hasIncompleteMorning && currentMins >= 720) || (!hasAnyMorning && hasAnyEvening)) {
-      activeShiftType = 'EVENING';
-    } else {
-      activeShiftType = 'MORNING';
-    }
-  }
-
-  const shiftStartMins = activeShiftType === 'MORNING' ? morningStartMins : eveningStartMins;
-  // Calling starts precisely 10 minutes before shift starting timing
-  const callingStartMins = shiftStartMins - 10;
-  const isCallingStarted = currentMins >= callingStartMins;
-  const minutesUntilCalling = Math.max(0, callingStartMins - currentMins);
-
-  const shiftName = activeShiftType === 'MORNING' ? 'Morning Shift' : 'Evening Shift';
-  const shiftStartTimeStr = formatMinutesTo12h(shiftStartMins);
-  const callingStartTimeStr = formatMinutesTo12h(callingStartMins);
-
-  return {
-    shiftName,
-    shiftStartTimeStr,
-    callingStartTimeStr,
-    shiftStartMins,
-    callingStartMins,
-    currentMins,
-    isCallingStarted,
-    minutesUntilCalling,
-    activeShiftType
-  };
-}
-
-function sortCallingSequence(
-  appts: AppointmentItem[],
-  todayYmd: string,
-  callingShift?: DoctorCallingShiftInfo | null
-): AppointmentItem[] {
-  return [...appts].sort((a, b) => {
-    const dateA = getApptDateStrGlobal(a);
-    const dateB = getApptDateStrGlobal(b);
-    const isTodayA = dateA === todayYmd;
-    const isTodayB = dateB === todayYmd;
-
-    const stA = (a.status || '').toUpperCase();
-    const stB = (b.status || '').toUpperCase();
-
-    const isCompletedA = stA === 'COMPLETED';
-    const isCompletedB = stB === 'COMPLETED';
-    const isCancelledA = stA === 'CANCELLED' || stA === 'REJECTED';
-    const isCancelledB = stB === 'CANCELLED' || stB === 'REJECTED';
-    const isConfirmedA = stA === 'CONFIRMED' || stA === 'IN_PROGRESS';
-    const isConfirmedB = stB === 'CONFIRMED' || stB === 'IN_PROGRESS';
-    const isPendingA = stA.includes('PENDING');
-    const isPendingB = stB.includes('PENDING');
-
-    // Priority ranking:
-    // Rank 1: Confirmed today during current/active shift (calling starts 10m before shift)
-    // Rank 2: Confirmed today during subsequent shift
-    // Rank 3: Pending approval today
-    // Rank 4: Confirmed future dates
-    // Rank 5: Pending future dates
-    // Rank 6: Completed visits (moved down)
-    // Rank 7: Cancelled / Rejected visits (at bottom)
-    const getRank = (
-      isToday: boolean,
-      isConf: boolean,
-      isPend: boolean,
-      isComp: boolean,
-      isCanc: boolean,
-      item: AppointmentItem
-    ) => {
-      if (isToday && isConf && !isComp && !isCanc) {
-        if (callingShift) {
-          const itemMins = getApptMinutesFromMidnight(item);
-          const isMorningAppt = itemMins < 840;
-          const isSameAsActive =
-            (callingShift.activeShiftType === 'MORNING' && isMorningAppt) ||
-            (callingShift.activeShiftType === 'EVENING' && !isMorningAppt);
-          return isSameAsActive ? 1 : 2;
-        }
-        return 1;
-      }
-      if (isToday && isPend && !isComp && !isCanc) return 3;
-      if (!isToday && isConf && !isComp && !isCanc) return 4;
-      if (!isToday && isPend && !isComp && !isCanc) return 5;
-      if (isComp) return 6;
-      return 7;
-    };
-
-    const rankA = getRank(isTodayA, isConfirmedA, isPendingA, isCompletedA, isCancelledA, a);
-    const rankB = getRank(isTodayB, isConfirmedB, isPendingB, isCompletedB, isCancelledB, b);
-
-    if (rankA !== rankB) return rankA - rankB;
-
-    // Inside Rank 1 & 2 (Active Calling Queue today):
-    // Chronological slot time ascending! (09:00 AM < 09:20 AM < 09:40 AM ...)
-    if (rankA === 1 || rankA === 2) {
-      const minA = getApptMinutesFromMidnight(a);
-      const minB = getApptMinutesFromMidnight(b);
-      if (minA !== minB) return minA - minB;
-      const tokA = getApptTokenSeq(a.slip_number);
-      const tokB = getApptTokenSeq(b.slip_number);
-      if (tokA !== tokB) return tokA - tokB;
-    }
-
-    // Inside Rank 3 (Pending today):
-    if (rankA === 3) {
-      const minA = getApptMinutesFromMidnight(a);
-      const minB = getApptMinutesFromMidnight(b);
-      if (minA !== minB) return minA - minB;
-    }
-
-    // Inside Rank 6 (Completed visits):
-    // Most recently completed at top of completed block
-    if (rankA === 6) {
-      const timeA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
-      const timeB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
-      if (timeA !== timeB) return timeB - timeA;
-    }
-
-    // Fallback: created_at descending
-    const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
-    const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
-    return tB - tA;
-  });
-}
-
-function getSlotDateKeyGlobal(s: any): string {
-  if (s.slot_date && /^\d{4}-\d{2}-\d{2}$/.test(s.slot_date)) {
-    return s.slot_date;
-  }
-  try {
-    const raw = s.start_time || s.slot_start;
-    if (raw) {
-      const d = new Date(raw);
-      if (!isNaN(d.getTime())) {
-        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
-      }
-    }
-  } catch { }
-  return '';
-}
-
-/**
- * Smart Rescheduling Rule: On today's date, only slots starting at least 45 minutes in the future
- * from the current time are arranged/offered to give the patient adequate notice and travel time.
- */
-const RESCHEDULE_MIN_TRAVEL_BUFFER_MINUTES = 45;
-
-function getSlotMinutesFromMidnightInPkt(slot: any): number {
-
-  if (!slot) return 9999;
-  // 1. If start_time_fmt or slot_time (e.g. "5:00 PM", "05:20 PM")
-  const str = slot.start_time_fmt || slot.slot_time;
-  if (str) {
-    const m = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
-    if (m) {
-      let h = parseInt(m[1], 10);
-      const min = parseInt(m[2], 10);
-      const ap = m[3]?.toUpperCase();
-      if (ap === 'PM' && h < 12) h += 12;
-      if (ap === 'AM' && h === 12) h = 0;
-      return h * 60 + min;
-    }
-  }
-  // 2. Parse from start_time with Asia/Karachi timezone
-  const raw = slot.start_time || slot.slot_start;
-  if (raw) {
-    try {
-      const iso = (typeof raw === 'string' && !raw.endsWith('Z') && !raw.includes('+')) ? raw + 'Z' : raw;
-      const d = new Date(iso);
-      if (!isNaN(d.getTime())) {
-        const parts = new Intl.DateTimeFormat('en-US', {
-          timeZone: 'Asia/Karachi',
-          hour: 'numeric',
-          minute: 'numeric',
-          hourCycle: 'h23'
-        }).formatToParts(d);
-        const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-        const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-        return hour * 60 + minute;
-      }
-    } catch { }
-  }
-  return 9999;
-}
-
-function isSlotEligibleForReschedule(
-  slot: any,
-  todayYmd: string,
-  minBufferMinutes: number = RESCHEDULE_MIN_TRAVEL_BUFFER_MINUTES
-): boolean {
-  if (!slot) return false;
-  const slotDateKey = getSlotDateKeyGlobal(slot);
-  if (!slotDateKey || slotDateKey < todayYmd) {
-    return false; // Past date
-  }
-
-  // Future dates (tomorrow, next week, etc.) are always valid (> 45 mins)
-  if (slotDateKey > todayYmd) {
-    return true;
-  }
-
-  // Today's date: Must start at least minBufferMinutes from current Pakistan time
-  const currentMinsPkt = getCurrentMinutesInPkt();
-  const minEligibleMins = currentMinsPkt + minBufferMinutes;
-  const slotMins = getSlotMinutesFromMidnightInPkt(slot);
-
-  if (slotMins === 9999) return false;
-  return slotMins >= minEligibleMins;
-}
-
-
-
-
-// Helper to transform any Cloudinary URL for blazing fast CDN delivery (<50ms)
-function optimizeCloudinaryUrl(url?: string | null, width: number = 400): string {
-  if (!url) return '';
-  if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
-  const uploadIndex = url.indexOf('/upload/');
-  if (uploadIndex === -1) return url;
-  const prefix = url.substring(0, uploadIndex + 8);
-  let suffix = url.substring(uploadIndex + 8);
-  if (['f_auto', 'w_', 'q_', 'c_'].some((k) => suffix.startsWith(k))) {
-    const slashIdx = suffix.indexOf('/');
-    if (slashIdx !== -1) {
-      suffix = suffix.substring(slashIdx + 1);
-    }
-  }
-  return `${prefix}f_auto,q_auto:eco,w_${width},c_fill,g_face,dpr_auto/${suffix}`;
-}
-
-// Helper to get doctor profile image with reliable matching for D.I. Khan specialists
-function getDoctorProfileImage(
-  doc?: Partial<DoctorData> | { full_name?: string; specialty?: string; profile_image?: string } | null,
-  targetWidth: number = 400
-): string {
-  if (!doc) return '/dr_ayesha_khan.webp';
-  if (doc.profile_image) return optimizeCloudinaryUrl(doc.profile_image, targetWidth);
-  const name = (doc.full_name || '').toLowerCase();
-  const spec = (doc.specialty || '').toLowerCase();
-
-  if (name.includes('sadia') || spec.includes('gynecol') || spec.includes('obstetric')) {
-    return '/doctors/dr_sadia_rehman.webp';
-  }
-  if (name.includes('tariq') || name.includes('babar')) {
-    return '/doctors/dr_tariq_babar.webp';
-  }
-  if (name.includes('sahil') || spec.includes('dermatol')) {
-    return '/doctors/dr_sahil_mehsood.webp';
-  }
-  if (name.includes('haris')) {
-    return '/doctors/dr_haris_rehman.webp';
-  }
-  if (name.includes('asif') || name.includes('gandapur')) {
-    return '/doctors/dr_asif_gandapur.webp';
-  }
-  if (name.includes('moiz')) {
-    return '/doctors/dr_moiz_ahmad.webp';
-  }
-  if (name.includes('subhan')) {
-    return '/doctors/dr_subhan_sultan.webp';
-  }
-  if (spec.includes('cardio')) {
-    return '/doctors/dr_tariq_babar.webp';
-  }
-  if (spec.includes('pediat') || spec.includes('child')) {
-    return '/doctors/dr_asif_gandapur.webp';
-  }
-  return '/dr_ayesha_khan.webp';
-}
-
-// ── Shared: Doctor Real Shift, Today Availability & Next Slot Calculator ─────────────
-export interface DoctorAvailabilityInfo {
-  isAvailableToday: boolean;
-  todayBadgeText: string;
-  todayBadgeClass: string;
-  nextSlotText: string;
-  nextSlotClass: string;
-  shiftBadge: string;
-  statusText: string;
-}
-
-export function getDoctorAvailability(doc?: Partial<DoctorData> | null): DoctorAvailabilityInfo {
-  if (!doc) {
-    return {
-      isAvailableToday: false,
-      todayBadgeText: 'Checking Schedule',
-      todayBadgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
-      nextSlotText: 'Schedule Loading',
-      nextSlotClass: 'bg-slate-400',
-      shiftBadge: 'Clinic Shift',
-      statusText: 'OPD Timing'
-    };
-  }
-
-  try {
-    const now = new Date();
-    const dayName = now.toLocaleDateString('en-US', { timeZone: 'Asia/Karachi', weekday: 'long' }).toLowerCase();
-    const hr = parseInt(now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false }), 10);
-    const min = parseInt(now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Karachi', minute: '2-digit', hour12: false }), 10);
-    const nowMins = hr * 60 + min;
-
-    const offDays = (doc.off_days || 'sunday').split(',').map((d: string) => d.trim().toLowerCase());
-    const isTodayOff = offDays.includes(dayName);
-
-    // Shift boundaries
-    const [mSh, mSm] = (doc.morning_start || '09:00').split(':').map(Number);
-    const [mEh, mEm] = (doc.morning_end || '13:00').split(':').map(Number);
-    const mStartMin = mSh * 60 + mSm;
-    const mEndMin = mEh * 60 + mEm;
-
-    const [eSh, eSm] = (doc.evening_start || '17:00').split(':').map(Number);
-    const [eEh, eEm] = (doc.evening_end || '21:00').split(':').map(Number);
-    const eStartMin = eSh * 60 + eSm;
-    const eEndMin = eEh * 60 + eEm;
-
-    const fmt12 = (h: number, m: number) => {
-      const ampm = h < 12 ? 'AM' : 'PM';
-      const h12 = h % 12 || 12;
-      return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
-    };
-
-    const morningLabel = `${fmt12(mSh, mSm)} - ${fmt12(mEh, mEm)}`;
-    const eveningLabel = `${fmt12(eSh, eSm)} - ${fmt12(eEh, eEm)}`;
-
-    let shiftBadge = '';
-    const shift = (doc.shift || 'EVENING').toUpperCase();
-    if (shift === 'MORNING') {
-      shiftBadge = `Morning · ${morningLabel}`;
-    } else if (shift === 'EVENING') {
-      shiftBadge = `Evening · ${eveningLabel}`;
-    } else {
-      shiftBadge = `Both Shifts · ${fmt12(mSh, mSm)} & ${fmt12(eSh, eSm)}`;
-    }
-
-    const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const currentDayIdx = daysOfWeek.indexOf(dayName);
-    let nextOpenDay = 'Tomorrow';
-    const tomorrowDayName = daysOfWeek[(currentDayIdx + 1) % 7];
-    if (offDays.includes(tomorrowDayName)) {
-      const dayAfterTomorrow = daysOfWeek[(currentDayIdx + 2) % 7];
-      nextOpenDay = dayAfterTomorrow.charAt(0).toUpperCase() + dayAfterTomorrow.slice(1);
-    }
-
-    // ── Real DB Slot Awareness: If doctor has live backend slot status or next_available_slot ──
-    const hasLiveSlotData = Boolean(doc.next_available_slot || doc.today_status !== undefined || doc.is_available_today !== undefined);
-
-    if (hasLiveSlotData) {
-      if (doc.today_status === 'OFF_TODAY' || isTodayOff) {
-        return {
-          isAvailableToday: false,
-          todayBadgeText: 'Off Today (Weekly Off)',
-          todayBadgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
-          nextSlotText: doc.next_available_slot || `${nextOpenDay} · Next Shift`,
-          nextSlotClass: 'bg-rose-500',
-          shiftBadge,
-          statusText: 'Weekly Off Day'
-        };
-      }
-
-      const isTodaySlot = (doc.next_available_slot && doc.next_available_slot.toLowerCase().startsWith('today')) || doc.is_available_today === true || doc.today_status === 'AVAILABLE_TODAY';
-
-      if (isTodaySlot) {
-        let todayBadge = 'Available Today';
-        let status = doc.upcoming_slots_count ? `${doc.upcoming_slots_count} slots open` : 'Open for booking';
-
-        // For doctors with BOTH shifts, distinguish Morning vs Evening based on actual next slot
-        if (shift === 'BOTH') {
-          const isMorningSlot = doc.next_available_slot ? doc.next_available_slot.toLowerCase().includes('am') : (nowMins < mEndMin - 20);
-          if (isMorningSlot) {
-            todayBadge = 'Available Today (Morning)';
-            status = `Morning shift until ${fmt12(mEh, mEm)}`;
-          } else {
-            todayBadge = 'Available Today (Evening)';
-            status = `Evening shift until ${fmt12(eEh, eEm)}`;
-          }
-        } else if (shift === 'MORNING') {
-          todayBadge = 'Available Today (Morning)';
-          status = `Morning shift until ${fmt12(mEh, mEm)}`;
-        } else if (shift === 'EVENING') {
-          todayBadge = 'Available Today (Evening)';
-          status = `Evening shift until ${fmt12(eEh, eEm)}`;
-        }
-
-        return {
-          isAvailableToday: true,
-          todayBadgeText: todayBadge,
-          todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-          nextSlotText: doc.next_available_slot || 'Today · Available',
-          nextSlotClass: 'bg-emerald-500 animate-pulse',
-          shiftBadge,
-          statusText: status
-        };
-      }
-
-      if (doc.today_status === 'NO_UPCOMING_SLOTS') {
-        return {
-          isAvailableToday: false,
-          todayBadgeText: 'No Upcoming Slots',
-          todayBadgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
-          nextSlotText: 'No Slots Scheduled',
-          nextSlotClass: 'bg-slate-400',
-          shiftBadge,
-          statusText: 'Contact clinic'
-        };
-      }
-
-      // No slots left today (either passed or cleared)
-      return {
-        isAvailableToday: false,
-        todayBadgeText: 'No Slots Left Today',
-        todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-        nextSlotText: doc.next_available_slot || `${nextOpenDay} · Next Shift`,
-        nextSlotClass: 'bg-amber-500',
-        shiftBadge,
-        statusText: doc.next_available_slot ? 'Next available below' : 'Shift ended today'
-      };
-    }
-
-    if (isTodayOff) {
-      const startSlot = shift === 'EVENING' ? fmt12(eSh, eSm) : fmt12(mSh, mSm);
-      return {
-        isAvailableToday: false,
-        todayBadgeText: 'Off Today (Weekly Off)',
-        todayBadgeClass: 'bg-rose-50 text-rose-700 border-rose-200',
-        nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${startSlot}`,
-        nextSlotClass: 'bg-rose-500',
-        shiftBadge,
-        statusText: 'Weekly Off Day'
-      };
-    }
-
-    if (shift === 'MORNING') {
-      if (nowMins < mEndMin - 20) {
-        const nextMin = Math.max(nowMins + 15, mStartMin);
-        const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
-        const nextSlotH = Math.floor(nextRoundedMin / 60);
-        const nextSlotM = nextRoundedMin % 60;
-        return {
-          isAvailableToday: true,
-          todayBadgeText: 'Available Today (Morning)',
-          todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-          nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
-          nextSlotClass: 'bg-emerald-500 animate-pulse',
-          shiftBadge,
-          statusText: `Open until ${fmt12(mEh, mEm)}`
-        };
-      } else {
-        return {
-          isAvailableToday: false,
-          todayBadgeText: 'Morning Shift Ended',
-          todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-          nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
-          nextSlotClass: 'bg-amber-500',
-          shiftBadge,
-          statusText: 'Shift ended today'
-        };
-      }
-    }
-
-    if (shift === 'EVENING') {
-      if (nowMins < eEndMin - 20) {
-        const nextMin = Math.max(nowMins + 15, eStartMin);
-        const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
-        const nextSlotH = Math.floor(nextRoundedMin / 60);
-        const nextSlotM = nextRoundedMin % 60;
-        return {
-          isAvailableToday: true,
-          todayBadgeText: 'Available Today (Evening)',
-          todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-          nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
-          nextSlotClass: 'bg-emerald-500 animate-pulse',
-          shiftBadge,
-          statusText: `Open until ${fmt12(eEh, eEm)}`
-        };
-      } else {
-        return {
-          isAvailableToday: false,
-          todayBadgeText: 'Evening Shift Ended',
-          todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-          nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${fmt12(eSh, eSm)}`,
-          nextSlotClass: 'bg-amber-500',
-          shiftBadge,
-          statusText: 'Shift ended today'
-        };
-      }
-    }
-
-    // BOTH SHIFTS
-    if (nowMins < mEndMin - 20) {
-      const nextMin = Math.max(nowMins + 15, mStartMin);
-      const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
-      const nextSlotH = Math.floor(nextRoundedMin / 60);
-      const nextSlotM = nextRoundedMin % 60;
-      return {
-        isAvailableToday: true,
-        todayBadgeText: 'Available Today (Morning)',
-        todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-        nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
-        nextSlotClass: 'bg-emerald-500 animate-pulse',
-        shiftBadge,
-        statusText: `Morning shift until ${fmt12(mEh, mEm)}`
-      };
-    } else if (nowMins < eEndMin - 20) {
-      const nextMin = Math.max(nowMins + 15, eStartMin);
-      const nextRoundedMin = Math.ceil(nextMin / 20) * 20;
-      const nextSlotH = Math.floor(nextRoundedMin / 60);
-      const nextSlotM = nextRoundedMin % 60;
-      return {
-        isAvailableToday: true,
-        todayBadgeText: 'Available Today (Evening)',
-        todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-        nextSlotText: doc.next_available_slot || `Today · ${fmt12(nextSlotH, nextSlotM)}`,
-        nextSlotClass: 'bg-emerald-500 animate-pulse',
-        shiftBadge,
-        statusText: `Evening shift until ${fmt12(eEh, eEm)}`
-      };
-    } else {
-      return {
-        isAvailableToday: false,
-        todayBadgeText: 'Both Shifts Ended',
-        todayBadgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
-        nextSlotText: doc.next_available_slot || `${nextOpenDay} · ${fmt12(mSh, mSm)}`,
-        nextSlotClass: 'bg-amber-500',
-        shiftBadge,
-        statusText: 'Both shifts ended today'
-      };
-    }
-  } catch {
-    return {
-      isAvailableToday: true,
-      todayBadgeText: 'Available',
-      todayBadgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-      nextSlotText: 'Upcoming Slots Available',
-      nextSlotClass: 'bg-emerald-500',
-      shiftBadge: (doc.shift || 'EVENING'),
-      statusText: 'Consultation'
-    };
-  }
-}
-
-// ── Shared: Initials Avatar ──────────────────────────────────────────────────
 function InitialsAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const classes = size === 'lg'
@@ -4431,8 +3496,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'profile' && profileActiveTab === 'about'
-                ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <User className="w-3.5 h-3.5" />
@@ -4448,8 +3513,8 @@ function DoctorProfileAndBookingView({
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'booking'
-                ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
-                : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 hover:bg-emerald-600 hover:text-white'
+              ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
+              : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 hover:bg-emerald-600 hover:text-white'
               }`}
           >
             <Calendar className="w-3.5 h-3.5" />
@@ -4464,8 +3529,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-                : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950'
+              ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
+              : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950'
               }`}
           >
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -4480,8 +3545,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -4495,8 +3560,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'services'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Stethoscope className="w-3.5 h-3.5" />
@@ -4511,8 +3576,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Award className="w-3.5 h-3.5" />
@@ -4527,8 +3592,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -7962,34 +7027,7 @@ const HOURS_12 = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '1
 const MINUTES_STEP = ['00', '15', '30', '45'];
 const PERIODS = ['AM', 'PM'];
 
-function parse24to12(timeStr: string = '09:00') {
-  if (!timeStr || !timeStr.includes(':')) {
-    return { hour: '09', minute: '00', period: 'AM' };
-  }
-  const [hRaw, mRaw] = timeStr.split(':');
-  let h = parseInt(hRaw, 10);
-  if (isNaN(h)) h = 9;
-  const m = mRaw ? mRaw.padStart(2, '0') : '00';
-  const period = h >= 12 ? 'PM' : 'AM';
-  h = h % 12;
-  if (h === 0) h = 12;
-  return {
-    hour: String(h).padStart(2, '0'),
-    minute: ['00', '15', '30', '45'].includes(m) ? m : '00',
-    period
-  };
-}
-
-function format12to24(hour: string, minute: string, period: string) {
-  let h = parseInt(hour, 10);
-  if (isNaN(h)) h = 9;
-  if (period === 'AM') {
-    if (h === 12) h = 0;
-  } else {
-    if (h !== 12) h += 12;
-  }
-  return `${String(h).padStart(2, '0')}:${(minute || '00').padStart(2, '0')}`;
-}
+// parse24to12 & format12to24 imported from ./utils/formatters
 
 function TimePickerDropdowns({
   label,
@@ -8053,15 +7091,7 @@ function TimePickerDropdowns({
   );
 }
 
-const WEEKDAY_OPTIONS = [
-  { id: 'monday', label: 'Mon', full: 'Monday' },
-  { id: 'tuesday', label: 'Tue', full: 'Tuesday' },
-  { id: 'wednesday', label: 'Wed', full: 'Wednesday' },
-  { id: 'thursday', label: 'Thu', full: 'Thursday' },
-  { id: 'friday', label: 'Fri', full: 'Friday' },
-  { id: 'saturday', label: 'Sat', full: 'Saturday' },
-  { id: 'sunday', label: 'Sun', full: 'Sunday' },
-];
+// WEEKDAY_OPTIONS imported from ./constants
 
 function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assistant' | 'doctor' | 'admin') => void }) {
   const [queue, setQueue] = useState<AppointmentItem[]>([]);
@@ -16347,8 +15377,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   type="button"
                   onClick={() => setIsEditingProfile(!isEditingProfile)}
                   className={`self-start sm:self-auto px-4 py-2 border font-semibold rounded-xl text-xs transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 ${isEditingProfile
-                      ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
-                      : 'border-clinic-700 bg-clinic-700 hover:bg-clinic-800 text-white'
+                    ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                    : 'border-clinic-700 bg-clinic-700 hover:bg-clinic-800 text-white'
                     }`}
                 >
                   {isEditingProfile ? 'Cancel Editing' : 'Edit Profile Details'}
@@ -17692,8 +16722,8 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                   if (tab === 'audit' || tab === 'system') checkRedis();
                 }}
                 className={`whitespace-nowrap px-3.5 py-2 text-xs sm:text-sm font-semibold border-b-2 rounded-t-lg transition-colors cursor-pointer ${adminTab === tab
-                    ? 'border-clinic-700 dark:border-emerald-400 text-clinic-700 dark:text-emerald-400 bg-clinic-50/50 dark:bg-emerald-950/20'
-                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/40'
+                  ? 'border-clinic-700 dark:border-emerald-400 text-clinic-700 dark:text-emerald-400 bg-clinic-50/50 dark:bg-emerald-950/20'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/40'
                   }`}
               >
                 {label}
@@ -17840,8 +16870,8 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                         <button
                           onClick={() => toggleVerify(doc.id, doc.verification_status)}
                           className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${doc.verification_status === 'verified'
-                              ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                              : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                            : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
                             }`}
                           title="Toggle verification status"
                         >
@@ -17850,8 +16880,8 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
                         <button
                           onClick={() => toggleSpotlight(doc.id, doc.is_spotlight)}
                           className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${doc.is_spotlight
-                              ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                            ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                             }`}
                           title="Toggle spotlight directory placement"
                         >

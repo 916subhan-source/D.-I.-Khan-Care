@@ -468,6 +468,22 @@ async def reschedule_appointment(
             )
 
 
+    # Enforce daily limit: 1 appointment per phone number per doctor per day (excluding this appointment)
+    from app.services.booking_rule_service import booking_rule_service
+    is_allowed, err_msg, _ = await booking_rule_service.check_daily_phone_limit(
+        db=db,
+        doctor_id=appt.doctor_id,
+        visit_date_or_slot_time=new_slot.start_time,
+        phone=appt.patient_phone,
+        additional_phones=[appt.loyalty_mobile, appt.patient.phone if appt.patient else None],
+        exclude_appointment_id=appt.id
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=err_msg
+        )
+
     if appt.slot_id:
         old_slot = (await db.execute(select(DoctorSlot).where(DoctorSlot.id == appt.slot_id))).scalar_one_or_none()
         if old_slot:
@@ -1055,6 +1071,20 @@ async def pos_book_appointment(
         raise HTTPException(
             status_code=400,
             detail=f"The selected slot timing ({format_pkt_time(slot.start_time)}) has already passed. Please select an upcoming slot or use Emergency Walk-in."
+        )
+
+    # 2b. Enforce daily limit: 1 appointment per phone number per doctor per day
+    from app.services.booking_rule_service import booking_rule_service
+    is_allowed, err_msg, _ = await booking_rule_service.check_daily_phone_limit(
+        db=db,
+        doctor_id=doc.id,
+        visit_date_or_slot_time=slot.start_time,
+        phone=payload.patient_phone
+    )
+    if not is_allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=err_msg
         )
 
     # 3. Locate or create Patient User record

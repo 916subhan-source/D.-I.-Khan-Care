@@ -14,7 +14,10 @@ export default defineConfig({
     }
   },
   build: {
-    chunkSizeWarningLimit: 1000,
+    target: 'es2020',
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 800,
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
         manualChunks: {

@@ -153,3 +153,4 @@ class BookingRuleService:
 
 
 booking_rule_service = BookingRuleService()
+

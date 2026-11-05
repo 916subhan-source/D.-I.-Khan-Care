@@ -3008,9 +3008,12 @@ function DoctorProfileAndBookingView({
 
   // Week offset state for multi-week calendar navigation
   const [weekOffset, setWeekOffset] = useState<number>(0);
-  const [selectedShiftTab, setSelectedShiftTab] = useState<'all' | 'morning' | 'evening'>(
-    doctor.shift === 'MORNING' ? 'morning' : doctor.shift === 'EVENING' ? 'evening' : 'all'
-  );
+  // Default slots filter strictly to 'all' when booking modal is opened
+  const [selectedShiftTab, setSelectedShiftTab] = useState<'all' | 'morning' | 'evening'>('all');
+
+  useEffect(() => {
+    setSelectedShiftTab('all');
+  }, [doctor.id]);
 
   // Synchronize selected day (auto-select first day with available future slots)
   useEffect(() => {
@@ -3125,18 +3128,7 @@ function DoctorProfileAndBookingView({
     return displaySlots;
   }, [selectedShiftTab, displaySlots, morningSlots, eveningSlots]);
 
-  // Keep selected shift aligned with doctor shift and available slot times
-  useEffect(() => {
-    if (doctor.shift === 'MORNING' && morningSlots.length > 0) {
-      setSelectedShiftTab('morning');
-    } else if (doctor.shift === 'EVENING' && eveningSlots.length > 0) {
-      setSelectedShiftTab('evening');
-    } else if (morningSlots.length > 0 && eveningSlots.length === 0) {
-      setSelectedShiftTab('morning');
-    } else if (eveningSlots.length > 0 && morningSlots.length === 0) {
-      setSelectedShiftTab('evening');
-    }
-  }, [selectedDayDate, morningSlots.length, eveningSlots.length, doctor.shift]);
+  // When modal opens or day changes, slots filter stays defaulted at 'all' unless user explicitly picks Morning or Evening
 
   useEffect(() => {
     if (activeSlotsToDisplay.length > 0) {

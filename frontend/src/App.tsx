@@ -1362,6 +1362,7 @@ function LoyaltyCardSection({
   const [city, setCity] = useState('Dera Ismail Khan');
   const [preferredDoctor, setPreferredDoctor] = useState('');
   const [doctorsList, setDoctorsList] = useState<any[]>([]);
+  const [doctorNotice, setDoctorNotice] = useState<string>('');
 
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -1374,16 +1375,42 @@ function LoyaltyCardSection({
     const loadDoctors = async () => {
       try {
         const data = await apiFetch<any[]>('/doctors');
-        if (Array.isArray(data)) setDoctorsList(data);
+        if (Array.isArray(data)) {
+          setDoctorsList(data);
+          const params = new URLSearchParams(window.location.search);
+          const docParam = params.get('doctor_id') || params.get('doctor');
+          if (docParam) {
+            const found = data.find((d: any) => d.id === docParam);
+            if (found) {
+              if (found.loyalty_card_enabled) {
+                setPreferredDoctor(found.id);
+              } else {
+                setDoctorNotice(`Note: ${found.full_name} has not activated the Loyalty Card program yet. You can apply for any participating specialist below who has activated the program.`);
+              }
+            }
+          } else {
+            // Auto-select first active doctor if available
+            const activeDocs = data.filter((d: any) => Boolean(d.loyalty_card_enabled));
+            if (activeDocs.length > 0) {
+              setPreferredDoctor(activeDocs[0].id);
+            }
+          }
+        }
       } catch (_) { }
     };
     loadDoctors();
   }, []);
 
+  const activeLoyaltyDoctors = doctorsList.filter((d: any) => Boolean(d.loyalty_card_enabled));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
+    if (!preferredDoctor) {
+      setFormError('Please select a specialist who has activated the Loyalty Card program.');
+      return;
+    }
     if (!fullName.trim() || fullName.trim().length < 2) {
       setFormError('Please enter your full patient name.');
       return;
@@ -1765,22 +1792,120 @@ function LoyaltyCardSection({
             </div>
           </div>
         ) : (
-          /* Application Form Card */
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div className="flex items-center justify-between">
+          <div className="space-y-6">
+            {/* Notice if user arrived from a doctor who has not activated the loyalty program */}
+            {doctorNotice && (
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 shadow-2xs animate-fade-in">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">ℹ️</span>
+                  <span className="font-medium">{doctorNotice}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDoctorNotice('')}
+                  className="text-amber-600 hover:text-amber-800 text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Participating Specialists Who Have Activated The Loyalty Program */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                    <CreditCard className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                    <span>Apply for RK VIP Health Loyalty Card</span>
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Specialists Who Have Activated The Loyalty Card Program</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Complete the 10 fields below to generate your official VIP membership and card.
+                    You can apply for the 10% VIP Loyalty Card with these verified participating specialists.
                   </p>
                 </div>
-                <span className="text-xs text-slate-400 font-medium">* Required</span>
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full self-start sm:self-auto">
+                  {activeLoyaltyDoctors.length} Active Specialist{activeLoyaltyDoctors.length === 1 ? '' : 's'}
+                </span>
               </div>
+
+              {activeLoyaltyDoctors.length === 0 ? (
+                <div className="p-6 text-center bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                  <CreditCard className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No specialists currently have the Loyalty Card program activated</p>
+                  <p className="text-[11px] text-slate-400 mt-1">Specialists can activate the loyalty program directly from their Doctor Portal workspace.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {activeLoyaltyDoctors.map((doc: any) => {
+                    const isSelected = preferredDoctor === doc.id;
+                    return (
+                      <div
+                        key={doc.id}
+                        onClick={() => {
+                          setPreferredDoctor(doc.id);
+                          const formEl = document.getElementById('loyalty-apply-form');
+                          if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                          isSelected
+                            ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-400 dark:border-amber-500/60 shadow-sm ring-2 ring-amber-400/40'
+                            : 'bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/90 dark:border-slate-700 hover:border-amber-400 hover:bg-white dark:hover:bg-slate-800 shadow-2xs'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={getDoctorProfileImage(doc, 150)}
+                            alt={doc.full_name}
+                            className="w-12 h-12 rounded-xl object-cover ring-1 ring-slate-200 dark:ring-slate-700 flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">
+                              {doc.full_name}
+                            </div>
+                            <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide truncate">
+                              {doc.specialty}
+                            </div>
+                            <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                              {doc.clinic_address || 'D.I. Khan'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-700 text-xs">
+                          <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-md">
+                            ★ {Number(doc.loyalty_discount_percent ?? 10)}% OFF
+                          </span>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-colors ${
+                            isSelected
+                              ? 'bg-amber-500 text-slate-950 font-black'
+                              : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-400 hover:text-slate-950'
+                          }`}>
+                            {isSelected ? '✓ Selected' : 'Apply for Dr.'}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+
+            {/* Application Form Card */}
+            <div id="loyalty-apply-form" className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                      <CreditCard className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      <span>Apply for RK VIP Health Loyalty Card</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Complete the verified fields below to generate your official VIP membership and card.
+                    </p>
+                  </div>
+                  <span className="text-xs text-slate-400 font-medium">* Required</span>
+                </div>
+              </div>
 
             {formError && (
               <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-xs font-semibold text-red-700 dark:text-red-300 flex items-center gap-2 animate-fade-in">
@@ -1939,23 +2064,33 @@ function LoyaltyCardSection({
                   />
                 </div>
 
-                {/* Preferred Doctor */}
+                {/* Specialist: Only specialists who have activated the loyalty card program */}
                 <div>
                   <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Preferred Doctor <span className="text-[10px] text-slate-400">(Optional)</span>
+                    Specialist (Active Loyalty Program) * <span className="text-[10px] text-emerald-600">(Verified Partner)</span>
                   </label>
                   <select
                     value={preferredDoctor}
                     onChange={(e) => setPreferredDoctor(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer font-medium"
                   >
-                    <option value="">All Participating D.I. Khan Specialists</option>
-                    {doctorsList.map((d: any) => (
+                    <option value="">-- Select Active Specialist ({activeLoyaltyDoctors.length} available) --</option>
+                    {activeLoyaltyDoctors.map((d: any) => (
                       <option key={d.id} value={d.id}>
-                        {d.full_name} ({d.specialty})
+                        {d.full_name} ({d.specialty}) &bull; Active VIP Partner ({Number(d.loyalty_discount_percent ?? 10)}% OFF)
                       </option>
                     ))}
                   </select>
+                  {activeLoyaltyDoctors.length === 0 ? (
+                    <p className="text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-semibold">
+                      ⚠️ No specialists currently have the Loyalty Card program activated.
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                      You can only apply for specialists who have activated the VIP Loyalty Card program.
+                    </p>
+                  )}
                 </div>
 
               </div>
@@ -1964,7 +2099,7 @@ function LoyaltyCardSection({
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || activeLoyaltyDoctors.length === 0}
                   className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
                 >
                   {submitting ? (
@@ -1985,7 +2120,8 @@ function LoyaltyCardSection({
               </div>
             </form>
           </div>
-        )}
+        </div>
+      )}
 
       </div>
     </div>
@@ -4317,7 +4453,12 @@ function DoctorProfileAndBookingView({
                       </div>
                       <button
                         type="button"
-                        onClick={() => onSwitchRole?.('loyalty' as any)}
+                        onClick={() => {
+                          if (doctor.loyalty_card_enabled) {
+                            window.history.pushState({}, '', `/loyalty?doctor_id=${doctor.id}`);
+                          }
+                          onSwitchRole?.('loyalty' as any);
+                        }}
                         className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-xs cursor-pointer flex items-center gap-1"
                       >
                         <span>Apply for Card</span>
@@ -4970,7 +5111,12 @@ function DoctorProfileAndBookingView({
                     </div>
                     <button
                       type="button"
-                      onClick={() => onSwitchRole?.('loyalty' as any)}
+                      onClick={() => {
+                        if (doctor.loyalty_card_enabled) {
+                          window.history.pushState({}, '', `/loyalty?doctor_id=${doctor.id}`);
+                        }
+                        onSwitchRole?.('loyalty' as any);
+                      }}
                       className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition-all whitespace-nowrap cursor-pointer shadow-xs flex-shrink-0"
                     >
                       Apply for Card &rarr;

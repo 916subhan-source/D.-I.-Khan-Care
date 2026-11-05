@@ -638,6 +638,23 @@ async def apply_for_loyalty_card(payload: LoyaltyCardApplicationRequest, db: Asy
     clean_mobile = payload.mobile.strip()
     clean_city = (payload.city or "Dera Ismail Khan").strip()
 
+    # Validate specialist: can only apply for specialists who have activated the loyalty card program
+    doctor_name = "All Active Participating Specialists"
+    discount_pct = 10.0
+    if payload.doctor_id:
+        doc_stmt = select(Doctor).options(selectinload(Doctor.user)).where(Doctor.id == payload.doctor_id)
+        doc_res = await db.execute(doc_stmt)
+        doctor = doc_res.scalars().first()
+        if not doctor:
+            raise HTTPException(status_code=404, detail="Selected specialist not found.")
+        if not doctor.loyalty_card_enabled:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Dr. {doctor.user.full_name if doctor.user else 'This specialist'} has not activated the Loyalty Card program. You can only apply for specialists who have activated the program."
+            )
+        doctor_name = doctor.user.full_name if doctor.user else "Specialist"
+        discount_pct = float(doctor.loyalty_discount_percent or 10.0)
+
     # Generate unique 4-digit card suffix
     import random
     suffix = str(random.randint(1000, 9999))
@@ -656,7 +673,8 @@ async def apply_for_loyalty_card(payload: LoyaltyCardApplicationRequest, db: Asy
         "address": payload.address.strip(),
         "city": clean_city,
         "doctor_id": payload.doctor_id,
-        "discount_percent": 10,
+        "doctor_name": doctor_name,
+        "discount_percent": discount_pct,
         "status": "ACTIVE",
         "validity": "Lifetime",
         "created_at": datetime.now(timezone.utc).isoformat()

@@ -4049,20 +4049,12 @@ function DoctorProfileAndBookingView({
               </div>
             </div>
 
-            {/* 4-Pillar Oladoc Trust Bar (Compact & Interactive: Tap to Jump to Reviews/Schedule) */}
-            <div className="grid grid-cols-4 gap-1.5 sm:gap-3 pt-2 sm:pt-4 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => {
-                  setProfileActiveTab('reviews');
-                  setMobileActiveTab('profile');
-                }}
-                className="bg-emerald-50/60 hover:bg-emerald-100/70 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95"
-                title="View satisfaction"
-              >
-                <div className="text-xs sm:text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">98%</div>
-                <div className="text-[9px] sm:text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">Satisfied</div>
-              </button>
+            {/* 4-Pillar Trust Bar (Clean, Unified, Minimal) */}
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center">
+                <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono">98%</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">Satisfied</div>
+              </div>
 
               <button
                 type="button"
@@ -4070,67 +4062,53 @@ function DoctorProfileAndBookingView({
                   setProfileActiveTab('reviews');
                   setMobileActiveTab('profile');
                 }}
-                className="bg-amber-50/70 hover:bg-amber-100/70 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 border border-amber-300/80 dark:border-amber-700/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95 ring-1 ring-amber-400/40"
+                className="bg-slate-50/80 hover:bg-slate-100/80 dark:bg-slate-800/50 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center transition cursor-pointer"
                 title="View all patient reviews"
               >
-                <div className="text-xs sm:text-base font-black text-amber-500 font-mono flex items-center justify-center gap-0.5">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" /> {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
+                <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono flex items-center justify-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
+                  <span>{reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}</span>
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-amber-800 dark:text-amber-300 font-black uppercase tracking-wider mt-0.5 whitespace-nowrap">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">
                   {reviewsSummary?.total_reviews || 128} Reviews
                 </div>
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setProfileActiveTab('schedule');
-                  setMobileActiveTab('profile');
-                }}
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95"
-                title="View OPD clinic timings"
-              >
-                <div className="text-xs sm:text-base font-black text-slate-900 dark:text-white font-mono">&lt; 15m</div>
-                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">Wait Time</div>
-              </button>
+              <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center">
+                <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono">&lt; 15m</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">Wait Time</div>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setProfileActiveTab('about');
-                  setMobileActiveTab('profile');
-                }}
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-1.5 sm:p-2.5 text-center transition-all cursor-pointer active:scale-95"
-                title="View doctor experience"
-              >
-                <div className="text-xs sm:text-base font-black text-slate-900 dark:text-white font-mono">
-                  {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years}Y` : '10+Y'}
+              <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center">
+                <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono">
+                  {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years}Y` : '5Y'}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 whitespace-nowrap">Experience</div>
-              </button>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">Experience</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ── Oladoc Doctor Menu Navigation (About Doctor First, then Reviews, Timings, Services) ── */}
+        {/* ── Doctor Menu Navigation (Clean, Unified Segmented Control) ── */}
         <div id="doctor-menu-tabs" className="sticky top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-          {/* TAB 1: ABOUT DOCTOR (Active Default on Profile Open) */}
+          {/* TAB 1: ABOUT DOCTOR */}
           <button
             type="button"
             onClick={() => {
               setProfileActiveTab('about');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'profile' && profileActiveTab === 'about'
-              ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'about'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
             <User className="w-3.5 h-3.5" />
             <span>About Doctor</span>
           </button>
 
-          {/* TAB 2: BOOK SLOTS (Direct appointment booking on mobile) */}
+          {/* TAB 2: BOOK SLOTS */}
           <button
             type="button"
             onClick={() => {
@@ -4138,46 +4116,50 @@ function DoctorProfileAndBookingView({
               const el = document.getElementById('oladoc-booking-card');
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'booking'
-              ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/30'
-              : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 hover:bg-emerald-600 hover:text-white'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'booking'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Book Slots</span>
           </button>
 
-          {/* TAB 2: REVIEWS (Prominent Second Tab with Star & Count) */}
+          {/* TAB 3: REVIEWS */}
           <button
             type="button"
             onClick={() => {
               setProfileActiveTab('reviews');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 active:scale-95 ${mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
-              ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-              : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <Star className="w-3.5 h-3.5" />
             <span>Reviews ({reviewsSummary?.total_reviews || 128})</span>
           </button>
 
-          {/* TAB 3: CLINIC TIMINGS */}
+          {/* TAB 4: CLINIC TIMINGS */}
           <button
             type="button"
             onClick={() => {
               setProfileActiveTab('schedule');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
             <Clock className="w-3.5 h-3.5" />
             <span>Clinic Timings</span>
           </button>
+
           {/* TAB 5: SERVICES & PROCEDURES */}
           <button
             type="button"
@@ -4185,10 +4167,11 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('services');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'services'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'services'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
             <Stethoscope className="w-3.5 h-3.5" />
             <span>Services</span>
@@ -4201,10 +4184,11 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('conditions');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
             <Award className="w-3.5 h-3.5" />
             <span>Conditions</span>
@@ -4217,10 +4201,11 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('faqs');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
-              ? 'bg-emerald-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
+                ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
             <span>FAQs</span>
@@ -5194,35 +5179,21 @@ function DoctorProfileAndBookingView({
       {mobileActiveTab === 'profile' && (
         <div className="lg:hidden fixed bottom-[57px] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
           <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee &middot; Direct Clinic</span>
-            <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">{formatCurrency(doctor.fee_clinic)}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
+            <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{formatCurrency(doctor.fee_clinic)}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setProfileActiveTab('reviews');
-                setMobileActiveTab('profile');
-                const el = document.getElementById('doctor-menu-tabs');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="py-2.5 px-3 rounded-xl border border-amber-300 dark:border-amber-600/50 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1 cursor-pointer"
-            >
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>Reviews</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMobileActiveTab('booking');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold rounded-xl text-xs shadow-md shadow-emerald-950/20 flex items-center gap-1.5 cursor-pointer"
-            >
-              <Calendar className="w-3.5 h-3.5 text-white" />
-              <span>Book Slots &rarr;</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setMobileActiveTab('booking');
+              const el = document.getElementById('oladoc-booking-card');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className="py-2.5 px-5 bg-clinic-700 hover:bg-clinic-800 active:scale-95 text-white font-bold rounded-xl text-xs shadow-sm flex items-center gap-1.5 cursor-pointer"
+          >
+            <Calendar className="w-4 h-4 text-white" />
+            <span>Book Appointment &rarr;</span>
+          </button>
         </div>
       )}
 
@@ -6997,7 +6968,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">
           {/* Doctor Picture / Avatar */}
-          <div 
+          <div
             onClick={() => onProfile(doctor)}
             className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-700/80 shadow-2xs cursor-pointer hover:opacity-90 transition-opacity"
             title="Click to view doctor profile"
@@ -7028,9 +6999,9 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
           {/* Name & Specialty */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 
+              <h3
                 onClick={() => onProfile(doctor)}
-                className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1 cursor-pointer" 
+                className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1 cursor-pointer"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
                 title="Click to view doctor profile"
               >
@@ -9800,11 +9771,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                       return finalDays;
                                     });
                                   }}
-                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${
-                                    isSelected
+                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
                                       ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
                                       : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
-                                  }`}
+                                    }`}
                                   title={`Toggle ${day.full} as a Special Day`}
                                 >
                                   <span className="block text-[11px] sm:text-xs leading-none">{day.label}</span>
@@ -14609,11 +14579,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                       return finalDays;
                                     });
                                   }}
-                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${
-                                    isSelected
+                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
                                       ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
                                       : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
-                                  }`}
+                                    }`}
                                   title={`Toggle ${day.full} as a Special Day`}
                                 >
                                   <span className="block text-[11px] sm:text-xs leading-none">{day.label}</span>

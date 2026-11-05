@@ -3472,12 +3472,12 @@ function DoctorProfileAndBookingView({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('10:30 AM');
   const [selectedSlotId, setSelectedSlotId] = useState<string>('');
   const [bookingFor, setBookingFor] = useState<'myself' | 'someone_else'>('myself');
-  const [patientName, setPatientName] = useState('Ahmed Khan');
-  const [patientPhone, setPatientPhone] = useState('+92 300 123 4567');
+  const [patientName, setPatientName] = useState('');
+  const [patientPhone, setPatientPhone] = useState('');
   const [patientEmail, setPatientEmail] = useState('');
-  const [patientAge, setPatientAge] = useState('34 years');
+  const [patientAge, setPatientAge] = useState('');
   const [patientGender, setPatientGender] = useState('Male');
-  const [patientReason, setPatientReason] = useState('Follow-up for blood pressure and a review of my current medication.');
+  const [patientReason, setPatientReason] = useState('');
   const [sendSmsReminder, setSendSmsReminder] = useState(true);
 
   // Mobile tab navigation state ('booking' | 'profile') - Default to 'profile' so About Doctor shows first
@@ -4013,6 +4013,18 @@ function DoctorProfileAndBookingView({
       }
       const slotCodeToSubmit = chosen.id;
 
+      if (!patientName.trim()) {
+        setErrorMessage('Please enter the patient full name.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!patientPhone.trim()) {
+        setErrorMessage('Please enter a valid mobile number.');
+        setIsSubmitting(false);
+        return;
+      }
+
       if (!patientEmail.trim() || !patientEmail.includes('@')) {
         setErrorMessage('Please enter a valid email address to receive your digital appointment slip and notifications.');
         setIsSubmitting(false);
@@ -4024,10 +4036,10 @@ function DoctorProfileAndBookingView({
         body: JSON.stringify({
           doctor_id: doctor.id,
           slot_id: slotCodeToSubmit,
-          full_name: patientName.trim() || 'Ahmed Khan',
-          phone: patientPhone.trim() || '+92 300 123 4567',
+          full_name: patientName.trim(),
+          phone: patientPhone.trim(),
           email: patientEmail.trim().toLowerCase(),
-          whatsapp_number: patientPhone.trim() || '+92 300 123 4567',
+          whatsapp_number: patientPhone.trim(),
           notes: patientReason
         })
       });
@@ -4080,7 +4092,7 @@ function DoctorProfileAndBookingView({
       const verifyRes: any = await apiFetch('/booking/verify', {
         method: 'POST',
         body: JSON.stringify({
-          contact: patientPhone.trim() || '+92 300 123 4567',
+          contact: patientPhone.trim(),
           code: enteredCode,
           slot_id: slotIdToVerify,
           patient_name: patientName.trim(),
@@ -4100,8 +4112,8 @@ function DoctorProfileAndBookingView({
         time: selectedTimeSlot,
         fee: Number(doctor.fee_clinic || 1000),
         originalFee: doctor.fee_clinic || 1000,
-        patientName: patientName || 'Ahmed Khan',
-        patientPhone: patientPhone || '+92 300 123 4567',
+        patientName: patientName || 'Patient',
+        patientPhone: patientPhone || '',
         patientEmail: patientEmail.trim(),
         clinic: doctor.clinic_address || 'D.I. Khan Care Clinic'
       });
@@ -4783,115 +4795,45 @@ function DoctorProfileAndBookingView({
 
           </div>
 
-          {/* ── Right Column: Sticky Oladoc Clinic Booking Widget ── */}
+          {/* ── Right Column: Sticky Clean Clinic Booking Widget ── */}
           <div id="oladoc-booking-card" className={`lg:col-span-5 sticky top-24 space-y-6 ${mobileActiveTab === 'booking' ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-emerald-500/80 dark:border-emerald-500/60 p-4 sm:p-6 shadow-md">
-              {/* Mobile Doctor Quick Summary Banner */}
-              <div className="lg:hidden mb-5 p-3.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 border border-teal-200 shadow-2xs">
-                    <img
-                      src={getDoctorProfileImage(doctor, 200)}
-                      alt={doctor.full_name}
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-extrabold text-xs text-slate-900 dark:text-white leading-snug truncate">{doctor.full_name}</h3>
-                    <p className="text-[11px] text-clinic-700 dark:text-emerald-400 font-bold uppercase truncate">{doctor.specialty} Specialist</p>
-                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                      <span className="text-[10px] text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded font-bold flex items-center gap-0.5">
-                        <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
-                        {reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}
-                      </span>
-                      <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100/80 px-1.5 py-0.2 rounded font-mono">
-                        Fee: {formatCurrency(doctor.fee_clinic)}
-                      </span>
-                      {Boolean(doctor.loyalty_card_enabled) && (
-                        <span className="text-[10px] text-amber-950 font-black bg-amber-300 px-1.5 py-0.2 rounded">
-                          {Number(doctor.loyalty_discount_percent ?? 10)}% OFF VIP
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMobileActiveTab('profile')}
-                  className="text-[11px] font-bold text-[#0f766e] dark:text-emerald-400 bg-white dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-teal-200 dark:border-teal-700/60 hover:bg-teal-50 dark:hover:bg-slate-700 transition shadow-2xs flex-shrink-0 cursor-pointer"
-                >
-                  Info &rarr;
-                </button>
-              </div>
-              {/* Oladoc Booking Header */}
-              <div className="pb-4 border-b border-slate-100 dark:border-slate-800 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-xl">
-                    <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Direct Clinic Consultation
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                    <Check className="w-3 h-3 stroke-[3]" /> Accepting Patients
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between pt-1">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">
-                      {formatCurrency(doctor.fee_clinic)}
-                    </span>
-                  </div>
-                  {Boolean(doctor.loyalty_card_enabled) && (
-                    <span className="text-[11px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg">
-                      Save {Number(doctor.loyalty_discount_percent ?? 10)}% with VIP Card
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* ── Step 1: Select a date & time ── */}
-              <div className="py-6 border-b border-slate-100 dark:border-slate-800 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 shadow-sm">
+              {/* Clean Header */}
+              <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
-                      1
-                    </span>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Select a date &amp; time</h3>
-                  </div>
-                  <span className="text-xs text-slate-400 font-medium">Pakistan time (PKT)</span>
-                </div>
-
-                {/* In-person Consultation Card */}
-                <div className="bg-[#f0f9f6] dark:bg-slate-800/80 border border-[#a7d9c9] dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-[#0f766e] dark:border-emerald-400 flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#0f766e] dark:bg-emerald-400" />
-                    </div>
-                    <Building2 className="w-4 h-4 text-[#0f766e] dark:text-emerald-400" />
-                    <div>
-                      <p className="font-bold text-xs text-slate-900 dark:text-white">In-person consultation</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{doctor.clinic_address || 'D.I. Khan Care Clinic'} &middot; {consultationDurationMinutes} minutes</p>
-                    </div>
+                  <div>
+                    {mobileActiveTab === 'booking' && (
+                      <button
+                        type="button"
+                        onClick={() => setMobileActiveTab('profile')}
+                        className="lg:hidden inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white mb-1.5 cursor-pointer"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" /> Back to Profile
+                      </button>
+                    )}
+                    <h3 className="font-extrabold text-base text-slate-900 dark:text-white">Book Appointment</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Direct Clinic Consultation &bull; Pay cash at desk</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-extrabold text-slate-900 dark:text-white font-mono">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
+                    <span className="text-xl sm:text-2xl font-black text-clinic-700 dark:text-emerald-400 font-mono">
                       {formatCurrency(doctor.fee_clinic)}
                     </span>
                   </div>
                 </div>
+              </div>
 
-                {/* Month Title & Week Navigation */}
-                <div className="flex items-center justify-between pt-1">
-                  <div>
-                    <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                      {selectedDayObj?.monthName || 'October 2026'}
+              {/* ── Step 1: Select Date & Time ── */}
+              <div className="py-5 border-b border-slate-100 dark:border-slate-800 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-clinic-100 dark:bg-clinic-950/60 text-clinic-800 dark:text-clinic-300 font-bold text-xs flex items-center justify-center">
+                      1
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                      Week {weekOffset + 1} of {totalWeeks} &middot; {visibleDayOptions[0]?.dayNum}&ndash;{visibleDayOptions[visibleDayOptions.length - 1]?.dayNum} {visibleDayOptions[0]?.monthName.split(' ')[0]}
-                    </span>
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Select Date &amp; Time</h4>
                   </div>
-
-                  {/* Week Prev / Next controls */}
-                  <div className="flex items-center gap-1.5">
+                  {/* Week navigation */}
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
                       disabled={weekOffset === 0}
@@ -4899,17 +4841,15 @@ function DoctorProfileAndBookingView({
                         const newWeek = Math.max(0, weekOffset - 1);
                         setWeekOffset(newWeek);
                         const firstDayOfNewWeek = dayOptions[newWeek * 7];
-                        if (firstDayOfNewWeek) {
-                          setSelectedDayDate(firstDayOfNewWeek.fullDate);
-                        }
+                        if (firstDayOfNewWeek) setSelectedDayDate(firstDayOfNewWeek.fullDate);
                       }}
-                      className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                      className="p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
                       title="Previous week"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-3.5 h-3.5" />
                     </button>
-                    <span className="text-xs font-bold text-[#0f766e] dark:text-emerald-400 px-2 py-1 bg-teal-50 dark:bg-emerald-950/60 border border-teal-200/70 dark:border-emerald-800 rounded-lg font-mono">
-                      {visibleDayOptions[0]?.weekday} {visibleDayOptions[0]?.dayNum} &rarr; {visibleDayOptions[visibleDayOptions.length - 1]?.weekday} {visibleDayOptions[visibleDayOptions.length - 1]?.dayNum}
+                    <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 px-2 py-0.5 bg-slate-50 dark:bg-slate-800 rounded-md">
+                      {visibleDayOptions[0]?.monthName.split(' ')[0]} {visibleDayOptions[0]?.dayNum} &ndash; {visibleDayOptions[visibleDayOptions.length - 1]?.dayNum}
                     </span>
                     <button
                       type="button"
@@ -4918,48 +4858,18 @@ function DoctorProfileAndBookingView({
                         const newWeek = Math.min(totalWeeks - 1, weekOffset + 1);
                         setWeekOffset(newWeek);
                         const firstDayOfNewWeek = dayOptions[newWeek * 7];
-                        if (firstDayOfNewWeek) {
-                          setSelectedDayDate(firstDayOfNewWeek.fullDate);
-                        }
+                        if (firstDayOfNewWeek) setSelectedDayDate(firstDayOfNewWeek.fullDate);
                       }}
-                      className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                      className="p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
                       title="Next week"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Quick Jump Pills for all dates with slots */}
-                {dayOptions.filter(d => d.slotCount > 0 && !d.isOffDay).length > 7 && (
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center justify-between text-[11px] text-slate-500">
-                      <span className="font-semibold text-slate-700">Dates with open slots:</span>
-                      <span className="text-teal-700 font-bold">{dayOptions.filter(d => d.slotCount > 0 && !d.isOffDay).length} available dates</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-                      {dayOptions.filter(d => d.slotCount > 0 && !d.isOffDay).map((d) => (
-                        <button
-                          key={d.fullDate}
-                          type="button"
-                          onClick={() => setSelectedDayDate(d.fullDate)}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${selectedDayDate === d.fullDate
-                            ? 'bg-[#0f766e] text-white shadow-2xs font-bold'
-                            : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-800'
-                            }`}
-                        >
-                          <span>{d.weekday} {d.dayNum}</span>
-                          <span className={`text-[10px] px-1 rounded-full ${selectedDayDate === d.fullDate ? 'bg-amber-300 text-slate-900' : 'bg-teal-100 text-teal-800'}`}>
-                            {d.slotCount}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 7-Day Horizontal Selector (Responsive: swipeable on mobile, 7-col grid on desktop) */}
-                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none touch-scroll md:grid md:grid-cols-7">
+                {/* 7-Day Horizontal Selector */}
+                <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none touch-scroll md:grid md:grid-cols-7">
                   {visibleDayOptions.map((day) => {
                     const isSelected = selectedDayDate === day.fullDate;
                     const hasSlots = day.slotCount > 0;
@@ -4968,166 +4878,95 @@ function DoctorProfileAndBookingView({
                         key={day.fullDate}
                         type="button"
                         onClick={() => setSelectedDayDate(day.fullDate)}
-                        className={`min-w-[62px] flex-shrink-0 md:min-w-0 md:flex-shrink py-2.5 sm:py-3 px-1 rounded-2xl text-center transition-all relative ${isSelected
-                          ? 'bg-[#0f766e] text-white shadow-md ring-2 ring-[#0f766e]/30'
-                          : 'bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-teal-400 dark:hover:border-emerald-500 hover:bg-teal-50/20 dark:hover:bg-slate-700/60'
+                        className={`min-w-[58px] flex-shrink-0 md:min-w-0 md:flex-shrink py-2 px-1 rounded-xl text-center transition-all cursor-pointer ${isSelected
+                          ? 'bg-clinic-700 text-white shadow-sm ring-2 ring-clinic-700/20'
+                          : 'bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-clinic-500 hover:bg-slate-50 dark:hover:bg-slate-750'
                           }`}
                       >
-                        <span className={`block text-[11px] font-medium ${isSelected ? 'text-teal-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                        <span className={`block text-[11px] font-medium ${isSelected ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'}`}>
                           {day.weekday}
                         </span>
-                        <span className="block text-base font-black mt-0.5 font-mono">
+                        <span className="block text-sm font-extrabold mt-0.5 font-mono">
                           {day.dayNum}
                         </span>
                         {day.isOffDay ? (
-                          <span className="block text-[9px] text-rose-500 font-bold mt-0.5">Off Day</span>
+                          <span className="block text-[9px] text-rose-500 font-semibold mt-0.5">Off</span>
                         ) : hasSlots ? (
-                          <span className={`inline-block text-[10px] font-bold px-1 rounded-full mt-0.5 ${isSelected ? 'bg-amber-300 text-slate-900' : 'bg-teal-100 text-teal-800'}`}>
-                            {day.slotCount}
+                          <span className={`block text-[10px] font-semibold mt-0.5 ${isSelected ? 'text-white' : 'text-clinic-700 dark:text-clinic-400'}`}>
+                            {day.slotCount} slots
                           </span>
                         ) : isSlotsLoading ? (
-                          <span className="block text-[9px] text-teal-600 font-bold animate-pulse mt-0.5">...</span>
+                          <span className="block text-[9px] text-slate-400 animate-pulse mt-0.5">...</span>
                         ) : (
-                          <span className="block text-[9px] text-slate-300 mt-0.5 font-medium">Off</span>
+                          <span className="block text-[9px] text-slate-400 mt-0.5">None</span>
                         )}
                       </button>
                     );
                   })}
                 </div>
 
-                {/* Shift Selection & Available Times Header */}
-                <div className="pt-2 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-800 dark:text-white">
-                      Available times &middot; {selectedDayObj?.label}
-                    </span>
-                    <span className={`text-xs font-medium ${(selectedDayObj?.isOffDay && displaySlots.length === 0) ? 'text-rose-600 font-semibold' : 'text-slate-400'}`}>
-                      {(selectedDayObj?.isOffDay && displaySlots.length === 0)
-                        ? 'Clinic Closed (Weekly Off Day)'
-                        : displaySlots.length > 0
-                          ? `${displaySlots.length} slots available`
-                          : '0 slots available'}
-                    </span>
-                  </div>
-
-                  {/* Shift Tabs - only visible on working days */}
-                  {!selectedDayObj?.isOffDay && (
-                    <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100/90 dark:bg-slate-800/90 rounded-xl border border-transparent dark:border-slate-700/60">
+                {/* Shift Tabs & Slots Header */}
+                {!selectedDayObj?.isOffDay && displaySlots.length > 0 && (
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
                       <button
                         type="button"
                         onClick={() => setSelectedShiftTab('all')}
-                        className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg transition text-center truncate cursor-pointer ${selectedShiftTab === 'all'
-                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                        className={`py-1 px-2.5 text-xs font-semibold rounded-md transition cursor-pointer ${selectedShiftTab === 'all'
+                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                           }`}
                       >
-                        <span className="hidden sm:inline">All Shifts</span>
-                        <span className="sm:hidden">All</span> ({displaySlots.length})
+                        All ({displaySlots.length})
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedShiftTab('morning')}
-                        className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition text-center truncate cursor-pointer ${selectedShiftTab === 'morning'
-                          ? 'bg-amber-500 text-white shadow-2xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-amber-800 dark:hover:text-amber-300'
-                          }`}
-                      >
-                        <Sun className="w-3 h-3 flex-shrink-0" />
-                        <span className="hidden sm:inline">Morning</span>
-                        <span className="sm:hidden">Morn</span> ({morningSlots.length})
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedShiftTab('evening')}
-                        className={`py-1.5 px-1 text-[11px] sm:text-xs font-bold rounded-lg flex items-center justify-center gap-1 transition text-center truncate cursor-pointer ${selectedShiftTab === 'evening'
-                          ? 'bg-indigo-600 text-white shadow-2xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-indigo-800 dark:hover:text-indigo-300'
-                          }`}
-                      >
-                        <Moon className="w-3 h-3 flex-shrink-0" />
-                        <span className="hidden sm:inline">Evening</span>
-                        <span className="sm:hidden">Eve</span> ({eveningSlots.length})
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Doctor Shift Schedule Info Banner derived dynamically from generated slots */}
-                {isSlotsLoading ? (
-                  <div className="p-2.5 rounded-xl bg-teal-50/70 border border-teal-100 flex items-center justify-between text-[11px] text-teal-800 animate-pulse font-medium">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-teal-700 flex-shrink-0" />
-                      <span>Loading real-time available consultation slots from clinic...</span>
-                    </div>
-                  </div>
-                ) : selectedDayObj?.isOffDay ? null : displaySlots.length > 0 ? (
-                  <div className="p-2.5 rounded-xl bg-teal-50/50 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-600 dark:text-slate-300">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <Clock className="w-3.5 h-3.5 text-teal-700 flex-shrink-0" />
-                      <span className="font-medium text-slate-600 dark:text-slate-400">Generated Slot Times:</span>
-                      {morningSlots.length > 0 ? (
-                        <span className="font-semibold text-slate-900 dark:text-white inline-flex items-center gap-1">
-                          <Sun className="w-3 h-3 text-amber-500" /> Morning: {morningSlots[0].timeLabel} &ndash; {morningSlots[morningSlots.length - 1].endTimeLabel || morningSlots[morningSlots.length - 1].timeLabel} ({morningSlots.length} slots)
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 inline-flex items-center gap-1">
-                          <Sun className="w-3 h-3 text-slate-300" /> No morning slots
-                        </span>
+                      {morningSlots.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedShiftTab('morning')}
+                          className={`py-1 px-2.5 text-xs font-semibold rounded-md transition cursor-pointer ${selectedShiftTab === 'morning'
+                            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                        >
+                          Morning ({morningSlots.length})
+                        </button>
                       )}
-                      <span className="text-slate-300">&bull;</span>
-                      {eveningSlots.length > 0 ? (
-                        <span className="font-semibold text-slate-900 dark:text-white inline-flex items-center gap-1">
-                          <Moon className="w-3 h-3 text-indigo-500" /> Evening: {eveningSlots[0].timeLabel} &ndash; {eveningSlots[eveningSlots.length - 1].endTimeLabel || eveningSlots[eveningSlots.length - 1].timeLabel} ({eveningSlots.length} slots)
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 inline-flex items-center gap-1">
-                          <Moon className="w-3 h-3 text-slate-300" /> No evening slots
-                        </span>
+                      {eveningSlots.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedShiftTab('evening')}
+                          className={`py-1 px-2.5 text-xs font-semibold rounded-md transition cursor-pointer ${selectedShiftTab === 'evening'
+                            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                        >
+                          Evening ({eveningSlots.length})
+                        </button>
                       )}
                     </div>
-                    <span className="text-teal-800 dark:text-emerald-300 font-bold bg-teal-100/70 dark:bg-emerald-950/60 border border-transparent dark:border-emerald-800 px-2 py-0.5 rounded-md flex-shrink-0">
+                    <span className="text-[11px] text-slate-400 font-medium">
                       {consultationDurationMinutes} min / slot
                     </span>
                   </div>
-                ) : (
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-2 text-xs text-slate-500">
-                    <Calendar className="w-4 h-4 text-slate-400" />
-                    <span>Doctor has no available consultation slots on this date.</span>
-                  </div>
                 )}
 
-                {/* Time Slots (dynamic slots buttons) */}
+                {/* Time Slots Grid */}
                 {isSlotsLoading ? (
-                  <div className="py-12 text-center bg-slate-50/70 rounded-2xl border border-slate-200/80 flex flex-col items-center justify-center gap-2">
-                    <Loader2 className="w-6 h-6 animate-spin text-teal-700" />
-                    <p className="text-xs font-bold text-slate-800">Checking consultation slots...</p>
-                    <p className="text-[11px] text-slate-400">Loading live appointment schedule for {doctor.full_name}</p>
+                  <div className="py-8 text-center bg-slate-50/70 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-700 flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-clinic-700 dark:text-clinic-400" />
+                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Loading slots...</p>
                   </div>
                 ) : activeSlotsToDisplay.length === 0 ? (
-                  <div className="py-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 space-y-1">
-                    {(selectedDayObj?.isOffDay && displaySlots.length === 0) ? (
-                      <>
-                        <p className="text-xs font-bold text-rose-700">Clinic Closed on {selectedDayObj?.label} (Weekly Off Day)</p>
-                        <p className="text-[11px] text-slate-500">
-                          {doctor.full_name} does not take patient consultations on this day. Please pick another active day above.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-xs font-semibold text-slate-700">No consultation slots available for {selectedDayObj?.label}</p>
-                        <p className="text-[11px] text-slate-400">
-                          {selectedShiftTab !== 'all'
-                            ? `No slots found for the ${selectedShiftTab} shift. Check other shifts or dates.`
-                            : 'Doctor has not scheduled slots for this date or all slots have been cleared.'}
-                        </p>
-                      </>
-                    )}
+                  <div className="py-6 text-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {selectedDayObj?.isOffDay ? 'Clinic is closed on this day' : 'No available slots for this date'}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Please select another date above</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {activeSlotsToDisplay.map((slot) => {
                       const isSelected = selectedSlotId === slot.id || selectedTimeSlot === slot.timeLabel;
-                      const isMorning = isMorningSlot(slot.rawSlot, slot.timeLabel);
                       return (
                         <button
                           key={slot.id}
@@ -5136,18 +4975,12 @@ function DoctorProfileAndBookingView({
                             setSelectedSlotId(slot.id);
                             setSelectedTimeSlot(slot.timeLabel);
                           }}
-                          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-2xs ${isSelected
-                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-md shadow-emerald-950/40 ring-2 ring-emerald-400 border border-emerald-500 scale-[1.02]'
-                            : 'bg-white hover:bg-emerald-50/60 dark:bg-[#111c2e] dark:hover:bg-slate-800 border border-slate-200/90 dark:border-slate-700/80 hover:border-emerald-500 dark:hover:border-emerald-400 text-slate-800 dark:text-slate-100 hover:text-emerald-700 dark:hover:text-emerald-300'
+                          className={`py-2 px-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer active:scale-95 ${isSelected
+                            ? 'bg-clinic-700 text-white shadow-sm ring-2 ring-clinic-700/20'
+                            : 'bg-slate-50/80 dark:bg-slate-800/80 hover:bg-clinic-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-clinic-500'
                             }`}
                         >
-                          {isMorning ? (
-                            <Sun className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-amber-200' : 'text-amber-500 dark:text-amber-400'}`} />
-                          ) : (
-                            <Moon className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-indigo-200' : 'text-indigo-400 dark:text-indigo-300'}`} />
-                          )}
-                          <span className="tracking-tight">{slot.timeLabel}</span>
-                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3] text-white flex-shrink-0" />}
+                          {slot.timeLabel}
                         </button>
                       );
                     })}
@@ -5155,120 +4988,90 @@ function DoctorProfileAndBookingView({
                 )}
               </div>
 
-              {/* ── Step 2: Patient details ── */}
-              <div className="py-6 border-b border-slate-100 dark:border-slate-800 space-y-4">
+              {/* ── Step 2: Patient Details ── */}
+              <div className="py-5 border-b border-slate-100 dark:border-slate-800 space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-clinic-100 dark:bg-clinic-950/60 text-clinic-800 dark:text-clinic-300 font-bold text-xs flex items-center justify-center">
                       2
                     </span>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Appointment Type &amp; Patient Details</h3>
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Patient Details</h4>
                   </div>
-                  <span className="text-xs text-slate-400 font-medium">* Required fields</span>
-                </div>
-
-                {/* VIP Loyalty Card Announcement Notice (Single clean callout with link to separate loyalty page) */}
-                {Boolean(doctor.loyalty_card_enabled) && (
-                  <div className="p-3.5 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-300 dark:border-amber-500/40 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 flex items-center justify-center font-bold text-base flex-shrink-0">
-                        💳
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-amber-950 dark:text-amber-200 truncate">
-                          {doctor.loyalty_card_title || 'RK VIP Loyalty Card'} &bull; Save {Number(doctor.loyalty_discount_percent ?? 10)}%
-                        </div>
-                        <div className="text-[11px] text-amber-800 dark:text-amber-400 truncate">
-                          Save {Number(doctor.loyalty_discount_percent ?? 10)}% on every consultation. Pay discounted Rs. {Math.round(doctor.fee_clinic * (1 - Number(doctor.loyalty_discount_percent ?? 10) / 100)).toLocaleString()} at clinic desk.
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (doctor.loyalty_card_enabled) {
-                          window.history.pushState({}, '', `/loyalty?doctor_id=${doctor.id}`);
-                        }
-                        onSwitchRole?.('loyalty' as any);
-                      }}
-                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition-all whitespace-nowrap cursor-pointer shadow-xs flex-shrink-0"
-                    >
-                      Apply for Card &rarr;
-                    </button>
-                  </div>
-                )}
-
-                {/* Booking for Toggle */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-slate-600">Booking for</span>
-                  <div className="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  {/* Booking For Toggle */}
+                  <div className="inline-flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-[11px]">
                     <button
                       type="button"
                       onClick={() => setBookingFor('myself')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${bookingFor === 'myself'
-                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
+                      className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${bookingFor === 'myself' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}
                     >
-                      <User className="w-3 h-3 text-[#0f766e]" /> Myself
+                      Myself
                     </button>
                     <button
                       type="button"
                       onClick={() => setBookingFor('someone_else')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${bookingFor === 'someone_else'
-                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
+                      className={`px-2.5 py-0.5 rounded-md font-semibold transition cursor-pointer ${bookingFor === 'someone_else' ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'}`}
                     >
                       Someone else
                     </button>
                   </div>
                 </div>
 
-                {/* 2x2 Input Fields Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full name *</label>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
                     <input
                       type="text"
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
-                      placeholder="Ahmed Khan"
+                      placeholder="e.g. Muhammad Ali"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile number *</label>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Number *</label>
                     <input
-                      type="text"
+                      type="tel"
                       value={patientPhone}
                       onChange={(e) => setPatientPhone(e.target.value)}
-                      placeholder="+92 300 123 4567"
+                      placeholder="0300 1234567"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition font-mono"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition font-mono"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Email Address (for digital appointment slip) *
+                    </label>
+                    <input
+                      type="email"
+                      value={patientEmail}
+                      onChange={(e) => setPatientEmail(e.target.value)}
+                      placeholder="yourname@gmail.com"
+                      required
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Age *</label>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Age (optional)</label>
                     <input
                       type="text"
                       value={patientAge}
                       onChange={(e) => setPatientAge(e.target.value)}
-                      placeholder="34 years"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
+                      placeholder="e.g. 32"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Gender *</label>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Gender</label>
                     <select
                       value={patientGender}
                       onChange={(e) => setPatientGender(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -5276,121 +5079,47 @@ function DoctorProfileAndBookingView({
                     </select>
                   </div>
                 </div>
-
-                {/* Email address field for patient notifications */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Email address (for slip receipt, reminders &amp; doctor review link) *
-                    </label>
-                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
-                      <Mail className="w-3 h-3 text-emerald-400" /> Email Alerts
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      type="email"
-                      value={patientEmail}
-                      onChange={(e) => setPatientEmail(e.target.value)}
-                      placeholder="e.g. yourname@gmail.com"
-                      required
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-500 mt-1">
-                    Your digital slip, appointment confirmation, 1-hour pre-visit reminder, and doctor review link will be sent to this email.
-                  </p>
-                </div>
-
-                {/* Reason for visit (optional) */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Reason for your visit (optional)</label>
-                  <textarea
-                    value={patientReason}
-                    onChange={(e) => setPatientReason(e.target.value)}
-                    rows={2}
-                    placeholder="Follow-up for blood pressure and a review of my current medication."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#0f766e]/30 focus:border-[#0f766e] transition resize-none"
-                  />
-                </div>
-
-                {/* SMS Reminder Checkbox */}
-                <label className="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300 pt-1">
-                  <input
-                    type="checkbox"
-                    checked={sendSmsReminder}
-                    onChange={(e) => setSendSmsReminder(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#0f766e] border-slate-300 focus:ring-[#0f766e] accent-[#0f766e]"
-                  />
-                  <span>Send me an appointment confirmation and reminder by SMS.</span>
-                </label>
               </div>
 
-              {/* ── Step 3: Review & book ── */}
-              <div className="pt-6 space-y-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-teal-100 text-[#0f766e] font-bold text-xs flex items-center justify-center">
-                    3
-                  </span>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">Review &amp; book</h3>
-                </div>
-
-                {/* Summary Pill */}
-                <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 rounded-xl px-4 py-3 flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 font-semibold">
-                  <Calendar className="w-4 h-4 text-[#0f766e]" />
-                  <span>{selectedDayObj?.label} &middot; {selectedTimeSlot} &middot; In-person</span>
-                </div>
-
-                {/* Fee and Payment Notice */}
-                <div className="pt-2 space-y-2">
-                  <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700">
+              {/* ── Step 3: Confirm & Book ── */}
+              <div className="pt-5 space-y-3.5">
+                {/* Clean Appointment Summary Pill */}
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-clinic-700 dark:text-clinic-400 flex-shrink-0" />
                     <div>
-                      <p className="font-bold text-xs text-slate-900 dark:text-white">Pay at Clinic Reception Desk</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        No online payment required &middot; Pay cash upon arrival
-                        {Boolean(doctor.loyalty_card_enabled) && (
-                          <span className="text-amber-700 dark:text-amber-400 font-semibold ml-1">
-                            (VIP Cardholders save {Number(doctor.loyalty_discount_percent ?? 10)}%)
-                          </span>
-                        )}
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">
+                        {selectedDayObj?.label || 'Selected Day'} &bull; {selectedTimeSlot}
                       </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                        {formatCurrency(doctor.fee_clinic)}
-                      </span>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Pay cash at clinic desk upon arrival</p>
                     </div>
                   </div>
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white font-mono">
+                    {formatCurrency(doctor.fee_clinic)}
+                  </span>
                 </div>
 
                 {/* Form Error Notification */}
                 {errorMessage && bookingState === 'form' && (
-                  <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 font-semibold flex items-start gap-2.5 shadow-2xs animate-fade-in">
-                    <span className="text-base leading-none">⚠️</span>
-                    <div className="flex-1 leading-relaxed">
-                      {errorMessage}
-                    </div>
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-semibold flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{errorMessage}</span>
                   </div>
                 )}
 
-                {/* Primary CTA Button */}
+                {/* Confirm Button */}
                 <button
                   type="button"
                   onClick={handleStartBooking}
                   disabled={isSubmitting || activeSlotsToDisplay.length === 0}
-                  className="w-full py-4 bg-[#0f766e] hover:bg-[#0b5c56] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
                 >
                   {isSubmitting
                     ? 'Securing your slot...'
                     : activeSlotsToDisplay.length === 0
                       ? 'No slots available for this date'
-                      : 'Confirm Free Token (Pay at Clinic) →'}
+                      : 'Confirm Free Booking (Pay at Clinic) →'}
                 </button>
-
-                <p className="text-[11px] text-slate-400 text-center font-normal pt-1">
-                  100% Free Booking &bull; No credit card required &bull; Pay cash at clinic counter
-                </p>
               </div>
             </div>
           </div>
@@ -5431,7 +5160,7 @@ function DoctorProfileAndBookingView({
             </button>
 
             <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-emerald-950/80 text-[#0f766e] dark:text-emerald-400 flex items-center justify-center mx-auto mb-3 font-bold">
+              <div className="w-12 h-12 rounded-2xl bg-clinic-50 dark:bg-clinic-950/80 text-clinic-700 dark:text-clinic-300 flex items-center justify-center mx-auto mb-3 font-bold">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Verify your mobile</h3>
@@ -5444,14 +5173,14 @@ function DoctorProfileAndBookingView({
             {devCode && (
               <div
                 onClick={() => handleFillCode(devCode)}
-                className="mb-5 bg-emerald-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-emerald-200 dark:border-slate-700 p-3.5 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-100/80 dark:hover:bg-slate-750 transition shadow-xs group"
+                className="mb-5 bg-clinic-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-clinic-200 dark:border-slate-700 p-3.5 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-clinic-100/80 dark:hover:bg-slate-750 transition shadow-xs group"
                 title="Click to auto-fill code"
               >
                 <div>
-                  <span className="text-emerald-800 dark:text-emerald-400 text-[10px] font-bold block uppercase tracking-wider">DEMO VERIFICATION CODE</span>
-                  <span className="text-base font-black font-mono tracking-widest text-emerald-700 dark:text-emerald-400">{devCode}</span>
+                  <span className="text-clinic-800 dark:text-clinic-400 text-[10px] font-bold block uppercase tracking-wider">DEMO VERIFICATION CODE</span>
+                  <span className="text-base font-black font-mono tracking-widest text-clinic-700 dark:text-clinic-300">{devCode}</span>
                 </div>
-                <span className="text-[11px] bg-white dark:bg-slate-700 group-hover:bg-emerald-600 group-hover:text-white px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 font-semibold border border-emerald-200 dark:border-transparent transition-colors">
+                <span className="text-[11px] bg-white dark:bg-slate-700 group-hover:bg-clinic-700 group-hover:text-white px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 font-semibold border border-clinic-200 dark:border-transparent transition-colors">
                   Auto-fill →
                 </span>
               </div>
@@ -5474,7 +5203,7 @@ function DoctorProfileAndBookingView({
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
-                    className="w-9 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f766e] focus:border-[#0f766e] shadow-2xs"
+                    className="w-9 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-500 focus:border-clinic-500 shadow-2xs"
                   />
                 ))}
               </div>
@@ -5482,7 +5211,7 @@ function DoctorProfileAndBookingView({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 bg-[#0f766e] hover:bg-[#0b5c56] disabled:opacity-60 text-white font-bold rounded-2xl text-sm transition shadow-md"
+                className="w-full py-3.5 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-60 text-white font-bold rounded-2xl text-sm transition shadow-md cursor-pointer"
               >
                 {isSubmitting ? 'Verifying code...' : 'Confirm Appointment'}
               </button>

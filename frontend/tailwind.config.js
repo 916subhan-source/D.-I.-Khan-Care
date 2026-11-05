@@ -8,53 +8,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Deep Medical Blue (Primary brand & buttons, footer, logo)
-        'medical-blue': {
-          DEFAULT: '#1e3a8a',
-          50:  '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',  // Deep Medical Blue
-          950: '#172554',
-        },
-        // Healthcare Teal (Secondary buttons, links, highlights)
-        'healthcare-teal': {
-          DEFAULT: '#0d9488',
-          50:  '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',  // Healthcare Teal
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-          950: '#042f2e',
-        },
-        // Cloud White & Slate Charcoal
-        'cloud-white': '#f8fafc',
-        'slate-charcoal': '#1e293b',
-
-        // Primary brand mapping (aligned with Deep Medical Blue)
+        // Primary brand — dark teal (D.I. Khan Care)
         clinic: {
-          50:  '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#2563eb',
-          600: '#1d4ed8',
-          700: '#1e3a8a',  // Deep Medical Blue (primary buttons)
-          800: '#172554',  // Dark Medical Blue
-          900: '#0f172a',  // Dark surfaces
-          950: '#0a0f1d',
+          50:  '#f0faf8',
+          100: '#d9f2ed',
+          200: '#b3e4db',
+          300: '#7dcec3',
+          400: '#45b3a6',
+          500: '#2a9488',
+          600: '#1e776b',
+          700: '#1a6359',  // primary buttons
+          800: '#174f47',
+          900: '#143d38',  // sidebar, dark surfaces
+          950: '#0c2824',
         },
         // Amber — holds, warnings, pending
         hold: {

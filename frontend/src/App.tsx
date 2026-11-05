@@ -1003,16 +1003,16 @@ export default function App() {
 
   // ── Public Patient-Facing Page ──
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#080d14] text-slate-900 dark:text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#080d14] text-slate-900 dark:text-slate-100 flex flex-col">
       {/* ── Public Top Navbar — Responsive & Desktop-Preserved ── */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200/80 shadow-xs" style={{ backdropFilter: 'blur(12px)' }}>
+      <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-100" style={{ backdropFilter: 'blur(12px)' }}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between w-full">
-          {/* Logo: Deep Medical Blue */}
+          {/* Logo */}
           <button onClick={() => handleSwitchRole('home')} className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer">
             <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform bg-white" />
             <div>
-              <div className="font-extrabold text-[#1e3a8a] dark:text-blue-400 text-sm sm:text-base leading-tight tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</div>
-              <div className="text-[8px] sm:text-[9px] text-[#0d9488] dark:text-teal-400 font-bold uppercase tracking-[0.06em] sm:tracking-[0.15em] truncate">Doctor Appointment System</div>
+              <div className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base leading-tight tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</div>
+              <div className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-400 uppercase tracking-[0.06em] sm:tracking-[0.15em] truncate">Doctor Appointment System</div>
             </div>
           </button>
 
@@ -1021,8 +1021,8 @@ export default function App() {
             <button
               onClick={() => handleSwitchRole('home')}
               className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'home'
-                ? 'text-[#1e3a8a] dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-700/60 shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-[#0d9488] dark:hover:text-teal-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
                 }`}
             >
               Home
@@ -1030,8 +1030,8 @@ export default function App() {
             <button
               onClick={() => handleSwitchRole('patient')}
               className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'patient'
-                ? 'text-[#1e3a8a] dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-700/60 shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-[#0d9488] dark:hover:text-teal-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
                 }`}
             >
               Find a doctor
@@ -1039,8 +1039,8 @@ export default function App() {
             <button
               onClick={() => handleSwitchRole('track')}
               className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${activeTab === 'track'
-                ? 'text-[#1e3a8a] dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-700/60 shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-[#0d9488] dark:hover:text-teal-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
                 }`}
             >
               Track appointment
@@ -1058,7 +1058,8 @@ export default function App() {
             </button>
             <button
               onClick={() => setShowStaffModal(true)}
-              className="ml-2 text-sm font-bold px-5 py-2 rounded-xl text-white transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 cursor-pointer bg-[#0d9488] hover:bg-[#0f766e]"
+              className="ml-2 text-sm font-bold px-5 py-2 rounded-xl text-white transition-all shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:scale-95 cursor-pointer"
+              style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)' }}
             >
               Staff sign in
             </button>
@@ -1087,13 +1088,13 @@ export default function App() {
             </button>
             <button
               onClick={() => handleSwitchRole('track')}
-              className="px-2.5 py-1.5 text-xs font-bold text-[#0d9488] dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900 border border-teal-200 dark:border-teal-700/80 rounded-lg transition-all shadow-2xs"
+              className="px-2.5 py-1.5 text-xs font-bold text-clinic-800 dark:text-clinic-300 bg-clinic-50 dark:bg-clinic-950/60 hover:bg-clinic-100 dark:hover:bg-clinic-900 border border-clinic-200 dark:border-clinic-700/80 rounded-lg transition-all shadow-2xs"
             >
               Track
             </button>
             <button
               onClick={() => setShowMobileNav(true)}
-              className="p-2 text-slate-700 hover:text-[#1e3a8a] hover:bg-slate-100 rounded-lg transition-all"
+              className="p-2 text-slate-700 hover:text-clinic-800 hover:bg-slate-100 rounded-lg transition-all"
               aria-label="Open mobile navigation"
             >
               <Menu className="w-5 h-5" />
@@ -1110,7 +1111,7 @@ export default function App() {
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
                 <div className="flex items-center gap-2">
                   <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white" />
-                  <span className="font-bold text-[#1e3a8a] dark:text-blue-400 text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</span>
+                  <span className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</span>
                 </div>
                 <button onClick={() => setShowMobileNav(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
                   <X className="w-4 h-4" />
@@ -1232,7 +1233,7 @@ export default function App() {
       )}
 
       {/* ── Content ── */}
-      <main className="flex-1 pb-20 md:pb-0 bg-[#f8fafc] dark:bg-[#080d14] overflow-x-hidden w-full max-w-full">
+      <main className="flex-1 pb-20 md:pb-0 dark:bg-[#080d14] overflow-x-hidden w-full max-w-full">
         {activeTab === 'track' ? (
           <TrackAppointmentSection onBackToDirectory={() => handleSwitchRole('home')} />
         ) : activeTab === 'loyalty' ? (
@@ -1251,20 +1252,17 @@ export default function App() {
         )}
       </main>
 
-      {/* ── Footer: Deep Medical Blue ── */}
-      <footer className="border-t border-blue-950/40 bg-[#1e3a8a] dark:bg-[#0c1830] text-white py-8">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white p-0.5" />
-            <div>
-              <span className="text-sm font-extrabold text-white tracking-wide" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
-              <span className="block text-[9px] uppercase tracking-widest text-teal-300 font-bold">Doctor Appointment System</span>
-            </div>
+      {/* ── Footer ── */}
+      <footer className="border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-6">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-6 h-6 rounded-full object-contain shadow-xs bg-white" />
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-4 text-xs text-blue-100/90 text-center">
-            <span>Concept preview &middot; Illustrative data</span>
-            <span className="hidden sm:inline text-blue-300/40">|</span>
-            <span className="text-teal-300 font-semibold">Dera Ismail Khan &middot; Cash at clinic desk</span>
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-4 text-xs text-slate-400 text-center">
+            <span>Concept preview · Illustrative data</span>
+            <span className="hidden sm:inline text-slate-200 dark:text-slate-700">|</span>
+            <span>Dera Ismail Khan · Cash at clinic only</span>
           </div>
         </div>
       </footer>
@@ -4946,12 +4944,12 @@ function DoctorProfileAndBookingView({
                           type="button"
                           onClick={() => setSelectedDayDate(d.fullDate)}
                           className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${selectedDayDate === d.fullDate
-                            ? 'bg-[#1e3a8a] text-white shadow-2xs font-bold'
+                            ? 'bg-[#0f766e] text-white shadow-2xs font-bold'
                             : 'bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-800'
                             }`}
                         >
                           <span>{d.weekday} {d.dayNum}</span>
-                          <span className={`text-[10px] px-1 rounded-full ${selectedDayDate === d.fullDate ? 'bg-teal-400 text-slate-900 font-bold' : 'bg-teal-100 text-teal-800'}`}>
+                          <span className={`text-[10px] px-1 rounded-full ${selectedDayDate === d.fullDate ? 'bg-amber-300 text-slate-900' : 'bg-teal-100 text-teal-800'}`}>
                             {d.slotCount}
                           </span>
                         </button>
@@ -4971,7 +4969,7 @@ function DoctorProfileAndBookingView({
                         type="button"
                         onClick={() => setSelectedDayDate(day.fullDate)}
                         className={`min-w-[62px] flex-shrink-0 md:min-w-0 md:flex-shrink py-2.5 sm:py-3 px-1 rounded-2xl text-center transition-all relative ${isSelected
-                          ? 'bg-[#1e3a8a] text-white shadow-md ring-2 ring-[#1e3a8a]/30'
+                          ? 'bg-[#0f766e] text-white shadow-md ring-2 ring-[#0f766e]/30'
                           : 'bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-teal-400 dark:hover:border-emerald-500 hover:bg-teal-50/20 dark:hover:bg-slate-700/60'
                           }`}
                       >
@@ -5376,12 +5374,12 @@ function DoctorProfileAndBookingView({
                   </div>
                 )}
 
-                {/* Primary CTA Button: Deep Medical Blue */}
+                {/* Primary CTA Button */}
                 <button
                   type="button"
                   onClick={handleStartBooking}
                   disabled={isSubmitting || activeSlotsToDisplay.length === 0}
-                  className="w-full py-4 bg-[#1e3a8a] hover:bg-[#172554] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-[#0f766e] hover:bg-[#0b5c56] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   {isSubmitting
                     ? 'Securing your slot...'
@@ -5413,7 +5411,7 @@ function DoctorProfileAndBookingView({
               const el = document.getElementById('oladoc-booking-card');
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className="py-2.5 px-5 bg-[#1e3a8a] hover:bg-[#172554] active:scale-95 text-white font-bold rounded-xl text-xs shadow-sm flex items-center gap-1.5 cursor-pointer"
+            className="py-2.5 px-5 bg-clinic-700 hover:bg-clinic-800 active:scale-95 text-white font-bold rounded-xl text-xs shadow-sm flex items-center gap-1.5 cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>Book Appointment &rarr;</span>
@@ -6137,18 +6135,18 @@ function DoctorProfileAndBookingView({
         </div>
       )}
 
-      {/* ── Footer: Deep Medical Blue ── */}
-      <footer className="mt-16 pt-8 pb-10 border-t border-blue-950/40 bg-[#1e3a8a] dark:bg-[#0c1830] text-white text-xs">
+      {/* ── Footer ── */}
+      <footer className="mt-16 pt-8 border-t border-slate-200 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-blue-100/90">&copy; 2026 D.I. Khan Care. Care closer to home.</p>
-          <div className="flex items-center gap-6 font-medium text-teal-200">
-            <button onClick={onBack} className="hover:text-white transition-colors">Privacy policy</button>
-            <button onClick={onBack} className="hover:text-white transition-colors">Terms of service</button>
-            <button onClick={onBack} className="hover:text-white transition-colors">Contact us</button>
+          <p>&copy; 2026 D.I. Khan Care. Care closer to home.</p>
+          <div className="flex items-center gap-6 font-medium">
+            <button onClick={onBack} className="hover:text-slate-900 transition-colors">Privacy policy</button>
+            <button onClick={onBack} className="hover:text-slate-900 transition-colors">Terms of service</button>
+            <button onClick={onBack} className="hover:text-slate-900 transition-colors">Contact us</button>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 mt-4 flex items-center gap-2 text-[11px] text-blue-200/80">
-          <AlertCircle className="w-3.5 h-3.5 text-teal-300 flex-shrink-0" />
+        <div className="max-w-7xl mx-auto px-6 mt-4 flex items-center gap-2 text-[11px] text-slate-400">
+          <AlertCircle className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
           <span>For a medical emergency, please call 1122 or visit your nearest emergency department. This service is for scheduled appointments only.</span>
         </div>
       </footer>
@@ -6564,8 +6562,8 @@ function PatientSection({
         </div>
       </div>
 
-      {/* ── Modern Hero Section with Image Banner — Cloud White ── */}
-      <div className="relative bg-[#f8fafc] dark:bg-[#071317] border-b border-slate-200/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10">
+      {/* ── Modern Hero Section with Image Banner ── */}
+      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10">
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <img
@@ -6580,7 +6578,7 @@ function PatientSection({
           />
           {/* Broad, soft linear gradient wash matching container background */}
           <div
-            className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#f8fafc] via-[#f8fafc]/95 sm:via-[#f8fafc]/85 to-transparent dark:from-[#071317] dark:via-[#071317]/95 sm:dark:via-[#071317]/85 dark:to-transparent pointer-events-none"
+            className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/95 sm:via-[#f0f6f3]/85 to-transparent dark:from-[#071317] dark:via-[#071317]/95 sm:dark:via-[#071317]/85 dark:to-transparent pointer-events-none"
           />
           {/* Subtle top & bottom dark fade in dark mode */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#071317] via-transparent to-[#071317]/40 pointer-events-none hidden dark:block" />
@@ -6588,19 +6586,19 @@ function PatientSection({
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-teal-200 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-clinic-200/80 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-clinic-800 dark:text-emerald-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
             <span>★ D.I. Khan's #1 Healthcare Network</span>
           </div>
 
-          {/* Heading: Slate Charcoal */}
+          {/* Heading */}
           <div className="max-w-xl lg:max-w-2xl">
             <h1
-              className="text-2xl sm:text-4xl lg:text-[2.85rem] font-black text-slate-800 dark:text-white leading-[1.25] sm:leading-[1.3] lg:leading-[1.35] tracking-wide"
+              className="text-2xl sm:text-4xl lg:text-[2.85rem] font-black text-slate-900 dark:text-white leading-[1.25] sm:leading-[1.3] lg:leading-[1.35] tracking-wide"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
               Find & Book Top Doctors
-              <span className="block mt-1 sm:mt-2 text-slate-800 dark:text-slate-100">in D.I. Khan</span>
+              <span className="block mt-1 sm:mt-2 text-slate-900 dark:text-slate-100">in D.I. Khan</span>
             </h1>
             <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-4 leading-relaxed font-normal max-w-lg">
               Skip the long waiting lines. Choose a verified specialist, pick your instant token time, and pay cash at clinic arrival.
@@ -6608,12 +6606,12 @@ function PatientSection({
 
             {/* Reassurance Badges */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 sm:mt-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-semibold">
-              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-teal-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
-                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
+              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
                 100% Free Booking
               </span>
-              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-teal-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
-                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
+              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
                 Instant Queue Token
               </span>
             </div>
@@ -6630,7 +6628,7 @@ function PatientSection({
                     setSearchTerm('');
                     scrollToResults();
                   }}
-                  className="px-5 py-2.5 sm:py-3 bg-[#1e3a8a] hover:bg-[#172554] text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
+                  className="px-5 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
                 >
                   <Search className="w-4 h-4" />
                   <span>Find a Doctor</span>
@@ -6641,16 +6639,16 @@ function PatientSection({
                     const el = document.getElementById('home-filters-container');
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="px-4 py-2.5 sm:py-3 bg-teal-50/50 dark:bg-teal-950/40 border border-[#0d9488] text-[#0f766e] dark:text-teal-300 font-bold rounded-xl text-xs sm:text-sm shadow-2xs hover:bg-teal-100/70 dark:hover:bg-teal-900/40 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                  className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-xl text-xs sm:text-sm shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
                   <span>Browse Categories &amp; Symptoms</span>
-                  <ChevronDown className="w-4 h-4 text-[#0d9488]" />
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
                 </button>
               </div>
             )}
 
             {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
-            <div className="block lg:hidden mt-3.5 pt-3 border-t border-slate-200/80 dark:border-slate-800 w-full max-w-[270px]">
+            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[270px]">
               <Hero3DPass isStatic={true} />
             </div>
           </div>
@@ -6680,7 +6678,7 @@ function PatientSection({
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-400"
                   />
                   {searchTerm && (
                     <button
@@ -6695,7 +6693,7 @@ function PatientSection({
                 <button
                   type="button"
                   onClick={scrollToResults}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all"
                 >
                   <Search className="w-4 h-4" />
                   <span>Search Doctors</span>
@@ -6706,9 +6704,9 @@ function PatientSection({
             <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
                 {/* Specialty Dropdown */}
-                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-teal-500 dark:focus-within:border-teal-500 transition-all">
+                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                    <Stethoscope className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" /> Specialty
+                    <Stethoscope className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Specialty
                   </div>
                   <select
                     value={selectedSpecialty}
@@ -6722,9 +6720,9 @@ function PatientSection({
                 </div>
 
                 {/* Area / Vicinity Dropdown */}
-                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-teal-500 dark:focus-within:border-teal-500 transition-all">
+                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                    <MapPin className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" /> Area / Vicinity
+                    <MapPin className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Area / Vicinity
                   </div>
                   <select
                     value={selectedLocality}
@@ -6738,9 +6736,9 @@ function PatientSection({
                 </div>
 
                 {/* Shift Timing Dropdown */}
-                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-teal-500 dark:focus-within:border-teal-500 transition-all">
+                <div className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-slate-50/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:border-clinic-500 dark:focus-within:border-emerald-500 transition-all">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                    <Clock className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" /> Shift Timing
+                    <Clock className="w-3.5 h-3.5 text-clinic-700 dark:text-emerald-400" /> Shift Timing
                   </div>
 
                   <select
@@ -6754,11 +6752,11 @@ function PatientSection({
                   </select>
                 </div>
 
-                {/* Search Button: Deep Medical Blue */}
+                {/* Search Button */}
                 <button
                   type="button"
                   onClick={scrollToResults}
-                  className="w-full h-full min-h-[46px] sm:min-h-[50px] px-6 py-2.5 sm:py-3 bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 tracking-wide group cursor-pointer"
+                  className="w-full h-full min-h-[46px] sm:min-h-[50px] px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 tracking-wide group cursor-pointer"
                 >
                   <Search className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
                   <span>Search Doctors</span>
@@ -7181,13 +7179,13 @@ function PatientSection({
   );
 }
 
-// ── Doctor Card Component: White card, Deep Medical Blue primary button, Healthcare Teal secondary & highlights ──────
+// ── Doctor Card Component (Compact, modern design with Picture, Name, Specialty, Availability & Fee) ──────
 function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void }) {
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
 
   return (
-    <div className="group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-teal-500/50 dark:hover:border-teal-500/60 transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:shadow-md hover:-translate-y-1">
+    <div className="group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/50 dark:hover:border-emerald-500/60 transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:shadow-md hover:-translate-y-1">
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">
@@ -7209,12 +7207,12 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
             />
             <div
               style={{ display: 'none' }}
-              className="w-full h-full bg-gradient-to-br from-[#1e3a8a] to-slate-900 text-white flex items-center justify-center font-bold text-xl"
+              className="w-full h-full bg-gradient-to-br from-clinic-800 to-slate-900 text-white flex items-center justify-center font-bold text-xl"
             >
               {initials}
             </div>
             {doctor.verification_status === 'verified' && (
-              <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-[#0d9488] text-white flex items-center justify-center shadow-xs" title="PMDC Verified">
+              <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs" title="PMDC Verified">
                 <Check className="w-2.5 h-2.5 stroke-[3]" />
               </span>
             )}
@@ -7225,19 +7223,19 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
             <div className="flex items-center gap-1.5 flex-wrap">
               <h3
                 onClick={() => onProfile(doctor)}
-                className="font-extrabold text-slate-800 dark:text-white text-base sm:text-lg leading-snug group-hover:text-[#0d9488] dark:group-hover:text-teal-400 transition-colors line-clamp-1 cursor-pointer"
+                className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1 cursor-pointer"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
                 title="Click to view doctor profile"
               >
                 {doctor.full_name}
               </h3>
               {doctor.is_spotlight && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-500 bg-amber-50 border border-amber-300 px-1.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded-full">
                   ★ Featured
                 </span>
               )}
             </div>
-            <p className="text-xs font-bold text-[#0d9488] dark:text-teal-400 mt-0.5 truncate uppercase tracking-wider">
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate uppercase tracking-wider">
               {doctor.specialty} Specialist
             </p>
             {doctor.qualification && (
@@ -7250,10 +7248,10 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-[#0d9488] dark:hover:text-teal-400 mt-1 truncate group/loc transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
               title="Click to view clinic location on Google Maps"
             >
-              <MapPin className="w-3 h-3 text-slate-400 group-hover/loc:text-[#0d9488] flex-shrink-0" />
+              <MapPin className="w-3 h-3 text-slate-400 group-hover/loc:text-emerald-500 flex-shrink-0" />
               <span className="truncate underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
             </a>
           </div>
@@ -7267,7 +7265,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
               Availability
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-teal-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                 {avail.isAvailableToday ? 'Available Today' : (avail.nextSlotText || 'Consultation by Slot')}
               </span>
@@ -7286,20 +7284,20 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         </div>
       </div>
 
-      {/* Dual Action Buttons: Secondary = Healthcare Teal, Primary = Deep Medical Blue */}
+      {/* Dual Action Buttons (Oladoc Style: View Profile & Book Appointment) */}
       <div className="grid grid-cols-2 gap-2 pt-1 mt-auto">
         <button
           type="button"
           onClick={() => onProfile(doctor)}
-          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-teal-600/70 dark:border-teal-700 hover:border-teal-600 bg-teal-50/50 dark:bg-teal-950/40 hover:bg-teal-100/70 text-[#0f766e] dark:text-teal-300 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
+          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50/70 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <User className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+          <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
           <span>View Profile</span>
         </button>
         <button
           type="button"
           onClick={() => onBook(doctor)}
-          className="py-2.5 px-2 sm:px-3 rounded-xl bg-[#1e3a8a] hover:bg-[#172554] active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-blue-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
+          className="py-2.5 px-2 sm:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
         >
           <span className="hidden sm:inline">Book Appointment</span><span className="sm:hidden">Book Slot</span>
           <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>

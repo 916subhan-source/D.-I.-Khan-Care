@@ -128,7 +128,7 @@ export default function HomeVisualFilters({
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h2 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
               Top Medical Specialties
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -138,7 +138,7 @@ export default function HomeVisualFilters({
           <button
             type="button"
             onClick={onViewAll}
-            className="text-xs sm:text-sm font-bold text-[#0d9488] dark:text-teal-400 hover:text-[#0f766e] dark:hover:text-teal-300 hover:underline flex items-center gap-1 cursor-pointer flex-shrink-0"
+            className="text-xs sm:text-sm font-bold text-clinic-700 dark:text-emerald-400 hover:text-clinic-900 dark:hover:text-emerald-300 hover:underline flex items-center gap-1 cursor-pointer flex-shrink-0"
           >
             <span>View All</span>
             <ChevronRight className="w-4 h-4" />
@@ -156,7 +156,7 @@ export default function HomeVisualFilters({
                 onClick={() => onSelectSpecialty(item.id)}
                 className={`group flex flex-col items-center text-center p-2 rounded-2xl transition-all cursor-pointer ${
                   isSelected
-                    ? 'ring-2 ring-teal-500 bg-teal-50/70 dark:bg-teal-950/40 scale-105'
+                    ? 'ring-2 ring-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 scale-105'
                     : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/60 hover:-translate-y-1'
                 }`}
               >
@@ -164,7 +164,7 @@ export default function HomeVisualFilters({
                 <div
                   className={`w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 transition-all bg-[#eef4fc] dark:bg-slate-800/90 ${
                     isSelected
-                      ? 'ring-3 ring-teal-500 shadow-md scale-105'
+                      ? 'ring-3 ring-emerald-500 shadow-md scale-105'
                       : 'shadow-2xs group-hover:shadow-md group-hover:scale-105 group-hover:bg-[#e4effb] dark:group-hover:bg-slate-750'
                   }`}
                 >
@@ -179,8 +179,8 @@ export default function HomeVisualFilters({
                 {/* Clear Label */}
                 <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-tight transition-colors w-full text-center break-words px-0.5 leading-snug ${
                   isSelected
-                    ? 'text-teal-700 dark:text-teal-300'
-                    : 'text-slate-800 dark:text-slate-200 group-hover:text-[#0d9488] dark:group-hover:text-teal-300'
+                    ? 'text-emerald-700 dark:text-emerald-300'
+                    : 'text-slate-800 dark:text-slate-200 group-hover:text-clinic-700 dark:group-hover:text-emerald-300'
                 }`}>
                   {item.label}
                 </span>
@@ -194,7 +194,7 @@ export default function HomeVisualFilters({
       <div className="bg-white dark:bg-slate-900 rounded-3xl p-3 sm:p-8 border border-slate-100 dark:border-slate-800/90 shadow-xs transition-all w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <div>
-            <h2 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
               Find Doctors by Health Symptoms
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -204,7 +204,7 @@ export default function HomeVisualFilters({
           <button
             type="button"
             onClick={onViewAll}
-            className="text-xs sm:text-sm font-bold text-[#0d9488] dark:text-teal-400 hover:text-[#0f766e] dark:hover:text-teal-300 hover:underline flex items-center gap-1 cursor-pointer flex-shrink-0"
+            className="text-xs sm:text-sm font-bold text-clinic-700 dark:text-emerald-400 hover:text-clinic-900 dark:hover:text-emerald-300 hover:underline flex items-center gap-1 cursor-pointer flex-shrink-0"
           >
             <span>View All</span>
             <ChevronRight className="w-4 h-4" />
@@ -222,7 +222,7 @@ export default function HomeVisualFilters({
                 onClick={() => onSelectCondition(item.id, item.label)}
                 className={`group flex flex-col items-center text-center p-2 rounded-2xl transition-all cursor-pointer ${
                   isSelected
-                    ? 'ring-2 ring-teal-500 bg-teal-50/70 dark:bg-teal-950/40 scale-105'
+                    ? 'ring-2 ring-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 scale-105'
                     : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/60 hover:-translate-y-1'
                 }`}
               >
@@ -230,7 +230,7 @@ export default function HomeVisualFilters({
                 <div
                   className={`w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 transition-all bg-[#eef4fc] dark:bg-slate-800/90 ${
                     isSelected
-                      ? 'ring-3 ring-teal-500 shadow-md scale-105'
+                      ? 'ring-3 ring-emerald-500 shadow-md scale-105'
                       : 'shadow-2xs group-hover:shadow-md group-hover:scale-105 group-hover:bg-[#e4effb] dark:group-hover:bg-slate-750'
                   }`}
                 >
@@ -245,8 +245,8 @@ export default function HomeVisualFilters({
                 {/* Clear Label */}
                 <span className={`mt-3 text-xs sm:text-[13px] font-bold leading-snug transition-colors w-full text-center break-words px-0.5 ${
                   isSelected
-                    ? 'text-teal-700 dark:text-teal-300'
-                    : 'text-slate-800 dark:text-slate-200 group-hover:text-[#0d9488] dark:group-hover:text-teal-300'
+                    ? 'text-emerald-700 dark:text-emerald-300'
+                    : 'text-slate-800 dark:text-slate-200 group-hover:text-clinic-700 dark:group-hover:text-emerald-300'
                 }`}>
                   {item.label}
                 </span>

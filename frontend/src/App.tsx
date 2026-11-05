@@ -3254,6 +3254,13 @@ function DoctorProfileModal({
 // ══════════════════════════════════════════════════════════════════════════════════════
 // Client-side transient slot cache (2 minutes TTL) to make profile switching instant
 const clientSlotCache: Record<string, { timestamp: number; slots: SlotData[] }> = {};
+export const clearDoctorSlotCache = (doctorId?: string) => {
+  if (doctorId) {
+    delete clientSlotCache[doctorId];
+  } else {
+    Object.keys(clientSlotCache).forEach(k => delete clientSlotCache[k]);
+  }
+};
 
 const getSpecialtyServicesList = (spec: string) => {
   const s = (spec || '').toLowerCase();
@@ -3665,9 +3672,9 @@ function DoctorProfileAndBookingView({
       const label = dateObj.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' });
       const realSlots = slotsByDate[dateStr] || [];
       const hasRealSlots = realSlots.length > 0;
-      const isSundayActive = fullWeekdayName === 'sunday' && Boolean(doctor.custom_sunday_enabled || (doctor.custom_special_day === 'sunday' && doctor.custom_day_schedule));
-      const isSpecialActive = Boolean(doctor.custom_special_day && fullWeekdayName === doctor.custom_special_day.toLowerCase() && doctor.custom_day_schedule);
-      const isOffDay = !hasRealSlots && !isSundayActive && !isSpecialActive && doctorOffDays.includes(fullWeekdayName);
+      const specialDaysList = (doctor.custom_special_day || 'sunday').split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+      const isSpecialActive = Boolean(doctor.custom_sunday_enabled) && specialDaysList.includes(fullWeekdayName);
+      const isOffDay = !hasRealSlots && !isSpecialActive && doctorOffDays.includes(fullWeekdayName);
       const count = realSlots.length;
       return {
         weekday,
@@ -3679,7 +3686,7 @@ function DoctorProfileAndBookingView({
         isOffDay
       };
     });
-  }, [slotsByDate, todayPKT, doctor.off_days]);
+  }, [slotsByDate, todayPKT, doctor.off_days, doctor.custom_sunday_enabled, doctor.custom_special_day]);
 
   // Week offset state for multi-week calendar navigation
   const [weekOffset, setWeekOffset] = useState<number>(0);
@@ -4417,12 +4424,13 @@ function DoctorProfileAndBookingView({
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
                           const docOffDays = (doctor.off_days || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
                           const isOffDay = docOffDays.includes(day.toLowerCase());
-                          const isSundaySpecial = day === 'Sunday' && Boolean(doctor.custom_sunday_enabled);
+                          const specialDaysList = (doctor.custom_special_day || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
+                          const isSpecialDay = Boolean(doctor.custom_sunday_enabled) && specialDaysList.includes(day.toLowerCase());
                           let timeText = '';
-                          if (isSundaySpecial) {
+                          if (isSpecialDay) {
                             const sStart = format24to12String(doctor.sunday_start || '08:00');
                             const sEnd = format24to12String(doctor.sunday_end || '20:00');
-                            timeText = `${sStart} - ${sEnd} (Special Sunday Full Day Clinic)`;
+                            timeText = `${sStart} - ${sEnd} (Special Clinic)`;
                           } else if (isOffDay) {
                             timeText = '11:00 AM - 02:00 PM (Emergency)';
                           } else if (doctor.shift === 'BOTH') {
@@ -4441,15 +4449,15 @@ function DoctorProfileAndBookingView({
                             timeText = `${mStart} - ${mEnd}`;
                           }
                           return (
-                            <tr key={idx} className={isSundaySpecial ? 'bg-purple-50/50 dark:bg-purple-950/20' : isOffDay ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
+                            <tr key={idx} className={isSpecialDay ? 'bg-purple-50/50 dark:bg-purple-950/20' : isOffDay ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
                               <td className="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                                 <span>{day}</span>
-                                {isSundaySpecial && <span className="px-1.5 py-0.2 rounded text-[9px] bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-extrabold uppercase">Full Day</span>}
+                                {isSpecialDay && <span className="px-1.5 py-0.2 rounded text-[9px] bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-extrabold uppercase">Special Day</span>}
                               </td>
-                              <td className={`p-3.5 font-semibold ${isSundaySpecial ? 'text-purple-800 dark:text-purple-300 font-bold' : 'text-emerald-700 dark:text-emerald-400'}`}>{timeText}</td>
+                              <td className={`p-3.5 font-semibold ${isSpecialDay ? 'text-purple-800 dark:text-purple-300 font-bold' : 'text-emerald-700 dark:text-emerald-400'}`}>{timeText}</td>
                               <td className="p-3.5">
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSundaySpecial ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300' : isOffDay ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
-                                  {isSundaySpecial ? 'Special Sunday' : isOffDay ? 'On-Call' : 'Available'}
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isSpecialDay ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300' : isOffDay ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'}`}>
+                                  {isSpecialDay ? 'Special Day' : isOffDay ? 'On-Call' : 'Available'}
                                 </span>
                               </td>
                             </tr>
@@ -7300,7 +7308,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [asstEveningEndMin, setAsstEveningEndMin] = useState('00');
   const [asstEveningEndPeriod, setAsstEveningEndPeriod] = useState('PM');
   const [asstCustomSundayEnabled, setAsstCustomSundayEnabled] = useState(false);
-  const [asstSpecialDay, setAsstSpecialDay] = useState<string>('sunday');
+  const [asstSpecialDays, setAsstSpecialDays] = useState<string[]>(['sunday']);
   const [asstSundayStartHour, setAsstSundayStartHour] = useState('08');
   const [asstSundayStartMin, setAsstSundayStartMin] = useState('00');
   const [asstSundayStartPeriod, setAsstSundayStartPeriod] = useState('AM');
@@ -7404,11 +7412,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           evening_start,
           evening_end,
           custom_sunday_enabled: asstCustomSundayEnabled,
-          custom_special_day: asstSpecialDay,
+          custom_special_day: asstSpecialDays.join(','),
           sunday_start,
           sunday_end
         })
       });
+      clearDoctorSlotCache(selectedDoctorId);
       setAsstShiftMsg('✓ Operating shift hours saved for this clinic!');
       setTimeout(() => setAsstShiftMsg(''), 4000);
     } catch (err: any) {
@@ -7444,12 +7453,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           evening_start,
           evening_end,
           custom_sunday_enabled: asstCustomSundayEnabled,
-          custom_special_day: asstSpecialDay,
+          custom_special_day: asstSpecialDays.join(','),
           sunday_start,
           sunday_end,
-          off_days: asstCustomSundayEnabled ? asstOffDays.filter(d => d !== asstSpecialDay) : asstOffDays
+          off_days: asstCustomSundayEnabled ? asstOffDays.filter(d => !asstSpecialDays.includes(d)) : asstOffDays
         })
       });
+      clearDoctorSlotCache(selectedDoctorId);
       setAsstGenMsg(res.message || `✓ Generated slots successfully!`);
       setMyDoctors(prev => prev.map(d => d.doctor_id === selectedDoctorId ? { ...d, off_days: asstOffDays.join(',') } : d));
       await fetchAsstSlots(selectedDoctorId);
@@ -7476,6 +7486,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         { method: 'DELETE' }
       );
       setAsstGenMsg(res.message || '✓ Unbooked slots cleared.');
+      clearDoctorSlotCache(selectedDoctorId);
       await fetchAsstSlots(selectedDoctorId);
     } catch (err: any) {
       setAsstGenMsg(`Error: ${err.message || 'Failed to clear unbooked slots'}`);
@@ -7782,7 +7793,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           setAsstCustomSundayEnabled(Boolean(doc.custom_sunday_enabled));
         }
         if (doc.custom_special_day) {
-          setAsstSpecialDay(doc.custom_special_day);
+          const parsed = doc.custom_special_day.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+          setAsstSpecialDays(parsed.length > 0 ? parsed : ['sunday']);
         }
         if (doc.sunday_start) {
           const sS = parse24to12(doc.sunday_start);
@@ -9730,25 +9742,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-bold text-slate-900 dark:text-white text-xs">Special Day Schedule</span>
-                                <select
-                                  value={asstSpecialDay}
-                                  onChange={e => {
-                                    const nextDay = e.target.value;
-                                    setAsstSpecialDay(nextDay);
-                                    if (asstCustomSundayEnabled && asstOffDays.includes(nextDay)) {
-                                      setAsstOffDays(prev => prev.filter(d => d !== nextDay));
-                                    }
-                                  }}
-                                  className="text-xs font-bold px-2 py-0.5 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-800 text-purple-900 dark:text-purple-300 focus:outline-none cursor-pointer"
-                                  title="Choose which day of the week has custom consultation hours"
-                                >
-                                  {WEEKDAY_OPTIONS.map(d => (
-                                    <option key={d.id} value={d.id}>{d.label} Special</option>
-                                  ))}
-                                </select>
+                                <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold bg-purple-100 dark:bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                                  Optional
+                                </span>
                               </div>
                               <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                                Set dedicated hours for {asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} (e.g. Full Day 8:00 AM – 8:00 PM)
+                                Dedicated consultation hours for selected days (remaining days follow standard shifts above)
                               </span>
                             </div>
                           </div>
@@ -9757,7 +9756,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                               }`}>
-                              {asstCustomSundayEnabled ? 'Active Full Day' : 'Inactive'}
+                              {asstCustomSundayEnabled ? '✓ Active Special Schedule' : 'Inactive (Optional)'}
                             </span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input
@@ -9766,8 +9765,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 onChange={e => {
                                   const checked = e.target.checked;
                                   setAsstCustomSundayEnabled(checked);
-                                  if (checked && asstOffDays.includes(asstSpecialDay)) {
-                                    setAsstOffDays(prev => prev.filter(d => d !== asstSpecialDay));
+                                  if (checked) {
+                                    setAsstOffDays(prev => prev.filter(d => !asstSpecialDays.includes(d)));
                                   }
                                 }}
                                 className="sr-only peer"
@@ -9777,11 +9776,52 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           </div>
                         </div>
 
+                        {/* Multi-Select Special Days in a Week */}
+                        <div className="pt-1 pb-2">
+                          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                            Special Days in Week <span className="text-slate-400 font-normal">(select one or multiple days):</span>
+                          </label>
+                          <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                            {WEEKDAY_OPTIONS.map(day => {
+                              const isSelected = asstSpecialDays.includes(day.id);
+                              return (
+                                <button
+                                  key={day.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setAsstSpecialDays(prev => {
+                                      const next = prev.includes(day.id)
+                                        ? prev.filter(d => d !== day.id)
+                                        : [...prev, day.id];
+                                      const finalDays = next.length > 0 ? next : [day.id];
+                                      if (asstCustomSundayEnabled) {
+                                        setAsstOffDays(offs => offs.filter(o => !finalDays.includes(o)));
+                                      }
+                                      return finalDays;
+                                    });
+                                  }}
+                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
+                                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
+                                  }`}
+                                  title={`Toggle ${day.full} as a Special Day`}
+                                >
+                                  <span className="block text-[11px] sm:text-xs leading-none">{day.label}</span>
+                                  <span className="block text-[9px] font-normal mt-0.5 opacity-80 leading-none">
+                                    {isSelected ? '✓ Special' : 'Standard'}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
                         {asstCustomSundayEnabled ? (
-                          <div className="space-y-2.5 pt-1">
+                          <div className="space-y-2.5 pt-2 border-t border-purple-100 dark:border-purple-900/40">
                             <div className="flex flex-wrap items-center gap-2">
                               <TimePickerDropdowns
-                                label={`${asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} Start`}
+                                label="Special Window Start"
                                 hour={asstSundayStartHour}
                                 minute={asstSundayStartMin}
                                 period={asstSundayStartPeriod}
@@ -9791,7 +9831,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               />
                               <div className="text-slate-400 font-bold text-xs pt-4">➔</div>
                               <TimePickerDropdowns
-                                label={`${asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} End`}
+                                label="Special Window End"
                                 hour={asstSundayEndHour}
                                 minute={asstSundayEndMin}
                                 period={asstSundayEndPeriod}
@@ -9800,14 +9840,22 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 onPeriodChange={setAsstSundayEndPeriod}
                               />
                             </div>
-                            <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
-                              <span>{asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} Window: <strong className="text-purple-900 dark:text-purple-300">{asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}</strong></span>
-                              <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">({format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod)} – {format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod)})</span>
+                            <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-slate-600 dark:text-slate-300">
+                              <span>
+                                Active for: <strong className="text-purple-900 dark:text-purple-300 font-bold">
+                                  {asstSpecialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}
+                                </strong> &middot; Hours: <strong className="text-purple-900 dark:text-purple-300 font-mono">
+                                  {asstSundayStartHour}:{asstSundayStartMin} {asstSundayStartPeriod} – {asstSundayEndHour}:{asstSundayEndMin} {asstSundayEndPeriod}
+                                </strong>
+                              </span>
+                              <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">
+                                ({format12to24(asstSundayStartHour, asstSundayStartMin, asstSundayStartPeriod)} – {format12to24(asstSundayEndHour, asstSundayEndMin, asstSundayEndPeriod)})
+                              </span>
                             </div>
                           </div>
                         ) : (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Enable to set separate consultation hours for {asstSpecialDay.charAt(0).toUpperCase() + asstSpecialDay.slice(1)} while remaining days follow your standard shift above.
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                            Special Day Schedule is currently <strong>Inactive (Optional)</strong>. Selected days ({asstSpecialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}) will follow the standard shift. Turn toggle ON to activate custom hours.
                           </p>
                         )}
                       </div>
@@ -9912,11 +9960,23 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               key={day.id}
                               type="button"
                               onClick={() => {
-                                setAsstOffDays(prev =>
-                                  prev.includes(day.id)
-                                    ? prev.filter(d => d !== day.id)
-                                    : [...prev, day.id]
-                                );
+                                setAsstOffDays(prev => {
+                                  const isCurrentlyOff = prev.includes(day.id);
+                                  if (isCurrentlyOff) {
+                                    return prev.filter(d => d !== day.id);
+                                  } else {
+                                    if (asstCustomSundayEnabled && asstSpecialDays.includes(day.id)) {
+                                      const remaining = asstSpecialDays.filter(d => d !== day.id);
+                                      if (remaining.length === 0) {
+                                        setAsstCustomSundayEnabled(false);
+                                        setAsstSpecialDays(['sunday']);
+                                      } else {
+                                        setAsstSpecialDays(remaining);
+                                      }
+                                    }
+                                    return [...prev, day.id];
+                                  }
+                                });
                               }}
                               className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
                                 ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 shadow-2xs ring-1 ring-rose-200 dark:ring-rose-900/50'
@@ -12375,7 +12435,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [eveningEndMin, setEveningEndMin] = useState('00');
   const [eveningEndPeriod, setEveningEndPeriod] = useState('PM');
   const [customSundayEnabled, setCustomSundayEnabled] = useState(false);
-  const [specialDay, setSpecialDay] = useState<string>('sunday');
+  const [specialDays, setSpecialDays] = useState<string[]>(['sunday']);
   const [sundayStartHour, setSundayStartHour] = useState('08');
   const [sundayStartMin, setSundayStartMin] = useState('00');
   const [sundayStartPeriod, setSundayStartPeriod] = useState('AM');
@@ -12603,7 +12663,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
             setCustomSundayEnabled(Boolean(profile.custom_sunday_enabled));
             if (profile.custom_special_day) {
-              setSpecialDay(profile.custom_special_day);
+              const parsed = profile.custom_special_day.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+              setSpecialDays(parsed.length > 0 ? parsed : ['sunday']);
             }
             if (profile.sunday_start) {
               const ss = parse24to12(profile.sunday_start);
@@ -12998,13 +13059,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           evening_start,
           evening_end,
           custom_sunday_enabled: customSundayEnabled,
-          custom_special_day: specialDay,
+          custom_special_day: specialDays.join(','),
           sunday_start,
           sunday_end,
           replace_existing: true,
-          off_days: customSundayEnabled ? docOffDays.filter(d => d !== specialDay) : docOffDays
+          off_days: customSundayEnabled ? docOffDays.filter(d => !specialDays.includes(d)) : docOffDays
         })
       });
+      clearDoctorSlotCache(doctorProfile?.id);
       const shiftWindowDesc = selectedShift === 'MORNING'
         ? `Morning ${morning_start}–${morning_end}`
         : selectedShift === 'EVENING'
@@ -13039,6 +13101,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         headers: { Authorization: `Bearer ${token}` }
       });
       setGenMsg(`✓ ${res.message || 'Successfully cleared unbooked slots for selected date range.'}`);
+      clearDoctorSlotCache(doctorProfile?.id);
       loadDoctorData();
     } catch (err: any) {
       setGenMsg(`Error: ${err.message || 'Failed to clear unbooked slots.'}`);
@@ -13069,11 +13132,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           evening_start,
           evening_end,
           custom_sunday_enabled: customSundayEnabled,
-          custom_special_day: specialDay,
+          custom_special_day: specialDays.join(','),
           sunday_start,
           sunday_end
         })
       });
+      clearDoctorSlotCache(doctorProfile?.id);
       const shiftWindowDesc = selectedShift === 'MORNING'
         ? `Morning (${morningStartHour}:${morningStartMin} ${morningStartPeriod} – ${morningEndHour}:${morningEndMin} ${morningEndPeriod})`
         : selectedShift === 'EVENING'
@@ -14487,25 +14551,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-bold text-slate-900 dark:text-white text-xs">Special Day Schedule</span>
-                                <select
-                                  value={specialDay}
-                                  onChange={e => {
-                                    const nextDay = e.target.value;
-                                    setSpecialDay(nextDay);
-                                    if (customSundayEnabled && docOffDays.includes(nextDay)) {
-                                      setDocOffDays(prev => prev.filter(d => d !== nextDay));
-                                    }
-                                  }}
-                                  className="text-xs font-bold px-2 py-0.5 rounded-lg border border-purple-300 dark:border-purple-700 bg-white dark:bg-slate-800 text-purple-900 dark:text-purple-300 focus:outline-none cursor-pointer"
-                                  title="Choose which day of the week has custom consultation hours"
-                                >
-                                  {WEEKDAY_OPTIONS.map(d => (
-                                    <option key={d.id} value={d.id}>{d.label} Special</option>
-                                  ))}
-                                </select>
+                                <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold bg-purple-100 dark:bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                                  Optional
+                                </span>
                               </div>
                               <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                                Set dedicated hours for {specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} (e.g. Full Day 8:00 AM – 8:00 PM)
+                                Dedicated consultation hours for selected days (remaining days follow standard shifts above)
                               </span>
                             </div>
                           </div>
@@ -14514,7 +14565,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                               }`}>
-                              {customSundayEnabled ? 'Active Full Day' : 'Inactive'}
+                              {customSundayEnabled ? '✓ Active Special Schedule' : 'Inactive (Optional)'}
                             </span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input
@@ -14523,8 +14574,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 onChange={e => {
                                   const checked = e.target.checked;
                                   setCustomSundayEnabled(checked);
-                                  if (checked && docOffDays.includes(specialDay)) {
-                                    setDocOffDays(prev => prev.filter(d => d !== specialDay));
+                                  if (checked) {
+                                    setDocOffDays(prev => prev.filter(d => !specialDays.includes(d)));
                                   }
                                 }}
                                 className="sr-only peer"
@@ -14534,11 +14585,52 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           </div>
                         </div>
 
+                        {/* Multi-Select Special Days in a Week */}
+                        <div className="pt-1 pb-2">
+                          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                            Special Days in Week <span className="text-slate-400 font-normal">(select one or multiple days):</span>
+                          </label>
+                          <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                            {WEEKDAY_OPTIONS.map(day => {
+                              const isSelected = specialDays.includes(day.id);
+                              return (
+                                <button
+                                  key={day.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSpecialDays(prev => {
+                                      const next = prev.includes(day.id)
+                                        ? prev.filter(d => d !== day.id)
+                                        : [...prev, day.id];
+                                      const finalDays = next.length > 0 ? next : [day.id];
+                                      if (customSundayEnabled) {
+                                        setDocOffDays(offs => offs.filter(o => !finalDays.includes(o)));
+                                      }
+                                      return finalDays;
+                                    });
+                                  }}
+                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
+                                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
+                                  }`}
+                                  title={`Toggle ${day.full} as a Special Day`}
+                                >
+                                  <span className="block text-[11px] sm:text-xs leading-none">{day.label}</span>
+                                  <span className="block text-[9px] font-normal mt-0.5 opacity-80 leading-none">
+                                    {isSelected ? '✓ Special' : 'Standard'}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
                         {customSundayEnabled ? (
-                          <div className="space-y-2.5 pt-1">
+                          <div className="space-y-2.5 pt-2 border-t border-purple-100 dark:border-purple-900/40">
                             <div className="flex flex-wrap items-center gap-2">
                               <TimePickerDropdowns
-                                label={`${specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} Start`}
+                                label="Special Window Start"
                                 hour={sundayStartHour}
                                 minute={sundayStartMin}
                                 period={sundayStartPeriod}
@@ -14548,7 +14640,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               />
                               <div className="text-slate-400 font-bold text-xs pt-4">➔</div>
                               <TimePickerDropdowns
-                                label={`${specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} End`}
+                                label="Special Window End"
                                 hour={sundayEndHour}
                                 minute={sundayEndMin}
                                 period={sundayEndPeriod}
@@ -14557,14 +14649,22 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 onPeriodChange={setSundayEndPeriod}
                               />
                             </div>
-                            <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
-                              <span>{specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} Window: <strong className="text-purple-900 dark:text-purple-300">{sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}</strong></span>
-                              <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">({format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod)} – {format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod)})</span>
+                            <div className="pt-2 border-t border-purple-100/80 dark:border-purple-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-slate-600 dark:text-slate-300">
+                              <span>
+                                Active for: <strong className="text-purple-900 dark:text-purple-300 font-bold">
+                                  {specialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}
+                                </strong> &middot; Hours: <strong className="text-purple-900 dark:text-purple-300 font-mono">
+                                  {sundayStartHour}:{sundayStartMin} {sundayStartPeriod} – {sundayEndHour}:{sundayEndMin} {sundayEndPeriod}
+                                </strong>
+                              </span>
+                              <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono">
+                                ({format12to24(sundayStartHour, sundayStartMin, sundayStartPeriod)} – {format12to24(sundayEndHour, sundayEndMin, sundayEndPeriod)})
+                              </span>
                             </div>
                           </div>
                         ) : (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Enable to set separate consultation hours for {specialDay.charAt(0).toUpperCase() + specialDay.slice(1)} while remaining days follow your standard shift above.
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                            Special Day Schedule is currently <strong>Inactive (Optional)</strong>. Selected days ({specialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}) will follow the standard shift. Turn toggle ON to activate custom hours.
                           </p>
                         )}
                       </div>
@@ -14734,11 +14834,23 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               key={day.id}
                               type="button"
                               onClick={() => {
-                                setDocOffDays(prev =>
-                                  prev.includes(day.id)
-                                    ? prev.filter(d => d !== day.id)
-                                    : [...prev, day.id]
-                                );
+                                setDocOffDays(prev => {
+                                  const isCurrentlyOff = prev.includes(day.id);
+                                  if (isCurrentlyOff) {
+                                    return prev.filter(d => d !== day.id);
+                                  } else {
+                                    if (customSundayEnabled && specialDays.includes(day.id)) {
+                                      const remaining = specialDays.filter(d => d !== day.id);
+                                      if (remaining.length === 0) {
+                                        setCustomSundayEnabled(false);
+                                        setSpecialDays(['sunday']);
+                                      } else {
+                                        setSpecialDays(remaining);
+                                      }
+                                    }
+                                    return [...prev, day.id];
+                                  }
+                                });
                               }}
                               className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${isOff
                                 ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 shadow-2xs ring-1 ring-rose-200 dark:ring-rose-900/50'

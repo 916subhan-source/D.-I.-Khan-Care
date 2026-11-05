@@ -735,6 +735,7 @@ async def generate_slots(
         doc.evening_end = payload.evening_end
 
     special_day = (payload.custom_special_day or getattr(doc, 'custom_special_day', None) or 'sunday').strip().lower()
+    special_days = [d.strip().lower() for d in special_day.split(',') if d.strip()]
     custom_special_active = payload.custom_sunday_enabled if payload.custom_sunday_enabled is not None else (doc.custom_sunday_enabled or False)
     if payload.custom_day_enabled is not None:
         custom_special_active = payload.custom_day_enabled
@@ -753,8 +754,8 @@ async def generate_slots(
     if payload.custom_day_schedule:
         doc.custom_day_schedule = payload.custom_day_schedule
 
-    if custom_special_active and special_day in selected_off_days:
-        selected_off_days = [d for d in selected_off_days if d != special_day]
+    if custom_special_active and special_days:
+        selected_off_days = [d for d in selected_off_days if d not in special_days]
         doc.off_days = ",".join(selected_off_days)
 
     range_start_utc = base_dt.astimezone(timezone.utc)
@@ -777,15 +778,13 @@ async def generate_slots(
 
     protected_slots = []
     for s in all_existing_slots:
-        is_protected = s.status in ("booked", "hold", "blocked")
-        if s.appointment and s.appointment.status not in ("CANCELLED", "REJECTED"):
-            is_protected = True
-        elif s.id in active_locked_ids:
-            is_protected = True
+        has_active_appt = bool(s.appointment and s.appointment.status not in ("CANCELLED", "REJECTED"))
+        is_locked = s.id in active_locked_ids
+        is_protected = has_active_appt or is_locked or (s.status == "booked")
 
         if is_protected:
             protected_slots.append(s)
-        elif payload.replace_existing and s.status == "available":
+        elif payload.replace_existing:
             # Detach cancelled/rejected appointments so foreign key doesn't block clean slot deletion
             if s.appointment:
                 s.appointment.slot_id = None
@@ -830,29 +829,30 @@ async def generate_slots(
     while current_day <= end_dt:
         day_name = current_day.strftime("%A").lower()
         if day_name in selected_off_days:
-            # Option A: Do NOT create any slots for off days! Clean up any unbooked available slots on this off-day
-            day_start_utc = current_day.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=PKT).astimezone(timezone.utc)
-            day_end_utc = current_day.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=PKT).astimezone(timezone.utc)
+            # Strictly clean up all unbooked slots on this off-day so it stays 100% OFF
+            day_start_utc = current_day.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
+            day_end_utc = current_day.replace(hour=23, minute=59, second=59, microsecond=999999).astimezone(timezone.utc)
             old_off_slots_res = await db.execute(
                 select(DoctorSlot).options(selectinload(DoctorSlot.appointment)).where(
                     and_(
                         DoctorSlot.doctor_id == doc.id,
                         DoctorSlot.start_time >= day_start_utc,
-                        DoctorSlot.start_time <= day_end_utc,
-                        DoctorSlot.status == "available"
+                        DoctorSlot.start_time <= day_end_utc
                     )
                 )
             )
             for os in old_off_slots_res.scalars().all():
-                if os.appointment:
-                    os.appointment.slot_id = None
-                await db.delete(os)
+                has_active_appt = bool(os.appointment and os.appointment.status not in ("CANCELLED", "REJECTED"))
+                if not has_active_appt and os.status != "booked":
+                    if os.appointment:
+                        os.appointment.slot_id = None
+                    await db.delete(os)
 
             current_day += timedelta(days=1)
             continue
 
         day_windows = windows
-        if day_name == special_day and custom_special_active:
+        if day_name in special_days and custom_special_active:
             s_start = special_start_time or doc.sunday_start or "08:00"
             s_end   = special_end_time   or doc.sunday_end   or "20:00"
             ssh, ssm = parse_hm(s_start)
@@ -1116,11 +1116,17 @@ async def update_shift_hours(
         doc.custom_day_schedule = payload.custom_day_schedule
 
     sp_day = getattr(doc, 'custom_special_day', 'sunday') or 'sunday'
+    sp_days = [d.strip().lower() for d in sp_day.split(',') if d.strip()]
     if doc.custom_sunday_enabled and doc.off_days:
-        current_offs = [d.strip() for d in doc.off_days.split(',') if d.strip().lower() != sp_day.lower()]
+        current_offs = [d.strip() for d in doc.off_days.split(',') if d.strip().lower() not in sp_days]
         doc.off_days = ','.join(current_offs)
     await db.commit()
     await db.refresh(doc)
+    try:
+        await redis_manager.clear_cache_pattern("doctors:*")
+        await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
+    except Exception:
+        pass
     return {
         "status": "SUCCESS",
         "message": "Operating shift hours updated successfully.",

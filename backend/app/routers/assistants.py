@@ -825,10 +825,8 @@ async def get_available_slots_by_date(
     doc = await db.get(Doctor, doctor_id)
     doc_off_days = [d.strip().lower() for d in (doc.off_days or "sunday").split(",") if d.strip()] if doc else ["sunday"]
     if doc and getattr(doc, "custom_sunday_enabled", False):
-        doc_off_days = [d for d in doc_off_days if d != "sunday"]
-    special_day = (getattr(doc, "custom_special_day", None) or "sunday").lower()
-    if doc and getattr(doc, "custom_day_schedule", None):
-        doc_off_days = [d for d in doc_off_days if d != special_day]
+        sp_days = [d.strip().lower() for d in (getattr(doc, "custom_special_day", None) or "sunday").split(",") if d.strip()]
+        doc_off_days = [d for d in doc_off_days if d not in sp_days]
 
     days_result = []
     for day_offset in range(days_ahead + 1):

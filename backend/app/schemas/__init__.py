@@ -54,6 +54,11 @@ class DoctorBase(BaseModel):
     expertise: Optional[str] = None
     experience_years: Optional[int] = 5
     qualification: Optional[str] = "MBBS, FCPS"
+    custom_sunday_enabled: Optional[bool] = False
+    sunday_start: Optional[str] = "08:00"
+    sunday_end: Optional[str] = "20:00"
+    custom_special_day: Optional[str] = "sunday"
+    custom_day_schedule: Optional[str] = None
 
 class DoctorCreate(DoctorBase):
     user: UserCreate

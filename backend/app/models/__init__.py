@@ -69,7 +69,7 @@ class Doctor(Base):
     custom_sunday_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
     sunday_start: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default="08:00")
     sunday_end: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default="20:00")
-    custom_special_day: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, default="sunday")
+    custom_special_day: Mapped[Optional[str]] = mapped_column(String(150), nullable=True, default="sunday")
     custom_day_schedule: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     loyalty_card_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
     loyalty_card_title: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, default="VIP Loyalty Card")

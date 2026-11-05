@@ -24,6 +24,7 @@ from app.schemas import (
     TrackAppointmentRequest, AppointmentResponse,
     MultiAppointmentTrackResponse
 )
+from pydantic import BaseModel, Field
 from app.core.timezone import format_pkt_date, format_pkt_time
 
 router = APIRouter(prefix="/booking", tags=["Booking & Verification"])
@@ -604,3 +605,72 @@ async def track_appointment(payload: TrackAppointmentRequest, db: AsyncSession =
         **primary,
         "appointments": serialized_list
     }
+
+
+class LoyaltyCardApplicationRequest(BaseModel):
+    full_name: str
+    guardian_name: Optional[str] = None
+    dob: Optional[str] = None
+    gender: Optional[str] = "Male"
+    cnic: Optional[str] = None
+    mobile: str
+    whatsapp: Optional[str] = None
+    email: Optional[str] = None
+    address: str
+    city: Optional[str] = "Dera Ismail Khan"
+    doctor_id: Optional[str] = None
+
+
+@router.post("/loyalty/apply")
+async def apply_for_loyalty_card(payload: LoyaltyCardApplicationRequest, db: AsyncSession = Depends(get_db)):
+    """
+    Submits a VIP Loyalty Card application.
+    Generates an official membership card number and records the applicant details.
+    """
+    if not payload.full_name or len(payload.full_name.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Please enter a valid full name.")
+    if not payload.mobile or len(payload.mobile.strip()) < 8:
+        raise HTTPException(status_code=400, detail="Please enter a valid mobile number.")
+    if not payload.address or len(payload.address.strip()) < 3:
+        raise HTTPException(status_code=400, detail="Please enter your residential address.")
+
+    clean_name = payload.full_name.strip()
+    clean_mobile = payload.mobile.strip()
+    clean_city = (payload.city or "Dera Ismail Khan").strip()
+
+    # Generate unique 4-digit card suffix
+    import random
+    suffix = str(random.randint(1000, 9999))
+    card_number = f"VIP-DIK-2026-{suffix}"
+
+    data_payload = {
+        "card_number": card_number,
+        "full_name": clean_name,
+        "guardian_name": payload.guardian_name.strip() if payload.guardian_name else "",
+        "dob": payload.dob or "",
+        "gender": payload.gender or "Male",
+        "cnic": payload.cnic.strip() if payload.cnic else "",
+        "mobile": clean_mobile,
+        "whatsapp": (payload.whatsapp or clean_mobile).strip(),
+        "email": payload.email.strip() if payload.email else "",
+        "address": payload.address.strip(),
+        "city": clean_city,
+        "doctor_id": payload.doctor_id,
+        "discount_percent": 10,
+        "status": "ACTIVE",
+        "validity": "Lifetime",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    try:
+        await redis_manager.set(f"loyalty:card:{card_number}", json.dumps(data_payload), expire=86400 * 365)
+        await redis_manager.set(f"loyalty:phone:{clean_mobile}", json.dumps(data_payload), expire=86400 * 365)
+    except Exception as e:
+        pass
+
+    return {
+        "success": True,
+        "message": "VIP Loyalty Card approved successfully!",
+        "card": data_payload
+    }
+

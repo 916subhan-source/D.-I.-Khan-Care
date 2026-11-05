@@ -658,6 +658,7 @@ async def mark_appointment_paid(
 async def complete_appointment_by_assistant(
     appointment_id: str,
     consultation_notes: Optional[str] = Query(None, description="Remarks or notes"),
+    early_calling: bool = Query(False, description="Allow completing today's appointment early if calling has started"),
     current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -701,15 +702,16 @@ async def complete_appointment_by_assistant(
         now_utc = datetime.now(timezone.utc)
         slot_pkt_ymd = format_pkt_ymd(slot_time)
         now_pkt_ymd = format_pkt_ymd(now_utc)
+        # Strict Rule 1: Upcoming days CANNOT be marked completed early, even if calling order is pressed
         if slot_pkt_ymd > now_pkt_ymd:
             f_d = format_pkt_date(slot_time)
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot mark consultation as completed before its scheduled calendar date ({f_d}) has arrived."
+                detail=f"Cannot mark consultation as completed before its scheduled calendar date ({f_d}) has arrived. Upcoming appointments cannot be completed in advance."
             )
         elif slot_pkt_ymd == now_pkt_ymd:
-            # For today's appointments, scheduled slot time must have arrived (with 15-min grace window for shift call-in)
-            if slot_time > (now_utc + timedelta(minutes=15)):
+            # Strict Rule 2: For today's appointments, allow completing before slot time ONLY if early_calling is active
+            if not early_calling and slot_time > (now_utc + timedelta(minutes=15)):
                 f_t = format_pkt_time(slot_time)
                 raise HTTPException(
                     status_code=400,

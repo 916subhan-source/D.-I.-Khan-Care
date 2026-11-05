@@ -7669,17 +7669,24 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       alert(`⚠️ Payment Required: Consultation fee (${formatCurrency(item.fee_amount || currentDoctor?.fee_clinic || 1000)}) must be collected at the Cash Desk before this visit can be marked as completed.`);
       return;
     }
-    const isToday = getApptDateStrGlobal(item) === pktTodayYmd;
-    const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
-    const itemMins = getApptMinutesFromMidnight(item);
-    const isItemMorning = itemMins < 840;
-    const isShiftMatch = (callingShiftInfo.activeShiftType === 'MORNING' && isItemMorning) ||
-      (callingShiftInfo.activeShiftType === 'EVENING' && !isItemMorning);
+    const apptDateStr = getApptDateStrGlobal(item);
+    const isToday = apptDateStr === pktTodayYmd;
+    const isFutureDay = apptDateStr > pktTodayYmd;
+    const isPastDay = apptDateStr < pktTodayYmd;
     const isCallingStarted = callingShiftInfo.isCallingStarted || manualCallingStarted;
-    const isFirstActive = Boolean(callingOrderActive && queue[0]?.id === item.id && isToday && isShiftMatch && isCallingStarted);
 
-    if (!isDateTimeReached && !isFirstActive) {
-      alert('⚠️ Cannot mark consultation as completed before its scheduled date and time has arrived.');
+    // Strict Rule 1: Upcoming days CANNOT be marked completed early, even if calling order is pressed
+    if (isFutureDay) {
+      alert(`⚠️ Cannot mark consultation as completed before its scheduled calendar date (${apptDateStr}) has arrived. Upcoming appointments cannot be completed in advance.`);
+      return;
+    }
+
+    // Strict Rule 2: If it's today and calling early / calling order is active, allow early completion
+    const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
+    const canCompleteTodayEarly = isToday && isCallingStarted;
+
+    if (!isPastDay && !isDateTimeReached && !canCompleteTodayEarly) {
+      alert('⚠️ Cannot mark consultation as completed before its scheduled time slot has arrived. Tap "Start Calling Early" to begin consultations early.');
       return;
     }
     try {
@@ -7687,7 +7694,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
       setActionMessage('Marking consultation as completed...');
       const activeTok = token || localStorage.getItem('assistant_token') || '';
-      await apiFetch(`/assistant/appointments/${id}/complete`, {
+      const q = canCompleteTodayEarly ? '?early_calling=true' : '';
+      await apiFetch(`/assistant/appointments/${id}/complete${q}`, {
         method: 'POST',
         headers: activeTok ? { Authorization: `Bearer ${activeTok}` } : {}
       });
@@ -8470,7 +8478,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isItemCallingEligible;
                         const isNextInLineWaiting = callingOrderActive && idx === 0 && isConfirmed && isToday && !isItemCallingEligible;
                         const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
-                        const canComplete = isConfirmed && isPaid && (isDateTimeReached || isCurrentActive);
+                        const isFutureDay = getApptDateStrGlobal(item) > pktTodayYmd;
+                        const canComplete = isConfirmed && isPaid && !isFutureDay && (isDateTimeReached || (isToday && isCallingStarted));
 
                         return (
                           <tr key={item.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>
@@ -8876,7 +8885,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     const isCurrentActive = callingOrderActive && idx === 0 && isConfirmed && isToday && isItemCallingEligible;
                     const isNextInLineWaiting = callingOrderActive && idx === 0 && isConfirmed && isToday && !isItemCallingEligible;
                     const isDateTimeReached = isApptTimePassedGlobal(item, pktTodayYmd);
-                    const canComplete = isConfirmed && isPaid && (isDateTimeReached || isCurrentActive);
+                    const isFutureDay = getApptDateStrGlobal(item) > pktTodayYmd;
+                    const canComplete = isConfirmed && isPaid && !isFutureDay && (isDateTimeReached || (isToday && isCallingStarted));
                     const qNum = parseQueueNumberFromSlip(item.slip_number, item.token_number);
 
                     return (
@@ -11982,6 +11992,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [callingOrderActive, setCallingOrderActive] = useState<boolean>(() => {
     return localStorage.getItem('doc_calling_order') === 'true';
   });
+  const [docManualCallingStarted, setDocManualCallingStarted] = useState<boolean>(false);
 
   // Schedule & Slot Generation state
   const todayIso = new Date().toISOString().split('T')[0];
@@ -12871,9 +12882,24 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         return;
       }
     }
-    const isFirstActive = Boolean(callingOrderActive && displayAppts[0]?.id === target?.id);
-    if (target && !isApptTimePassedGlobal(target, activeTodayStr) && !isFirstActive) {
-      alert('Cannot mark consultation as completed before its scheduled date and time has passed.');
+    const apptDateStr = target ? getApptDateStrGlobal(target) : '';
+    const isToday = apptDateStr === activeTodayStr;
+    const isFutureDay = apptDateStr > activeTodayStr;
+    const isPastDay = apptDateStr < activeTodayStr;
+    const isCallingStarted = docCallingShiftInfo.isCallingStarted || docManualCallingStarted;
+
+    // Strict Rule 1: Upcoming days CANNOT be marked completed early, even if calling order is pressed
+    if (isFutureDay) {
+      alert(`⚠️ Cannot mark consultation as completed before its scheduled calendar date (${apptDateStr}) has arrived. Upcoming appointments cannot be completed in advance.`);
+      return;
+    }
+
+    // Strict Rule 2: If it's today and calling early / calling order is active, allow early completion
+    const isDateTimeReached = target ? isApptTimePassedGlobal(target, activeTodayStr) : false;
+    const canCompleteTodayEarly = isToday && isCallingStarted;
+
+    if (!isPastDay && !isDateTimeReached && !canCompleteTodayEarly) {
+      alert('⚠️ Cannot mark consultation as completed before its scheduled date and time has passed. Tap "Start Calling Early" to begin consultations early.');
       return;
     }
 
@@ -12883,6 +12909,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       const params = new URLSearchParams();
       if (consultNote) params.append('consultation_notes', consultNote);
       if (autoMarkPaid) params.append('mark_paid', 'true');
+      if (canCompleteTodayEarly) params.append('early_calling', 'true');
       const q = params.toString() ? `?${params.toString()}` : '';
       await apiFetch(`/doctor/appointments/${apptId}/complete${q}`, {
         method: 'POST',
@@ -13666,7 +13693,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <>
                     {callingOrderActive && (
                       (() => {
-                        const isStarted = docCallingShiftInfo.isCallingStarted;
+                        const isStarted = docCallingShiftInfo.isCallingStarted || docManualCallingStarted;
                         return isStarted ? (
                           <div className="bg-emerald-50 border-b border-emerald-200 px-5 py-2.5 flex items-center justify-between text-xs text-emerald-900 transition-all">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -13688,9 +13715,19 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 Opens in {docCallingShiftInfo.minutesUntilCalling} min{docCallingShiftInfo.minutesUntilCalling === 1 ? '' : 's'}
                               </span>
                             </div>
-                            <span className="text-[11px] font-mono bg-white px-2 py-0.5 rounded border border-amber-200 font-semibold text-amber-800">
-                              Queue Arranged
-                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => setDocManualCallingStarted(true)}
+                                className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition-colors cursor-pointer"
+                                title="If you have arrived early, click here to start calling patients right now"
+                              >
+                                ▶ Start Calling Early
+                              </button>
+                              <span className="text-[11px] font-mono bg-white px-2 py-0.5 rounded border border-amber-200 font-semibold text-amber-800">
+                                Queue Arranged
+                              </span>
+                            </div>
                           </div>
                         );
                       })()

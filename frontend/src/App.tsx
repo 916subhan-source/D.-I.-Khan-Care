@@ -5718,8 +5718,8 @@ function PatientSection({
 
   const openBookingModal = async (doctor: DoctorData) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    setProfileDoctorInitialTab('booking');
-    setProfileDoctor(doctor);
+    // Directly show the Book Clinic Visit form interface as requested by user
+    setProfileDoctor(null);
     setBookingDoctor(doctor);
     setSelectedSlot(null);
     setOtpSent(false);
@@ -5739,6 +5739,9 @@ function PatientSection({
           return !isNaN(t) && t > nowMs;
         });
         setAvailableSlots(validSlots);
+        if (validSlots.length > 0) {
+          setSelectedSlot(validSlots[0]);
+        }
         setSlotsLoading(false);
         return;
       }
@@ -5753,6 +5756,9 @@ function PatientSection({
       });
       clientSlotCache[doctor.id] = { timestamp: Date.now(), slots: Array.isArray(slots) ? slots : [] };
       setAvailableSlots(validSlots);
+      if (validSlots.length > 0) {
+        setSelectedSlot(validSlots[0]);
+      }
     } catch (err) {
       console.error(err);
     } finally {

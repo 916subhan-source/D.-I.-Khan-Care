@@ -3191,20 +3191,51 @@ function DoctorProfileModal({
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
-                          const isEvening = doctor.shift === 'EVENING';
-                          const timeText = day === 'Sunday'
-                            ? '11:00 AM - 02:00 PM (Emergency)'
-                            : isEvening
-                              ? '05:00 PM - 09:00 PM'
-                              : '09:00 AM - 01:00 PM';
+                          const docOffDays = (doctor.off_days || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
+                          const specialDaysList = (doctor.custom_special_day || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
+                          const isSpecialDay = Boolean(doctor.custom_sunday_enabled) && specialDaysList.includes(day.toLowerCase());
+                          const isOffDay = docOffDays.includes(day.toLowerCase()) && !isSpecialDay;
+
+                          const mStart = format24to12String(doctor.morning_start || '09:00');
+                          const mEnd = format24to12String(doctor.morning_end || '13:00');
+                          const eStart = format24to12String(doctor.evening_start || '17:00');
+                          const eEnd = format24to12String(doctor.evening_end || '21:00');
+                          const shiftType = (doctor.shift || 'EVENING').toUpperCase();
+
+                          let timeText = '';
+                          let statusLabel = 'Available';
+                          let statusClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
+
+                          if (isSpecialDay) {
+                            timeText = `${format24to12String(doctor.sunday_start || '08:00')} - ${format24to12String(doctor.sunday_end || '20:00')}`;
+                            statusLabel = 'Special Clinic';
+                            statusClass = 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300';
+                          } else if (isOffDay) {
+                            timeText = 'Clinic Closed (Weekly Off Day)';
+                            statusLabel = 'Off Day';
+                            statusClass = 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400';
+                          } else {
+                            if (shiftType === 'BOTH') {
+                              timeText = `${mStart} - ${mEnd} & ${eStart} - ${eEnd}`;
+                            } else if (shiftType === 'MORNING') {
+                              timeText = `${mStart} - ${mEnd}`;
+                            } else {
+                              timeText = `${eStart} - ${eEnd}`;
+                            }
+                          }
+
                           return (
-                            <tr key={idx} className={day === 'Sunday' ? 'bg-amber-50/40 dark:bg-amber-950/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
-                              <td className="p-3.5 font-bold text-slate-900 dark:text-white">{day}</td>
-                              <td className="p-3.5 font-semibold text-emerald-700 dark:text-emerald-400">{timeText}</td>
+                            <tr key={idx} className={isSpecialDay ? 'bg-purple-50/50 dark:bg-purple-950/20' : isOffDay ? 'bg-slate-50/40 dark:bg-slate-800/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
+                              <td className="p-3.5 font-bold text-slate-900 dark:text-white">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span>{day}</span>
+                                  {isSpecialDay && <span className="px-1.5 py-0.5 rounded text-[9px] bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-extrabold uppercase">Special Day</span>}
+                                </div>
+                              </td>
+                              <td className={`p-3.5 font-semibold ${isSpecialDay ? 'text-purple-800 dark:text-purple-300 font-bold' : isOffDay ? 'text-slate-400' : 'text-emerald-700 dark:text-emerald-400'}`}>{timeText}</td>
                               <td className="p-3.5">
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${day === 'Sunday' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                                  }`}>
-                                  {day === 'Sunday' ? 'On-Call' : 'Available'}
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusClass}`}>
+                                  {statusLabel}
                                 </span>
                               </td>
                             </tr>
@@ -4551,7 +4582,7 @@ function DoctorProfileAndBookingView({
                       <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Weekly OPD Clinic Timetable
                     </h3>
                     <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 px-2.5 py-1 rounded-full self-start sm:self-auto">
-                      ⚡ Auto-detected from doctor's active daily slots
+                      ⚡ Doctor's Saved Shift Schedule
                     </span>
                   </div>
                   <div className="border border-slate-200 dark:border-slate-700/60 rounded-xl overflow-hidden">
@@ -4566,11 +4597,11 @@ function DoctorProfileAndBookingView({
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
                         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, idx) => {
                           const docOffDays = (doctor.off_days || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
-                          const isOffDay = docOffDays.includes(day.toLowerCase());
                           const specialDaysList = (doctor.custom_special_day || 'sunday').toLowerCase().split(',').map((d: string) => d.trim()).filter(Boolean);
                           const isSpecialDay = Boolean(doctor.custom_sunday_enabled) && specialDaysList.includes(day.toLowerCase());
+                          const isOffDay = docOffDays.includes(day.toLowerCase()) && !isSpecialDay;
 
-                          // Auto-detect timing directly from doctor's actual daily schedule slots
+                          // Slots for this day to show live booking availability
                           const daySlots = availableSlots.filter(s => {
                             if (!s.start_time) return false;
                             try {
@@ -4581,94 +4612,84 @@ function DoctorProfileAndBookingView({
                             } catch {
                               return false;
                             }
-                          }).sort((a, b) => new Date(normalizeIsoUtc(a.start_time)).getTime() - new Date(normalizeIsoUtc(b.start_time)).getTime());
+                          });
 
                           const hasSlots = daySlots.length > 0;
                           let timeText = '';
                           let statusLabel = '';
                           let statusClass = '';
 
-                          if (hasSlots) {
-                            // Detect separate morning and evening clusters from the actual slots
-                            const morningList: SlotData[] = [];
-                            const eveningList: SlotData[] = [];
-
-                            daySlots.forEach(s => {
-                              try {
-                                const d = new Date(normalizeIsoUtc(s.start_time));
-                                const hour = parseInt(d.toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi', hour: 'numeric', hour12: false }), 10);
-                                if (hour < 14) morningList.push(s);
-                                else eveningList.push(s);
-                              } catch {
-                                morningList.push(s);
-                              }
-                            });
-
-                            const getRangeText = (list: SlotData[]) => {
-                              if (list.length === 0) return '';
-                              const firstSlot = list[0];
-                              const lastSlot = list[list.length - 1];
-                              const sTime = fmtTime(firstSlot.start_time, firstSlot);
-                              let eTime = lastSlot.end_time_fmt;
-                              if (!eTime && lastSlot.end_time) {
-                                eTime = fmtTime(lastSlot.end_time);
-                              }
-                              if (!eTime && lastSlot.start_time) {
-                                try {
-                                  const d = new Date(normalizeIsoUtc(lastSlot.start_time));
-                                  const dur = lastSlot.duration_minutes || (doctor as any).consultation_duration || (doctor as any).slot_duration || 15;
-                                  const endD = new Date(d.getTime() + dur * 60 * 1000);
-                                  eTime = endD.toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi', hour: '2-digit', minute: '2-digit', hour12: true });
-                                } catch {
-                                  eTime = sTime;
-                                }
-                              }
-                              return `${sTime} - ${eTime || sTime}`;
-                            };
-
-                            if (morningList.length > 0 && eveningList.length > 0) {
-                              timeText = `${getRangeText(morningList)} & ${getRangeText(eveningList)}`;
-                            } else if (morningList.length > 0) {
-                              timeText = getRangeText(morningList);
-                            } else if (eveningList.length > 0) {
-                              timeText = getRangeText(eveningList);
-                            } else {
-                              timeText = getRangeText(daySlots);
-                            }
-
-                            if (isSpecialDay) {
-                              statusLabel = 'Special Clinic';
-                              statusClass = 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300';
-                            } else {
-                              statusLabel = 'Available';
-                              statusClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
-                            }
-                          } else if (isSpecialDay) {
+                          if (isSpecialDay) {
                             const sStart = format24to12String(doctor.sunday_start || '08:00');
                             const sEnd = format24to12String(doctor.sunday_end || '20:00');
-                            timeText = `${sStart} - ${sEnd} (Special Clinic)`;
-                            statusLabel = 'Special Day';
+                            timeText = `${sStart} - ${sEnd}`;
+                            statusLabel = 'Special Clinic';
                             statusClass = 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300';
                           } else if (isOffDay) {
                             timeText = 'Clinic Closed (Weekly Off Day)';
                             statusLabel = 'Off Day';
                             statusClass = 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400';
                           } else {
-                            timeText = 'No Slots Scheduled';
-                            statusLabel = 'Closed';
-                            statusClass = 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400';
+                            // Extract doctor's saved shift schedule
+                            const mStart = format24to12String(doctor.morning_start || '09:00');
+                            const mEnd = format24to12String(doctor.morning_end || '13:00');
+                            const eStart = format24to12String(doctor.evening_start || '17:00');
+                            const eEnd = format24to12String(doctor.evening_end || '21:00');
+
+                            let customEntry: any = null;
+                            if (doctor.custom_day_schedule) {
+                              try {
+                                const parsed = typeof doctor.custom_day_schedule === 'string' ? JSON.parse(doctor.custom_day_schedule) : doctor.custom_day_schedule;
+                                if (parsed && typeof parsed === 'object') {
+                                  customEntry = parsed[day.toLowerCase()] || parsed[day];
+                                }
+                              } catch {}
+                            }
+
+                            if (customEntry) {
+                              if (typeof customEntry === 'string') {
+                                timeText = customEntry;
+                              } else if (customEntry.start && customEntry.end) {
+                                timeText = `${format24to12String(customEntry.start)} - ${format24to12String(customEntry.end)}`;
+                              } else if (customEntry.morning_start && customEntry.evening_start) {
+                                timeText = `${format24to12String(customEntry.morning_start)} - ${format24to12String(customEntry.morning_end)} & ${format24to12String(customEntry.evening_start)} - ${format24to12String(customEntry.evening_end)}`;
+                              } else if (customEntry.evening_start) {
+                                timeText = `${format24to12String(customEntry.evening_start)} - ${format24to12String(customEntry.evening_end)}`;
+                              } else if (customEntry.morning_start) {
+                                timeText = `${format24to12String(customEntry.morning_start)} - ${format24to12String(customEntry.morning_end)}`;
+                              }
+                            }
+
+                            if (!timeText) {
+                              const shiftType = (doctor.shift || 'EVENING').toUpperCase();
+                              if (shiftType === 'BOTH') {
+                                timeText = `${mStart} - ${mEnd} & ${eStart} - ${eEnd}`;
+                              } else if (shiftType === 'MORNING') {
+                                timeText = `${mStart} - ${mEnd}`;
+                              } else {
+                                timeText = `${eStart} - ${eEnd}`;
+                              }
+                            }
+
+                            if (hasSlots) {
+                              statusLabel = 'Available';
+                              statusClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300';
+                            } else {
+                              statusLabel = 'Open';
+                              statusClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50';
+                            }
                           }
 
                           return (
                             <tr key={idx} className={isSpecialDay ? 'bg-purple-50/50 dark:bg-purple-950/20' : isOffDay ? 'bg-slate-50/40 dark:bg-slate-800/20' : 'bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50'}>
                               <td className="p-3.5 font-bold text-slate-900 dark:text-white">
-                                <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-1.5 flex-wrap">
                                   <span>{day}</span>
-                                  {isSpecialDay && <span className="px-1.5 py-0.2 rounded text-[9px] bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-extrabold uppercase">Special Day</span>}
+                                  {isSpecialDay && <span className="px-1.5 py-0.5 rounded text-[9px] bg-purple-200 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-extrabold uppercase">Special Day</span>}
                                   {hasSlots && <span className="text-[10px] text-teal-600 dark:text-teal-400 font-normal">({daySlots.length} slots)</span>}
                                 </div>
                               </td>
-                              <td className={`p-3.5 font-semibold ${isSpecialDay ? 'text-purple-800 dark:text-purple-300 font-bold' : hasSlots ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400'}`}>{timeText}</td>
+                              <td className={`p-3.5 font-semibold ${isSpecialDay ? 'text-purple-800 dark:text-purple-300 font-bold' : isOffDay ? 'text-slate-400' : 'text-emerald-700 dark:text-emerald-400'}`}>{timeText}</td>
                               <td className="p-3.5">
                                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusClass}`}>
                                   {statusLabel}

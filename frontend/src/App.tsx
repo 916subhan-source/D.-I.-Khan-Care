@@ -1267,14 +1267,14 @@ export default function App() {
         </div>
       </footer>
       {/* ── Modern Mobile Bottom Sticky Navigation Bar (< 768px) ── */}
-      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1.5 transition-all">
+      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[calc(0.45rem+env(safe-area-inset-bottom,0px))] transition-all">
         <div className="max-w-md mx-auto grid grid-cols-5 gap-1">
           {/* Tab 1: Home */}
           <button
             type="button"
             onClick={() => handleSwitchRole('home')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'home'
-              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all active:scale-95 cursor-pointer ${activeTab === 'home'
+              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40 shadow-2xs'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
           >
@@ -1286,8 +1286,8 @@ export default function App() {
           <button
             type="button"
             onClick={() => handleSwitchRole('patient')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'patient'
-              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all active:scale-95 cursor-pointer ${activeTab === 'patient'
+              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40 shadow-2xs'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
           >
@@ -1295,12 +1295,12 @@ export default function App() {
             <span className="text-[10px] leading-tight tracking-tight">Find Doctor</span>
           </button>
 
-          {/* Tab 2: Track Appointment */}
+          {/* Tab 3: Track Appointment */}
           <button
             type="button"
             onClick={() => handleSwitchRole('track')}
-            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all ${activeTab === 'track'
-              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40'
+            className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all active:scale-95 cursor-pointer ${activeTab === 'track'
+              ? 'text-clinic-700 dark:text-emerald-400 font-bold bg-clinic-50/80 dark:bg-emerald-950/40 shadow-2xs'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
           >
@@ -1312,7 +1312,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setShowEmergencyModal(true)}
-            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-rose-600 dark:text-rose-400 hover:text-rose-700"
+            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-rose-600 dark:text-rose-400 hover:text-rose-700 active:scale-95 cursor-pointer"
             title="Emergency & 1122 Rescue Help"
           >
             <div className="relative">
@@ -1322,11 +1322,11 @@ export default function App() {
             <span className="text-[10px] leading-tight tracking-tight font-bold">1122 Help</span>
           </button>
 
-          {/* Tab 4: More / Quick Menu Drawer */}
+          {/* Tab 5: More / Quick Menu Drawer */}
           <button
             type="button"
             onClick={() => setShowMobileNav(true)}
-            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 active:scale-95 cursor-pointer"
           >
             <Menu className="w-5 h-5 mb-0.5 stroke-2" />
             <span className="text-[10px] leading-tight tracking-tight">Menu</span>
@@ -4201,7 +4201,7 @@ function DoctorProfileAndBookingView({
             <div className="grid grid-cols-4 gap-1.5 sm:gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center">
                 <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono">98%</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">Satisfied</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 truncate">Satisfied</div>
               </div>
 
               <button
@@ -4210,35 +4210,35 @@ function DoctorProfileAndBookingView({
                   setProfileActiveTab('reviews');
                   setMobileActiveTab('profile');
                 }}
-                className="bg-slate-50/80 hover:bg-slate-100/80 dark:bg-slate-800/50 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center transition cursor-pointer"
+                className="bg-slate-50/80 hover:bg-slate-100/80 dark:bg-slate-800/50 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center transition cursor-pointer active:scale-95"
                 title="View all patient reviews"
               >
-                <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono flex items-center justify-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
+                <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono flex items-center justify-center gap-0.5 sm:gap-1">
+                  <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
                   <span>{reviewsSummary ? reviewsSummary.average_rating.toFixed(1) : '5.0'}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 truncate">
                   {reviewsSummary?.total_reviews || 128} Reviews
                 </div>
               </button>
 
               <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center">
                 <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono">&lt; 15m</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">Wait Time</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 truncate">Wait Time</div>
               </div>
 
               <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-2 sm:p-2.5 text-center">
                 <div className="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white font-mono">
                   {(doctor.experience_years !== undefined && doctor.experience_years !== null) ? `${doctor.experience_years}Y` : '5Y'}
                 </div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 whitespace-nowrap">Experience</div>
+                <div className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-0.5 truncate">Experience</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* ── Doctor Menu Navigation (Clean, Unified Segmented Control) ── */}
-        <div id="doctor-menu-tabs" className="sticky top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        <div id="doctor-menu-tabs" className="sticky top-[60px] sm:top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none touch-pan-x">
           {/* TAB 1: ABOUT DOCTOR */}
           <button
             type="button"
@@ -5031,7 +5031,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientName(e.target.value)}
                       placeholder="e.g. Muhammad Ali"
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
@@ -5043,7 +5043,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientPhone(e.target.value)}
                       placeholder="0300 1234567"
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition font-mono"
                     />
                   </div>
 
@@ -5057,7 +5057,7 @@ function DoctorProfileAndBookingView({
                       onChange={(e) => setPatientEmail(e.target.value)}
                       placeholder="yourname@gmail.com"
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
@@ -5068,7 +5068,7 @@ function DoctorProfileAndBookingView({
                       value={patientAge}
                       onChange={(e) => setPatientAge(e.target.value)}
                       placeholder="e.g. 32"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
@@ -5077,7 +5077,7 @@ function DoctorProfileAndBookingView({
                     <select
                       value={patientGender}
                       onChange={(e) => setPatientGender(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition cursor-pointer"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -5134,7 +5134,7 @@ function DoctorProfileAndBookingView({
 
       {/* ── Mobile Persistent Bottom Quick-Booking Bar (Visible when in profile mode) ── */}
       {mobileActiveTab === 'profile' && (
-        <div className="lg:hidden fixed bottom-[57px] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
+        <div className="lg:hidden fixed bottom-[calc(57px+env(safe-area-inset-bottom,0px))] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
             <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{formatCurrency(doctor.fee_clinic)}</span>
@@ -6831,9 +6831,18 @@ function PatientSection({
         </div>
 
         {loading ? (
-          <div className="py-20 text-center text-slate-500 text-sm">
-            <div className="w-8 h-8 border-2 border-clinic-700 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            Loading verified doctors...
+          <div className="mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 animate-pulse">
+              <div className="space-y-2">
+                <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-lg w-64" />
+                <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded-lg w-48" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <DoctorCardSkeleton key={i} />
+              ))}
+            </div>
           </div>
         ) : (
           <>
@@ -6915,6 +6924,37 @@ function PatientSection({
 }
 
 // ── Doctor Card Component (Compact, modern design with Picture, Name, Specialty, Availability & Fee) ──────
+function DoctorCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 flex flex-col justify-between shadow-xs animate-pulse">
+      <div>
+        <div className="flex items-start gap-3.5 mb-3.5">
+          <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-slate-200 dark:bg-slate-800 flex-shrink-0" />
+          <div className="flex-1 min-w-0 space-y-2.5 pt-1">
+            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-3/4" />
+            <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-lg w-1/2" />
+            <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded-lg w-2/3" />
+          </div>
+        </div>
+        <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+          <div className="space-y-1.5 w-1/3">
+            <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+            <div className="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-4/5" />
+          </div>
+          <div className="space-y-1.5 w-1/4 flex flex-col items-end">
+            <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2 pt-1 mt-auto">
+        <div className="h-10 rounded-xl bg-slate-200 dark:bg-slate-800" />
+        <div className="h-10 rounded-xl bg-slate-200 dark:bg-slate-800" />
+      </div>
+    </div>
+  );
+}
+
 function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void }) {
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
@@ -17517,4 +17557,3 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
     </div>
   );
 }
-

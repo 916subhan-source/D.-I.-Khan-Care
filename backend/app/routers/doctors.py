@@ -558,26 +558,30 @@ async def submit_doctor_review(
     patient_display_name = completed_appt.patient_name or (completed_appt.patient.full_name if completed_appt.patient else "Verified Patient")
     patient_phone_raw = completed_appt.patient_phone or (completed_appt.patient.phone if completed_appt.patient else identifier)
 
+    import html
+    clean_comment = html.escape(payload.comment.strip()) if payload.comment else None
+    clean_tags = html.escape(payload.tags.strip()) if payload.tags else None
+
     if existing_rev:
         # Update existing review
         existing_rev.rating = payload.rating
-        existing_rev.comment = payload.comment
-        existing_rev.tags = payload.tags
+        existing_rev.comment = clean_comment
+        existing_rev.tags = clean_tags
         existing_rev.patient_name = patient_display_name
         existing_rev.created_at = utc_now()
         await db.commit()
         await db.refresh(existing_rev)
         return existing_rev
 
-    # Create new verified review
+    # Create new verified review with sanitized comment text
     new_review = DoctorReview(
         doctor_id=doctor_id,
         appointment_id=completed_appt.id,
         patient_name=patient_display_name,
         patient_phone=patient_phone_raw,
         rating=payload.rating,
-        comment=payload.comment,
-        tags=payload.tags,
+        comment=clean_comment,
+        tags=clean_tags,
         is_verified=True
     )
     db.add(new_review)

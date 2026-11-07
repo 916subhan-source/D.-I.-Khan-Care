@@ -17,12 +17,12 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Environment mode
-    ENVIRONMENT: str = "development"
-    DEBUG: bool = True
+    # Environment mode & debug toggle
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "production" if os.getenv("VERCEL") else "development")
+    DEBUG: bool = os.getenv("DEBUG", "false" if (os.getenv("VERCEL") or os.getenv("ENVIRONMENT") == "production") else "true").lower() in ("true", "1", "t")
     
     # Security & JWT
-    SECRET_KEY: str = "dikhan-health-secret-key-super-secure-change-in-prod-2026"
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "dikhan-health-secret-key-super-secure-change-in-prod-2026")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7

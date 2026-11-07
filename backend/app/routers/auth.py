@@ -11,6 +11,7 @@ from sqlalchemy import select, and_
 from app.core.database import get_db
 from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.deps import get_current_user
+from app.core.redis import redis_manager
 from app.models import User, DoctorAssistant
 from app.schemas import LoginRequest, TokenResponse, UserResponse
 
@@ -18,21 +19,38 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/login", response_model=TokenResponse)
 async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
-    """Authenticate Doctor, Assistant, or Admin using Argon2 password verification."""
+    """Authenticate Doctor, Assistant, or Admin using Argon2 password verification with brute-force rate limiting."""
+    clean_email = credentials.email.strip().lower()
+    rate_key = f"rate_limit:login:{clean_email}"
+
+    # Brute-force rate limiting: max 5 failed attempts in 15 minutes (900s)
+    failed_attempts_str = await redis_manager.get(rate_key)
+    failed_attempts = int(failed_attempts_str) if failed_attempts_str else 0
+    if failed_attempts >= 5:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts. Account temporarily locked for 15 minutes to protect against brute-force attacks. Please try again later."
+        )
+
     result = await db.execute(select(User).where(User.email == credentials.email))
     user = result.scalar_one_or_none()
 
-    if not user or not user.password_hash:
+    if not user or not user.password_hash or not verify_password(credentials.password, user.password_hash):
+        await redis_manager.set(rate_key, str(failed_attempts + 1), expire=900)
+        remaining = max(0, 5 - (failed_attempts + 1))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password."
+            detail=f"Incorrect email or password.{f' ({remaining} attempt(s) remaining before temporary lockout)' if remaining > 0 else ''}"
         )
 
-    if not verify_password(credentials.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password."
-        )
+    # Login succeeded: clear failed attempts
+    if failed_attempts > 0:
+        if not redis_manager._use_fallback and redis_manager.client:
+            try:
+                await redis_manager.client.delete(rate_key)
+            except Exception:
+                pass
+        redis_manager._fallback_store.pop(rate_key, None)
 
     if user.status != "active":
         raise HTTPException(

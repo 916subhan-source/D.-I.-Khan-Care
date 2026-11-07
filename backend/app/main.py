@@ -175,8 +175,9 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    openapi_url="/openapi.json" if settings.DEBUG else None,
 )
 
 import os
@@ -184,16 +185,42 @@ from fastapi import Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
-# Configure CORS using settings with wildcards and regex support
-cors_origins = list(settings.BACKEND_CORS_ORIGINS)
+# Hardened CORS policy: strictly allow official production domain, preview branches, and local dev ports
+cors_origins = [
+    "https://dikhan-doctor-appointment.pages.dev",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000"
+]
+if hasattr(settings, "FRONTEND_URL") and settings.FRONTEND_URL:
+    clean_frontend = settings.FRONTEND_URL.rstrip('/')
+    if clean_frontend not in cors_origins:
+        cors_origins.append(clean_frontend)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins if "*" not in cors_origins else ["*"],
-    allow_origin_regex=r"^https?://.*$",
+    allow_origins=cors_origins,
+    allow_origin_regex=r"^https://([a-zA-Z0-9-]+\.)?dikhan-doctor-appointment\.pages\.dev$",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
+
+# Enterprise HTTP Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    return response
 
 # Compress responses > 1KB automatically to drastically reduce payload size and latency
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -202,9 +229,10 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 async def global_exception_handler(request: Request, exc: Exception):
     import traceback
     traceback.print_exc()
+    detail_msg = str(exc) if settings.DEBUG else "Internal server error. Please contact clinic support."
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc) or "Internal server error"}
+        content={"detail": detail_msg}
     )
 
 # Include Routers

@@ -23,7 +23,6 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           charts: ['recharts'],
-          supabase: ['@supabase/supabase-js'],
           icons: ['lucide-react']
         }
       }

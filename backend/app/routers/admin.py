@@ -19,7 +19,7 @@ from app.services.audit_service import audit_service
 from app.models import User, Doctor, DoctorSlot, DoctorAssistant, DoctorReview, Appointment, Payment, AuditLog
 from app.schemas import SpotlightToggleRequest, DoctorResponse, AdminDoctorCreateSchema, AdminDoctorUpdateSchema
 
-router = APIRouter(prefix="/admin", tags=["Admin Portal"])
+router = APIRouter(prefix="/admin", tags=["Admin Portal"], dependencies=[Depends(require_roles(["ADMIN"]))])
 
 @router.get("/doctors", response_model=List[DoctorResponse])
 async def list_all_doctors_admin(

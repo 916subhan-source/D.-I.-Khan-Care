@@ -61,6 +61,15 @@ desktop.ini
 *.swp
 *.swo
 
+# Database files & SQL dumps
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+*.sql
+!database_dump.sql.example
+
 # Temporary scratch & media
 scratch/
 .tempmediaStorage/

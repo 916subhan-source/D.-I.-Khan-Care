@@ -2767,7 +2767,7 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                           <p className={`text-xs font-bold leading-none ${step.done ? 'text-slate-800' : step.active ? 'text-amber-800' : 'text-slate-400'}`}>
                             {step.title}
                           </p>
-                          <p className="text-[11px] text-slate-400 mt-1" dangerouslySetInnerHTML={{ __html: step.sub }} />
+                          <p className="text-[11px] text-slate-400 mt-1">{step.sub}</p>
                         </div>
                       </div>
                     ))

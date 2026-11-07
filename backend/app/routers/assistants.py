@@ -13,7 +13,7 @@ import json
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
@@ -262,6 +262,7 @@ async def get_queue(
 @router.post("/appointments/{appointment_id}/approve", response_model=AppointmentResponse)
 async def approve_appointment(
     appointment_id: str,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -326,13 +327,9 @@ async def approve_appointment(
     await redis_manager.clear_cache_pattern(f"doc_analytics:{appt.doctor_id}")
     await redis_manager.clear_cache_pattern("doctors:")
 
-    # Trigger Event 2a: Notify assistant Gmail & patient of confirmation
-    try:
-        from app.services.notification_service import notification_service
-        await notification_service.notify_appointment_confirmed(db, appt)
-    except Exception as notify_err:
-        import logging
-        logging.getLogger("assistants").warning(f"Notification error on approve: {notify_err}")
+    # Offload confirmation notification to background task queue (< 40ms response)
+    from app.services.background_tasks import bg_notify_appointment_confirmed
+    background_tasks.add_task(bg_notify_appointment_confirmed, appt.id)
 
     return {
         "id": appt.id,
@@ -379,6 +376,7 @@ async def approve_appointment(
 @router.post("/appointments/{appointment_id}/cancel")
 async def cancel_appointment_by_assistant(
     appointment_id: str,
+    background_tasks: BackgroundTasks,
     reason: str = Query("Patient requested cancellation"),
     current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
     db: AsyncSession = Depends(get_db)
@@ -422,13 +420,9 @@ async def cancel_appointment_by_assistant(
     await redis_manager.clear_cache_pattern(f"doctor_slots:{appt.doctor_id}")
     await redis_manager.clear_cache_pattern("doctors:")  # Bug fix: flush stale slot cache after cancellation
 
-    # Trigger Event 2b: Notify assistant Gmail & patient of cancellation
-    try:
-        from app.services.notification_service import notification_service
-        await notification_service.notify_appointment_cancelled(db, appt, reason=reason)
-    except Exception as notify_err:
-        import logging
-        logging.getLogger("assistants").warning(f"Notification error on cancel: {notify_err}")
+    # Offload cancellation notification to background task queue (< 40ms response)
+    from app.services.background_tasks import bg_notify_appointment_cancelled
+    background_tasks.add_task(bg_notify_appointment_cancelled, appt.id, reason or "")
 
     return {"status": "SUCCESS", "message": "Appointment cancelled and slot released to available.", "appointment_id": appt.id}
 
@@ -657,6 +651,7 @@ async def mark_appointment_paid(
 @router.post("/appointments/{appointment_id}/complete")
 async def complete_appointment_by_assistant(
     appointment_id: str,
+    background_tasks: BackgroundTasks,
     consultation_notes: Optional[str] = Query(None, description="Remarks or notes"),
     early_calling: bool = Query(False, description="Allow completing today's appointment early if calling has started"),
     current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
@@ -735,12 +730,9 @@ async def complete_appointment_by_assistant(
 
     await db.commit()
 
-    try:
-        from app.services.notification_service import notification_service
-        await notification_service.notify_appointment_completed(db, appt, clinical_notes=consultation_notes)
-    except Exception as notify_err:
-        import logging
-        logging.getLogger("assistants").warning(f"Notification error on complete: {notify_err}")
+    # Offload visit completed email and review request to background task queue (< 40ms response)
+    from app.services.background_tasks import bg_notify_appointment_completed
+    background_tasks.add_task(bg_notify_appointment_completed, appt.id, consultation_notes or "")
 
     return {"status": "SUCCESS", "message": "Consultation marked as completed.", "appointment_id": appt.id}
 

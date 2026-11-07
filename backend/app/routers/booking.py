@@ -10,7 +10,7 @@ import uuid
 import re
 import json
 from datetime import datetime, timezone, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func
 from sqlalchemy.orm import selectinload
@@ -186,7 +186,11 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
     }
 
 @router.post("/verify")
-async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depends(get_db)):
+async def verify_booking_otp(
+    payload: OTPVerifySchema,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
     """
     Step 2: Patient enters 6-digit code.
     - Verifies OTP against Redis hash.
@@ -374,15 +378,9 @@ async def verify_booking_otp(payload: OTPVerifySchema, db: AsyncSession = Depend
     await redis_manager.clear_cache_pattern(f"doc_appts:{slot.doctor_id}")
     await redis_manager.clear_cache_pattern(f"doc_analytics:{slot.doctor_id}")
 
-    # Trigger Event 1: Notify assistant Gmail of new booking request
-    try:
-        from app.services.notification_service import notification_service
-        # Refresh appointment with slot & doctor for email template
-        await db.refresh(appointment, ["doctor", "slot", "patient"])
-        await notification_service.notify_appointment_requested(db, appointment)
-    except Exception as notify_err:
-        import logging
-        logging.getLogger("booking").warning(f"Notification dispatch error: {notify_err}")
+    # Offload booking received notification to background task queue (< 40ms response)
+    from app.services.background_tasks import bg_notify_appointment_requested
+    background_tasks.add_task(bg_notify_appointment_requested, appointment.id)
 
     # Issue signed patient access token for instant session tracker
     token = create_access_token(data={"sub": patient.id, "role": "PATIENT"})

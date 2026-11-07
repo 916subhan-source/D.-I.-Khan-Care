@@ -14,7 +14,7 @@ import asyncio
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, UploadFile, File, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, case
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
@@ -1268,6 +1268,7 @@ async def mark_appointment_paid_by_doctor(
 @router.post("/appointments/{appointment_id}/complete")
 async def complete_appointment_by_doctor(
     appointment_id: str,
+    background_tasks: BackgroundTasks,
     consultation_notes: Optional[str] = Query(None, description="Doctor clinical remarks or prescription notes"),
     mark_paid: bool = Query(False, description="Auto-record payment as PAID if pending at calling/consultation"),
     early_calling: bool = Query(False, description="Allow completing today's appointment early if calling has started"),
@@ -1374,13 +1375,9 @@ async def complete_appointment_by_doctor(
     await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
     await redis_manager.clear_cache_pattern(f"doc_analytics:{doc.id}")
 
-    # Trigger Event 4: Notify assistant Gmail & patient of completion
-    try:
-        from app.services.notification_service import notification_service
-        await notification_service.notify_appointment_completed(db, appt, clinical_notes=consultation_notes)
-    except Exception as notify_err:
-        import logging
-        logging.getLogger("doctor_portal").warning(f"Notification error on complete: {notify_err}")
+    # Offload visit completed email to background task queue (< 40ms response)
+    from app.services.background_tasks import bg_notify_appointment_completed
+    background_tasks.add_task(bg_notify_appointment_completed, appt.id, consultation_notes or "")
 
     return {"status": "SUCCESS", "message": "Consultation marked as completed.", "appointment_id": appt.id}
 

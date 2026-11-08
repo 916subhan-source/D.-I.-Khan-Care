@@ -6293,31 +6293,6 @@ function PatientSection({
 
   return (
     <div style={{ zoom: typeof window !== 'undefined' && window.innerWidth < 768 ? '1' : (zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1') }} className="transition-all duration-300 mobile-zoom-safe overflow-x-hidden w-full max-w-full">
-      {/* ── Official District Verification Protocol Banner (AI Studio Reference) ── */}
-      <div className="bg-[#eaf5ef] dark:bg-slate-900/90 border-b border-clinic-200/70 dark:border-slate-800 text-slate-800 dark:text-slate-300 text-[11px] sm:text-xs py-2 sm:py-2.5 px-3 sm:px-6 w-full max-w-full overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 w-full">
-          <div className="flex items-center gap-2 font-medium">
-            <span className="w-4 h-4 rounded-full bg-clinic-700 dark:bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>
-            <span className="leading-tight sm:leading-normal">
-              <strong className="font-bold text-slate-900 dark:text-white">Verified Doctor Network:</strong> Book online in 30 seconds & pay cash at the clinic desk.
-            </span>
-          </div>
-          <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-semibold">
-            <span className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse flex-shrink-0" />
-              LIVE CLINIC QUEUE
-            </span>
-            <span className="text-slate-300 dark:text-slate-600">|</span>
-            <button
-              onClick={() => setShowTrack(t => !t)}
-              className="text-clinic-800 dark:text-emerald-400 hover:text-clinic-900 dark:hover:text-emerald-300 hover:underline font-semibold cursor-pointer"
-            >
-              How Token Works
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* ── Modern Hero Section with Image Banner ── */}
       <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10">
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}

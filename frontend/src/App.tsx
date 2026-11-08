@@ -6322,16 +6322,22 @@ function PatientSection({
       <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10">
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
-          <img
-            src="/images/private-clinic-consultation.jpg"
-            alt="Doctor consultation in a private clinic in Dera Ismail Khan"
-            className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-20 dark:mix-blend-luminosity"
-            style={{
-              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)',
-              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)'
-            }}
-            loading="eager"
-          />
+          <picture>
+            <source srcSet="/images/private-clinic-consultation.webp" type="image/webp" />
+            <img
+              src="/images/private-clinic-consultation.jpg"
+              alt="Doctor consultation in a private clinic in Dera Ismail Khan"
+              className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-20 dark:mix-blend-luminosity"
+              style={{
+                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)',
+                maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)'
+              }}
+              fetchPriority="high"
+              loading="eager"
+              width={1200}
+              height={896}
+            />
+          </picture>
           {/* Broad, soft linear gradient wash matching container background */}
           <div
             className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/95 sm:via-[#f0f6f3]/85 to-transparent dark:from-[#071317] dark:via-[#071317]/95 sm:dark:via-[#071317]/85 dark:to-transparent pointer-events-none"
@@ -6563,7 +6569,7 @@ function PatientSection({
         <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 py-3 sm:py-3.5 shadow-2xs">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs touch-scroll">
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap uppercase tracking-wider mr-1 flex items-center gap-1">
                 Specialties:
               </span>
               {[
@@ -6778,7 +6784,7 @@ function PatientSection({
             </div>
 
             <div className="hidden sm:flex items-center gap-2 self-end sm:self-auto text-xs">
-              <span className="text-[11px] text-slate-400 font-medium">Display Zoom:</span>
+              <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Display Zoom:</span>
               <div className="inline-flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
                 <button
                   type="button"
@@ -6807,7 +6813,7 @@ function PatientSection({
 
           {/* Secondary Quick Filters */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
-            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap uppercase tracking-wider mr-1">
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 whitespace-nowrap uppercase tracking-wider mr-1">
               Quick Filter:
             </span>
             {[
@@ -7035,7 +7041,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
               {doctor.specialty} Specialist
             </p>
             {doctor.qualification && (
-              <p className="text-[11px] text-slate-400 dark:text-slate-400 truncate mt-0.5 font-medium">
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5 font-medium">
                 {doctor.qualification}
               </p>
             )}
@@ -7044,10 +7050,10 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
               title="Click to view clinic location on Google Maps"
             >
-              <MapPin className="w-3 h-3 text-slate-400 group-hover/loc:text-emerald-500 flex-shrink-0" />
+              <MapPin className="w-3 h-3 text-slate-500 group-hover/loc:text-emerald-500 flex-shrink-0" />
               <span className="truncate underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
             </a>
           </div>
@@ -7057,7 +7063,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
         <div className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
           {/* Availability */}
           <div className="min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
               Availability
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -7070,7 +7076,7 @@ function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook:
 
           {/* Fee */}
           <div className="text-right flex-shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
               Fee
             </span>
             <span className="font-black text-slate-900 dark:text-white text-sm sm:text-base font-mono">

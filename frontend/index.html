@@ -12,7 +12,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0d9488" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="google-site-verification" content="1yZrAQ09CacDlFTuaejTKMWzGimgejOoocgTZfK7vvU" />
     <meta name="google-site-verification" content="TKUkWb5P2wCESwgutihT_xYDSzobUoxshbbM0y5EEss" />
     <title>D.I. Khan Care — Find & Book Top Doctors in D.I. Khan</title>
@@ -88,18 +88,17 @@
       ]
     }
     </script>
-    <!-- Google Fonts: Inter & Outfit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter & Outfit (Non-render-blocking with font-display swap) -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" />
+    </noscript>
 
     <!-- Backend API Preconnect for instantaneous data fetching & handshake -->
-    <link rel="preconnect" href="https://d-i-khan-care.vercel.app" crossorigin>
-    <link rel="dns-prefetch" href="https://d-i-khan-care.vercel.app">
-
-    <!-- Cloudinary Image CDN Preconnect for instantaneous photo rendering -->
-    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-    <link rel="dns-prefetch" href="https://res.cloudinary.com">
+    <link rel="preconnect" href="https://d-i-khan-care.vercel.app" crossorigin />
+    <link rel="dns-prefetch" href="https://d-i-khan-care.vercel.app" />
   </head>
   <body class="bg-slate-50 text-slate-900 font-['Inter'] antialiased min-h-screen">
     <div id="root">

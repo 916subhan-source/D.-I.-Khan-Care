@@ -203,15 +203,17 @@ if hasattr(settings, "FRONTEND_URL") and settings.FRONTEND_URL:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_origin_regex=r"^https://([a-zA-Z0-9-]+\.)?dikhan-doctor-appointment\.pages\.dev$",
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(:[0-9]+)?$|^https://([a-zA-Z0-9-]+\.)?dikhan-doctor-appointment\.pages\.dev$",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Enterprise HTTP Security Headers Middleware
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
+    if request.method == "OPTIONS":
+        return await call_next(request)
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"

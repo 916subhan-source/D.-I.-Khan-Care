@@ -436,7 +436,10 @@ async def reschedule_appointment(
 ):
     appt = (await db.execute(
         select(Appointment)
-        .options(selectinload(Appointment.doctor))
+        .options(
+            selectinload(Appointment.doctor),
+            selectinload(Appointment.patient)
+        )
         .where(Appointment.id == appointment_id)
     )).scalar_one_or_none()
     if not appt:
@@ -464,12 +467,17 @@ async def reschedule_appointment(
 
     # Enforce daily limit: 1 appointment per phone number per doctor per day (excluding this appointment)
     from app.services.booking_rule_service import booking_rule_service
+    patient_phone_val = appt.patient_phone or (appt.patient.phone if appt.patient else None)
+    additional_phones_list = [appt.loyalty_mobile]
+    if appt.patient and appt.patient.phone:
+        additional_phones_list.append(appt.patient.phone)
+
     is_allowed, err_msg, _ = await booking_rule_service.check_daily_phone_limit(
         db=db,
         doctor_id=appt.doctor_id,
         visit_date_or_slot_time=new_slot.start_time,
-        phone=appt.patient_phone,
-        additional_phones=[appt.loyalty_mobile, appt.patient.phone if appt.patient else None],
+        phone=patient_phone_val,
+        additional_phones=additional_phones_list,
         exclude_appointment_id=appt.id
     )
     if not is_allowed:

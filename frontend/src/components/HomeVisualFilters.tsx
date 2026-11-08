@@ -14,6 +14,8 @@ export interface ConditionItem {
   keywords: string[];
   specialtyHint?: string;
   image: string;
+  bgGradient?: string;
+  borderClass?: string;
 }
 
 interface HomeVisualFiltersProps {
@@ -24,42 +26,54 @@ interface HomeVisualFiltersProps {
   onViewAll: () => void;
 }
 
-export const HOME_SPECIALTIES: SpecialtyItem[] = [
+export const HOME_SPECIALTIES: (SpecialtyItem & { bgGradient: string; borderClass: string })[] = [
   {
     id: 'Cardiologist',
     label: 'Cardiologist',
     sublabel: 'Heart & Vascular',
-    image: '/filters/spec_cardiologist.png'
+    image: '/filters/spec_cardiologist.png',
+    bgGradient: 'from-rose-50 to-red-100/80 dark:from-rose-950/40 dark:to-slate-800',
+    borderClass: 'border-rose-200/70 dark:border-rose-900/50'
   },
   {
     id: 'Orthopedic Surgeon',
     label: 'Orthopedic Surgeon',
     sublabel: 'Bones & Joints',
-    image: '/filters/spec_orthopedic_surgeon.png'
+    image: '/filters/spec_orthopedic_surgeon.png',
+    bgGradient: 'from-amber-50 to-orange-100/80 dark:from-amber-950/40 dark:to-slate-800',
+    borderClass: 'border-amber-200/70 dark:border-amber-900/50'
   },
   {
     id: 'Child Specialist',
     label: 'Child Specialist',
     sublabel: 'Pediatrics & Kids',
-    image: '/filters/spec_child_specialist.png'
+    image: '/filters/spec_child_specialist.png',
+    bgGradient: 'from-sky-50 to-cyan-100/80 dark:from-sky-950/40 dark:to-slate-800',
+    borderClass: 'border-sky-200/70 dark:border-sky-900/50'
   },
   {
     id: 'General Surgeon',
     label: 'General Surgeon',
     sublabel: 'General Surgery',
-    image: '/filters/spec_general_surgeon.png'
+    image: '/filters/spec_general_surgeon.png',
+    bgGradient: 'from-emerald-50 to-teal-100/80 dark:from-emerald-950/40 dark:to-slate-800',
+    borderClass: 'border-emerald-200/70 dark:border-emerald-900/50'
   },
   {
     id: 'Laparoscopic Surgeon',
     label: 'Laparoscopic Surgeon',
     sublabel: 'Laser & Keyhole',
-    image: '/filters/spec_laparoscopic_surgeon.png'
+    image: '/filters/spec_laparoscopic_surgeon.png',
+    bgGradient: 'from-purple-50 to-indigo-100/80 dark:from-purple-950/40 dark:to-slate-800',
+    borderClass: 'border-purple-200/70 dark:border-purple-900/50'
   },
   {
     id: 'Face and Skin Surgeon',
     label: 'Face and Skin Surgeon',
     sublabel: 'Aesthetics & Plastic',
-    image: '/filters/spec_face_skin_surgeon.png'
+    image: '/filters/spec_face_skin_surgeon.png',
+    bgGradient: 'from-pink-50 to-fuchsia-100/80 dark:from-pink-950/40 dark:to-slate-800',
+    borderClass: 'border-pink-200/70 dark:border-pink-900/50'
   }
 ];
 
@@ -160,18 +174,18 @@ export default function HomeVisualFilters({
                     : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/60 hover:-translate-y-1'
                 }`}
               >
-                {/* Large Soft Floating Circular Container */}
+                {/* Large Soft Floating Circular Container with Soft Pastel Glow */}
                 <div
-                  className={`w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 transition-all bg-[#eef4fc] dark:bg-slate-800/90 ${
+                  className={`w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 transition-all bg-gradient-to-br ${item.bgGradient || 'from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-850'} border ${item.borderClass || 'border-emerald-200/50 dark:border-slate-700/60'} ${
                     isSelected
-                      ? 'ring-3 ring-emerald-500 shadow-md scale-105'
-                      : 'shadow-2xs group-hover:shadow-md group-hover:scale-105 group-hover:bg-[#e4effb] dark:group-hover:bg-slate-750'
+                      ? 'ring-4 ring-emerald-500 shadow-lg scale-105'
+                      : 'shadow-xs group-hover:shadow-md group-hover:scale-105'
                   }`}
                 >
                   <img
                     src={item.image}
                     alt={item.label}
-                    className="w-14 h-14 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] object-contain transition-transform duration-200 group-hover:scale-105"
+                    className="w-14 h-14 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] object-contain transition-transform duration-200 group-hover:scale-110 drop-shadow-xs"
                     loading="lazy"
                   />
                 </div>
@@ -226,18 +240,18 @@ export default function HomeVisualFilters({
                     : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/60 hover:-translate-y-1'
                 }`}
               >
-                {/* Large Soft Floating Circular Container */}
+                {/* Large Soft Floating Circular Container with Soft Pastel Glow */}
                 <div
-                  className={`w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 transition-all bg-[#eef4fc] dark:bg-slate-800/90 ${
+                  className={`w-20 h-20 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full flex items-center justify-center p-2.5 transition-all bg-gradient-to-br ${item.bgGradient || 'from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-850'} border ${item.borderClass || 'border-emerald-200/50 dark:border-slate-700/60'} ${
                     isSelected
-                      ? 'ring-3 ring-emerald-500 shadow-md scale-105'
-                      : 'shadow-2xs group-hover:shadow-md group-hover:scale-105 group-hover:bg-[#e4effb] dark:group-hover:bg-slate-750'
+                      ? 'ring-4 ring-emerald-500 shadow-lg scale-105'
+                      : 'shadow-xs group-hover:shadow-md group-hover:scale-105'
                   }`}
                 >
                   <img
                     src={item.image}
                     alt={item.label}
-                    className="w-14 h-14 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] object-contain transition-transform duration-200 group-hover:scale-105"
+                    className="w-14 h-14 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] object-contain transition-transform duration-200 group-hover:scale-110 drop-shadow-xs"
                     loading="lazy"
                   />
                 </div>

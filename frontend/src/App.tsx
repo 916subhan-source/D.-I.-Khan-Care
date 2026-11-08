@@ -6347,70 +6347,110 @@ function PatientSection({
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
-          {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-clinic-200/80 dark:border-slate-700 text-[10px] sm:text-[11px] font-bold text-clinic-800 dark:text-emerald-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
-            <span>★ D.I. Khan's #1 Healthcare Network</span>
-          </div>
-
-          {/* Heading */}
-          <div className="max-w-xl lg:max-w-2xl">
-            <h1
-              className="text-2xl sm:text-4xl lg:text-[2.85rem] font-black text-slate-900 dark:text-white leading-[1.25] sm:leading-[1.3] lg:leading-[1.35] tracking-wide"
-              style={{ fontFamily: 'Outfit, sans-serif' }}
-            >
-              Find & Book Top Doctors
-              <span className="block mt-1 sm:mt-2 text-slate-900 dark:text-slate-100">in D.I. Khan</span>
-            </h1>
-            <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-4 leading-relaxed font-normal max-w-lg">
-              Skip the long waiting lines. Choose a verified specialist, pick your instant token time, and pay cash at clinic arrival.
-            </p>
-
-            {/* Reassurance Badges */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3 sm:mt-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-semibold">
-              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
-                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
-                100% Free Booking
-              </span>
-              <span className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-clinic-200/70 dark:border-slate-700 shadow-2xs text-[11px] sm:text-xs">
-                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">✓</span>
-                Instant Queue Token
-              </span>
+          {/* Glassmorphism Luxury Hero Card */}
+          <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
+            {/* Live District Verification Status Pill */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>★ D.I. Khan's Verified Healthcare Network</span>
             </div>
 
-            {/* Quick Action Buttons on Home View */}
+            {/* Heading with Gradient Accent */}
+            <h1
+              className="text-2xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-white leading-[1.22] sm:leading-[1.28] tracking-tight"
+              style={{ fontFamily: 'Outfit, sans-serif' }}
+            >
+              Find &amp; Book Top Doctors
+              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                in Dera Ismail Khan
+              </span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 sm:mt-3 leading-relaxed font-normal max-w-lg">
+              Skip hospital waiting lines. Reserve your guaranteed digital token with verified specialists in 30 seconds and pay cash at clinic arrival.
+            </p>
+
+            {/* Unified Floating Smart Search Bar in Hero */}
             {isHomeView && (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 mt-4 sm:mt-5 pt-1 w-full max-w-md">
+              <div className="mt-4 sm:mt-5 p-1.5 sm:p-2 rounded-2xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-inner flex flex-col sm:flex-row items-center gap-2">
+                <div className="relative flex-1 w-full">
+                  <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search doctor, clinic, specialty (e.g. Heart, Child)..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
+                    className="w-full pl-10 pr-8 py-2.5 rounded-xl border-none bg-white dark:bg-slate-900 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                  />
+                  {searchTerm && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedSpecialty('All specialties');
-                    setSelectedCondition('');
-                    setSelectedConditionLabel('');
-                    setSearchTerm('');
-                    scrollToResults();
-                  }}
-                  className="px-5 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
+                  onClick={scrollToResults}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all hover:scale-[1.02] active:scale-95"
                 >
                   <Search className="w-4 h-4" />
-                  <span>Find a Doctor</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById('home-filters-container');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="px-4 py-2.5 sm:py-3 bg-white/90 dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-xl text-xs sm:text-sm shadow-2xs hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-                >
-                  <span>Browse Categories &amp; Symptoms</span>
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <span>Search Doctors</span>
                 </button>
               </div>
             )}
 
+            {/* Popular Fast-Tap Tags */}
+            {isHomeView && (
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 pt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  ⚡ Popular:
+                </span>
+                {[
+                  { label: '🫀 Cardiologist', spec: 'Cardiologist' },
+                  { label: '👶 Child Specialist', spec: 'Child Specialist' },
+                  { label: '🦴 Orthopedic', spec: 'Orthopedic Surgeon' },
+                  { label: '🩺 General Physician', spec: 'General Physician' },
+                  { label: '🌸 Gynecologist', spec: 'Gynaecologist' },
+                ].map(item => (
+                  <button
+                    key={item.spec}
+                    type="button"
+                    onClick={() => {
+                      setSelectedSpecialty(item.spec);
+                      setSelectedCondition('');
+                      setSelectedConditionLabel('');
+                      scrollToResults();
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-slate-800/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-300 dark:hover:border-emerald-600 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-all shadow-2xs cursor-pointer"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Three Trust Badges */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 font-semibold">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                100% Free Booking
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                Instant Digital Pass
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                Pay Cash at Clinic
+              </span>
+            </div>
+
             {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
-            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[270px]">
+            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[280px]">
               <Hero3DPass isStatic={true} />
             </div>
           </div>
@@ -6427,42 +6467,9 @@ function PatientSection({
           <Hero3DPass />
         </div>
 
-        {/* ── In Home View: Search Bar / In Directory View: 4-part Search Bar ── */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-6 sm:mt-10 lg:mt-12 mb-2 sm:mb-3">
-          {isHomeView ? (
-            <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative flex-1 w-full">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search doctor, specialist, clinic, or symptom..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-400"
-                  />
-                  {searchTerm && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchTerm('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={scrollToResults}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Search Doctors</span>
-                </button>
-              </div>
-            </div>
-          ) : (
+        {/* ── In Directory View: 4-part Search Bar (Area, Specialty, Shift, Search) ── */}
+        {!isHomeView && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-6 sm:mt-10 lg:mt-12 mb-2 sm:mb-3">
             <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
                 {/* Specialty Dropdown */}
@@ -6525,8 +6532,8 @@ function PatientSection({
                 </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ── In Home View: Visual Filter Carousels / In Directory View: Horizontal Specialty Pills ── */}

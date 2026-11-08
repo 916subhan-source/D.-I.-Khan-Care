@@ -1054,7 +1054,7 @@ export default function App() {
             >
               <CreditCard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>RK Loyalty Card</span>
-              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">10% OFF</span>
+              <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">Discounts</span>
             </button>
             <button
               onClick={() => setShowStaffModal(true)}
@@ -1150,7 +1150,7 @@ export default function App() {
                 >
                   <CreditCard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>RK Loyalty Card</span>
-                  <span className="ml-auto text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">10% OFF</span>
+                  <span className="ml-auto text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">Discounts</span>
                 </button>
               </div>
 
@@ -1519,11 +1519,11 @@ function LoyaltyCardSection({
                 RK VIP Health Loyalty Card
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                Enjoy 10% flat lifetime discount on doctor consultations, priority queue entry, and fast-track reception desk check-in across participating specialist clinics in Dera Ismail Khan.
+                Enjoy exclusive lifetime discounts on doctor consultations (set by each specialist), priority queue entry, and fast-track reception desk check-in across participating specialist clinics in Dera Ismail Khan.
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 text-xs font-semibold text-white border border-white/10">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 10% Consultation Discount
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Specialist Consultation Discount
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 text-xs font-semibold text-white border border-white/10">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Priority Reception Desk
@@ -1564,7 +1564,7 @@ function LoyaltyCardSection({
                 {/* EMV Chip Representation */}
                 <div className="my-3 flex items-center justify-between">
                   <div className="w-8 h-6 rounded bg-gradient-to-br from-amber-200 via-amber-300 to-amber-500 border border-amber-400/80 shadow-xs" />
-                  <span className="text-sm font-extrabold text-amber-300/80 font-mono tracking-widest">10% OFF</span>
+                  <span className="text-sm font-extrabold text-amber-300/80 font-mono tracking-widest">VIP DISCOUNT</span>
                 </div>
 
                 {/* Patient Name & Card Number */}
@@ -1588,8 +1588,8 @@ function LoyaltyCardSection({
           {[
             {
               icon: '💎',
-              title: '10% Flat Fee Discount',
-              desc: 'Save 10% on every specialist consultation fee across all participating clinics in D.I. Khan.'
+              title: 'Specialist Fee Discounts',
+              desc: 'Save on specialist consultation fees as offered by participating doctors across clinics in D.I. Khan.'
             },
             {
               icon: '⚡',
@@ -1633,7 +1633,7 @@ function LoyaltyCardSection({
               <span>How to Use Your VIP Loyalty Card</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Three simple steps to unlock instant 10% savings on every doctor visit.
+              Three simple steps to unlock instant consultation savings on every doctor visit.
             </p>
           </div>
 
@@ -1667,9 +1667,9 @@ function LoyaltyCardSection({
                 3
               </div>
               <div className="space-y-1">
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Save 10% at Clinic</h4>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">Save at Clinic</h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Present your digital card or phone number at reception to get 10% off your consultation.
+                  Present your digital card or phone number at reception to get your specialist's consultation discount.
                 </p>
               </div>
             </div>
@@ -1697,7 +1697,7 @@ function LoyaltyCardSection({
                 </div>
               </div>
               <span className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white font-extrabold text-xs shadow-xs self-start sm:self-auto">
-                ✓ 10% DISCOUNT ACTIVE
+                ✓ VIP DISCOUNT ACTIVE
               </span>
             </div>
 
@@ -1721,7 +1721,7 @@ function LoyaltyCardSection({
                     </div>
                   </div>
                   <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-400 text-slate-950">
-                    VIP 10% OFF
+                    VIP DISCOUNT
                   </span>
                 </div>
 
@@ -1776,7 +1776,7 @@ function LoyaltyCardSection({
                   className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-xs shadow-md shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
                 >
                   <Calendar className="w-4 h-4 text-white" />
-                  <span>Book Consultation with 10% Discount &rarr;</span>
+                  <span>Book Consultation with Loyalty Discount &rarr;</span>
                 </button>
 
                 <button
@@ -1817,7 +1817,7 @@ function LoyaltyCardSection({
                     <span>Specialists Who Have Activated The Loyalty Card Program</span>
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    You can apply for the 10% VIP Loyalty Card with these verified participating specialists.
+                    You can apply for the VIP Loyalty Card with these verified participating specialists (each doctor offers their dedicated consultation discount).
                   </p>
                 </div>
                 <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full self-start sm:self-auto">
@@ -2113,7 +2113,7 @@ function LoyaltyCardSection({
                   )}
                 </button>
                 <p className="text-[11px] text-slate-400 text-center mt-2 font-normal">
-                  Instant free verification &bull; Zero credit card or payment needed &bull; Lifetime 10% discount
+                  Instant free verification &bull; Zero credit card or payment needed &bull; Lifetime specialist discounts
                 </p>
               </div>
             </form>

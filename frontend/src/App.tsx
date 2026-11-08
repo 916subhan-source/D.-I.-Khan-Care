@@ -6017,8 +6017,26 @@ function PatientSection({
   activeTab?: string;
   navResetTrigger?: number;
 }) {
-  const [doctors, setDoctors] = useState<DoctorData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [doctors, setDoctors] = useState<DoctorData[]>(() => {
+    try {
+      const cached = localStorage.getItem('cached_public_doctors');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (_) {}
+    return [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    try {
+      const cached = localStorage.getItem('cached_public_doctors');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch (_) {}
+    return true;
+  });
   const [selectedLocality, setSelectedLocality] = useState('All D.I. Khan');
   const [selectedShift, setSelectedShift] = useState('Any shift');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All specialties');
@@ -6107,10 +6125,17 @@ function PatientSection({
 
   const fetchDoctors = async () => {
     try {
-      setLoading(true);
+      if (doctors.length === 0) {
+        setLoading(true);
+      }
       const data = await apiFetch<DoctorData[]>('/doctors');
       const list = Array.isArray(data) ? data : [];
       setDoctors(list);
+      try {
+        if (list.length > 0) {
+          localStorage.setItem('cached_public_doctors', JSON.stringify(list));
+        }
+      } catch (_) { }
 
       // Deep-link from completion notification email or URL params: ?doctor_id=... or ?action=book
       try {

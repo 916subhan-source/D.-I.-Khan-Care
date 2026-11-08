@@ -42,11 +42,31 @@ const inFlightRequests = new Map<string, Promise<any>>();
 export function invalidateApiCache(pattern?: string) {
   if (!pattern) {
     apiCache.clear();
+    if (typeof window !== 'undefined') {
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('swr_v1_')) keysToRemove.push(k);
+        }
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+      } catch {}
+    }
   } else {
     for (const key of apiCache.keys()) {
       if (key.includes(pattern)) {
         apiCache.delete(key);
       }
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('swr_v1_') && k.includes(pattern)) keysToRemove.push(k);
+        }
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+      } catch {}
     }
   }
 }
@@ -156,9 +176,24 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   );
   const cacheKey = `${endpoint}::${headers['Authorization'] || 'anon'}`;
 
-  // 1. Check in-memory SWR cache (0ms instant return)
+  // 1. Check in-memory & persistent SWR cache (0ms instant return)
   if (isCacheable) {
-    const cached = apiCache.get(cacheKey);
+    let cached = apiCache.get(cacheKey);
+
+    // If not in-memory, inspect persistent client storage for instant render
+    if (!cached && typeof window !== 'undefined') {
+      try {
+        const localRaw = localStorage.getItem(`swr_v1_${cacheKey}`);
+        if (localRaw) {
+          const parsed = JSON.parse(localRaw);
+          if (parsed && parsed.data) {
+            cached = parsed;
+            apiCache.set(cacheKey, parsed);
+          }
+        }
+      } catch {}
+    }
+
     if (cached) {
       const now = Date.now();
       // Case A: 100% Fresh -> Return immediately
@@ -172,11 +207,15 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
             try {
               const freshData = await executeNetworkFetch<T>(endpoint, options, headers);
               const { freshMs, staleMs } = getEndpointTtl(endpoint);
-              apiCache.set(cacheKey, {
+              const entry = {
                 data: freshData,
                 freshUntil: Date.now() + freshMs,
                 staleUntil: Date.now() + staleMs,
-              });
+              };
+              apiCache.set(cacheKey, entry);
+              if (typeof window !== 'undefined') {
+                try { localStorage.setItem(`swr_v1_${cacheKey}`, JSON.stringify(entry)); } catch {}
+              }
             } catch {}
           })();
           inFlightRequests.set(cacheKey, bgPromise);
@@ -210,11 +249,15 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   const fetchPromise = executeNetworkFetch<T>(endpoint, options, headers).then((data) => {
     if (isCacheable && data) {
       const { freshMs, staleMs } = getEndpointTtl(endpoint);
-      apiCache.set(cacheKey, {
+      const entry = {
         data,
         freshUntil: Date.now() + freshMs,
         staleUntil: Date.now() + staleMs,
-      });
+      };
+      apiCache.set(cacheKey, entry);
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem(`swr_v1_${cacheKey}`, JSON.stringify(entry)); } catch {}
+      }
     }
     return data;
   });

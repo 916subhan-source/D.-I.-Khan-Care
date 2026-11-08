@@ -62,7 +62,7 @@ async def list_doctors(
     Accelerated with Redis in-memory cache and Cloudflare Edge HTTP headers.
     """
     # Edge caching: Serve cached directory from Cloudflare edge nodes in <15ms
-    response.headers["Cache-Control"] = "public, max-age=30, s-maxage=60, stale-while-revalidate=120"
+    response.headers["Cache-Control"] = "public, max-age=120, s-maxage=600, stale-while-revalidate=1800"
     cache_key = f"doctors:{sub_region or 'all'}:{specialty or 'all'}:{shift or 'all'}"
     cached_data = await redis_manager.get_cache(cache_key)
     if cached_data:
@@ -198,8 +198,8 @@ async def list_doctors(
             "loyalty_discount_percent": float(doc.loyalty_discount_percent if doc.loyalty_discount_percent is not None else 10.00)
         })
 
-    # Cache in Redis for 60 seconds (rapid real-time freshness)
-    await redis_manager.set_cache(cache_key, json.dumps(doctor_list), ttl=60)
+    # Cache in Redis for 30 minutes (purged automatically when admin updates doctors)
+    await redis_manager.set_cache(cache_key, json.dumps(doctor_list), ttl=1800)
     return doctor_list
 
 @router.get("/{doctor_id}/slots", response_model=List[SlotResponse])

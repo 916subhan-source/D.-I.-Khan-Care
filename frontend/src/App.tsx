@@ -1053,7 +1053,7 @@ export default function App() {
                 }`}
             >
               <CreditCard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <span>RK Loyalty Card</span>
+              <span>Loyalty Card</span>
               <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">Discounts</span>
             </button>
             <button
@@ -1149,7 +1149,7 @@ export default function App() {
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${activeTab === 'loyalty' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-200 font-bold border border-amber-300 dark:border-amber-700' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                 >
                   <CreditCard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span>RK Loyalty Card</span>
+                  <span>Loyalty Card</span>
                   <span className="ml-auto text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">Discounts</span>
                 </button>
               </div>
@@ -1339,7 +1339,7 @@ export default function App() {
 
 
 // ══════════════════════════════════════════════════════════════════════════════════════
-// ── Dedicated RK VIP Health Loyalty Card Page ───────────────────────────────────────
+// ── Dedicated VIP Health Loyalty Card Page ───────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════════════════════════
 function LoyaltyCardSection({
   onBackToDirectory,
@@ -1513,10 +1513,10 @@ function LoyaltyCardSection({
             <div className="md:col-span-7 space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>RK VIP Health Membership</span>
+                <span>VIP Health Membership</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                RK VIP Health Loyalty Card
+                VIP Health Loyalty Card
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
                 Enjoy exclusive lifetime discounts on doctor consultations (set by each specialist), priority queue entry, and fast-track reception desk check-in across participating specialist clinics in Dera Ismail Khan.
@@ -1549,7 +1549,7 @@ function LoyaltyCardSection({
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm shadow-md">
-                      +RK
+                      VIP
                     </div>
                     <div>
                       <div className="text-[11px] font-black tracking-widest text-amber-300 uppercase">LOYALTY CARD</div>
@@ -1692,7 +1692,7 @@ function LoyaltyCardSection({
                     Congratulations, {generatedCard.full_name}!
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                    Your RK VIP Health Loyalty Card has been generated and is now active for all visits.
+                    Your VIP Health Loyalty Card has been generated and is now active for all visits.
                   </p>
                 </div>
               </div>
@@ -1713,10 +1713,10 @@ function LoyaltyCardSection({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm shadow-md">
-                      +RK
+                      VIP
                     </div>
                     <div>
-                      <div className="text-xs font-black tracking-widest text-amber-300">RK VIP LOYALTY CARD</div>
+                      <div className="text-xs font-black tracking-widest text-amber-300">VIP LOYALTY CARD</div>
                       <div className="text-[8px] text-amber-200/80 tracking-wider">D.I. KHAN HEALTH CARE</div>
                     </div>
                   </div>
@@ -1895,7 +1895,7 @@ function LoyaltyCardSection({
                   <div>
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2" style={{ fontFamily: 'Outfit,sans-serif' }}>
                       <CreditCard className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                      <span>Apply for RK VIP Health Loyalty Card</span>
+                      <span>Apply for VIP Health Loyalty Card</span>
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       Complete the verified fields below to generate your official VIP membership and card.

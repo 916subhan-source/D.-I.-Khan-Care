@@ -6548,15 +6548,15 @@ function PatientSection({
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
-          {/* Glassmorphism Luxury Hero Card with Monetag-style Spring Slide */}
-          <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all animate-monetag-slide">
+          {/* Glassmorphism Luxury Hero Card */}
+          <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
             {/* Live District Verification Status Pill & Floating Micro-Badge */}
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest shadow-2xs animate-spring-pop">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>★ D.I. Khan's Verified Healthcare Network</span>
               </div>
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-spring-pop stagger-2">
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle">
                 <Sparkles className="w-3 h-3 text-emerald-500" />
                 <span>Zero Booking Fees</span>
               </div>

@@ -1026,26 +1026,26 @@ export default function App() {
   // Staff portals render full-screen with sidebar layout
   if (activeTab === 'assistant') {
     return (
-      <>
+      <div className="animate-fade-in min-h-screen">
         <AssistantSection onSwitchRole={handleSwitchRole} />
         <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
-      </>
+      </div>
     );
   }
   if (activeTab === 'doctor') {
     return (
-      <>
+      <div className="animate-fade-in min-h-screen">
         <DoctorSection onSwitchRole={handleSwitchRole} />
         <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
-      </>
+      </div>
     );
   }
   if (activeTab === 'admin') {
     return (
-      <>
+      <div className="animate-fade-in min-h-screen">
         <AdminSection onSwitchRole={handleSwitchRole} />
         <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
-      </>
+      </div>
     );
   }
 
@@ -2333,7 +2333,7 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
         </div>
 
         {/* Find your appointment card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div className="scroll-reveal bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <h2 className="text-base font-bold text-slate-900 mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>
             Find your appointment
           </h2>
@@ -3100,7 +3100,7 @@ function DoctorProfileModal({
               {activeTab === 'reviews' && (
                 <div className="space-y-6">
                   {/* Satisfaction Banner */}
-                  <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 flex items-center gap-4">
+                  <div className="scroll-reveal bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-lg shadow-sm">
                       98%
                     </div>
@@ -3111,9 +3111,9 @@ function DoctorProfileModal({
                   </div>
 
                   {/* Patient Review Cards */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 stagger-group">
                     {reviewsList.map((rev, idx) => (
-                      <div key={idx} className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-4 rounded-2xl space-y-2">
+                      <div key={idx} className="scroll-reveal bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 p-4 rounded-2xl space-y-2">
                         <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg w-fit">
                           <ThumbsUp className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" /> I recommend the doctor
                         </div>
@@ -4207,7 +4207,7 @@ function DoctorProfileAndBookingView({
   };
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] dark:bg-[#080d14] text-slate-800 dark:text-slate-100 font-sans pb-16 selection:bg-[#0f766e]/20 selection:text-[#0f766e]">
+    <div className="min-h-screen bg-[#fafbfc] dark:bg-[#080d14] text-slate-800 dark:text-slate-100 font-sans pb-16 selection:bg-[#0f766e]/20 selection:text-[#0f766e] animate-fade-in">
       {/* ── Main Container ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-36 sm:pb-16">
         {/* ── Breadcrumbs ── */}
@@ -4222,7 +4222,7 @@ function DoctorProfileAndBookingView({
         </div>
 
         {/* ── Oladoc Web Full-Width Hero Card ── */}
-        <div className="bg-white dark:bg-[#0c1424] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-7 shadow-xs mb-4 sm:mb-6 relative overflow-hidden">
+        <div className="scroll-reveal bg-white dark:bg-[#0c1424] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-7 shadow-xs mb-4 sm:mb-6 relative overflow-hidden">
           <div className="flex flex-col gap-4 sm:gap-6">
             {/* Top row on mobile / Left on desktop: Portrait + Name & Details */}
             <div className="flex items-start sm:items-center gap-3.5 sm:gap-6">
@@ -4450,7 +4450,7 @@ function DoctorProfileAndBookingView({
             {profileActiveTab === 'about' && (
               <div className="space-y-6">
                 {/* Biography Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-3.5">
+                <div className="scroll-reveal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-3.5">
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> About {doctor.full_name}
                   </h3>
@@ -4475,7 +4475,7 @@ function DoctorProfileAndBookingView({
                 </div>
 
                 {/* Education & Qualifications Breakdown */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                <div className="scroll-reveal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <GraduationCap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Degrees &amp; Qualifications
                   </h3>
@@ -4867,7 +4867,7 @@ function DoctorProfileAndBookingView({
           </div>
 
           {/* ── Right Column: Sticky Clean Clinic Booking Widget ── */}
-          <div id="oladoc-booking-card" className={`lg:col-span-5 sticky top-24 space-y-6 ${mobileActiveTab === 'booking' ? 'block' : 'hidden lg:block'}`}>
+          <div id="oladoc-booking-card" className={`scroll-reveal lg:col-span-5 sticky top-24 space-y-6 ${mobileActiveTab === 'booking' ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 shadow-sm">
               {/* Clean Header */}
               <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -5593,7 +5593,7 @@ function DoctorProfileAndBookingView({
               {reviewModalView === 'list' && (
                 <div className="space-y-4">
                   {/* Score breakdown highlight */}
-                  <div className="bg-gradient-to-br from-teal-500/10 via-slate-50 to-white dark:from-slate-800 dark:via-slate-800/90 dark:to-teal-950/20 p-4 sm:p-5 rounded-2xl border border-teal-500/20 shadow-xs flex items-center justify-between">
+                  <div className="scroll-reveal bg-gradient-to-br from-teal-500/10 via-slate-50 to-white dark:from-slate-800 dark:via-slate-800/90 dark:to-teal-950/20 p-4 sm:p-5 rounded-2xl border border-teal-500/20 shadow-xs flex items-center justify-between">
                     <div>
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -5634,11 +5634,11 @@ function DoctorProfileAndBookingView({
                       <span>Loading verified patient reviews...</span>
                     </div>
                   ) : reviewsSummary && reviewsSummary.reviews && reviewsSummary.reviews.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-3 stagger-group">
                       {reviewsSummary.reviews.map((rev) => (
                         <div
                           key={rev.id}
-                          className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
+                          className="scroll-reveal p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs hover:border-slate-200 dark:hover:border-slate-700 transition-colors"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
@@ -5704,7 +5704,7 @@ function DoctorProfileAndBookingView({
               {reviewModalView === 'write' && (
                 <form onSubmit={handleReviewSubmit} className="space-y-4">
                   {/* Cinematic Security Protocol Card */}
-                  <div className="relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-slate-500/5 dark:from-teal-950/40 dark:via-emerald-950/20 dark:to-slate-900/40 border border-teal-500/30 shadow-xs">
+                  <div className="scroll-reveal relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-emerald-500/5 to-slate-500/5 dark:from-teal-950/40 dark:via-emerald-950/20 dark:to-slate-900/40 border border-teal-500/30 shadow-xs">
                     <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-teal-400 to-transparent opacity-80" />
                     <div className="flex items-start gap-3">
                       <div className="w-9 h-9 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0 shadow-inner">
@@ -8924,20 +8924,20 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 stagger-group">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
               <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Awaiting Slip</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{pendingCount}</p>
             </div>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
               <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confirmed</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-clinic-600 dark:text-clinic-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{confirmedCount}</p>
             </div>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
               <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Paid at Desk</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>{paidCount}</p>
             </div>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xs transition-colors">
               <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Cash</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit,sans-serif' }}>
                 {formatCurrency(totalRevenue)}
@@ -8960,7 +8960,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
           {/* ── Tab: Live Queue & Slips ── */}
           {deskTab === 'queue' && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
               {/* Table controls */}
               <div className="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 bg-white dark:bg-slate-900">
                 <div className="relative flex-1 max-w-sm w-full">
@@ -14139,9 +14139,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* 5 Top KPI Cards: Dynamic Income + Operational Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-4 stagger-group">
                 {/* 1. Clinic Income (PAID) Card — Accent Green */}
-                <div className="col-span-2 md:col-span-2 xl:col-span-2 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-kpi-accent border border-emerald-200/80"
+                <div className="scroll-reveal col-span-2 md:col-span-2 xl:col-span-2 rounded-2xl p-4 sm:p-6 relative overflow-hidden shadow-kpi-accent border border-emerald-200/80"
                   style={{ background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)' }}
                 >
                   {/* Decorative glow orb */}
@@ -14174,7 +14174,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* 2. Total Appointments Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Appointments</p>
                   <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeScopedAppts.length}
@@ -14182,7 +14182,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* 3. Completed Visits Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Completed</p>
                   <p className="text-3xl sm:text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeCompletedCount}
@@ -14190,7 +14190,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* 4. Confirmed Visits Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Confirmed</p>
                   <p className="text-3xl sm:text-4xl font-extrabold text-clinic-600 dark:text-clinic-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {timeframeConfirmedCount}
@@ -14198,7 +14198,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
 
                 {/* 5. Available Slots Card */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
+                <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-kpi relative overflow-hidden group hover:shadow-kpi-accent transition-all duration-200">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Open Slots</p>
                   <p className="text-3xl sm:text-4xl font-extrabold text-amber-600 dark:text-amber-400 leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {slots.filter(s => s.status === 'available').length}
@@ -14207,7 +14207,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* Clinic agenda table with REAL appointment data & working action buttons */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-card">
+              <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-card">
                 <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-gradient-to-b from-slate-50/70 to-white dark:from-slate-900 dark:to-slate-900">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 flex-wrap">
@@ -17261,22 +17261,22 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
           </div>
 
           {/* Top 3 KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 stagger-group">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Verified doctors</p>
               <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {verifiedCount > 0 ? verifiedCount : 6}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Active directory profiles</p>
             </div>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Pending review</p>
               <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {doctors.filter(d => d.verification_status !== 'verified').length}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Awaiting license review</p>
             </div>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
+            <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xs">
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Spotlight Doctors</p>
               <p className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 {spotlightCount}

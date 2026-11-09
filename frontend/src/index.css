@@ -403,6 +403,89 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
 .animate-scale-in     { animation: scale-in 0.2s ease-out; }
 .animate-float        { animation: float 3s ease-in-out infinite; }
 
+/* ─── Monetag-Style Cinematic Orchestration Keyframes ───────────────── */
+@keyframes monetag-hero-slide {
+  0% {
+    opacity: 0;
+    transform: translateY(36px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spring-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(10px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.06) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes monetag-particle-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(15deg);
+  }
+}
+
+@keyframes monetag-particle-float-rev {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(14px) rotate(-15deg);
+  }
+}
+
+@keyframes pulse-glow-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-monetag-slide {
+  animation: monetag-hero-slide 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-spring-pop {
+  animation: spring-pop-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-particle-1 {
+  animation: monetag-particle-float 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-particle-2 {
+  animation: monetag-particle-float-rev 6.5s ease-in-out infinite 0.8s;
+  will-change: transform;
+}
+
+.animate-particle-3 {
+  animation: monetag-particle-float 7.5s ease-in-out infinite 1.6s;
+  will-change: transform;
+}
+
+.pulse-glow {
+  animation: pulse-glow-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* ─── Scroll-Triggered Parallax & Reveal Physics ──────────────────────── */
 .scroll-reveal {
   opacity: 0;

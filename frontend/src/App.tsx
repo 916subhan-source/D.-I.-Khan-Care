@@ -6468,6 +6468,12 @@ function PatientSection({
         <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
         <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
 
+        {/* Monetag-Style Floating Geometric Particles */}
+        <div data-parallax-depth="-0.22" className="absolute top-12 left-[18%] w-3.5 h-3.5 rounded-sm bg-emerald-400/40 border border-emerald-500/50 pointer-events-none select-none animate-particle-1 hidden md:block" />
+        <div data-parallax-depth="0.18" className="absolute top-36 right-[22%] w-4 h-4 rounded-sm bg-teal-400/40 border border-teal-500/50 pointer-events-none select-none animate-particle-2 hidden md:block" />
+        <div data-parallax-depth="-0.15" className="absolute bottom-16 right-[45%] w-3 h-3 rounded-sm bg-indigo-400/35 border border-indigo-500/40 pointer-events-none select-none animate-particle-3 hidden sm:block" />
+        <div data-parallax-depth="0.25" className="absolute top-1/2 left-[5%] w-2.5 h-2.5 rounded-sm bg-amber-400/40 border border-amber-500/50 pointer-events-none select-none animate-particle-1 hidden lg:block" />
+
         {/* Floating Decorative Graphics (matching bisedik.edu.pk motion with real-time parallax drift) */}
         <div data-parallax-depth="-0.18" className="absolute top-8 left-8 pointer-events-none opacity-25 dark:opacity-15 select-none hidden lg:block animate-float-sway">
           <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
@@ -6488,8 +6494,24 @@ function PatientSection({
           </svg>
         </div>
 
-        {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
-        <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
+        {/* Monetag-Style Floating Stat Pill Badges over Hero Image */}
+        <div data-parallax-depth="-0.14" className="hidden xl:flex absolute top-16 right-20 z-20 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-3 shadow-xl items-center gap-3 animate-spring-pop">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-extrabold text-lg">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">100% Guaranteed</div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Digital Token &amp; Live Queue</div>
+          </div>
+        </div>
+
+        <div data-parallax-depth="0.16" className="hidden xl:flex absolute bottom-14 right-48 z-20 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border border-teal-500/30 rounded-2xl px-4 py-2.5 shadow-xl items-center gap-2.5 animate-spring-pop stagger-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+          <span className="text-xs font-extrabold text-slate-900 dark:text-white">Pay Cash at Clinic Arrival</span>
+        </div>
+
+        {/* Right photo filling the right side, seamlessly dissolving into the background on the left (displayed on tablet & desktop for optimal mobile LCP performance) */}
+        <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-full sm:w-[60%] lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <picture>
             <source
               media="(max-width: 640px)"
@@ -6526,15 +6548,15 @@ function PatientSection({
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
-          {/* Glassmorphism Luxury Hero Card */}
-          <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
+          {/* Glassmorphism Luxury Hero Card with Monetag-style Spring Slide */}
+          <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all animate-monetag-slide">
             {/* Live District Verification Status Pill & Floating Micro-Badge */}
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest shadow-2xs">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest shadow-2xs animate-spring-pop">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>★ D.I. Khan's Verified Healthcare Network</span>
               </div>
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle">
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-spring-pop stagger-2">
                 <Sparkles className="w-3 h-3 text-emerald-500" />
                 <span>Zero Booking Fees</span>
               </div>
@@ -6758,6 +6780,78 @@ function PatientSection({
               onSwitchRole?.('patient');
             }}
           />
+
+          {/* ── Monetag-Style 3-Step Interactive Process Flow ── */}
+          <section className="mt-8 sm:mt-12 mb-6 sm:mb-10 scroll-reveal">
+            <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-2.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Zero Advance Fees &bull; Guaranteed Digital Pass</span>
+              </div>
+              <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Book Your Specialist in <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">3 Easy Steps</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
+                Fast, verified healthcare booking across Dera Ismail Khan clinics with zero upfront payment.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 relative stagger-group">
+              {/* Step 1 */}
+              <div className="relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 pulse-glow">
+                    1
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
+                    Step 1
+                  </span>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  Choose Verified Specialist
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Browse by symptom, specialty, or clinic locality in Dera Ismail Khan with real-time fee and schedule details.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-teal-500/25 pulse-glow">
+                    2
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-full border border-teal-200/60 dark:border-teal-800/60">
+                    Step 2
+                  </span>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  Pick Morning or Evening Slot
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Select your preferred consultation timing and secure a guaranteed digital queue token in under 30 seconds.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-cyan-600/25 pulse-glow">
+                    3
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-200/60 dark:border-cyan-800/60">
+                    Step 3
+                  </span>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  Digital Slip &amp; Pay at Clinic
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Get your instant digital token on WhatsApp &amp; SMS. 100% free booking with cash payment directly at clinic arrival.
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 py-3 sm:py-3.5 shadow-2xs">

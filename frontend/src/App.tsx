@@ -760,6 +760,7 @@ function StaffLoginSplitView({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1113,7 +1114,7 @@ export default function App() {
                   <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white" />
                   <span className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</span>
                 </div>
-                <button onClick={() => setShowMobileNav(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
+                <button onClick={() => setShowMobileNav(false)} aria-label="Close mobile navigation" className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -1312,6 +1313,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setShowEmergencyModal(true)}
+            aria-label="Emergency 1122 Rescue Help"
             className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-rose-600 dark:text-rose-400 hover:text-rose-700 active:scale-95 cursor-pointer"
             title="Emergency & 1122 Rescue Help"
           >
@@ -1326,6 +1328,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setShowMobileNav(true)}
+            aria-label="Open navigation menu"
             className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 active:scale-95 cursor-pointer"
           >
             <Menu className="w-5 h-5 mb-0.5 stroke-2" />
@@ -6491,6 +6494,7 @@ function PatientSection({
                   <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
+                    aria-label="Search doctor, clinic, specialty"
                     placeholder="Search doctor, clinic, specialty (e.g. Heart, Child)..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
@@ -6501,6 +6505,7 @@ function PatientSection({
                     <button
                       type="button"
                       onClick={() => setSearchTerm('')}
+                      aria-label="Clear search input"
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -6884,13 +6889,14 @@ function PatientSection({
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
+                  aria-label="Filter by doctor name, specialty, clinic"
                   placeholder="Filter by doctor name, specialty, clinic..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs bg-slate-50/50 hover:bg-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-clinic-500 transition-all font-medium"
                 />
                 {searchTerm && (
-                  <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                  <button onClick={() => setSearchTerm('')} aria-label="Clear filter" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
                     ✕
                   </button>
                 )}

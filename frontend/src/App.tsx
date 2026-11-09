@@ -887,13 +887,60 @@ export default function App() {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+  // Real-time Scroll Parallax & Cinematic Scroll Reveal Observer
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 350);
+    let ticking = false;
+    const handleParallaxScroll = () => {
+      const scrolled = window.scrollY;
+      setShowScrollTop(scrolled > 350);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const parallaxEls = document.querySelectorAll<HTMLElement>('[data-parallax-depth]');
+          parallaxEls.forEach((el) => {
+            const depth = parseFloat(el.getAttribute('data-parallax-depth') || '0.1');
+            el.style.transform = `translate3d(0, ${scrolled * depth}px, 0)`;
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
+    window.addEventListener('scroll', handleParallaxScroll, { passive: true });
+
+    // IntersectionObserver for .scroll-reveal elements
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -20px 0px' }
+    );
+
+    const observeElements = () => {
+      const revealElements = document.querySelectorAll('.scroll-reveal');
+      revealElements.forEach((el) => observer.observe(el));
+    };
+
+    // Observe immediately and after initial render
+    observeElements();
+    const timeout = setTimeout(observeElements, 250);
+
+    const mutObserver = new MutationObserver(() => {
+      observeElements();
+    });
+    mutObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleParallaxScroll);
+      observer.disconnect();
+      mutObserver.disconnect();
+      clearTimeout(timeout);
+    };
+  }, [activeTab]);
 
   // Prevent browser history scroll-restoration fighting React view state
   useEffect(() => {
@@ -6421,8 +6468,8 @@ function PatientSection({
         <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
         <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
 
-        {/* Floating Decorative Graphics (matching bisedik.edu.pk motion) */}
-        <div className="absolute top-8 left-8 pointer-events-none opacity-25 dark:opacity-15 select-none hidden lg:block animate-float-sway">
+        {/* Floating Decorative Graphics (matching bisedik.edu.pk motion with real-time parallax drift) */}
+        <div data-parallax-depth="-0.18" className="absolute top-8 left-8 pointer-events-none opacity-25 dark:opacity-15 select-none hidden lg:block animate-float-sway">
           <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
             <circle cx="6" cy="6" r="3" fill="#0d9488" />
             <circle cx="26" cy="6" r="3" fill="#0d9488" />
@@ -6435,7 +6482,7 @@ function PatientSection({
             <circle cx="46" cy="46" r="3" fill="#0d9488" />
           </svg>
         </div>
-        <div className="absolute bottom-10 left-1/3 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+        <div data-parallax-depth="0.14" className="absolute bottom-10 left-1/3 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
           <svg width="70" height="20" viewBox="0 0 70 20" fill="none">
             <path d="M2 10C8 2 14 18 20 10C26 2 32 18 38 10C44 2 50 18 56 10C62 2 68 18 68 10" stroke="#059669" strokeWidth="3" strokeLinecap="round" />
           </svg>
@@ -7043,7 +7090,7 @@ function PatientSection({
                     </span>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-group">
                   {sortedDoctors.map((doctor, idx) => (
                     <DoctorCard
                       key={doctor.id}
@@ -7142,7 +7189,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   const floatMotionClass = `float-motion-${(index % 3) + 1}`;
 
   return (
-    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 card-float-lift ${floatMotionClass} p-4 sm:p-5 flex flex-col justify-between shadow-xs animate-slide-up ${staggerClass}`}>
+    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 card-float-lift scroll-reveal ${floatMotionClass} p-4 sm:p-5 flex flex-col justify-between shadow-xs ${staggerClass}`}>
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">

@@ -210,8 +210,8 @@ export default function HomeVisualFilters({
     <div className="space-y-8 sm:space-y-10 my-6 sm:my-9">
       {/* ── Section 1: Consult Best Doctors by Specialty ── */}
       <div className="relative bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all w-full max-w-full overflow-hidden">
-        {/* Floating Background Decorative Accents (inspired by bisedik.edu.pk) */}
-        <div className="absolute top-4 right-6 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-sway">
+        {/* Floating Background Decorative Accents (inspired by bisedik.edu.pk with real-time parallax drift) */}
+        <div data-parallax-depth="-0.12" className="absolute top-4 right-6 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-sway">
           <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
             <circle cx="6" cy="6" r="3" fill="#0d9488" />
             <circle cx="26" cy="6" r="3" fill="#0d9488" />
@@ -227,7 +227,7 @@ export default function HomeVisualFilters({
             <circle cx="66" cy="46" r="3" fill="#0d9488" />
           </svg>
         </div>
-        <div className="absolute bottom-6 left-6 pointer-events-none opacity-15 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+        <div data-parallax-depth="0.15" className="absolute bottom-6 left-6 pointer-events-none opacity-15 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
           <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
             <path d="M2 12C8 2 14 22 20 12C26 2 32 22 38 12C44 2 50 22 56 12" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
           </svg>
@@ -262,8 +262,8 @@ export default function HomeVisualFilters({
           </button>
         </div>
 
-        {/* Clean Symmetrical 6-Column Grid with Continuously Floating Pods */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full relative z-10">
+        {/* Clean Symmetrical 6-Column Grid with Scroll-Revealed & Continuously Floating Pods */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full relative z-10 stagger-group">
           {HOME_SPECIALTIES.map((item, index) => {
             const isSelected = selectedSpecialty.toLowerCase() === item.id.toLowerCase();
             const style = SPECIALTY_STYLES[item.id] || {
@@ -279,7 +279,7 @@ export default function HomeVisualFilters({
                 key={item.id}
                 type="button"
                 onClick={() => onSelectSpecialty(item.id)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${motionClass} ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift scroll-reveal ${motionClass} ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
                     : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
@@ -318,8 +318,8 @@ export default function HomeVisualFilters({
 
       {/* ── Section 2: Search Doctor by Condition ── */}
       <div className="relative bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all w-full max-w-full overflow-hidden">
-        {/* Floating Background Decorative Accents (inspired by bisedik.edu.pk) */}
-        <div className="absolute top-4 left-6 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+        {/* Floating Background Decorative Accents (inspired by bisedik.edu.pk with real-time parallax drift) */}
+        <div data-parallax-depth="-0.15" className="absolute top-4 left-6 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
           <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
             <circle cx="8" cy="8" r="3" fill="#f59e0b" />
             <circle cx="28" cy="8" r="3" fill="#f59e0b" />
@@ -332,7 +332,7 @@ export default function HomeVisualFilters({
             <circle cx="48" cy="48" r="3" fill="#f59e0b" />
           </svg>
         </div>
-        <div className="absolute bottom-5 right-8 pointer-events-none opacity-15 dark:opacity-10 select-none hidden sm:block animate-float-sway">
+        <div data-parallax-depth="0.12" className="absolute bottom-5 right-8 pointer-events-none opacity-15 dark:opacity-10 select-none hidden sm:block animate-float-sway">
           <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
             <circle cx="25" cy="25" r="20" stroke="#f43f5e" strokeWidth="2.5" strokeDasharray="5 5" />
           </svg>
@@ -367,8 +367,8 @@ export default function HomeVisualFilters({
           </button>
         </div>
 
-        {/* Clean Symmetrical Grid for Conditions with Continuous Floating Motion */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full relative z-10">
+        {/* Clean Symmetrical Grid for Conditions with Scroll-Reveal & Continuous Floating Motion */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full relative z-10 stagger-group">
           {HOME_CONDITIONS.slice(0, 6).map((item, index) => {
             const isSelected = selectedCondition.toLowerCase() === item.id.toLowerCase();
             const style = CONDITION_STYLES[item.id] || {
@@ -384,7 +384,7 @@ export default function HomeVisualFilters({
                 key={item.id}
                 type="button"
                 onClick={() => onSelectCondition(item.id, item.label)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${motionClass} ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift scroll-reveal ${motionClass} ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
                     : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'

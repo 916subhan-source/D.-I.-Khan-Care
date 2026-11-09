@@ -6421,9 +6421,19 @@ function PatientSection({
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <picture>
-            <source srcSet="/images/private-clinic-consultation.webp" type="image/webp" />
+            <source
+              media="(max-width: 640px)"
+              srcSet="/images/private-clinic-consultation-mobile.webp"
+              type="image/webp"
+            />
+            <source
+              srcSet="/images/private-clinic-consultation.webp"
+              type="image/webp"
+            />
             <img
               src="/images/private-clinic-consultation.jpg"
+              srcSet="/images/private-clinic-consultation-mobile.jpg 600w, /images/private-clinic-consultation.jpg 1200w"
+              sizes="(max-width: 640px) 100vw, 55vw"
               alt="Doctor consultation in a private clinic in Dera Ismail Khan"
               className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-20 dark:mix-blend-luminosity"
               style={{
@@ -6432,6 +6442,7 @@ function PatientSection({
               }}
               fetchPriority="high"
               loading="eager"
+              decoding="async"
               width={1200}
               height={896}
             />

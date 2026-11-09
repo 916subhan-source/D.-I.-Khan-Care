@@ -489,8 +489,8 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
 /* ─── Scroll-Triggered Parallax & Reveal Physics ──────────────────────── */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(36px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -499,13 +499,18 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
   transform: translateY(0);
 }
 
-/* Staggered delays for child cards */
-.stagger-group > :nth-child(1) { transition-delay: 50ms; }
-.stagger-group > :nth-child(2) { transition-delay: 110ms; }
-.stagger-group > :nth-child(3) { transition-delay: 170ms; }
-.stagger-group > :nth-child(4) { transition-delay: 230ms; }
-.stagger-group > :nth-child(5) { transition-delay: 290ms; }
-.stagger-group > :nth-child(6) { transition-delay: 350ms; }
+.scroll-reveal.is-revealed:hover {
+  transform: translateY(-5px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Staggered delays for child cards in a grid */
+.stagger-group > :nth-child(1) { transition-delay: 40ms; }
+.stagger-group > :nth-child(2) { transition-delay: 90ms; }
+.stagger-group > :nth-child(3) { transition-delay: 140ms; }
+.stagger-group > :nth-child(4) { transition-delay: 190ms; }
+.stagger-group > :nth-child(5) { transition-delay: 240ms; }
+.stagger-group > :nth-child(6) { transition-delay: 290ms; }
 
 /* Continuous Floating Motion with Alternating Natural Rhythms */
 @keyframes float-gentle-a {
@@ -649,13 +654,13 @@ html.dark .pod-float-lift:hover {
   box-shadow: 0 16px 30px -8px rgba(16, 185, 129, 0.2), 0 4px 10px -2px rgba(0, 0, 0, 0.4);
 }
 
-/* Staggered entrance animations */
-.stagger-1 { animation-delay: 50ms; }
-.stagger-2 { animation-delay: 100ms; }
-.stagger-3 { animation-delay: 150ms; }
-.stagger-4 { animation-delay: 200ms; }
-.stagger-5 { animation-delay: 250ms; }
-.stagger-6 { animation-delay: 300ms; }
+/* Staggered entrance animations & scroll reveal delays */
+.stagger-1 { animation-delay: 50ms; transition-delay: 40ms; }
+.stagger-2 { animation-delay: 100ms; transition-delay: 90ms; }
+.stagger-3 { animation-delay: 150ms; transition-delay: 140ms; }
+.stagger-4 { animation-delay: 200ms; transition-delay: 190ms; }
+.stagger-5 { animation-delay: 250ms; transition-delay: 240ms; }
+.stagger-6 { animation-delay: 300ms; transition-delay: 290ms; }
 
 /* ─── 3D Timothy Ricks-Style Glassmorphic Pass & Interactive Tilt ────────── */
 @keyframes antigravity-pass-float {

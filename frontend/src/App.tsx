@@ -7280,10 +7280,9 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
   const staggerClass = `stagger-${(index % 6) + 1}`;
-  const floatMotionClass = `float-motion-${(index % 3) + 1}`;
 
   return (
-    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 card-float-lift scroll-reveal ${floatMotionClass} p-4 sm:p-5 flex flex-col justify-between shadow-xs ${staggerClass}`}>
+    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 scroll-reveal p-4 sm:p-5 flex flex-col justify-between shadow-xs ${staggerClass}`}>
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">

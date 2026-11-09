@@ -272,14 +272,12 @@ export default function HomeVisualFilters({
               glow: 'group-hover:bg-slate-100',
               badge: 'Specialist'
             };
-            const motionClass = `float-motion-${(index % 3) + 1}`;
-
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onSelectSpecialty(item.id)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift scroll-reveal ${motionClass} ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border scroll-reveal ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
                     : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
@@ -377,14 +375,12 @@ export default function HomeVisualFilters({
               glow: 'group-hover:bg-slate-100',
               badge: 'Symptom'
             };
-            const motionClass = `float-motion-${(index % 3) + 1}`;
-
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onSelectCondition(item.id, item.label)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift scroll-reveal ${motionClass} ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border scroll-reveal ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
                     : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'

@@ -6658,8 +6658,8 @@ function PatientSection({
               </span>
             </div>
 
-            {/* Tablet & Mobile Safe Inline Anchor (< 1024px, never overlaps photo) */}
-            <div className="block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[280px]">
+            {/* Tablet Safe Inline Anchor (hidden on mobile < 640px to keep hero compact, desktop uses floating pass) */}
+            <div className="hidden sm:block lg:hidden mt-3.5 pt-3 border-t border-clinic-200/60 dark:border-slate-800 w-full max-w-[280px]">
               <Hero3DPass isStatic={true} />
             </div>
           </div>

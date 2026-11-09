@@ -6781,9 +6781,9 @@ function PatientSection({
             }}
           />
 
-          {/* ── Monetag-Style 3-Step Interactive Process Flow ── */}
-          <section className="mt-8 sm:mt-12 mb-6 sm:mb-10 scroll-reveal">
-            <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+          {/* ── Monetag-Style 3-Step Interactive Process Flow (Individual Box Scroll Reveal) ── */}
+          <section className="mt-8 sm:mt-12 mb-6 sm:mb-10">
+            <div className="scroll-reveal text-center max-w-2xl mx-auto mb-6 sm:mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Zero Advance Fees &bull; Guaranteed Digital Pass</span>
@@ -6797,8 +6797,8 @@ function PatientSection({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 relative stagger-group">
-              {/* Step 1 */}
-              <div className="relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+              {/* Step 1 Box - Independent Scroll Up Motion */}
+              <div className="scroll-reveal relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 pulse-glow">
                     1
@@ -6815,8 +6815,8 @@ function PatientSection({
                 </p>
               </div>
 
-              {/* Step 2 */}
-              <div className="relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+              {/* Step 2 Box - Independent Scroll Up Motion */}
+              <div className="scroll-reveal relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-teal-500/25 pulse-glow">
                     2
@@ -6833,8 +6833,8 @@ function PatientSection({
                 </p>
               </div>
 
-              {/* Step 3 */}
-              <div className="relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 duration-300">
+              {/* Step 3 Box - Independent Scroll Up Motion */}
+              <div className="scroll-reveal relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-cyan-600/25 pulse-glow">
                     3

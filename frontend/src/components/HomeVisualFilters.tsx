@@ -249,20 +249,20 @@ export default function HomeVisualFilters({
                 key={item.id}
                 type="button"
                 onClick={() => onSelectSpecialty(item.id)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all cursor-pointer border ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
-                    : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-1'
+                    : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                 }`}
               >
-                {/* Themed Pastel Circle with Drop Shadow */}
+                {/* Themed Pastel Circle with Drop Shadow & Floating Parallax */}
                 <div
-                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2.5 transition-all border ${style.bg} ${style.border} ${style.glow} shadow-2xs group-hover:scale-105`}
+                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2.5 transition-all duration-300 border ${style.bg} ${style.border} ${style.glow} shadow-2xs group-hover:scale-110 group-hover:rotate-1`}
                 >
                   <img
                     src={item.image}
                     alt={item.label}
-                    className="w-11 h-11 sm:w-13 sm:h-13 object-contain transition-transform duration-200 group-hover:scale-110 drop-shadow-xs"
+                    className="w-11 h-11 sm:w-13 sm:h-13 object-contain transition-transform duration-300 group-hover:scale-115 drop-shadow-xs"
                     loading="lazy"
                   />
                 </div>
@@ -327,20 +327,20 @@ export default function HomeVisualFilters({
                 key={item.id}
                 type="button"
                 onClick={() => onSelectCondition(item.id, item.label)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl transition-all cursor-pointer border ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
-                    : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-1'
+                    : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                 }`}
               >
-                {/* Themed Pastel Circle */}
+                {/* Themed Pastel Circle with Parallax Hover */}
                 <div
-                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2.5 transition-all border ${style.bg} ${style.border} ${style.glow} shadow-2xs group-hover:scale-105`}
+                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2.5 transition-all duration-300 border ${style.bg} ${style.border} ${style.glow} shadow-2xs group-hover:scale-110 group-hover:-rotate-1`}
                 >
                   <img
                     src={item.image}
                     alt={item.label}
-                    className="w-11 h-11 sm:w-13 sm:h-13 object-contain transition-transform duration-200 group-hover:scale-110 drop-shadow-xs"
+                    className="w-11 h-11 sm:w-13 sm:h-13 object-contain transition-transform duration-300 group-hover:scale-115 drop-shadow-xs"
                     loading="lazy"
                   />
                 </div>

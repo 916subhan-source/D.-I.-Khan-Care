@@ -6412,8 +6412,12 @@ function PatientSection({
 
   return (
     <div style={{ zoom: typeof window !== 'undefined' && window.innerWidth < 768 ? '1' : (zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1') }} className="transition-all duration-300 mobile-zoom-safe overflow-x-hidden w-full max-w-full">
-      {/* ── Modern Hero Section with Image Banner ── */}
-      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10">
+      {/* ── Modern Hero Section with Image Banner & Cinematic Floating Atmosphere ── */}
+      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10 overflow-hidden">
+        {/* Cinematic Ambient Glow Blooms */}
+        <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
+        <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
+
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <picture>
@@ -6443,10 +6447,16 @@ function PatientSection({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
           {/* Glassmorphism Luxury Hero Card */}
           <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
-            {/* Live District Verification Status Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-3 sm:mb-4 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>★ D.I. Khan's Verified Healthcare Network</span>
+            {/* Live District Verification Status Pill & Floating Micro-Badge */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>★ D.I. Khan's Verified Healthcare Network</span>
+              </div>
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle">
+                <Sparkles className="w-3 h-3 text-emerald-500" />
+                <span>Zero Booking Fees</span>
+              </div>
             </div>
 
             {/* Heading with Gradient Accent */}
@@ -6993,10 +7003,11 @@ function PatientSection({
                   )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedDoctors.map(doctor => (
+                  {sortedDoctors.map((doctor, idx) => (
                     <DoctorCard
                       key={doctor.id}
                       doctor={doctor}
+                      index={idx}
                       onBook={openBookingModal}
                       onProfile={(doc) => {
                         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -7083,12 +7094,13 @@ function DoctorCardSkeleton() {
   );
 }
 
-function DoctorCard({ doctor, onBook, onProfile }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void }) {
+function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void; index?: number }) {
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
+  const staggerClass = `stagger-${(index % 6) + 1}`;
 
   return (
-    <div className="group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/50 dark:hover:border-emerald-500/60 transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between shadow-xs hover:shadow-md hover:-translate-y-1">
+    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 card-float-lift p-4 sm:p-5 flex flex-col justify-between shadow-xs animate-slide-up ${staggerClass}`}>
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">

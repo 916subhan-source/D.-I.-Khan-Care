@@ -403,6 +403,56 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
 .animate-scale-in     { animation: scale-in 0.2s ease-out; }
 .animate-float        { animation: float 3s ease-in-out infinite; }
 
+/* Continuous Floating Motion with Alternating Natural Rhythms */
+@keyframes float-gentle-a {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes float-gentle-b {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-gentle-c {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.float-motion-1 {
+  animation: float-gentle-a 4.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.float-motion-2 {
+  animation: float-gentle-b 4.8s ease-in-out infinite 0.7s;
+  will-change: transform;
+}
+
+.float-motion-3 {
+  animation: float-gentle-c 5.4s ease-in-out infinite 1.4s;
+  will-change: transform;
+}
+
+/* Pause animation on active hover so hover transforms don't conflict */
+.float-motion-1:hover,
+.float-motion-2:hover,
+.float-motion-3:hover {
+  animation-play-state: paused;
+}
+
 /* ─── Cinematic Floating & Parallax Physics ────────────────────────────── */
 @keyframes float-smooth {
   0%, 100% {

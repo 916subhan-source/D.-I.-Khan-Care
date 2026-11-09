@@ -6421,6 +6421,26 @@ function PatientSection({
         <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
         <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
 
+        {/* Floating Decorative Graphics (matching bisedik.edu.pk motion) */}
+        <div className="absolute top-8 left-8 pointer-events-none opacity-25 dark:opacity-15 select-none hidden lg:block animate-float-sway">
+          <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
+            <circle cx="6" cy="6" r="3" fill="#0d9488" />
+            <circle cx="26" cy="6" r="3" fill="#0d9488" />
+            <circle cx="46" cy="6" r="3" fill="#0d9488" />
+            <circle cx="6" cy="26" r="3" fill="#0d9488" />
+            <circle cx="26" cy="26" r="3" fill="#0d9488" />
+            <circle cx="46" cy="26" r="3" fill="#0d9488" />
+            <circle cx="6" cy="46" r="3" fill="#0d9488" />
+            <circle cx="26" cy="46" r="3" fill="#0d9488" />
+            <circle cx="46" cy="46" r="3" fill="#0d9488" />
+          </svg>
+        </div>
+        <div className="absolute bottom-10 left-1/3 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+          <svg width="70" height="20" viewBox="0 0 70 20" fill="none">
+            <path d="M2 10C8 2 14 18 20 10C26 2 32 18 38 10C44 2 50 18 56 10C62 2 68 18 68 10" stroke="#059669" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </div>
+
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left */}
         <div className="absolute right-0 top-0 bottom-0 w-full lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <picture>
@@ -7009,7 +7029,11 @@ function PatientSection({
                     <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>
                       Top Verified Specialists in D.I. Khan
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    {/* Organic curved underline matching bisedik reference */}
+                    <svg className="w-32 sm:w-40 h-2 sm:h-2.5 text-emerald-500/80 -mt-0.5" viewBox="0 0 140 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 7C32 2 85 2 138 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+                    </svg>
+                    <p className="text-xs text-slate-500 mt-1">
                       {sortedDoctors.length} verified specialists ready for consultation &middot; Pay cash on arrival
                     </p>
                   </div>
@@ -7115,9 +7139,10 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
   const staggerClass = `stagger-${(index % 6) + 1}`;
+  const floatMotionClass = `float-motion-${(index % 3) + 1}`;
 
   return (
-    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 card-float-lift p-4 sm:p-5 flex flex-col justify-between shadow-xs animate-slide-up ${staggerClass}`}>
+    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 card-float-lift ${floatMotionClass} p-4 sm:p-5 flex flex-col justify-between shadow-xs animate-slide-up ${staggerClass}`}>
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">

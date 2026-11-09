@@ -209,16 +209,45 @@ export default function HomeVisualFilters({
   return (
     <div className="space-y-8 sm:space-y-10 my-6 sm:my-9">
       {/* ── Section 1: Consult Best Doctors by Specialty ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all w-full max-w-full overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
+      <div className="relative bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all w-full max-w-full overflow-hidden">
+        {/* Floating Background Decorative Accents (inspired by bisedik.edu.pk) */}
+        <div className="absolute top-4 right-6 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-sway">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <circle cx="6" cy="6" r="3" fill="#0d9488" />
+            <circle cx="26" cy="6" r="3" fill="#0d9488" />
+            <circle cx="46" cy="6" r="3" fill="#0d9488" />
+            <circle cx="66" cy="6" r="3" fill="#0d9488" />
+            <circle cx="6" cy="26" r="3" fill="#0d9488" />
+            <circle cx="26" cy="26" r="3" fill="#0d9488" />
+            <circle cx="46" cy="26" r="3" fill="#0d9488" />
+            <circle cx="66" cy="26" r="3" fill="#0d9488" />
+            <circle cx="6" cy="46" r="3" fill="#0d9488" />
+            <circle cx="26" cy="46" r="3" fill="#0d9488" />
+            <circle cx="46" cy="46" r="3" fill="#0d9488" />
+            <circle cx="66" cy="46" r="3" fill="#0d9488" />
+          </svg>
+        </div>
+        <div className="absolute bottom-6 left-6 pointer-events-none opacity-15 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+          <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
+            <path d="M2 12C8 2 14 22 20 12C26 2 32 22 38 12C44 2 50 22 56 12" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 relative z-10">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/70 dark:border-emerald-800/50 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider mb-2">
               <Stethoscope className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               <span>Specialist Directory</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Top Medical Specialties
-            </h2>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Top Medical Specialties
+              </h2>
+              {/* Organic curved underline matching bisedik reference */}
+              <svg className="w-28 sm:w-36 h-2 sm:h-2.5 text-emerald-500/80 -mt-0.5" viewBox="0 0 120 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 7C28 2 70 2 118 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+              </svg>
+            </div>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">
               Consult verified specialist doctors with active clinic timings in D.I. Khan
             </p>
@@ -233,9 +262,9 @@ export default function HomeVisualFilters({
           </button>
         </div>
 
-        {/* Clean Symmetrical 6-Column Grid with Elevated Pods */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full">
-          {HOME_SPECIALTIES.map(item => {
+        {/* Clean Symmetrical 6-Column Grid with Continuously Floating Pods */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full relative z-10">
+          {HOME_SPECIALTIES.map((item, index) => {
             const isSelected = selectedSpecialty.toLowerCase() === item.id.toLowerCase();
             const style = SPECIALTY_STYLES[item.id] || {
               bg: 'bg-slate-50 dark:bg-slate-800',
@@ -243,13 +272,14 @@ export default function HomeVisualFilters({
               glow: 'group-hover:bg-slate-100',
               badge: 'Specialist'
             };
+            const motionClass = `float-motion-${(index % 3) + 1}`;
 
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onSelectSpecialty(item.id)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${motionClass} ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
                     : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
@@ -287,16 +317,42 @@ export default function HomeVisualFilters({
       </div>
 
       {/* ── Section 2: Search Doctor by Condition ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all w-full max-w-full overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
+      <div className="relative bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all w-full max-w-full overflow-hidden">
+        {/* Floating Background Decorative Accents (inspired by bisedik.edu.pk) */}
+        <div className="absolute top-4 left-6 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <circle cx="8" cy="8" r="3" fill="#f59e0b" />
+            <circle cx="28" cy="8" r="3" fill="#f59e0b" />
+            <circle cx="48" cy="8" r="3" fill="#f59e0b" />
+            <circle cx="8" cy="28" r="3" fill="#f59e0b" />
+            <circle cx="28" cy="28" r="3" fill="#f59e0b" />
+            <circle cx="48" cy="28" r="3" fill="#f59e0b" />
+            <circle cx="8" cy="48" r="3" fill="#f59e0b" />
+            <circle cx="28" cy="48" r="3" fill="#f59e0b" />
+            <circle cx="48" cy="48" r="3" fill="#f59e0b" />
+          </svg>
+        </div>
+        <div className="absolute bottom-5 right-8 pointer-events-none opacity-15 dark:opacity-10 select-none hidden sm:block animate-float-sway">
+          <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+            <circle cx="25" cy="25" r="20" stroke="#f43f5e" strokeWidth="2.5" strokeDasharray="5 5" />
+          </svg>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 relative z-10">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 border border-amber-200/70 dark:border-amber-800/50 text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-2">
               <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
               <span>Symptom Checker</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              Find Doctors by Health Symptoms
-            </h2>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Find Doctors by Health Symptoms
+              </h2>
+              {/* Organic curved underline matching bisedik reference */}
+              <svg className="w-32 sm:w-44 h-2 sm:h-2.5 text-amber-500/80 -mt-0.5" viewBox="0 0 140 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 7C32 2 85 2 138 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+              </svg>
+            </div>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">
               Select your symptoms to find experienced specialists in D.I. Khan
             </p>
@@ -311,9 +367,9 @@ export default function HomeVisualFilters({
           </button>
         </div>
 
-        {/* Clean Symmetrical Grid for Conditions */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full">
-          {HOME_CONDITIONS.slice(0, 6).map(item => {
+        {/* Clean Symmetrical Grid for Conditions with Continuous Floating Motion */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 max-w-6xl mx-auto w-full relative z-10">
+          {HOME_CONDITIONS.slice(0, 6).map((item, index) => {
             const isSelected = selectedCondition.toLowerCase() === item.id.toLowerCase();
             const style = CONDITION_STYLES[item.id] || {
               bg: 'bg-slate-50 dark:bg-slate-800',
@@ -321,13 +377,14 @@ export default function HomeVisualFilters({
               glow: 'group-hover:bg-slate-100',
               badge: 'Symptom'
             };
+            const motionClass = `float-motion-${(index % 3) + 1}`;
 
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onSelectCondition(item.id, item.label)}
-                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${
+                className={`group relative flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl cursor-pointer border pod-float-lift ${motionClass} ${
                   isSelected
                     ? 'bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-500 shadow-md scale-[1.03]'
                     : 'bg-white/80 dark:bg-slate-800/70 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'

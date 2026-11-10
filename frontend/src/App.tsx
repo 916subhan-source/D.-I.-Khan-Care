@@ -6494,22 +6494,6 @@ function PatientSection({
           </svg>
         </div>
 
-        {/* Monetag-Style Floating Stat Pill Badges over Hero Image */}
-        <div data-parallax-depth="-0.14" className="hidden xl:flex absolute top-16 right-20 z-20 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-3 shadow-xl items-center gap-3 animate-spring-pop">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-extrabold text-lg">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-          </div>
-          <div>
-            <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">100% Guaranteed</div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Digital Token &amp; Live Queue</div>
-          </div>
-        </div>
-
-        <div data-parallax-depth="0.16" className="hidden xl:flex absolute bottom-14 right-48 z-20 backdrop-blur-xl bg-white/90 dark:bg-slate-900/90 border border-teal-500/30 rounded-2xl px-4 py-2.5 shadow-xl items-center gap-2.5 animate-spring-pop stagger-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-          <span className="text-xs font-extrabold text-slate-900 dark:text-white">Pay Cash at Clinic Arrival</span>
-        </div>
-
         {/* Right photo filling the right side, seamlessly dissolving into the background on the left (displayed on tablet & desktop for optimal mobile LCP performance) */}
         <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-full sm:w-[60%] lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
           <picture>

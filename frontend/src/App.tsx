@@ -6546,18 +6546,18 @@ function PatientSection({
               </div>
             </div>
 
-            {/* Heading with Urdu Typography, RTL Alignment & Gradient Accent */}
+            {/* Heading with Modern Tech Urdu Sans Typography, Centered Alignment & Gradient Accent */}
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.65rem] font-bold text-slate-900 dark:text-white leading-[1.8] sm:leading-[1.9] tracking-normal text-right"
+              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-slate-900 dark:text-white leading-[1.3] sm:leading-[1.38] tracking-tight text-center mx-auto"
             >
               بہترین ڈاکٹرز تلاش اور بک کریں
-              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-l from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent py-0.5">
+              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
                 ڈیرہ اسماعیل خان میں
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 sm:mt-3 leading-relaxed font-normal max-w-lg">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 sm:mt-3 leading-relaxed font-normal max-w-lg text-center mx-auto">
               Skip hospital waiting lines. Reserve your guaranteed digital token with verified specialists in 30 seconds and pay cash at clinic arrival.
             </p>
 

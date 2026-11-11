@@ -293,42 +293,48 @@ class RedisManager:
             self._fallback_store[key] = (1, now + window_seconds)
             return True
 
-    # --- 3. Directory Caching ---
+    # --- 3. Directory Caching (L1 Process RAM + L2 Upstash Redis) ---
     async def get_cache(self, key: str) -> Optional[str]:
+        cache_k = f"cache:{key}"
+        now = time.time()
+        if cache_k in self._fallback_store:
+            val, exp = self._fallback_store[cache_k]
+            if now < exp:
+                return val
+            self._fallback_store.pop(cache_k, None)
+
         if not self._use_fallback and self.client:
             try:
-                return await self.client.get(f"cache:{key}")
+                val = await self.client.get(cache_k)
+                if val:
+                    self._fallback_store[cache_k] = (val, now + 120)
+                    return val
             except Exception:
                 pass
-        if f"cache:{key}" in self._fallback_store:
-            val, exp = self._fallback_store[f"cache:{key}"]
-            if time.time() < exp:
-                return val
-            self._fallback_store.pop(f"cache:{key}", None)
         return None
 
     async def set_cache(self, key: str, value: str, ttl: int = 300) -> None:
+        cache_k = f"cache:{key}"
+        now = time.time()
+        self._fallback_store[cache_k] = (value, now + ttl)
         if not self._use_fallback and self.client:
             try:
-                await self.client.set(f"cache:{key}", value, ex=ttl)
-                return
+                await self.client.set(cache_k, value, ex=ttl)
             except Exception:
                 pass
-        self._fallback_store[f"cache:{key}"] = (value, time.time() + ttl)
 
     async def clear_cache_pattern(self, pattern: str) -> None:
-        """Invalidates directory cache on doctor updates."""
-        if not self._use_fallback and self.client:
-            try:
-                keys = await self.client.keys(f"cache:{pattern}*")
-                if keys:
-                    await self.client.delete(*keys)
-                return
-            except Exception:
-                pass
-        # Clear matching from memory
-        keys_to_del = [k for k in self._fallback_store if k.startswith(f"cache:{pattern}")]
+        """Invalidates directory cache on doctor updates across both L1 and L2."""
+        prefix = f"cache:{pattern}"
+        keys_to_del = [k for k in self._fallback_store if k.startswith(prefix)]
         for k in keys_to_del:
             self._fallback_store.pop(k, None)
+        if not self._use_fallback and self.client:
+            try:
+                keys = await self.client.keys(f"{prefix}*")
+                if keys:
+                    await self.client.delete(*keys)
+            except Exception:
+                pass
 
 redis_manager = RedisManager()

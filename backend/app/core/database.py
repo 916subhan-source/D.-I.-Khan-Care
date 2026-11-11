@@ -55,12 +55,16 @@ else:
         connect_args["command_timeout"] = 30
 
     if is_serverless:
-        from sqlalchemy.pool import NullPool
+        # Keep warm connection pool across serverless invocations with Neon PgBouncer pooler
         engine = create_async_engine(
             db_url,
             echo=False,
             future=True,
-            poolclass=NullPool,
+            pool_pre_ping=True,
+            pool_size=3,
+            max_overflow=2,
+            pool_recycle=180,
+            pool_timeout=15,
             connect_args=connect_args
         )
     else:

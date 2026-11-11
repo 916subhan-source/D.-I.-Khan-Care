@@ -67,6 +67,7 @@ import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
+import JoinAsDoctorSection from './components/JoinAsDoctorSection';
 
 
 // ── Shared Domain Types, Formatters, Calling Order & Constants ──
@@ -855,7 +856,7 @@ function StaffLoginSplitView({
 }
 
 export default function App() {
-  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'assistant' | 'doctor' | 'admin' => {
+  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' => {
     try {
       const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
       if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
@@ -863,23 +864,24 @@ export default function App() {
       if (pathname === '/assistant' || pathname.startsWith('/assistant/')) return 'assistant';
       if (pathname === '/track' || pathname.startsWith('/track/')) return 'track';
       if (pathname === '/loyalty' || pathname.startsWith('/loyalty/')) return 'loyalty';
+      if (pathname === '/join-doctor' || pathname === '/join' || pathname.startsWith('/join-doctor/')) return 'join-doctor';
       if (pathname === '/doctors' || pathname.startsWith('/doctors/')) return 'patient';
       if (pathname === '/home') return 'home';
 
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'admin' || tabParam === 'doctor' || tabParam === 'assistant' || tabParam === 'track' || tabParam === 'loyalty' || tabParam === 'patient' || tabParam === 'home') {
+      if (tabParam === 'admin' || tabParam === 'doctor' || tabParam === 'assistant' || tabParam === 'track' || tabParam === 'loyalty' || tabParam === 'join-doctor' || tabParam === 'patient' || tabParam === 'home') {
         return tabParam as any;
       }
       const hash = window.location.hash.replace('#', '').replace(/^\/+/, '').toLowerCase();
-      if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track' || hash === 'loyalty' || hash === 'doctors' || hash === 'home') {
+      if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track' || hash === 'loyalty' || hash === 'join-doctor' || hash === 'doctors' || hash === 'home') {
         return hash === 'doctors' ? 'patient' : hash as any;
       }
     } catch (_) { }
     return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'loyalty' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
+  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
   const [navResetTrigger, setNavResetTrigger] = useState<number>(0);
   const [openTrackTrigger, setOpenTrackTrigger] = useState(0);
   const [showStaffModal, setShowStaffModal] = useState(false);
@@ -989,7 +991,7 @@ export default function App() {
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   // Sync tab with browser URL history
-  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track' | 'loyalty') => {
+  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track' | 'loyalty' | 'join-doctor') => {
     setActiveTab(newRole as any);
     setNavResetTrigger(prev => prev + 1);
     setShowMobileNav(false);
@@ -1001,8 +1003,9 @@ export default function App() {
           : newRole === 'assistant' ? '/assistant'
             : newRole === 'track' ? '/track'
               : newRole === 'loyalty' ? '/loyalty'
-                : newRole === 'patient' ? '/doctors'
-                  : '/';
+                : newRole === 'join-doctor' ? '/join-doctor'
+                  : newRole === 'patient' ? '/doctors'
+                    : '/';
       if (window.location.pathname.toLowerCase().replace(/\/+$/, '') !== targetPath.replace(/\/+$/, '')) {
         window.history.pushState(null, '', targetPath);
       }
@@ -1105,6 +1108,16 @@ export default function App() {
               <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">Discounts</span>
             </button>
             <button
+              onClick={() => handleSwitchRole('join-doctor')}
+              className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'join-doctor'
+                ? 'text-emerald-900 dark:text-emerald-100 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700 shadow-xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                }`}
+            >
+              <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Join as a Doctor</span>
+            </button>
+            <button
               onClick={() => setShowStaffModal(true)}
               className="ml-2 text-sm font-bold px-5 py-2 rounded-xl text-white transition-all shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)' }}
@@ -1200,6 +1213,15 @@ export default function App() {
                   <span>Loyalty Card</span>
                   <span className="ml-auto text-[10px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200 dark:bg-amber-400/20 text-amber-950 dark:text-amber-200">Discounts</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchRole('join-doctor')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${activeTab === 'join-doctor' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-700' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                >
+                  <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Join as a Doctor</span>
+                  <span className="ml-auto text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">03325255879</span>
+                </button>
               </div>
 
               <div className="pt-5 mt-5 border-t border-slate-100 dark:border-slate-800 space-y-2">
@@ -1289,6 +1311,11 @@ export default function App() {
             onBackToDirectory={() => handleSwitchRole('home')}
             onBookDoctor={() => handleSwitchRole('patient')}
           />
+        ) : activeTab === 'join-doctor' ? (
+          <JoinAsDoctorSection
+            onBackToDirectory={() => handleSwitchRole('home')}
+            onFindDoctor={() => handleSwitchRole('patient')}
+          />
         ) : (
           <PatientSection
             activeTab={activeTab}
@@ -1301,16 +1328,33 @@ export default function App() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-6">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-6 h-6 rounded-full object-contain shadow-xs bg-white" />
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
+      <footer className="border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-8">
+        <div className="max-w-7xl mx-auto px-6 space-y-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white" />
+              <div>
+                <span className="text-sm font-black text-slate-800 dark:text-slate-200" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
+                <span className="block text-[10px] text-slate-400">Doctor Appointment System</span>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <button onClick={() => handleSwitchRole('home')} className="hover:text-emerald-600 transition cursor-pointer">Home</button>
+              <button onClick={() => handleSwitchRole('patient')} className="hover:text-emerald-600 transition cursor-pointer">Find a Doctor</button>
+              <button onClick={() => handleSwitchRole('track')} className="hover:text-emerald-600 transition cursor-pointer">Track Appointment</button>
+              <button onClick={() => handleSwitchRole('loyalty')} className="hover:text-amber-600 transition cursor-pointer">VIP Loyalty Card</button>
+              <button onClick={() => handleSwitchRole('join-doctor')} className="hover:text-emerald-600 text-emerald-700 dark:text-emerald-400 font-bold transition cursor-pointer">Join as a Doctor (03325255879)</button>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-4 text-xs text-slate-400 text-center">
-            <span>Concept preview · Illustrative data</span>
-            <span className="hidden sm:inline text-slate-200 dark:text-slate-700">|</span>
-            <span>Dera Ismail Khan · Cash at clinic only</span>
+
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 text-center">
+            <span>&copy; {new Date().getFullYear()} D.I. Khan Care · Dera Ismail Khan, KP. All rights reserved.</span>
+            <span className="flex items-center gap-1.5">
+              <span>Doctor Onboarding Admin:</span>
+              <a href="tel:+923325255879" className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline">03325255879</a>
+            </span>
           </div>
         </div>
       </footer>

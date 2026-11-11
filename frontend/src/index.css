@@ -1102,3 +1102,10 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
   background-color: rgba(6, 78, 59, 0.35) !important;
   border-color: rgba(52, 211, 153, 0.35) !important;
 }
+
+/* Urdu Typography for Hero Section */
+.font-urdu-hero {
+  font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', Tahoma, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}

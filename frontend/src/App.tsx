@@ -6546,14 +6546,15 @@ function PatientSection({
               </div>
             </div>
 
-            {/* Heading with Gradient Accent */}
+            {/* Heading with Urdu Typography, RTL Alignment & Gradient Accent */}
             <h1
-              className="text-2xl sm:text-4xl lg:text-[2.75rem] font-black text-slate-900 dark:text-white leading-[1.22] sm:leading-[1.28] tracking-tight"
-              style={{ fontFamily: 'Outfit, sans-serif' }}
+              dir="rtl"
+              lang="ur"
+              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.65rem] font-bold text-slate-900 dark:text-white leading-[1.8] sm:leading-[1.9] tracking-normal text-right"
             >
-              Find &amp; Book Top Doctors
-              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                in Dera Ismail Khan
+              بہترین ڈاکٹرز تلاش اور بک کریں
+              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-l from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent py-0.5">
+                ڈیرہ اسماعیل خان میں
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 sm:mt-3 leading-relaxed font-normal max-w-lg">

@@ -6534,15 +6534,15 @@ function PatientSection({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
           {/* Glassmorphism Luxury Hero Card */}
           <div className="max-w-xl lg:max-w-2xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
-            {/* Live District Verification Status Pill & Floating Micro-Badge */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>★ D.I. Khan's Verified Healthcare Network</span>
+            {/* Live District Verification Status Pill & Floating Micro-Badge in Urdu */}
+            <div dir="rtl" className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs font-urdu-hero">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span>★ ڈیرہ اسماعیل خان کا تصدیق شدہ ہیلتھ کیئر نیٹ ورک</span>
               </div>
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle">
-                <Sparkles className="w-3 h-3 text-emerald-500" />
-                <span>Zero Booking Fees</span>
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle font-urdu-hero">
+                <Sparkles className="w-3 h-3 text-emerald-500 shrink-0" />
+                <span>زیرو بکنگ فیس · 100% مفت</span>
               </div>
             </div>
 
@@ -6557,8 +6557,12 @@ function PatientSection({
                 ڈیرہ اسماعیل خان میں
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 sm:mt-3 leading-relaxed font-normal max-w-lg text-center mx-auto">
-              Skip hospital waiting lines. Reserve your guaranteed digital token with verified specialists in 30 seconds and pay cash at clinic arrival.
+            <p
+              dir="rtl"
+              lang="ur"
+              className="font-urdu-hero text-xs sm:text-sm md:text-[14.5px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.8] font-medium max-w-lg text-center mx-auto"
+            >
+              ہسپتالوں کی لمبی قطاروں سے بچیں۔ صرف 30 سیکنڈ میں تصدیق شدہ ماہر ڈاکٹر سے اپنا گارنٹی شدہ ڈیجیٹل ٹوکن حاصل کریں اور کلینک پہنچ کر فیس ادا کریں۔
             </p>
 
             {/* Unified Floating Smart Search Bar in Hero */}

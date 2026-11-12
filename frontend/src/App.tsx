@@ -6590,14 +6590,14 @@ function PatientSection({
               </div>
             </div>
 
-            {/* Heading with Modern Tech Urdu Sans Typography, Centered Alignment & Gradient Accent */}
+            {/* Heading with Authentic Urdu Display Typography, Centered Alignment & Gradient Accent */}
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-slate-900 dark:text-white leading-[1.3] sm:leading-[1.38] tracking-tight text-center mx-auto"
+              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.75rem] font-bold text-slate-900 dark:text-white leading-[1.7] sm:leading-[1.78] tracking-normal text-center mx-auto"
             >
               بہترین ڈاکٹرز تلاش اور بک کریں
-              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
+              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-l from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent py-1">
                 ڈیرہ اسماعیل خان میں
               </span>
             </h1>

@@ -1922,11 +1922,10 @@ function LoyaltyCardSection({
                           const formEl = document.getElementById('loyalty-apply-form');
                           if (formEl) formEl.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
-                          isSelected
-                            ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-400 dark:border-amber-500/60 shadow-sm ring-2 ring-amber-400/40'
-                            : 'bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/90 dark:border-slate-700 hover:border-amber-400 hover:bg-white dark:hover:bg-slate-800 shadow-2xs'
-                        }`}
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${isSelected
+                          ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-400 dark:border-amber-500/60 shadow-sm ring-2 ring-amber-400/40'
+                          : 'bg-slate-50/70 dark:bg-slate-800/60 border-slate-200/90 dark:border-slate-700 hover:border-amber-400 hover:bg-white dark:hover:bg-slate-800 shadow-2xs'
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <img
@@ -1952,11 +1951,10 @@ function LoyaltyCardSection({
                           <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-md">
                             ★ {Number(doc.loyalty_discount_percent ?? 10)}% OFF
                           </span>
-                          <span className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-colors ${
-                            isSelected
-                              ? 'bg-amber-500 text-slate-950 font-black'
-                              : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-400 hover:text-slate-950'
-                          }`}>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-colors ${isSelected
+                            ? 'bg-amber-500 text-slate-950 font-black'
+                            : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-amber-400 hover:text-slate-950'
+                            }`}>
                             {isSelected ? '✓ Selected' : 'Apply for Dr.'}
                           </span>
                         </div>
@@ -1984,221 +1982,221 @@ function LoyaltyCardSection({
                 </div>
               </div>
 
-            {formError && (
-              <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-xs font-semibold text-red-700 dark:text-red-300 flex items-center gap-2 animate-fade-in">
-                <span>⚠️</span>
-                <span>{formError}</span>
-              </div>
-            )}
+              {formError && (
+                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-xs font-semibold text-red-700 dark:text-red-300 flex items-center gap-2 animate-fade-in">
+                  <span>⚠️</span>
+                  <span>{formError}</span>
+                </div>
+              )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
 
-                {/* 1. Full Name */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    1. Patient Full Name * <span className="text-[10px] text-emerald-600">(Required)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Muhammad Ahmed Khan"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
+                  {/* 1. Full Name */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      1. Patient Full Name * <span className="text-[10px] text-emerald-600">(Required)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="e.g. Muhammad Ahmed Khan"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* 2. Guardian Name */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      2. Father's / Husband's Name <span className="text-[10px] text-slate-400">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={guardianName}
+                      onChange={(e) => setGuardianName(e.target.value)}
+                      placeholder="e.g. Tariq Khan"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* 3. Date of Birth */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      3. Date of Birth * <span className="text-[10px] text-emerald-600">(Required)</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={dob}
+                      onChange={(e) => setDob(e.target.value)}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* 4. Gender */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      4. Gender * <span className="text-[10px] text-emerald-600">(Required)</span>
+                    </label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* 5. CNIC / B-Form */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      5. CNIC / B-Form Number <span className="text-[10px] text-slate-400">(Optional, 13 digits)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={cnic}
+                      onChange={(e) => setCnic(e.target.value)}
+                      placeholder="e.g. 12101-1234567-1"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
+                    />
+                  </div>
+
+                  {/* 6. Mobile Number */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      6. Mobile Number * <span className="text-[10px] text-emerald-600">(Required)</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      placeholder="03001234567"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
+                    />
+                  </div>
+
+                  {/* 7. WhatsApp Number */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      7. WhatsApp Number <span className="text-[10px] text-slate-400">(If different from mobile)</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                      placeholder="Leave blank if same as mobile"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
+                    />
+                  </div>
+
+                  {/* 8. Email Address */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      8. Email Address * <span className="text-[10px] text-emerald-600">(For digital card pass)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g. ahmed.khan@example.com"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* 9. Residential Address */}
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      9. Residential Street Address * <span className="text-[10px] text-emerald-600">(Required)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="House / Street / Mohallah"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* 10. City */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      10. City * <span className="text-[10px] text-emerald-600">(Required)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="Dera Ismail Khan"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* Specialist: Only specialists who have activated the loyalty card program */}
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Specialist (Active Loyalty Program) * <span className="text-[10px] text-emerald-600">(Verified Partner)</span>
+                    </label>
+                    <select
+                      value={preferredDoctor}
+                      onChange={(e) => setPreferredDoctor(e.target.value)}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer font-medium"
+                    >
+                      <option value="">-- Select Active Specialist ({activeLoyaltyDoctors.length} available) --</option>
+                      {activeLoyaltyDoctors.map((d: any) => (
+                        <option key={d.id} value={d.id}>
+                          {d.full_name} ({d.specialty}) &bull; Active VIP Partner ({Number(d.loyalty_discount_percent ?? 10)}% OFF)
+                        </option>
+                      ))}
+                    </select>
+                    {activeLoyaltyDoctors.length === 0 ? (
+                      <p className="text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-semibold">
+                        ⚠️ No specialists currently have the Loyalty Card program activated.
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                        You can only apply for specialists who have activated the VIP Loyalty Card program.
+                      </p>
+                    )}
+                  </div>
+
                 </div>
 
-                {/* 2. Guardian Name */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    2. Father's / Husband's Name <span className="text-[10px] text-slate-400">(Optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={guardianName}
-                    onChange={(e) => setGuardianName(e.target.value)}
-                    placeholder="e.g. Tariq Khan"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-
-                {/* 3. Date of Birth */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    3. Date of Birth * <span className="text-[10px] text-emerald-600">(Required)</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-
-                {/* 4. Gender */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    4. Gender * <span className="text-[10px] text-emerald-600">(Required)</span>
-                  </label>
-                  <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                {/* Submit CTA */}
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    type="submit"
+                    disabled={submitting || activeLoyaltyDoctors.length === 0}
+                    className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
                   >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
+                        <span>Generating Your VIP Loyalty Card...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="w-4 h-4 text-slate-950" />
+                        <span>Submit Application &amp; Generate Digital Card &rarr;</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[11px] text-slate-400 text-center mt-2 font-normal">
+                    Instant free verification &bull; Zero credit card or payment needed &bull; Lifetime specialist discounts
+                  </p>
                 </div>
-
-                {/* 5. CNIC / B-Form */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    5. CNIC / B-Form Number <span className="text-[10px] text-slate-400">(Optional, 13 digits)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={cnic}
-                    onChange={(e) => setCnic(e.target.value)}
-                    placeholder="e.g. 12101-1234567-1"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
-                  />
-                </div>
-
-                {/* 6. Mobile Number */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    6. Mobile Number * <span className="text-[10px] text-emerald-600">(Required)</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="03001234567"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
-                  />
-                </div>
-
-                {/* 7. WhatsApp Number */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    7. WhatsApp Number <span className="text-[10px] text-slate-400">(If different from mobile)</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="Leave blank if same as mobile"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
-                  />
-                </div>
-
-                {/* 8. Email Address */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    8. Email Address * <span className="text-[10px] text-emerald-600">(For digital card pass)</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. ahmed.khan@example.com"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-
-                {/* 9. Residential Address */}
-                <div className="sm:col-span-2">
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    9. Residential Street Address * <span className="text-[10px] text-emerald-600">(Required)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="House / Street / Mohallah"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-
-                {/* 10. City */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    10. City * <span className="text-[10px] text-emerald-600">(Required)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Dera Ismail Khan"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-
-                {/* Specialist: Only specialists who have activated the loyalty card program */}
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Specialist (Active Loyalty Program) * <span className="text-[10px] text-emerald-600">(Verified Partner)</span>
-                  </label>
-                  <select
-                    value={preferredDoctor}
-                    onChange={(e) => setPreferredDoctor(e.target.value)}
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer font-medium"
-                  >
-                    <option value="">-- Select Active Specialist ({activeLoyaltyDoctors.length} available) --</option>
-                    {activeLoyaltyDoctors.map((d: any) => (
-                      <option key={d.id} value={d.id}>
-                        {d.full_name} ({d.specialty}) &bull; Active VIP Partner ({Number(d.loyalty_discount_percent ?? 10)}% OFF)
-                      </option>
-                    ))}
-                  </select>
-                  {activeLoyaltyDoctors.length === 0 ? (
-                    <p className="text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-semibold">
-                      ⚠️ No specialists currently have the Loyalty Card program activated.
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-                      You can only apply for specialists who have activated the VIP Loyalty Card program.
-                    </p>
-                  )}
-                </div>
-
-              </div>
-
-              {/* Submit CTA */}
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  type="submit"
-                  disabled={submitting || activeLoyaltyDoctors.length === 0}
-                  className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-2xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                      <span>Generating Your VIP Loyalty Card...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-4 h-4 text-slate-950" />
-                      <span>Submit Application &amp; Generate Digital Card &rarr;</span>
-                    </>
-                  )}
-                </button>
-                <p className="text-[11px] text-slate-400 text-center mt-2 font-normal">
-                  Instant free verification &bull; Zero credit card or payment needed &bull; Lifetime specialist discounts
-                </p>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       </div>
     </div>
@@ -4356,11 +4354,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('about');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'about'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'about'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <User className="w-3.5 h-3.5" />
             <span>About Doctor</span>
@@ -4374,11 +4371,10 @@ function DoctorProfileAndBookingView({
               const el = document.getElementById('oladoc-booking-card');
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'booking'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'booking'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Book Slots</span>
@@ -4391,11 +4387,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('reviews');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <Star className="w-3.5 h-3.5" />
             <span>Reviews ({reviewsSummary?.total_reviews || 128})</span>
@@ -4408,11 +4403,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('schedule');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <Clock className="w-3.5 h-3.5" />
             <span>Clinic Timings</span>
@@ -4425,11 +4419,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('services');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'services'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'services'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <Stethoscope className="w-3.5 h-3.5" />
             <span>Services</span>
@@ -4442,11 +4435,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('conditions');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <Award className="w-3.5 h-3.5" />
             <span>Conditions</span>
@@ -4459,11 +4451,10 @@ function DoctorProfileAndBookingView({
               setProfileActiveTab('faqs');
               setMobileActiveTab('profile');
             }}
-            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
-              mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
-                ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
+              ? 'bg-clinic-700 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
             <span>FAQs</span>
@@ -4722,7 +4713,7 @@ function DoctorProfileAndBookingView({
                                 if (parsed && typeof parsed === 'object') {
                                   customEntry = parsed[day.toLowerCase()] || parsed[day];
                                 }
-                              } catch {}
+                              } catch { }
                             }
 
                             if (customEntry) {
@@ -5596,22 +5587,20 @@ function DoctorProfileAndBookingView({
                 <button
                   type="button"
                   onClick={() => { setReviewModalView('list'); setReviewError(''); }}
-                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 ${
-                    reviewModalView === 'list'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 ${reviewModalView === 'list'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
                 >
                   <span>All Reviews ({reviewsSummary?.total_reviews || 0})</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { setReviewModalView('write'); setReviewError(''); }}
-                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer ${
-                    reviewModalView === 'write'
-                      ? 'bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-600 text-white shadow-md shadow-teal-700/25'
-                      : 'text-teal-700 dark:text-teal-400 hover:bg-teal-500/10'
-                  }`}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer ${reviewModalView === 'write'
+                    ? 'bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-600 text-white shadow-md shadow-teal-700/25'
+                    : 'text-teal-700 dark:text-teal-400 hover:bg-teal-500/10'
+                    }`}
                 >
                   <Star className={`w-3.5 h-3.5 ${reviewModalView === 'write' ? 'fill-white text-white' : 'fill-teal-600 text-teal-600'}`} />
                   <span>Mark / Write Review</span>
@@ -5634,11 +5623,10 @@ function DoctorProfileAndBookingView({
                         {[1, 2, 3, 4, 5].map((s) => (
                           <Star
                             key={s}
-                            className={`w-4 h-4 ${
-                              s <= Math.round(reviewsSummary ? reviewsSummary.average_rating : 5)
-                                ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
-                                : 'text-slate-300 dark:text-slate-700'
-                            }`}
+                            className={`w-4 h-4 ${s <= Math.round(reviewsSummary ? reviewsSummary.average_rating : 5)
+                              ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
+                              : 'text-slate-300 dark:text-slate-700'
+                              }`}
                           />
                         ))}
                       </div>
@@ -5684,9 +5672,8 @@ function DoctorProfileAndBookingView({
                             {[1, 2, 3, 4, 5].map((s) => (
                               <Star
                                 key={s}
-                                className={`w-3.5 h-3.5 ${
-                                  s <= rev.rating ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.4)]' : 'text-slate-300 dark:text-slate-700'
-                                }`}
+                                className={`w-3.5 h-3.5 ${s <= rev.rating ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.4)]' : 'text-slate-300 dark:text-slate-700'
+                                  }`}
                               />
                             ))}
                             <span className="text-[11px] text-slate-400 ml-1.5 font-mono">{rev.patient_phone}</span>
@@ -5854,17 +5841,15 @@ function DoctorProfileAndBookingView({
                                 if (appt.existing_rating) setReviewRating(appt.existing_rating);
                                 if (appt.existing_comment) setReviewComment(appt.existing_comment);
                               }}
-                              className={`p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${
-                                isSelected
-                                  ? 'border-teal-500 bg-teal-500/10 dark:bg-teal-950/40 ring-1 ring-teal-500 shadow-xs'
-                                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/70 hover:border-slate-300 dark:hover:border-slate-600'
-                              }`}
+                              className={`p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${isSelected
+                                ? 'border-teal-500 bg-teal-500/10 dark:bg-teal-950/40 ring-1 ring-teal-500 shadow-xs'
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/70 hover:border-slate-300 dark:hover:border-slate-600'
+                                }`}
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <div
-                                  className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                                    isSelected ? 'border-teal-600 bg-teal-600' : 'border-slate-300 dark:border-slate-600'
-                                  }`}
+                                  className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? 'border-teal-600 bg-teal-600' : 'border-slate-300 dark:border-slate-600'
+                                    }`}
                                 >
                                   {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                                 </div>
@@ -5914,15 +5899,14 @@ function DoctorProfileAndBookingView({
                         Your Rating <span className="text-rose-500">*</span>
                       </label>
                       <div
-                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all duration-200 ${
-                          (hoverRating || reviewRating) >= 5
-                            ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-                            : (hoverRating || reviewRating) >= 4
+                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-all duration-200 ${(hoverRating || reviewRating) >= 5
+                          ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+                          : (hoverRating || reviewRating) >= 4
                             ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
                             : (hoverRating || reviewRating) >= 3
-                            ? 'bg-teal-500/15 border-teal-500/40 text-teal-700 dark:text-teal-300'
-                            : 'bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-300'
-                        }`}
+                              ? 'bg-teal-500/15 border-teal-500/40 text-teal-700 dark:text-teal-300'
+                              : 'bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-300'
+                          }`}
                       >
                         {(hoverRating || reviewRating) === 5 && '★★★★★ Excellent (5.0)'}
                         {(hoverRating || reviewRating) === 4 && '★★★★ Very Good (4.0)'}
@@ -5947,11 +5931,10 @@ function DoctorProfileAndBookingView({
                               title={`Rate ${s} out of 5 stars`}
                             >
                               <Star
-                                className={`w-7 h-7 sm:w-8 sm:h-8 transition-all duration-200 ${
-                                  isFilled
-                                    ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.65)]'
-                                    : 'text-slate-300 dark:text-slate-600 fill-slate-200/50 dark:fill-slate-800/40 hover:text-amber-300'
-                                }`}
+                                className={`w-7 h-7 sm:w-8 sm:h-8 transition-all duration-200 ${isFilled
+                                  ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.65)]'
+                                  : 'text-slate-300 dark:text-slate-600 fill-slate-200/50 dark:fill-slate-800/40 hover:text-amber-300'
+                                  }`}
                               />
                             </button>
                           );
@@ -5989,11 +5972,10 @@ function DoctorProfileAndBookingView({
                                 setReviewSelectedTags([...reviewSelectedTags, tag]);
                               }
                             }}
-                            className={`text-xs px-3 py-1.5 rounded-xl border font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                              isSelected
-                                ? 'bg-gradient-to-r from-teal-500/15 to-emerald-500/15 border-teal-500 text-teal-800 dark:text-teal-300 font-bold shadow-[0_0_12px_rgba(20,184,166,0.22)] scale-[1.03]'
-                                : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300'
-                            }`}
+                            className={`text-xs px-3 py-1.5 rounded-xl border font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${isSelected
+                              ? 'bg-gradient-to-r from-teal-500/15 to-emerald-500/15 border-teal-500 text-teal-800 dark:text-teal-300 font-bold shadow-[0_0_12px_rgba(20,184,166,0.22)] scale-[1.03]'
+                              : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300'
+                              }`}
                           >
                             {isSelected ? (
                               <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 stroke-[3]" />
@@ -6103,7 +6085,7 @@ function PatientSection({
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch (_) {}
+    } catch (_) { }
     return [];
   });
   const [loading, setLoading] = useState<boolean>(() => {
@@ -6113,7 +6095,7 @@ function PatientSection({
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) return false;
       }
-    } catch (_) {}
+    } catch (_) { }
     return true;
   });
   const [selectedLocality, setSelectedLocality] = useState('All D.I. Khan');
@@ -6575,21 +6557,21 @@ function PatientSection({
               </div>
             </div>
 
-            {/* Heading with Authentic Urdu Display Typography, Centered Alignment & Gradient Accent */}
+            {/* Heading with Modern Bold Decent Urdu Typography, Centered Alignment & Gradient Accent */}
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.75rem] font-bold text-slate-900 dark:text-white leading-[1.7] sm:leading-[1.78] tracking-normal text-center mx-auto"
+              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.35] sm:leading-[1.4] tracking-tight text-center mx-auto"
             >
               بہترین ڈاکٹرز تلاش اور بک کریں
-              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-l from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent py-1">
+              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
                 ڈیرہ اسماعیل خان میں
               </span>
             </h1>
             <p
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-xs sm:text-sm md:text-[14.5px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.8] font-medium max-w-lg text-center mx-auto"
+              className="font-urdu-hero text-xs sm:text-sm md:text-[14.5px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.65] font-semibold max-w-lg text-center mx-auto"
             >
               ہسپتالوں کی لمبی قطاروں سے بچیں۔ صرف 30 سیکنڈ میں تصدیق شدہ ماہر ڈاکٹر سے اپنا گارنٹی شدہ ڈیجیٹل ٹوکن حاصل کریں اور کلینک پہنچ کر فیس ادا کریں۔
             </p>
@@ -10104,8 +10086,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     });
                                   }}
                                   className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
-                                      ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
-                                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
+                                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
+                                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
                                     }`}
                                   title={`Toggle ${day.full} as a Special Day`}
                                 >
@@ -14912,8 +14894,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                     });
                                   }}
                                   className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
-                                      ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
-                                      : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
+                                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
+                                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
                                     }`}
                                   title={`Toggle ${day.full} as a Special Day`}
                                 >

@@ -1103,9 +1103,9 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
   border-color: rgba(52, 211, 153, 0.35) !important;
 }
 
-/* Modern Bold Decent Urdu Typography */
+/* Modern Sans-Serif Urdu Typography */
 .font-urdu-hero {
-  font-family: 'Baloo Bhaijaan 2', 'Noto Sans Arabic', 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, system-ui, sans-serif;
+  font-family: 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }

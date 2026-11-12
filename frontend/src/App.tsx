@@ -1360,7 +1360,7 @@ export default function App() {
       </footer>
       {/* ── Modern Mobile Bottom Sticky Navigation Bar (< 768px) ── */}
       <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200/90 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[calc(0.45rem+env(safe-area-inset-bottom,0px))] transition-all">
-        <div className="max-w-md mx-auto grid grid-cols-5 gap-1">
+        <div className="max-w-md mx-auto grid grid-cols-4 gap-1">
           {/* Tab 1: Home */}
           <button
             type="button"
@@ -1400,22 +1400,7 @@ export default function App() {
             <span className="text-[10px] leading-tight tracking-tight">Track Slip</span>
           </button>
 
-          {/* Tab 4: Patient Emergency & 1122 Help */}
-          <button
-            type="button"
-            onClick={() => setShowEmergencyModal(true)}
-            aria-label="Emergency 1122 Rescue Help"
-            className="flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all text-rose-600 dark:text-rose-400 hover:text-rose-700 active:scale-95 cursor-pointer"
-            title="Emergency & 1122 Rescue Help"
-          >
-            <div className="relative">
-              <PhoneCall className="w-5 h-5 mb-0.5 stroke-2" />
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-            </div>
-            <span className="text-[10px] leading-tight tracking-tight font-bold">1122 Help</span>
-          </button>
-
-          {/* Tab 5: More / Quick Menu Drawer */}
+          {/* Tab 4: More / Quick Menu Drawer */}
           <button
             type="button"
             onClick={() => setShowMobileNav(true)}
@@ -6776,41 +6761,8 @@ function PatientSection({
       {/* ── In Home View: Visual Filter Carousels / In Directory View: Horizontal Specialty Pills ── */}
       {isHomeView ? (
         <div id="home-filters-container" className="max-w-7xl mx-auto px-4 sm:px-6">
-          <HomeVisualFilters
-            selectedSpecialty={selectedSpecialty}
-            selectedCondition={selectedCondition}
-            onSelectSpecialty={(spec) => {
-              if (selectedSpecialty.toLowerCase() === spec.toLowerCase()) {
-                setSelectedSpecialty('All specialties');
-              } else {
-                setSelectedSpecialty(spec);
-                setSelectedCondition('');
-                setSelectedConditionLabel('');
-              }
-              scrollToResults();
-            }}
-            onSelectCondition={(condId, label) => {
-              if (selectedCondition.toLowerCase() === condId.toLowerCase()) {
-                setSelectedCondition('');
-                setSelectedConditionLabel('');
-              } else {
-                setSelectedCondition(condId);
-                setSelectedConditionLabel(label);
-                setSelectedSpecialty('All specialties');
-              }
-              scrollToResults();
-            }}
-            onViewAll={() => {
-              setSelectedSpecialty('All specialties');
-              setSelectedCondition('');
-              setSelectedConditionLabel('');
-              setSearchTerm('');
-              onSwitchRole?.('patient');
-            }}
-          />
-
-          {/* ── Monetag-Style 3-Step Interactive Process Flow (Individual Box Scroll Reveal) ── */}
-          <section className="mt-8 sm:mt-12 mb-6 sm:mb-10">
+          {/* ── Monetag-Style 3-Step Interactive Process Flow (Placed before Symptoms Checker & Specialty Directory) ── */}
+          <section className="mt-6 sm:mt-10 mb-8 sm:mb-12">
             <div className="scroll-reveal text-center max-w-2xl mx-auto mb-6 sm:mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-2.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -6880,6 +6832,39 @@ function PatientSection({
               </div>
             </div>
           </section>
+
+          <HomeVisualFilters
+            selectedSpecialty={selectedSpecialty}
+            selectedCondition={selectedCondition}
+            onSelectSpecialty={(spec) => {
+              if (selectedSpecialty.toLowerCase() === spec.toLowerCase()) {
+                setSelectedSpecialty('All specialties');
+              } else {
+                setSelectedSpecialty(spec);
+                setSelectedCondition('');
+                setSelectedConditionLabel('');
+              }
+              scrollToResults();
+            }}
+            onSelectCondition={(condId, label) => {
+              if (selectedCondition.toLowerCase() === condId.toLowerCase()) {
+                setSelectedCondition('');
+                setSelectedConditionLabel('');
+              } else {
+                setSelectedCondition(condId);
+                setSelectedConditionLabel(label);
+                setSelectedSpecialty('All specialties');
+              }
+              scrollToResults();
+            }}
+            onViewAll={() => {
+              setSelectedSpecialty('All specialties');
+              setSelectedCondition('');
+              setSelectedConditionLabel('');
+              setSearchTerm('');
+              onSwitchRole?.('patient');
+            }}
+          />
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 py-3 sm:py-3.5 shadow-2xs">

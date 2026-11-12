@@ -64,7 +64,7 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
           <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 max-w-3xl space-y-4">
+          <div className="relative z-10 max-w-4xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold tracking-wider uppercase backdrop-blur-md">
               <Sparkles className="w-4 h-4 text-emerald-400" />
               <span>For Doctors &amp; Specialists · ڈی آئی خان کے ڈاکٹرز کے لیے</span>
@@ -74,15 +74,15 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
               className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Join as a Verified Doctor on{' '}
-              <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
-                D.I. Khan Care
+              Join as a Verified Doctor{' '}
+              <span className="inline-block whitespace-nowrap bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+                on D.I. Khan Care
               </span>
             </h1>
 
             {/* Urdu Title & Subheading */}
             <div dir="rtl" className="pt-1">
-              <h2 className="font-urdu-hero text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-100 leading-relaxed">
+              <h2 className="font-urdu-hero text-lg sm:text-2xl lg:text-[1.75rem] font-bold text-emerald-100 leading-[1.8] max-w-full">
                 اگر آپ بطور ڈاکٹر شامل ہونا چاہتے ہیں تو انتظامیہ سے رابطہ کریں
               </h2>
             </div>

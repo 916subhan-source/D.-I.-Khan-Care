@@ -1116,4 +1116,5 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
   font-family: 'Noto Nastaliq Urdu', 'Gulzar', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  overflow: visible;
 }

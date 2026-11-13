@@ -277,6 +277,8 @@ export function sortCallingSequence(
       isCanc: boolean,
       item: AppointmentItem
     ) => {
+      const isLatePushed = Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]'));
+
       if (isToday && isConf && !isComp && !isCanc) {
         if (callingShift) {
           const itemMins = getApptMinutesFromMidnight(item);
@@ -284,15 +286,23 @@ export function sortCallingSequence(
           const isSameAsActive =
             (callingShift.activeShiftType === 'MORNING' && isMorningAppt) ||
             (callingShift.activeShiftType === 'EVENING' && !isMorningAppt);
-          return isSameAsActive ? 1 : 2;
+          if (isSameAsActive) {
+            // Rank 1: On-time patients in active shift
+            // Rank 2: Late / Not Arrived patients pushed to the end of this active shift
+            return isLatePushed ? 2 : 1;
+          }
+          // Other shift of today:
+          // Rank 3: On-time in other shift
+          // Rank 4: Late in other shift
+          return isLatePushed ? 4 : 3;
         }
-        return 1;
+        return isLatePushed ? 2 : 1;
       }
-      if (isToday && isPend && !isComp && !isCanc) return 3;
-      if (!isToday && isConf && !isComp && !isCanc) return 4;
-      if (!isToday && isPend && !isComp && !isCanc) return 5;
-      if (isComp) return 6;
-      return 7;
+      if (isToday && isPend && !isComp && !isCanc) return 5;
+      if (!isToday && isConf && !isComp && !isCanc) return 6;
+      if (!isToday && isPend && !isComp && !isCanc) return 7;
+      if (isComp) return 8;
+      return 9;
     };
 
     const rankA = getRank(isTodayA, isConfirmedA, isPendingA, isCompletedA, isCancelledA, a);
@@ -300,7 +310,7 @@ export function sortCallingSequence(
 
     if (rankA !== rankB) return rankA - rankB;
 
-    if (rankA === 1 || rankA === 2) {
+    if (rankA === 1) {
       const minA = getApptMinutesFromMidnight(a);
       const minB = getApptMinutesFromMidnight(b);
       if (minA !== minB) return minA - minB;
@@ -309,13 +319,32 @@ export function sortCallingSequence(
       if (tokA !== tokB) return tokA - tokB;
     }
 
-    if (rankA === 3) {
+    if (rankA === 2) {
+      // Late patients pushed to the end of the shift: ordered by token number or time
+      const tokA = getApptTokenSeq(a.slip_number);
+      const tokB = getApptTokenSeq(b.slip_number);
+      if (tokA !== tokB) return tokA - tokB;
       const minA = getApptMinutesFromMidnight(a);
       const minB = getApptMinutesFromMidnight(b);
       if (minA !== minB) return minA - minB;
     }
 
-    if (rankA === 6) {
+    if (rankA === 3 || rankA === 4) {
+      const minA = getApptMinutesFromMidnight(a);
+      const minB = getApptMinutesFromMidnight(b);
+      if (minA !== minB) return minA - minB;
+      const tokA = getApptTokenSeq(a.slip_number);
+      const tokB = getApptTokenSeq(b.slip_number);
+      if (tokA !== tokB) return tokA - tokB;
+    }
+
+    if (rankA === 5) {
+      const minA = getApptMinutesFromMidnight(a);
+      const minB = getApptMinutesFromMidnight(b);
+      if (minA !== minB) return minA - minB;
+    }
+
+    if (rankA === 8) {
       const timeA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
       const timeB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
       if (timeA !== timeB) return timeB - timeA;

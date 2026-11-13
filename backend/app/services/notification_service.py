@@ -18,7 +18,11 @@ import ssl
 import logging
 import re
 import urllib.parse
-import httpx
+try:
+    import httpx
+except ImportError:
+    httpx = None
+import aiohttp
 from email.message import EmailMessage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -292,16 +296,29 @@ class NotificationService:
             "text": text
         }
         try:
-            async with httpx.AsyncClient(timeout=12.0) as client:
-                resp = await client.post(url, headers=headers, json=payload)
-                if resp.status_code in (200, 201):
-                    logger.info(f"[Evolution WhatsApp SUCCESS] Message sent to {clean_number}")
-                    print(f"[Evolution WhatsApp SUCCESS] Delivered to {clean_number}")
-                    return True
-                else:
-                    logger.error(f"[Evolution WhatsApp FAILED] {resp.status_code}: {resp.text}")
-                    print(f"[Evolution WhatsApp FAILED] Status {resp.status_code} for {clean_number}")
-                    return False
+            if httpx is not None:
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    resp = await client.post(url, headers=headers, json=payload)
+                    if resp.status_code in (200, 201):
+                        logger.info(f"[Evolution WhatsApp SUCCESS] Message sent to {clean_number}")
+                        print(f"[Evolution WhatsApp SUCCESS] Delivered to {clean_number}")
+                        return True
+                    else:
+                        logger.error(f"[Evolution WhatsApp FAILED] {resp.status_code}: {resp.text}")
+                        print(f"[Evolution WhatsApp FAILED] Status {resp.status_code} for {clean_number}")
+                        return False
+            else:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(url, headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=12.0)) as resp:
+                        if resp.status in (200, 201):
+                            logger.info(f"[Evolution WhatsApp SUCCESS] Message sent to {clean_number}")
+                            print(f"[Evolution WhatsApp SUCCESS] Delivered to {clean_number}")
+                            return True
+                        else:
+                            txt = await resp.text()
+                            logger.error(f"[Evolution WhatsApp FAILED] {resp.status}: {txt}")
+                            print(f"[Evolution WhatsApp FAILED] Status {resp.status} for {clean_number}")
+                            return False
         except Exception as e:
             logger.error(f"[Evolution WhatsApp ERROR] Failed sending to {clean_number}: {e}")
             print(f"[Evolution WhatsApp ERROR] {e}")

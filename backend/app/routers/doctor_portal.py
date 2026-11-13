@@ -1382,6 +1382,96 @@ async def complete_appointment_by_doctor(
     return {"status": "SUCCESS", "message": "Consultation marked as completed.", "appointment_id": appt.id}
 
 
+@router.post("/appointments/{appointment_id}/mark-late")
+async def mark_appointment_late_by_doctor(
+    appointment_id: str,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Doctor marks patient as 'not arrived / late' during live calling time.
+    Pushes the appointment to the last number of that shift.
+    """
+    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    appt_res = await db.execute(
+        select(Appointment).options(
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.slot)
+        ).where(and_(Appointment.id == appointment_id, Appointment.doctor_id == doc.id))
+    )
+    appt = appt_res.unique().scalar_one_or_none()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found or unauthorized.")
+
+    current_notes = appt.notes or ""
+    if "[LATE_PUSHED_TO_END]" not in current_notes:
+        appt.notes = (current_notes + "\n[LATE_PUSHED_TO_END]").strip()
+        await db.commit()
+        await db.refresh(appt)
+
+        # Notify patient on WhatsApp
+        phone = appt.patient_phone
+        if phone:
+            from app.services.notification_service import send_whatsapp
+            doc_name = f"Dr. {appt.doctor.user.full_name}" if appt.doctor and appt.doctor.user else "Doctor"
+            slip_str = f" (#{appt.slip_number})" if appt.slip_number else ""
+            msg = (
+                f"⚠️ *اطلاع برائے مریض* ⚠️\n\n"
+                f"محترم/محترمہ *{appt.patient_name or 'مریض'}*،\n"
+                f"آپ کلینک کالنگ کے وقت پر موجود نہیں تھے، اس لیے آپ کا ٹوکن{slip_str} آج کی شفٹ کے اختتام (آخری نمبر) پر منتقل کر دیا گیا ہے۔\n\n"
+                f"👨‍⚕️ *ڈاکٹر:* {doc_name}\n"
+                f"🏥 *کلینک:* {appt.doctor.clinic_name or 'Clinic'}\n\n"
+                f"براہ کرم شفٹ ختم ہونے سے پہلے کلینک تشریف لائیں تاکہ آپ کا معائنہ ہو سکے۔ شکریہ!\n"
+                f"*D.I. Khan Care Team*"
+            )
+            background_tasks.add_task(send_whatsapp, phone, msg)
+
+    return {
+        "status": "SUCCESS",
+        "message": "Patient marked as not arrived. Pushed to the end of the shift.",
+        "appointment_id": appt.id,
+        "notes": appt.notes
+    }
+
+
+@router.post("/appointments/{appointment_id}/restore-calling-order")
+async def restore_appointment_calling_order_by_doctor(
+    appointment_id: str,
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Doctor restores patient back to their regular calling queue order if they arrive.
+    """
+    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    appt_res = await db.execute(
+        select(Appointment).where(and_(Appointment.id == appointment_id, Appointment.doctor_id == doc.id))
+    )
+    appt = appt_res.scalar_one_or_none()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found or unauthorized.")
+
+    current_notes = appt.notes or ""
+    if "[LATE_PUSHED_TO_END]" in current_notes:
+        appt.notes = current_notes.replace("[LATE_PUSHED_TO_END]", "").strip()
+        await db.commit()
+        await db.refresh(appt)
+
+    return {
+        "status": "SUCCESS",
+        "message": "Patient restored to regular calling order.",
+        "appointment_id": appt.id,
+        "notes": appt.notes
+    }
+
+
 # --- 4. Doctor Consultation & Revenue Analytics ---
 @router.get("/analytics")
 async def get_doctor_analytics(

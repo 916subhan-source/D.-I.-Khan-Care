@@ -2614,6 +2614,19 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                 </div>
               )}
 
+              {/* Notice for Patient if marked late/pushed to end */}
+              {appointment.notes && appointment.notes.includes('[LATE_PUSHED_TO_END]') && (
+                <div className="bg-amber-500/20 border border-amber-400/40 rounded-2xl p-4 text-white text-xs space-y-1">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-200">
+                    <Clock className="w-4 h-4 text-amber-300" />
+                    <span>کالنگ الرٹ: آپ مقررہ وقت پر موجود نہیں تھے</span>
+                  </div>
+                  <p className="text-amber-100/90 leading-relaxed text-[11px]">
+                    آپ کالنگ کے وقت پر موجود نہیں تھے، اس لیے آپ کا ٹوکن شفٹ کے اختتام (آخری نمبر) پر منتقل کر دیا گیا ہے۔ براہ کرم کلینک کے انتظار گاہ میں موجود رہیں۔
+                  </p>
+                </div>
+              )}
+
               {/* Digital Slip white card */}
               <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
                 <div className="flex items-start justify-between">
@@ -7462,7 +7475,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [queue, setQueue] = useState<AppointmentItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState('');
-  const [appointmentActionLoading, setAppointmentActionLoading] = useState<{ id: string; action: 'approve' | 'reject' | 'paid' | 'cancel' | 'complete' } | null>(null);
+  const [appointmentActionLoading, setAppointmentActionLoading] = useState<{ id: string; action: 'approve' | 'reject' | 'paid' | 'cancel' | 'complete' | 'late' } | null>(null);
   const [reschedLoading, setReschedLoading] = useState(false);
   const [selectedLoyaltyAppt, setSelectedLoyaltyAppt] = useState<AppointmentItem | null>(null);
 
@@ -8308,6 +8321,39 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     }
   };
 
+  const handleToggleLate = async (id: string, isCurrentlyLate: boolean) => {
+    try {
+      setAppointmentActionLoading({ id, action: 'late' });
+      const endpoint = isCurrentlyLate
+        ? `/assistant/appointments/${id}/restore-calling-order`
+        : `/assistant/appointments/${id}/mark-late`;
+
+      // Instant optimistic update for 0ms latency in UI
+      setQueue(prev => prev.map(item => {
+        if (item.id !== id) return item;
+        const curNotes = item.notes || '';
+        const newNotes = isCurrentlyLate
+          ? curNotes.replace('[LATE_PUSHED_TO_END]', '').trim()
+          : (curNotes + '\n[LATE_PUSHED_TO_END]').trim();
+        return { ...item, notes: newNotes };
+      }));
+
+      setActionMessage(
+        isCurrentlyLate
+          ? '✓ Patient marked as arrived — restored to normal calling queue.'
+          : '✓ Patient marked as Not Arrived — pushed to last position of this shift.'
+      );
+
+      await apiFetch(endpoint, { method: 'POST' });
+      await fetchQueue(selectedDoctorId);
+    } catch (err: any) {
+      alert(err.message || 'Failed to update patient calling position');
+      await fetchQueue(selectedDoctorId);
+    } finally {
+      setAppointmentActionLoading(null);
+    }
+  };
+
   const handleCompleteAppointment = async (id: string) => {
     const item = queue.find(q => q.id === id);
     if (!item) return;
@@ -9111,6 +9157,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               <div className="flex items-center gap-2.5">
                                 <InitialsAvatar name={item.patient_name || 'Patient'} size="sm" />
                                 <div>
+                                  {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') && (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 mb-1 shadow-2xs">
+                                      ⏳ Not Arrived · Pushed to End of Shift
+                                    </span>
+                                  )}
                                   {isCurrentActive && (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider mb-1 shadow-xs animate-pulse">
                                       📢 Now Calling · Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'}
@@ -9426,10 +9477,52 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         )}
                                       </>
                                     )}
+                                    {isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) && (
+                                      <button
+                                        type="button"
+                                        disabled={Boolean(appointmentActionLoading)}
+                                        onClick={() => handleToggleLate(item.id, false)}
+                                        className="h-7 px-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[11px] font-bold transition-all inline-flex items-center gap-1 shadow-xs cursor-pointer animate-pulse"
+                                        title="Patient is not here now. Move to the last number of this shift."
+                                      >
+                                        {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
+                                          <Loader2 className="w-3 h-3 animate-spin text-white" />
+                                        ) : (
+                                          <Clock className="w-3 h-3 text-white" />
+                                        )}
+                                        <span>⏳ Not Arrived · Move to End</span>
+                                      </button>
+                                    )}
                                   </div>
 
-                                  {/* Bottom Line: Secondary Actions (Reschedule & Cancel) */}
+                                  {/* Bottom Line: Secondary Actions (Reschedule, Not Arrived & Cancel) */}
                                   <div className="flex items-center justify-end gap-1.5">
+                                    {isConfirmed && isToday && (
+                                      <button
+                                        type="button"
+                                        disabled={Boolean(appointmentActionLoading)}
+                                        onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
+                                        className={`h-6 px-2 rounded-md text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer disabled:opacity-50 ${
+                                          item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                            ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200'
+                                            : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200'
+                                        }`}
+                                        title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
+                                      >
+                                        {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
+                                          <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                        ) : item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? (
+                                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                                        ) : (
+                                          <Clock className="w-2.5 h-2.5 text-amber-600" />
+                                        )}
+                                        <span>
+                                          {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                            ? '↩️ Arrived (Restore)'
+                                            : '⏳ Not Arrived (Push to End)'}
+                                        </span>
+                                      </button>
+                                    )}
                                     <button
                                       type="button"
                                       onClick={() => {
@@ -9541,6 +9634,11 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         {callingOrderActive && idx > 0 && isConfirmed && isToday && (
                           <div className="mb-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                             Line #{idx + 1} &middot; Token #{qNum || (idx + 1)}
+                          </div>
+                        )}
+                        {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') && (
+                          <div className="mb-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                            ⏳ Not Arrived · Pushed to End of Shift
                           </div>
                         )}
                         {item.notes && item.notes.includes('EMERGENCY') && (
@@ -9685,6 +9783,23 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                           {isConfirmed && (
                             <div className="space-y-2">
+                              {/* If Now Calling: Instant "Not Arrived" Button for Mobile Reception */}
+                              {isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) && (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleToggleLate(item.id, false)}
+                                  className="w-full h-9 px-4 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer animate-pulse"
+                                  title="Patient is not here now. Move to the last number of this shift."
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                  ) : (
+                                    <Clock className="w-3.5 h-3.5 text-white" />
+                                  )}
+                                  <span>⏳ Patient Not Arrived · Move to End of Shift</span>
+                                </button>
+                              )}
                               {/* 1. If cash is pending: Prominent High-Contrast Mark as Paid Button */}
                               {item.payment_status === 'PENDING_CASH' && (
                                 <button
@@ -9782,7 +9897,33 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                           {/* Secondary: Reschedule & Cancel in compact row */}
                           {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
-                            <div className="flex items-center justify-end gap-2 pt-0.5">
+                            <div className="flex items-center justify-end gap-2 pt-0.5 flex-wrap">
+                              {isConfirmed && isToday && (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
+                                  className={`h-7 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer ${
+                                    item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                                      : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
+                                  }`}
+                                  title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? (
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                  ) : (
+                                    <Clock className="w-3 h-3 text-amber-600" />
+                                  )}
+                                  <span>
+                                    {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                      ? '↩️ Arrived (Restore)'
+                                      : '⏳ Not Arrived (Push to End)'}
+                                  </span>
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => {
@@ -12745,6 +12886,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [actionLoading, setActionLoading] = useState(false);
   const [apptActionMsg, setApptActionMsg] = useState('');
   const [doctorMarkPaidLoading, setDoctorMarkPaidLoading] = useState<string | null>(null);
+  const [doctorLateLoading, setDoctorLateLoading] = useState<string | null>(null);
 
   // Profile Edit state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -13539,6 +13681,44 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       alert(err.message || 'Failed to record payment as paid');
     } finally {
       setDoctorMarkPaidLoading(null);
+    }
+  };
+
+  const handleDoctorToggleLate = async (apptId: string, isCurrentlyLate: boolean) => {
+    try {
+      setDoctorLateLoading(apptId);
+      const endpoint = isCurrentlyLate
+        ? `/doctor/appointments/${apptId}/restore-calling-order`
+        : `/doctor/appointments/${apptId}/mark-late`;
+
+      // Instant optimistic state update
+      setAppointments(prev => prev.map(item => {
+        if (item.id !== apptId) return item;
+        const curNotes = item.notes || '';
+        const newNotes = isCurrentlyLate
+          ? curNotes.replace('[LATE_PUSHED_TO_END]', '').trim()
+          : (curNotes + '\n[LATE_PUSHED_TO_END]').trim();
+        return { ...item, notes: newNotes };
+      }));
+      setSelectedAppt(prev => {
+        if (!prev || prev.id !== apptId) return prev;
+        const curNotes = prev.notes || '';
+        const newNotes = isCurrentlyLate
+          ? curNotes.replace('[LATE_PUSHED_TO_END]', '').trim()
+          : (curNotes + '\n[LATE_PUSHED_TO_END]').trim();
+        return { ...prev, notes: newNotes };
+      });
+
+      await apiFetch(endpoint, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await loadDoctorData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update patient calling status');
+      await loadDoctorData();
+    } finally {
+      setDoctorLateLoading(null);
     }
   };
 
@@ -14438,6 +14618,11 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                       Calling Line #{idx + 1}
                                     </span>
                                   )}
+                                  {appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]') && (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 mb-1">
+                                      ⏳ Not Arrived · Pushed to End of Shift
+                                    </span>
+                                  )}
                                   <p className="font-bold text-slate-900 dark:text-white text-xs">{appt.patient_name || 'Walk-in Patient'}</p>
                                   <p className="text-slate-400 dark:text-slate-500 font-mono text-[11px] mt-0.5">{appt.patient_phone || 'No phone'}</p>
                                 </td>
@@ -14523,6 +14708,26 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                     </span>
                                   )}
 
+                                  {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && (
+                                    <button
+                                      type="button"
+                                      disabled={doctorLateLoading === appt.id}
+                                      onClick={() => handleDoctorToggleLate(appt.id, Boolean(appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')))}
+                                      className={`px-2 py-1 border rounded-lg text-[11px] font-semibold transition-colors cursor-pointer disabled:opacity-50 ${
+                                        appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')
+                                          ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                                          : 'border-amber-300 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 hover:bg-amber-100'
+                                      }`}
+                                      title={appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
+                                    >
+                                      {doctorLateLoading === appt.id ? (
+                                        <Loader2 className="w-3 h-3 animate-spin inline mr-1" />
+                                      ) : null}
+                                      {appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')
+                                        ? '↩️ Arrived (Restore)'
+                                        : '⏳ Not Arrived (Push to End)'}
+                                    </button>
+                                  )}
                                   {!isDone && !isCancelled && (
                                     <button
                                       type="button"
@@ -14572,6 +14777,13 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   <Phone className="w-3 h-3 text-slate-400" />
                                   <span>{appt.patient_phone || 'No phone'}</span>
                                 </div>
+                                {appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]') && (
+                                  <div className="mt-1">
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                                      ⏳ Not Arrived · Pushed to End of Shift
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${isDone ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' :
@@ -14638,6 +14850,34 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   Upcoming Slot
                                 </span>
                               )}
+                              {!isDone && !isCancelled && appt.status?.toUpperCase() === 'CONFIRMED' && (
+                                <button
+                                  type="button"
+                                  disabled={doctorLateLoading === appt.id}
+                                  onClick={() => handleDoctorToggleLate(appt.id, Boolean(appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')))}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50 ${
+                                    appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                                      : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
+                                  }`}
+                                >
+                                  {doctorLateLoading === appt.id ? (
+                                    <Loader2 className="w-3 h-3 animate-spin inline" />
+                                  ) : null}
+                                  <span>
+                                    {appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')
+                                      ? '↩️ Arrived (Restore)'
+                                      : '⏳ Not Arrived (Push to End)'}
+                                  </span>
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setSelectedAppt(appt)}
+                                className="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                              >
+                                Details
+                              </button>
                             </div>
                           </div>
                         );
@@ -16615,6 +16855,31 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     >
                       Close
                     </button>
+                    {selectedAppt.status?.toUpperCase() === 'CONFIRMED' && (
+                      <button
+                        type="button"
+                        disabled={doctorLateLoading === selectedAppt.id}
+                        onClick={() => handleDoctorToggleLate(selectedAppt.id, Boolean(selectedAppt.notes && selectedAppt.notes.includes('[LATE_PUSHED_TO_END]')))}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${
+                          selectedAppt.notes && selectedAppt.notes.includes('[LATE_PUSHED_TO_END]')
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                            : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100'
+                        }`}
+                      >
+                        {doctorLateLoading === selectedAppt.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : selectedAppt.notes && selectedAppt.notes.includes('[LATE_PUSHED_TO_END]') ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        ) : (
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        )}
+                        <span>
+                          {selectedAppt.notes && selectedAppt.notes.includes('[LATE_PUSHED_TO_END]')
+                            ? '↩️ Arrived (Restore Line)'
+                            : '⏳ Not Arrived (Push to End)'}
+                        </span>
+                      </button>
+                    )}
                     {(() => {
                       const isModalFirstActive = Boolean(callingOrderActive && displayAppts[0]?.id === selectedAppt?.id);
                       const canModalDoctorComplete = canDoctorComplete(selectedAppt, isModalFirstActive);

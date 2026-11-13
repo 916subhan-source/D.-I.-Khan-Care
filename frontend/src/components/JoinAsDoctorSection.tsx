@@ -82,8 +82,8 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
 
             {/* Urdu Title & Subheading */}
             <div dir="rtl" className="pt-1">
-              <h2 className="font-urdu-hero text-lg sm:text-2xl lg:text-[1.75rem] font-bold text-emerald-100 leading-[1.8] max-w-full">
-                اگر آپ بطور ڈاکٹر شامل ہونا چاہتے ہیں تو انتظامیہ سے رابطہ کریں
+              <h2 className="font-urdu-hero text-lg sm:text-2xl lg:text-[1.6rem] font-bold text-emerald-100 leading-[1.6] max-w-full">
+                اگر آپ بطور ڈاکٹر شامل ہونا چاہتے ہیں تو ہم سے رابطہ کریں
               </h2>
             </div>
 
@@ -106,8 +106,8 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
               <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                 If you want to join as a doctor, contact the admins
               </h3>
-              <p dir="rtl" className="font-urdu-hero text-base sm:text-lg font-bold text-emerald-700 dark:text-emerald-400">
-                ڈاکٹر رجسٹریشن اور کلینک پینل حاصل کرنے کے لیے رابطہ نمبر:
+              <p dir="rtl" className="font-urdu-hero text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-400">
+                ڈاکٹر رجسٹریشن کے لیے اس نمبر پر رابطہ کریں:
               </p>
               <div className="pt-2 flex items-center justify-center md:justify-start gap-3">
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-wider text-emerald-700 dark:text-emerald-400 font-mono select-all">
@@ -158,37 +158,37 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
               {
                 icon: Users,
                 title: 'No Crowded Waiting Lines',
-                urdu: 'کلینک کے انتظار گاہ میں رش کا خاتمہ',
+                urdu: 'کلینک میں مریضوں کے رش سے نجات',
                 desc: 'Patients receive exact slot token numbers with live queue tracking, arriving right on time without overcrowding your reception.'
               },
               {
                 icon: Stethoscope,
                 title: 'Free Assistant / Reception POS',
-                urdu: 'مفت اسسٹنٹ اور کاؤنٹر سافٹ ویئر',
+                urdu: 'مفت اسسٹنٹ اور کاؤنٹر سسٹم',
                 desc: 'Your clinic receptionist gets a dedicated desktop dashboard to call tokens, record vitals, mark fees, and print patient slips.'
               },
               {
                 icon: ShieldCheck,
                 title: '100% Cash at Clinic Arrival',
-                urdu: 'فیس براہ راست کلینک کاؤنٹر پر وصول کریں',
+                urdu: 'فیس براہ راست کلینک پر وصول کریں',
                 desc: 'Patients pay cash directly to your counter. No platform commission deductions or payment delays.'
               },
               {
                 icon: CalendarCheck,
                 title: 'Full Schedule Flexibility',
-                urdu: 'اپنے اوقات کار اور شفٹوں پر مکمل کنٹرول',
+                urdu: 'اوقات اور شفٹوں پر مکمل کنٹرول',
                 desc: 'Easily set morning or evening shifts, slot durations, custom consultation fees, and emergency clinic leaves anytime.'
               },
               {
                 icon: Zap,
                 title: 'Automated Reminders',
-                urdu: 'مریضوں کو آٹومیٹک یاددہانی میسجز',
+                urdu: 'مریضوں کو خودکار میسجز',
                 desc: 'Patients receive automatic confirmation passes and 1-hour appointment reminder alerts via SMS and WhatsApp.'
               },
               {
                 icon: Building2,
                 title: 'Verified Specialist Profile',
-                urdu: 'ڈی آئی خان بھر کے مریضوں تک رسائی',
+                urdu: 'پورے ڈی آئی خان سے مریض حاصل کریں',
                 desc: 'Reach thousands of verified patients searching for top doctors across Circular Road, Topanwala, Tank, Kulachi, and DHQ vicinities.'
               }
             ].map((benefit, idx) => {

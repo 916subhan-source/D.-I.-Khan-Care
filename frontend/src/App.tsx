@@ -2649,10 +2649,10 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                 <div className="bg-amber-500/20 border border-amber-400/40 rounded-2xl p-4 text-white text-xs space-y-1">
                   <div className="font-bold flex items-center gap-1.5 text-amber-200">
                     <Clock className="w-4 h-4 text-amber-300" />
-                    <span>کالنگ الرٹ: آپ مقررہ وقت پر موجود نہیں تھے</span>
+                    <span className="font-urdu-hero">نوٹس: آپ کالنگ کے وقت موجود نہیں تھے</span>
                   </div>
-                  <p className="text-amber-100/90 leading-relaxed text-[11px]">
-                    آپ کالنگ کے وقت پر موجود نہیں تھے، اس لیے آپ کا ٹوکن شفٹ کے اختتام (آخری نمبر) پر منتقل کر دیا گیا ہے۔ براہ کرم کلینک کے انتظار گاہ میں موجود رہیں۔
+                  <p className="text-amber-100/90 leading-relaxed text-xs font-urdu-hero" dir="rtl">
+                    آپ کالنگ کے وقت موجود نہیں تھے، اس لیے آپ کا نمبر شفٹ کے آخر میں کر دیا گیا ہے۔ برائے مہربانی کلینک میں انتظار کریں۔
                   </p>
                 </div>
               )}
@@ -6580,21 +6580,21 @@ function PatientSection({
             <div dir="rtl" className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs font-urdu-hero">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span>★ ڈیرہ اسماعیل خان کا تصدیق شدہ ہیلتھ کیئر نیٹ ورک</span>
+                <span>★ ڈی آئی خان کا تصدیق شدہ نیٹ ورک</span>
               </div>
               <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle font-urdu-hero">
                 <Sparkles className="w-3 h-3 text-emerald-500 shrink-0" />
-                <span>زیرو بکنگ فیس · 100% مفت</span>
+                <span>کوئی فیس نہیں · بالکل مفت</span>
               </div>
             </div>
 
-            {/* Heading with Original Baloo Bhaijaan 2 Bold Rounded Display Urdu Typography, Centered Alignment & Gradient Accent */}
+            {/* Heading with Simple, Clean Modern Urdu Typography */}
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.35] sm:leading-[1.4] tracking-tight text-center mx-auto"
+              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.6rem] font-bold text-slate-900 dark:text-white leading-[1.4] sm:leading-[1.45] tracking-normal text-center mx-auto"
             >
-              بہترین ڈاکٹرز تلاش اور بک کریں
+              ڈاکٹر تلاش کریں اور اپوائنٹمنٹ لیں
               <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
                 ڈیرہ اسماعیل خان میں
               </span>
@@ -6602,9 +6602,9 @@ function PatientSection({
             <p
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-xs sm:text-sm md:text-[14.5px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.65] font-semibold max-w-lg text-center mx-auto"
+              className="font-urdu-hero text-xs sm:text-sm md:text-[14px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.7] font-medium max-w-lg text-center mx-auto"
             >
-              ہسپتالوں کی لمبی قطاروں سے بچیں۔ صرف 30 سیکنڈ میں تصدیق شدہ ماہر ڈاکٹر سے اپنا گارنٹی شدہ ڈیجیٹل ٹوکن حاصل کریں اور کلینک پہنچ کر فیس ادا کریں۔
+              کلینک میں لمبی لائنوں سے بچیں۔ باآسانی ماہر ڈاکٹر کا ٹوکن حاصل کریں اور فیس کلینک پہنچ کر ادا کریں۔
             </p>
 
             {/* Unified Floating Smart Search Bar in Hero */}

@@ -6504,9 +6504,10 @@ function PatientSection({
 
   return (
     <div style={{ zoom: typeof window !== 'undefined' && window.innerWidth < 768 ? '1' : (zoomLevel === '105' ? '1.05' : zoomLevel === '110' ? '1.10' : '1') }} className="transition-all duration-300 mobile-zoom-safe overflow-x-hidden w-full max-w-full">
-      {/* ── Modern Hero Section with Image Banner & Cinematic Floating Atmosphere ── */}
-      <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10 overflow-hidden">
-        {/* Cinematic Ambient Glow Blooms */}
+      {/* ── Modern Hero Section with Image Banner & Cinematic Floating Atmosphere (HOME VIEW ONLY) ── */}
+      {isHomeView && (
+        <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10 overflow-hidden">
+          {/* Cinematic Ambient Glow Blooms */}
         <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
         <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
 
@@ -6703,10 +6704,13 @@ function PatientSection({
         >
           <Hero3DPass />
         </div>
+      </div>
+      )}
 
-        {/* ── In Directory View: 4-part Search Bar (Area, Specialty, Shift, Search) ── */}
-        {!isHomeView && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full mt-6 sm:mt-10 lg:mt-12 mb-2 sm:mb-3">
+      {/* ── In Directory / Find a Doctor View: Clean Header with 4-part Search Bar (Hero Card Removed) ── */}
+      {!isHomeView && (
+        <div className="bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 py-5 sm:py-7">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-20 w-full">
             <div className="bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xl dark:shadow-2xl p-3 sm:p-4 backdrop-blur-md">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-3 items-center">
                 {/* Specialty Dropdown */}
@@ -6770,8 +6774,8 @@ function PatientSection({
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ── In Home View: Visual Filter Carousels / In Directory View: Horizontal Specialty Pills ── */}
       {isHomeView ? (

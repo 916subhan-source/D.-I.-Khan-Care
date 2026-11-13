@@ -169,8 +169,8 @@ class BookingRequestSchema(BaseModel):
     slot_id: str
     full_name: str
     phone: str
-    email: EmailStr
-    whatsapp_number: str  # Required — serves as primary contact for OTP & reminders
+    email: Optional[str] = None
+    whatsapp_number: Optional[str] = None  # Serves as primary contact for WhatsApp token & reminders
     notes: Optional[str] = None
     has_loyalty_discount: Optional[bool] = False
     loyalty_applicant_name: Optional[str] = None

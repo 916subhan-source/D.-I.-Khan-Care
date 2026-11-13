@@ -12788,7 +12788,17 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     }
   });
   const [slots, setSlots] = useState<SlotData[]>([]);
-  const [activePortalTab, setActivePortalTab] = useState<'overview' | 'schedule' | 'assistants' | 'profile'>('overview');
+  const [activePortalTab, setActivePortalTab] = useState<'overview' | 'schedule' | 'cash' | 'records' | 'assistants' | 'profile'>('overview');
+
+  // Cash Ledger tab state
+  const [cashSearch, setCashSearch] = useState('');
+  const [cashPaymentFilter, setCashPaymentFilter] = useState<'ALL' | 'PAID' | 'PARTIAL' | 'PENDING'>('ALL');
+  const [cashTimeframe, setCashTimeframe] = useState<'today' | 'week' | 'month' | 'all'>('today');
+
+  // All Visit Records tab state
+  const [recordsSearch, setRecordsSearch] = useState('');
+  const [recordsStatusFilter, setRecordsStatusFilter] = useState<'ALL' | 'CONFIRMED' | 'COMPLETED' | 'PENDING' | 'CANCELLED'>('ALL');
+  const [recordsTimeframe, setRecordsTimeframe] = useState<'all' | 'today' | 'week' | 'month'>('all');
 
   // Always scroll to top when changing tabs in Doctor Section
   useEffect(() => {
@@ -13350,6 +13360,99 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const completedCount = appointments.filter(a => a.status?.toUpperCase() === 'COMPLETED').length;
   const totalRevenue = allIncome;
 
+  // Cash Ledger computations
+  const cashScopedAppts = useMemo(() => {
+    return appointments.filter(a => {
+      if (cashTimeframe === 'today') return isMatchToday(a);
+      if (cashTimeframe === 'week') return isMatchWeek(a);
+      if (cashTimeframe === 'month') return isMatchMonth(a);
+      return true;
+    });
+  }, [appointments, cashTimeframe, activeTodayStr, weekStartStr, monthStartStr]);
+
+  const filteredCashAppts = useMemo(() => {
+    return cashScopedAppts.filter(a => {
+      if (cashPaymentFilter !== 'ALL') {
+        const p = (a.payment_status || '').toUpperCase();
+        if (cashPaymentFilter === 'PAID' && p !== 'PAID') return false;
+        if (cashPaymentFilter === 'PARTIAL' && p !== 'PARTIAL') return false;
+        if (cashPaymentFilter === 'PENDING' && p !== 'PENDING' && p !== 'PENDING_CASH') return false;
+      }
+      if (cashSearch.trim()) {
+        const q = cashSearch.toLowerCase().trim();
+        const name = (a.patient_name || '').toLowerCase();
+        const phone = (a.patient_phone || '').toLowerCase();
+        const slip = (a.slip_number || '').toLowerCase();
+        if (!name.includes(q) && !phone.includes(q) && !slip.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [cashScopedAppts, cashPaymentFilter, cashSearch]);
+
+  const cashTotalCollected = useMemo(() => {
+    return cashScopedAppts.reduce((sum, a) => {
+      const p = (a.payment_status || '').toUpperCase();
+      if (p === 'PAID') return sum + Number(a.fee_amount || doctorProfile?.fee_clinic || 1000);
+      if (p === 'PARTIAL') return sum + Number(a.amount_paid || 0);
+      return sum;
+    }, 0);
+  }, [cashScopedAppts, doctorProfile]);
+
+  const cashPendingBalance = useMemo(() => {
+    return cashScopedAppts.reduce((sum, a) => {
+      const st = (a.status || '').toUpperCase();
+      if (st === 'CANCELLED' || st === 'REJECTED') return sum;
+      const p = (a.payment_status || '').toUpperCase();
+      if (p === 'PAID') return sum;
+      if (p === 'PARTIAL') {
+        const due = a.amount_due !== undefined ? Number(a.amount_due) : Math.max(0, Number(a.fee_amount || doctorProfile?.fee_clinic || 1000) - Number(a.amount_paid || 0));
+        return sum + due;
+      }
+      return sum + Number(a.fee_amount || doctorProfile?.fee_clinic || 1000);
+    }, 0);
+  }, [cashScopedAppts, doctorProfile]);
+
+  const cashPaidTxCount = useMemo(() => {
+    return cashScopedAppts.filter(a => a.payment_status === 'PAID').length;
+  }, [cashScopedAppts]);
+
+  // All Visit Records computations
+  const recordsScopedAppts = useMemo(() => {
+    return appointments.filter(a => {
+      if (recordsTimeframe === 'today') return isMatchToday(a);
+      if (recordsTimeframe === 'week') return isMatchWeek(a);
+      if (recordsTimeframe === 'month') return isMatchMonth(a);
+      return true;
+    });
+  }, [appointments, recordsTimeframe, activeTodayStr, weekStartStr, monthStartStr]);
+
+  const filteredVisitRecords = useMemo(() => {
+    return recordsScopedAppts.filter(a => {
+      if (recordsStatusFilter !== 'ALL') {
+        const st = (a.status || '').toUpperCase();
+        if (recordsStatusFilter === 'CONFIRMED' && st !== 'CONFIRMED') return false;
+        if (recordsStatusFilter === 'COMPLETED' && st !== 'COMPLETED') return false;
+        if (recordsStatusFilter === 'PENDING' && !st.includes('PENDING')) return false;
+        if (recordsStatusFilter === 'CANCELLED' && st !== 'CANCELLED' && st !== 'REJECTED') return false;
+      }
+      if (recordsSearch.trim()) {
+        const q = recordsSearch.toLowerCase().trim();
+        const name = (a.patient_name || '').toLowerCase();
+        const phone = (a.patient_phone || '').toLowerCase();
+        const slip = (a.slip_number || '').toLowerCase();
+        const notes = (a.notes || '').toLowerCase();
+        if (!name.includes(q) && !phone.includes(q) && !slip.includes(q) && !notes.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [recordsScopedAppts, recordsStatusFilter, recordsSearch]);
+
+  const recordsTotalCount = recordsScopedAppts.length;
+  const recordsCompletedCount = recordsScopedAppts.filter(a => a.status?.toUpperCase() === 'COMPLETED').length;
+  const recordsConfirmedCount = recordsScopedAppts.filter(a => a.status?.toUpperCase() === 'CONFIRMED').length;
+  const recordsPendingCount = recordsScopedAppts.filter(a => a.status?.toUpperCase().includes('PENDING')).length;
+  const recordsCancelledCount = recordsScopedAppts.filter(a => a.status?.toUpperCase() === 'CANCELLED' || a.status?.toUpperCase() === 'REJECTED').length;
+
   const getSlotDateKey = (s: SlotData | string): string => {
     if (typeof s === 'object' && s.slot_date && /^\d{4}-\d{2}-\d{2}$/.test(s.slot_date)) {
       return s.slot_date;
@@ -13440,6 +13543,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const doctorSidebarNav = [
     { id: 'overview', label: 'Overview' },
     { id: 'schedule', label: 'Schedule & Blackouts' },
+    { id: 'cash', label: 'Cash Ledger' },
+    { id: 'records', label: 'All Visit Records' },
     { id: 'assistants', label: 'Assistants' },
     { id: 'profile', label: 'Clinic Profile' },
   ];
@@ -14155,7 +14260,17 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:inline">Doctor Portal</span>
             <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-600 hidden sm:inline" />
             <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest truncate max-w-[120px] sm:max-w-none">
-              {activePortalTab === 'overview' ? 'Overview' : activePortalTab === 'schedule' ? 'Schedule & Slots' : activePortalTab === 'assistants' ? 'Assistants' : 'Clinic Profile'}
+              {activePortalTab === 'overview'
+                ? 'Overview'
+                : activePortalTab === 'schedule'
+                  ? 'Schedule & Slots'
+                  : activePortalTab === 'cash'
+                    ? 'Cash Ledger'
+                    : activePortalTab === 'records'
+                      ? 'All Visit Records'
+                      : activePortalTab === 'assistants'
+                        ? 'Assistants'
+                        : 'Clinic Profile'}
             </span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
@@ -14196,7 +14311,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           {/* Portal sub-nav — Premium pill tabs with horizontal swipe on mobile */}
           <div className="flex items-center gap-1 pb-1 overflow-x-auto scrollbar-none touch-scroll flex-nowrap">
             <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/90 p-1 sm:p-1.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex-nowrap shadow-xs">
-              {([['overview', 'Overview'], ['schedule', 'Schedule & Slots'], ['assistants', 'Assistants Desk'], ['profile', 'Clinic Profile']] as const).map(([tab, label]) => (
+              {([
+                ['overview', 'Overview'],
+                ['schedule', 'Schedule & Slots'],
+                ['cash', 'Cash Ledger'],
+                ['records', 'All Visit Records'],
+                ['assistants', 'Assistants Desk'],
+                ['profile', 'Clinic Profile']
+              ] as const).map(([tab, label]) => (
                 <button
                   key={tab}
                   onClick={() => setActivePortalTab(tab as any)}
@@ -15785,6 +15907,503 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     >
                       Load More Slots (+150)
                     </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Cash Ledger Tab ── */}
+          {activePortalTab === 'cash' && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Header card with print/export */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60">
+                      <Receipt className="w-5 h-5" />
+                    </span>
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                      Cash Collection &amp; Revenue Ledger
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl">
+                    Itemized cash collections recorded at your clinic reception desk, consultation fees, and revenue reconciliation.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    title="Print Cash Ledger statement"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                    <span>Print Ledger</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadDoctorData(undefined, true)}
+                    disabled={isRefreshingAppts}
+                    className="px-3.5 py-2 bg-clinic-700 hover:bg-clinic-800 text-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
+                    <span>Sync Ledger</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 4 Revenue Metric Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Cash Recorded ({cashTimeframe === 'today' ? 'Today' : cashTimeframe === 'week' ? 'This Week' : cashTimeframe === 'month' ? 'This Month' : 'All Time'})
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1 font-mono">
+                    {formatCurrency(cashTotalCollected)}
+                  </div>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
+                    {cashPaidTxCount} paid consultation{cashPaidTxCount === 1 ? '' : 's'}
+                  </span>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Today&apos;s Collection
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-teal-700 dark:text-teal-400 mt-1 font-mono">
+                    {formatCurrency(todayIncome)}
+                  </div>
+                  <span className="text-[11px] text-teal-600 dark:text-teal-400 mt-0.5 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                    Live desk collection
+                  </span>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Pending Balance Due
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 mt-1 font-mono">
+                    {formatCurrency(cashPendingBalance)}
+                  </div>
+                  <span className="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5 block">
+                    Due at clinic arrival
+                  </span>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Consultation Fee
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1 font-mono">
+                    {formatCurrency(doctorProfile?.fee_clinic || 1000)}
+                  </div>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
+                    Standard clinic rate
+                  </span>
+                </div>
+              </div>
+
+              {/* Controls bar: Timeframe tabs + Search + Payment filter */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                  {/* Timeframe switch */}
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                    {(['today', 'week', 'month', 'all'] as const).map(tf => (
+                      <button
+                        key={tf}
+                        type="button"
+                        onClick={() => setCashTimeframe(tf)}
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${
+                          cashTimeframe === tf
+                            ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 shadow-2xs font-extrabold'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {tf === 'today' ? 'Today' : tf === 'week' ? 'This Week' : tf === 'month' ? 'This Month' : 'All Time'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Payment filter pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                    {(['ALL', 'PAID', 'PARTIAL', 'PENDING'] as const).map(pf => (
+                      <button
+                        key={pf}
+                        type="button"
+                        onClick={() => setCashPaymentFilter(pf)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                          cashPaymentFilter === pf
+                            ? 'bg-emerald-700 text-white font-bold shadow-xs'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {pf === 'ALL' ? 'All Payments' : pf === 'PAID' ? '✓ Paid in Full' : pf === 'PARTIAL' ? '⚠️ Partial Due' : '⏳ Unpaid Desk Cash'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Search */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={cashSearch}
+                    onChange={e => setCashSearch(e.target.value)}
+                    placeholder="Search ledger by patient name, mobile number, or slip #..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-500"
+                  />
+                  {cashSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setCashSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Transactions List */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                    Itemized Cash Transactions ({filteredCashAppts.length})
+                  </h4>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Showing {filteredCashAppts.length} record{filteredCashAppts.length === 1 ? '' : 's'}
+                  </span>
+                </div>
+
+                {filteredCashAppts.length === 0 ? (
+                  <div className="py-16 text-center text-slate-400 space-y-2">
+                    <Receipt className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
+                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No cash transactions found</p>
+                    <p className="text-xs text-slate-400">Try changing your timeframe or payment filter above.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredCashAppts.map(appt => {
+                      const isPaid = appt.payment_status === 'PAID';
+                      const isPartial = appt.payment_status === 'PARTIAL';
+                      const fee = Number(appt.fee_amount || doctorProfile?.fee_clinic || 1000);
+                      const paid = isPaid ? fee : Number(appt.amount_paid || 0);
+                      const due = isPaid ? 0 : (appt.amount_due !== undefined ? Number(appt.amount_due) : Math.max(0, fee - paid));
+                      const dtInfo = formatSlotDateTime(appt.slot_start || appt.start_time, appt.slip_number, appt.created_at);
+
+                      return (
+                        <div key={appt.id} className="p-4 sm:p-5 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                          <div className="space-y-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-slate-900 dark:text-white text-sm">
+                                {appt.patient_name || 'Walk-in Patient'}
+                              </span>
+                              <span className="font-mono text-slate-500 dark:text-slate-400 text-xs">
+                                ({appt.patient_phone || 'N/A'})
+                              </span>
+                              {appt.slip_number && (
+                                <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                                  #{appt.slip_number}
+                                </span>
+                              )}
+                              {appt.token_number && (
+                                <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 font-mono text-[10px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                  Token #{appt.token_number}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-[11px] flex-wrap">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-slate-400" />
+                                {appt.slot_date || dtInfo.date}
+                              </span>
+                              <span>&bull;</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-slate-400" />
+                                {appt.slot_time || dtInfo.time}
+                              </span>
+                              <span>&bull;</span>
+                              <StatusPill status={appt.status} />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
+                            <div className="text-right">
+                              <div className="flex items-center gap-2 justify-end">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
+                                  isPaid
+                                    ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                                    : isPartial
+                                      ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}>
+                                  {isPaid ? 'PAID IN FULL' : isPartial ? 'PARTIAL' : 'DESK CASH'}
+                                </span>
+                                <span className="font-extrabold text-slate-900 dark:text-white font-mono text-sm">
+                                  {formatCurrency(paid)}
+                                </span>
+                              </div>
+                              {due > 0 && (
+                                <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold block mt-0.5">
+                                  Due: {formatCurrency(due)}
+                                </span>
+                              )}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => { setSelectedAppt(appt); setConsultNote(appt.notes || ''); }}
+                              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-clinic-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-clinic-800 dark:hover:text-emerald-300 font-semibold text-xs transition-colors cursor-pointer"
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── All Visit Records Tab ── */}
+          {activePortalTab === 'records' && (
+            <div className="space-y-6 animate-fade-in">
+              {/* Header card with print/export */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 border border-teal-200/60 dark:border-teal-800/60">
+                      <FileText className="w-5 h-5" />
+                    </span>
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                      All Patient Visit Records
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl">
+                    Complete historical directory of patient consultations, digital passes, attendance status, and clinical notes.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    title="Print patient visit records"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                    <span>Print Records</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadDoctorData(undefined, true)}
+                    disabled={isRefreshingAppts}
+                    className="px-3.5 py-2 bg-clinic-700 hover:bg-clinic-800 text-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingAppts ? 'animate-spin' : ''}`} />
+                    <span>Refresh</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 4 Records Metric Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Total Encounters
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1 font-mono">
+                    {recordsTotalCount}
+                  </div>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 block">
+                    All scheduled visits
+                  </span>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Completed Consultations
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1 font-mono">
+                    {recordsCompletedCount}
+                  </div>
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 block font-semibold">
+                    ✓ Consulted &amp; Closed
+                  </span>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Confirmed / Active
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-clinic-700 dark:text-clinic-400 mt-1 font-mono">
+                    {recordsConfirmedCount}
+                  </div>
+                  <span className="text-[11px] text-clinic-600 dark:text-clinic-400 mt-0.5 block">
+                    Scheduled consultation slots
+                  </span>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
+                    Cancelled / Missed
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400 mt-1 font-mono">
+                    {recordsCancelledCount}
+                  </div>
+                  <span className="text-[11px] text-rose-500 dark:text-rose-400 mt-0.5 block">
+                    Cancelled or rejected
+                  </span>
+                </div>
+              </div>
+
+              {/* Controls bar: Timeframe tabs + Status filters + Search */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                  {/* Timeframe switch */}
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                    {(['all', 'today', 'week', 'month'] as const).map(tf => (
+                      <button
+                        key={tf}
+                        type="button"
+                        onClick={() => setRecordsTimeframe(tf)}
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${
+                          recordsTimeframe === tf
+                            ? 'bg-white dark:bg-slate-900 text-clinic-800 dark:text-clinic-300 shadow-2xs font-extrabold'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {tf === 'all' ? 'All Time' : tf === 'today' ? 'Today' : tf === 'week' ? 'This Week' : 'This Month'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Status filter pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                    {(['ALL', 'CONFIRMED', 'COMPLETED', 'PENDING', 'CANCELLED'] as const).map(sf => (
+                      <button
+                        key={sf}
+                        type="button"
+                        onClick={() => setRecordsStatusFilter(sf)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                          recordsStatusFilter === sf
+                            ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {sf === 'ALL' ? 'All Records' : sf === 'CONFIRMED' ? 'Confirmed' : sf === 'COMPLETED' ? 'Completed' : sf === 'PENDING' ? 'Pending Approval' : 'Cancelled / Rejected'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Search */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={recordsSearch}
+                    onChange={e => setRecordsSearch(e.target.value)}
+                    placeholder="Search records by patient name, mobile number, slip #, or clinical notes..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/60 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-500"
+                  />
+                  {recordsSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setRecordsSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Records List */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                    Patient Visit Encounters ({filteredVisitRecords.length})
+                  </h4>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Showing {filteredVisitRecords.length} of {recordsTotalCount} total
+                  </span>
+                </div>
+
+                {filteredVisitRecords.length === 0 ? (
+                  <div className="py-16 text-center text-slate-400 space-y-2">
+                    <FileText className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
+                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">No visit records found</p>
+                    <p className="text-xs text-slate-400">Try adjusting your search query or status filter.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredVisitRecords.map(appt => {
+                      const dtInfo = formatSlotDateTime(appt.slot_start || appt.start_time, appt.slip_number, appt.created_at);
+
+                      return (
+                        <div key={appt.id} className="p-4 sm:p-5 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                          <div className="space-y-1.5 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-slate-900 dark:text-white text-sm">
+                                {appt.patient_name || 'Walk-in Patient'}
+                              </span>
+                              <span className="font-mono text-slate-500 dark:text-slate-400 text-xs">
+                                ({appt.patient_phone || 'N/A'})
+                              </span>
+                              {appt.slip_number && (
+                                <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-mono text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                                  #{appt.slip_number}
+                                </span>
+                              )}
+                              {appt.token_number && (
+                                <span className="px-2 py-0.5 rounded-md bg-clinic-50 dark:bg-emerald-950/60 font-mono text-[10px] font-bold text-clinic-800 dark:text-emerald-300 border border-clinic-200 dark:border-emerald-800">
+                                  Token #{appt.token_number}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-[11px] flex-wrap">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-slate-400" />
+                                {appt.slot_date || dtInfo.date}
+                              </span>
+                              <span>&bull;</span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-slate-400" />
+                                {appt.slot_time || dtInfo.time}
+                              </span>
+                              <span>&bull;</span>
+                              <StatusPill status={appt.status} />
+                              <span>&bull;</span>
+                              <span className="font-medium">
+                                Fee: {formatCurrency(appt.fee_amount || doctorProfile?.fee_clinic || 1000)} ({appt.payment_status || 'PENDING'})
+                              </span>
+                            </div>
+
+                            {appt.notes && (
+                              <p className="text-[11px] text-slate-600 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-100 dark:border-slate-800">
+                                💬 {appt.notes}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0">
+                            <button
+                              type="button"
+                              onClick={() => { setSelectedAppt(appt); setConsultNote(appt.notes || ''); }}
+                              className="px-3.5 py-2 rounded-xl bg-clinic-50 dark:bg-emerald-950/60 hover:bg-clinic-100 dark:hover:bg-emerald-900/60 text-clinic-800 dark:text-emerald-300 font-bold text-xs transition-colors cursor-pointer border border-clinic-200 dark:border-emerald-800"
+                            >
+                              Consultation Details
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

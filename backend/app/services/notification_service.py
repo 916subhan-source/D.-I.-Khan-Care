@@ -422,33 +422,21 @@ class NotificationService:
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
 
-            # 2. WhatsApp to Assistant(s)
-            assistant_phones = await self.get_assistant_phones_for_doctor(db, appt.doctor_id)
-            asst_msg = (
-                f"✅ *Appointment Confirmed — D.I. Khan Care*\n\n"
-                f"Patient: {appt.patient_name}\n"
-                f"Token: {token_display} (Slip #{appt.slip_number})\n"
-                f"Slot: {slot_date_str} at {slot_time_str}\n"
-                f"Doctor: {doc_name}"
-            )
-            for p in assistant_phones:
-                await self.send_whatsapp(p, asst_msg)
-
         except Exception as e:
             logger.error(f"Error in notify_appointment_confirmed: {e}")
 
     # -------------------------------------------------------------
-    # EVENT 2b: Assistant cancels/rejects appointment
+    # EVENT 2b: Assistant cancels/rejects appointment (Patient ONLY)
     # -------------------------------------------------------------
     async def notify_appointment_cancelled(self, db: AsyncSession, appt: Appointment, reason: str = ""):
-        """Notify patient and assistant via WhatsApp when appointment is cancelled."""
+        """Notify patient via WhatsApp when appointment is cancelled."""
         try:
             appt = await self._ensure_full_appointment(db, appt)
             raw_name = (appt.doctor.user.full_name if (appt.doctor and appt.doctor.user) else "Doctor").strip()
             doc_name = raw_name if raw_name.lower().startswith("dr") else f"Dr. {raw_name}"
             rebook_url = f"{settings.FRONTEND_URL.rstrip('/')}/"
 
-            # 1. WhatsApp to Patient
+            # WhatsApp to Patient ONLY
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_msg = (
@@ -464,20 +452,58 @@ class NotificationService:
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
 
-            # 2. WhatsApp to Assistant(s)
-            assistant_phones = await self.get_assistant_phones_for_doctor(db, appt.doctor_id)
-            asst_msg = (
-                f"❌ *Appointment Cancelled — D.I. Khan Care*\n\n"
-                f"Patient: {appt.patient_name}\n"
-                f"Doctor: {doc_name}\n"
-                f"Slip: #{appt.slip_number or 'N/A'}\n"
-                f"Reason: {reason or 'Cancelled at desk'}"
-            )
-            for p in assistant_phones:
-                await self.send_whatsapp(p, asst_msg)
-
         except Exception as e:
             logger.error(f"Error in notify_appointment_cancelled: {e}")
+
+    # -------------------------------------------------------------
+    # EVENT 2c: Assistant reschedules appointment (Patient ONLY)
+    # -------------------------------------------------------------
+    async def notify_appointment_rescheduled(self, db: AsyncSession, appt: Appointment, reason: str = ""):
+        """Notify patient via WhatsApp with new date, time, and new token number when rescheduled."""
+        try:
+            appt = await self._ensure_full_appointment(db, appt)
+            raw_name = (appt.doctor.user.full_name if (appt.doctor and appt.doctor.user) else "Doctor").strip()
+            doc_name = raw_name if raw_name.lower().startswith("dr") else f"Dr. {raw_name}"
+            slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "Scheduled"
+            slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Upcoming"
+            specialty = appt.doctor.specialty if (appt.doctor and appt.doctor.specialty) else "Specialist"
+            clinic_addr = appt.doctor.clinic_address if (appt.doctor and appt.doctor.clinic_address) else "Dera Ismail Khan"
+            track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
+
+            token_num = (appt.slot.daily_slot_number if appt.slot and getattr(appt.slot, 'daily_slot_number', None) else None)
+            if not token_num and appt.slip_number:
+                m = re.search(r"-(\d{2,4})-", appt.slip_number)
+                if m:
+                    try:
+                        token_num = int(m.group(1))
+                    except Exception:
+                        pass
+            token_display = f"#{token_num}" if token_num else f"#{appt.slip_number or '1'}"
+
+            patient_phone = self._resolve_patient_phone(appt)
+            if patient_phone:
+                patient_msg = (
+                    f"🔄 *Appointment Rescheduled — D.I. Khan Care*\n\n"
+                    f"محترم/محترمہ *{appt.patient_name}*،\n"
+                    f"آپ کی اپوائنٹمنٹ نئے وقت پر ری شیڈول (Reschedule) کر دی گئی ہے۔ آپ کا نیا ڈیجیٹل ٹوکن جاری کر دیا گیا ہے۔\n\n"
+                    f"🎫 *New Token / Queue Number:* {token_display}\n"
+                    f"📋 *Updated Slip Number:* #{appt.slip_number}\n"
+                    f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
+                    f"📅 *New Date:* {slot_date_str}\n"
+                    f"⏰ *New Time:* {slot_time_str} (PKT)\n"
+                    f"📍 *Clinic:* {clinic_addr}\n"
+                    f"📝 *Reason:* {reason or 'Clinic schedule adjustment'}\n\n"
+                    f"⚠️ *اہم ہدایات:*\n"
+                    f"برائے مہربانی اپنے نئے وقت سے 10-15 منٹ پہلے کلینک تشریف لائیں اور ریسیپشن پر اپنا نیا ٹوکن نمبر {token_display} دکھائیں۔\n\n"
+                    f"📲 *Open Updated Digital Slip & Live Queue:*\n"
+                    f"{track_url}\n\n"
+                    f"شکریہ،\n"
+                    f"*D.I. Khan Care*"
+                )
+                await self.send_whatsapp(patient_phone, patient_msg)
+
+        except Exception as e:
+            logger.error(f"Error in notify_appointment_rescheduled: {e}")
 
     # -------------------------------------------------------------
     # EVENT 3: 1-Hour Reminder before appointment booked time

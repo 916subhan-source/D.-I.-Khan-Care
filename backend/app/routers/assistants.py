@@ -431,6 +431,7 @@ async def cancel_appointment_by_assistant(
 async def reschedule_appointment(
     appointment_id: str,
     payload: RescheduleRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN", "DOCTOR"])),
     db: AsyncSession = Depends(get_db)
 ):
@@ -516,6 +517,9 @@ async def reschedule_appointment(
     )
 
     await db.commit()
+
+    from app.services.background_tasks import bg_notify_appointment_rescheduled
+    background_tasks.add_task(bg_notify_appointment_rescheduled, appt.id, payload.reason or "")
 
     try:
         from app.core.redis import redis_manager

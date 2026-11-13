@@ -87,6 +87,29 @@ async def bg_notify_appointment_cancelled(appointment_id: str, reason: str = "")
         logger.error(f"[Background Queue] Failed to send cancellation notification for {appointment_id}: {e}")
 
 
+async def bg_notify_appointment_rescheduled(appointment_id: str, reason: str = "") -> None:
+    """Dispatches rescheduled notice in background queue."""
+    try:
+        async with AsyncSessionLocal() as session:
+            stmt = (
+                select(Appointment)
+                .options(
+                    selectinload(Appointment.doctor).selectinload(Doctor.user),
+                    selectinload(Appointment.slot),
+                    selectinload(Appointment.patient),
+                    selectinload(Appointment.payment)
+                )
+                .where(Appointment.id == appointment_id)
+            )
+            res = await session.execute(stmt)
+            appt = res.scalar_one_or_none()
+            if appt:
+                await notification_service.notify_appointment_rescheduled(session, appt, reason=reason)
+                logger.info(f"[Background Queue] Successfully delivered rescheduled notification for appt: {appointment_id}")
+    except Exception as e:
+        logger.error(f"[Background Queue] Failed to send rescheduled notification for {appointment_id}: {e}")
+
+
 async def bg_notify_appointment_requested(appointment_id: str) -> None:
     """Dispatches booking received notification in background queue."""
     try:

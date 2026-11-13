@@ -6545,11 +6545,11 @@ function PatientSection({
               </div>
             </div>
 
-            {/* Heading with Modern Clean Sans-Serif Urdu Typography, Centered Alignment & Gradient Accent */}
+            {/* Heading with Original Baloo Bhaijaan 2 Bold Rounded Display Urdu Typography, Centered Alignment & Gradient Accent */}
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.75rem] font-bold text-slate-900 dark:text-white leading-[1.3] sm:leading-[1.38] tracking-tight text-center mx-auto"
+              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.75rem] font-extrabold text-slate-900 dark:text-white leading-[1.35] sm:leading-[1.4] tracking-tight text-center mx-auto"
             >
               بہترین ڈاکٹرز تلاش اور بک کریں
               <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">

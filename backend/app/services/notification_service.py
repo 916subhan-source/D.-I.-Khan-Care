@@ -729,6 +729,8 @@ class NotificationService:
                         if ap not in phones_to_alert:
                             phones_to_alert.append(ap)
 
+                admin_phone = "03325355879"
+                admin_wa = "https://wa.me/923325255879"
                 alert_msg = (
                     f"🚨 *SECURITY ALERT: NEW DEVICE LOGIN — D.I. KHAN CARE*\n\n"
                     f"Assalam-o-Alaikum *{doc_name}*,\n\n"
@@ -739,9 +741,12 @@ class NotificationService:
                     f"📧 *Account Email:* {doctor_user.email}\n\n"
                     f"⚠️ *Ahem Security Notice:*\n"
                     f"Agar yeh login aapne khud kisi nayi device par kiya hai, toh kisi action ki zaroorat nahi.\n\n"
-                    f"Agar yeh login aapne *nahi kiya*, toh foran apna password tabdeel karein ya D.I. Khan Care administration team se rabta karein taake aapka account mehfooz rahe.\n\n"
+                    f"Agar yeh login aapne *nahi kiya*, toh foran apne credentials / password change karwane ke liye Administrator se rabta karein:\n\n"
+                    f"📞 *Administrator Contact (Credentials Change):*\n"
+                    f"Mobile / WhatsApp: {admin_phone}\n"
+                    f"Direct WhatsApp Chat: {admin_wa}\n\n"
                     f"Shukriya,\n"
-                    f"*D.I. Khan Care Security*"
+                    f"*D.I. Khan Care Security Desk*"
                 )
 
                 for phone in phones_to_alert:

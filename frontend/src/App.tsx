@@ -6592,12 +6592,12 @@ function PatientSection({
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-nastaliq text-center mx-auto flex flex-col gap-2.5 sm:gap-4 my-2"
+              className="font-urdu-nastaliq text-center mx-auto flex flex-col gap-5 sm:gap-7 md:gap-8 my-3 sm:my-4"
             >
-              <span className="text-xl sm:text-2xl md:text-3xl lg:text-[2.4rem] font-bold text-slate-900 dark:text-white leading-[1.85] sm:leading-[2.05] tracking-normal">
+              <span className="text-xl sm:text-2xl md:text-3xl lg:text-[2.45rem] font-black text-slate-900 dark:text-white leading-[2.1] sm:leading-[2.3] tracking-normal py-1">
                 اب ڈیرہ اسماعیل خان میں ڈاکٹر تلاش کریں
               </span>
-              <span className="text-xl sm:text-2xl md:text-3xl lg:text-[2.4rem] font-bold text-emerald-600 dark:text-emerald-400 leading-[1.85] sm:leading-[2.05] tracking-normal">
+              <span className="text-xl sm:text-2xl md:text-3xl lg:text-[2.45rem] font-black text-emerald-600 dark:text-emerald-400 leading-[2.1] sm:leading-[2.3] tracking-normal py-1">
                 اور اپوائنٹمنٹ بک کر لیں
               </span>
             </h1>

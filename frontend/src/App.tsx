@@ -6592,11 +6592,11 @@ function PatientSection({
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-nastaliq text-2xl sm:text-4xl lg:text-[2.6rem] font-bold text-slate-900 dark:text-white leading-[1.8] sm:leading-[1.9] tracking-normal text-center mx-auto"
+              className="font-urdu-nastaliq text-lg sm:text-2xl md:text-3xl lg:text-[2.35rem] font-bold text-slate-900 dark:text-white leading-[1.9] sm:leading-[2.1] tracking-normal text-center mx-auto"
             >
-              <span className="block">اب ڈیرہ اسماعیل خان میں</span>
-              <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
-                ڈاکٹر تلاش کریں اور اپوائنٹمنٹ بک کریں
+              <span className="block">اب ڈیرہ اسماعیل خان میں ڈاکٹر تلاش کریں</span>
+              <span className="block mt-1 sm:mt-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
+                اور اپوائنٹمنٹ بک کر لیں
               </span>
             </h1>
             <p

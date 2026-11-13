@@ -6594,10 +6594,9 @@ function PatientSection({
               lang="ur"
               className="font-urdu-nastaliq text-2xl sm:text-4xl lg:text-[2.6rem] font-bold text-slate-900 dark:text-white leading-[1.8] sm:leading-[1.9] tracking-normal text-center mx-auto"
             >
-              <span className="inline-block">ڈاکٹر تلاش کریں</span>{' '}
-              <span className="inline-block">اور اپوائنٹمنٹ بک کریں</span>
+              <span className="block">اب ڈیرہ اسماعیل خان میں</span>
               <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
-                ڈیرہ اسماعیل خان میں
+                ڈاکٹر تلاش کریں اور اپوائنٹمنٹ بک کریں
               </span>
             </h1>
             <p

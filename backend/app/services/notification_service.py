@@ -255,6 +255,14 @@ class NotificationService:
                 return candidate.strip()
         return None
 
+    def _resolve_google_maps_url(self, appt: Appointment) -> str:
+        """Resolves doctor clinic Google Maps link, with automated search fallback."""
+        if appt.doctor and getattr(appt.doctor, 'google_maps_url', None) and appt.doctor.google_maps_url.strip():
+            return appt.doctor.google_maps_url.strip()
+        clinic_addr = (appt.doctor.clinic_address if (appt.doctor and appt.doctor.clinic_address) else "Dera Ismail Khan").strip()
+        query = f"{clinic_addr}, Dera Ismail Khan"
+        return f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote(query)}"
+
     async def get_assistant_phones_for_doctor(self, db: AsyncSession, doctor_id: str) -> List[str]:
         """Fetch all active assistant phone / WhatsApp numbers linked to the given doctor."""
         stmt = (
@@ -341,30 +349,34 @@ class NotificationService:
             track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
             portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
 
-            # 1. WhatsApp to Patient: No date & time, notifies request is sent, confirmation pending, stay connected
+            # 1. WhatsApp to Patient: Pure Roman Urdu, professional, decent, no date & time
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_msg = (
-                    f"🏥 *D.I. Khan Care*\n\n"
-                    f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"آپ کی بکنگ کی درخواست کامیابی سے بھیج دی گئی ہے۔\n\n"
-                    f"👨‍⚕️ *ڈاکٹر:* {doc_name} ({specialty})\n"
-                    f"📋 *درخواست نمبر:* #{appt.slip_number or ''}\n\n"
-                    f"جیسے ہی کلینک سے آپ کی بکنگ کنفرم ہو گی، آپ کو تصدیقی پیغام اور ٹوکن نمبر موصول ہو جائے گا۔\n\n"
-                    f"براہ کرم ہمارے ساتھ جڑے رہیں۔ (Stay connected with us)\n\n"
-                    f"شکریہ،\n"
-                    f"*D.I. Khan Care*"
+                    f"🏥 *D.I. KHAN CARE*\n"
+                    f"_Doctor Appointment System_\n\n"
+                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                    f"Aapki booking request kamyabi se bhej di gayi hai.\n\n"
+                    f"📋 *Request Details:*\n"
+                    f"• *Doctor:* {doc_name} ({specialty})\n"
+                    f"• *Slip Number:* #{appt.slip_number or 'N/A'}\n"
+                    f"• *Status:* Verification In Progress ⏳\n\n"
+                    f"Clinic staff ki janib se confirmation hote hi aapko confirmation message aur Token Number bhej diya jayega.\n\n"
+                    f"Baraaye meherbani hamare sath connect rahein (stay connected with us).\n\n"
+                    f"Shukriya,\n"
+                    f"*D.I. Khan Care Team*"
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
 
             # 2. Short WhatsApp to Assistant(s): New request in portal inbox
             assistant_phones = await self.get_assistant_phones_for_doctor(db, appt.doctor_id)
             staff_msg = (
-                f"🔔 *New Request in Portal Inbox — D.I. Khan Care*\n\n"
-                f"You have a new patient booking request in your portal inbox:\n\n"
-                f"👤 *Patient:* {appt.patient_name}\n"
-                f"👨‍⚕️ *Doctor:* {doc_name}\n"
-                f"📋 *Slip:* #{appt.slip_number or ''}\n\n"
+                f"🔔 *NEW REQUEST IN PORTAL INBOX*\n"
+                f"_D.I. Khan Care Staff Alert_\n\n"
+                f"Nayi patient booking request inbox mein mosool hui hai:\n\n"
+                f"• *Patient:* {appt.patient_name}\n"
+                f"• *Doctor:* {doc_name}\n"
+                f"• *Slip:* #{appt.slip_number or ''}\n\n"
                 f"👉 *Open Inbox:* {portal_url}"
             )
             for p in assistant_phones:
@@ -402,33 +414,36 @@ class NotificationService:
                         pass
             token_display = f"#{token_num}" if token_num else f"#{appt.slip_number or '1'}"
 
-            # 1. WhatsApp to Patient
+            # 1. WhatsApp to Patient: Professional Roman Urdu with Doctor Google Maps link
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 loyalty_notice = ""
                 if appt.has_loyalty_discount:
                     loyalty_notice = (
-                        "\n💳 *VIP Golden Loyalty Card Approved!*\n"
-                        "براہ کرم کلینک پہنچنے پر ریسیپشن سے اپنا فزیکل گولڈن کارڈ وصول کریں۔\n"
+                        "💳 *VIP Loyalty Card:* Approved (Reception se physical card lein)\n"
                     )
 
+                maps_url = self._resolve_google_maps_url(appt)
+
                 patient_msg = (
-                    f"✅ *Appointment Confirmed — D.I. Khan Care*\n\n"
-                    f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"آپ کی اپوائنٹمنٹ کنفرم ہو گئی ہے اور آپ کا ڈیجیٹل پاس جاری کر دیا گیا ہے۔\n\n"
-                    f"🎫 *Queue / Token Number:* {token_display}\n"
+                    f"✅ *APPOINTMENT CONFIRMED — D.I. KHAN CARE*\n\n"
+                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                    f"Aapki doctor appointment confirm ho chuki hai aur digital pass jari kar diya gaya hai.\n\n"
+                    f"🎫 *Token / Queue Number:* {token_display}\n"
                     f"📋 *Digital Slip:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
                     f"📅 *Date:* {slot_date_str}\n"
                     f"⏰ *Time:* {slot_time_str} (PKT)\n"
                     f"📍 *Clinic:* {clinic_addr}\n"
-                    f"💵 *Fee:* Rs. {fee_val} (Pay Cash at Clinic Arrival)\n"
+                    f"💵 *Fee:* Rs. {fee_val} (Clinic arrival par cash ada karein)\n"
                     f"{loyalty_notice}\n"
-                    f"⚠️ *اہم ہدایات:*\n"
-                    f"برائے مہربانی اپنے وقت سے 10-15 منٹ پہلے کلینک تشریف لائیں اور ریسیپشن پر اپنا ٹوکن نمبر {token_display} دکھائیں۔\n\n"
+                    f"🗺️ *Clinic Google Maps Location:*\n"
+                    f"{maps_url}\n\n"
+                    f"⚠️ *Ahem Hidayat:*\n"
+                    f"Baraaye meherbani scheduled time se 10 se 15 minute pehle clinic tashreef layen aur reception par apna Token Number ({token_display}) dikhayen.\n\n"
                     f"📲 *Open Digital Slip & Live Queue:*\n"
                     f"{track_url}\n\n"
-                    f"شکریہ،\n"
+                    f"Shukriya,\n"
                     f"*D.I. Khan Care*"
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
@@ -451,14 +466,15 @@ class NotificationService:
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_msg = (
-                    f"❌ *Appointment Cancelled — D.I. Khan Care*\n\n"
-                    f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"معذرت کے ساتھ {doc_name} سے آپ کی اپوائنٹمنٹ منسوخ کر دی گئی ہے۔\n\n"
+                    f"❌ *APPOINTMENT CANCELLED — D.I. KHAN CARE*\n\n"
+                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                    f"Maazrat ke sath {doc_name} ke sath aapki appointment cancel kardi gayi hai.\n\n"
                     f"📋 *Slip Number:* #{appt.slip_number or 'N/A'}\n"
-                    f"📝 *Reason:* {reason or 'Clinic schedule adjustment or patient request'}\n\n"
+                    f"📝 *Reason:* {reason or 'Clinic schedule adjustment ya patient request'}\n\n"
                     f"🔄 *Book Another Appointment Slot:*\n"
                     f"{rebook_url}\n\n"
-                    f"کسی بھی رہنمائی کے لیے کلینک ریسیپشن سے رابطہ فرمائیں۔\n\n"
+                    f"Kisi bhi maloomat ke liye clinic reception se rabta farmayein.\n\n"
+                    f"Shukriya,\n"
                     f"*D.I. Khan Care*"
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
@@ -493,10 +509,12 @@ class NotificationService:
 
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
+                maps_url = self._resolve_google_maps_url(appt)
+
                 patient_msg = (
-                    f"🔄 *Appointment Rescheduled — D.I. Khan Care*\n\n"
-                    f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"آپ کی اپوائنٹمنٹ نئے وقت پر ری شیڈول (Reschedule) کر دی گئی ہے۔ آپ کا نیا ڈیجیٹل ٹوکن جاری کر دیا گیا ہے۔\n\n"
+                    f"🔄 *APPOINTMENT RESCHEDULED — D.I. KHAN CARE*\n\n"
+                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                    f"Aapki appointment naye waqt par reschedule kardi gayi hai. Naya digital token slip jari kar diya gaya hai.\n\n"
                     f"🎫 *New Token / Queue Number:* {token_display}\n"
                     f"📋 *Updated Slip Number:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
@@ -504,11 +522,13 @@ class NotificationService:
                     f"⏰ *New Time:* {slot_time_str} (PKT)\n"
                     f"📍 *Clinic:* {clinic_addr}\n"
                     f"📝 *Reason:* {reason or 'Clinic schedule adjustment'}\n\n"
-                    f"⚠️ *اہم ہدایات:*\n"
-                    f"برائے مہربانی اپنے نئے وقت سے 10-15 منٹ پہلے کلینک تشریف لائیں اور ریسیپشن پر اپنا نیا ٹوکن نمبر {token_display} دکھائیں۔\n\n"
+                    f"🗺️ *Clinic Google Maps Location:*\n"
+                    f"{maps_url}\n\n"
+                    f"⚠️ *Ahem Hidayat:*\n"
+                    f"Baraaye meherbani naye time se 10 se 15 minute pehle clinic tashreef layen aur reception par apna naya Token Number ({token_display}) dikhayen.\n\n"
                     f"📲 *Open Updated Digital Slip & Live Queue:*\n"
                     f"{track_url}\n\n"
-                    f"شکریہ،\n"
+                    f"Shukriya,\n"
                     f"*D.I. Khan Care*"
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
@@ -541,16 +561,21 @@ class NotificationService:
 
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
+                maps_url = self._resolve_google_maps_url(appt)
+
                 rem_msg = (
-                    f"⏱️ *1-Hour Reminder — D.I. Khan Care*\n\n"
-                    f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"{doc_name} سے آپ کی اپوائنٹمنٹ 1 گھنٹے بعد شیڈول ہے۔\n\n"
+                    f"⏱️ *1-HOUR APPOINTMENT REMINDER — D.I. KHAN CARE*\n\n"
+                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                    f"Yeh ek reminder hai ke {doc_name} ke sath aapki appointment 1 ghante baad scheduled hai.\n\n"
                     f"🎫 *Token Number:* {token_display}\n"
-                    f"⏰ *Time:* {slot_time_str} (PKT)\n"
+                    f"⏰ *Scheduled Time:* {slot_time_str} (PKT)\n"
                     f"📍 *Clinic:* {clinic_addr}\n\n"
-                    f"برائے مہربانی وقت پر تشریف لائیں۔ آپ نیچے دیے گئے لنک سے لائیو قطار (Live Queue) دیکھ سکتے ہیں:\n\n"
+                    f"🗺️ *Clinic Google Maps Location:*\n"
+                    f"{maps_url}\n\n"
+                    f"Baraaye meherbani waqt par tashreef layen. Aap neeche diye gaye link se live calling queue check kar sakte hain:\n\n"
                     f"🔍 *Live Queue Tracker:*\n"
                     f"{track_url}\n\n"
+                    f"Shukriya,\n"
                     f"*D.I. Khan Care*"
                 )
                 await self.send_whatsapp(patient_phone, rem_msg)
@@ -572,13 +597,13 @@ class NotificationService:
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 comp_msg = (
-                    f"🩺 *Consultation Completed — D.I. Khan Care*\n\n"
-                    f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"{doc_name} سے آپ کا معائنہ مکمل ہو چکا ہے۔ اللہ تعالیٰ آپ کو صحتِ کاملہ عطا فرمائے۔\n\n"
+                    f"🩺 *CONSULTATION COMPLETED — D.I. KHAN CARE*\n\n"
+                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                    f"{doc_name} ke sath aapka check-up mukammal ho chuka hai. Allah Ta'ala aapko mukammal sehat ata farmaye.\n\n"
                     f"⭐ *Doctor Feedback & Rating:*\n"
-                    f"آپ کا تجربہ کیسا رہا؟ براہ کرم ڈاکٹر صاحب کے بارے میں اپنے تاثرات درج کریں تاکہ دوسرے مریضوں کو مدد مل سکے:\n"
+                    f"Aapka tajurba kaisa raha? Doosre mareezon ki rehnumai ke liye 30 second mein apna review darj karein:\n"
                     f"{review_url}\n\n"
-                    f"شکریہ،\n"
+                    f"Shukriya,\n"
                     f"*D.I. Khan Care*"
                 )
                 await self.send_whatsapp(patient_phone, comp_msg)
@@ -632,3 +657,7 @@ class NotificationService:
             logger.error(f"Error checking 1h reminders: {e}")
 
 notification_service = NotificationService()
+
+async def send_whatsapp(phone: str, text: str) -> bool:
+    """Module-level shortcut for BackgroundTasks sending WhatsApp messages."""
+    return await notification_service.send_whatsapp(phone, text)

@@ -1417,15 +1417,21 @@ async def mark_appointment_late_by_doctor(
         phone = appt.patient_phone
         if phone:
             from app.services.notification_service import send_whatsapp
+            from app.core.config import settings
             doc_name = f"Dr. {appt.doctor.user.full_name}" if appt.doctor and appt.doctor.user else "Doctor"
             slip_str = f" (#{appt.slip_number})" if appt.slip_number else ""
+            clinic_addr = appt.doctor.clinic_address if appt.doctor and appt.doctor.clinic_address else "Clinic"
+            track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
             msg = (
-                f"⚠️ *اطلاع برائے مریض* ⚠️\n\n"
-                f"محترم/محترمہ *{appt.patient_name or 'مریض'}*،\n"
-                f"آپ کلینک کالنگ کے وقت پر موجود نہیں تھے، اس لیے آپ کا ٹوکن{slip_str} آج کی شفٹ کے اختتام (آخری نمبر) پر منتقل کر دیا گیا ہے۔\n\n"
-                f"👨‍⚕️ *ڈاکٹر:* {doc_name}\n"
-                f"🏥 *کلینک:* {appt.doctor.clinic_name or 'Clinic'}\n\n"
-                f"براہ کرم شفٹ ختم ہونے سے پہلے کلینک تشریف لائیں تاکہ آپ کا معائنہ ہو سکے۔ شکریہ!\n"
+                f"⚠️ *PATIENT QUEUE UPDATE — D.I. KHAN CARE*\n\n"
+                f"Assalam-o-Alaikum *{appt.patient_name or 'Patient'}*,\n\n"
+                f"Aap live calling ke waqt clinic mein mojood nahi the, is liye aapka token{slip_str} aaj ki shift ke aakhir (last number) par muntaqil kar diya gaya hai.\n\n"
+                f"👨‍⚕️ *Doctor:* {doc_name}\n"
+                f"📍 *Clinic:* {clinic_addr}\n\n"
+                f"Baraaye meherbani current shift khatam hone se pehle clinic reception par tashreef layen taake aapka check-up ho sake.\n\n"
+                f"📲 *Track Live Queue:*\n"
+                f"{track_url}\n\n"
+                f"Shukriya,\n"
                 f"*D.I. Khan Care Team*"
             )
             background_tasks.add_task(send_whatsapp, phone, msg)

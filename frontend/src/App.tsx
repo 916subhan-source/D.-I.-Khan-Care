@@ -9477,22 +9477,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         )}
                                       </>
                                     )}
-                                    {isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) && (
-                                      <button
-                                        type="button"
-                                        disabled={Boolean(appointmentActionLoading)}
-                                        onClick={() => handleToggleLate(item.id, false)}
-                                        className="h-7 px-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[11px] font-bold transition-all inline-flex items-center gap-1 shadow-xs cursor-pointer animate-pulse"
-                                        title="Patient is not here now. Move to the last number of this shift."
-                                      >
-                                        {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
-                                          <Loader2 className="w-3 h-3 animate-spin text-white" />
-                                        ) : (
-                                          <Clock className="w-3 h-3 text-white" />
-                                        )}
-                                        <span>⏳ Not Arrived · Move to End</span>
-                                      </button>
-                                    )}
                                   </div>
 
                                   {/* Bottom Line: Secondary Actions (Reschedule, Not Arrived & Cancel) */}
@@ -9502,10 +9486,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         type="button"
                                         disabled={Boolean(appointmentActionLoading)}
                                         onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
-                                        className={`h-6 px-2 rounded-md text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer disabled:opacity-50 ${item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                        className={`h-6 px-2.5 rounded-md text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer disabled:opacity-50 ${
+                                          item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
                                             ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200'
-                                            : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200'
-                                          }`}
+                                            : isCurrentActive
+                                              ? 'bg-amber-500 hover:bg-amber-600 text-white font-bold animate-pulse'
+                                              : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200'
+                                        }`}
                                         title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                       >
                                         {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
@@ -9513,7 +9500,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         ) : item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? (
                                           <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
                                         ) : (
-                                          <Clock className="w-2.5 h-2.5 text-amber-600" />
+                                          <Clock className={`w-2.5 h-2.5 ${isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) ? 'text-white' : 'text-amber-600'}`} />
                                         )}
                                         <span>
                                           {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
@@ -9782,23 +9769,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                           {isConfirmed && (
                             <div className="space-y-2">
-                              {/* If Now Calling: Instant "Not Arrived" Button for Mobile Reception */}
-                              {isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) && (
-                                <button
-                                  type="button"
-                                  disabled={Boolean(appointmentActionLoading)}
-                                  onClick={() => handleToggleLate(item.id, false)}
-                                  className="w-full h-9 px-4 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-xl text-xs font-extrabold shadow-xs inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer animate-pulse"
-                                  title="Patient is not here now. Move to the last number of this shift."
-                                >
-                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                  ) : (
-                                    <Clock className="w-3.5 h-3.5 text-white" />
-                                  )}
-                                  <span>⏳ Patient Not Arrived · Move to End of Shift</span>
-                                </button>
-                              )}
                               {/* 1. If cash is pending: Prominent High-Contrast Mark as Paid Button */}
                               {item.payment_status === 'PENDING_CASH' && (
                                 <button
@@ -9902,10 +9872,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   type="button"
                                   disabled={Boolean(appointmentActionLoading)}
                                   onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
-                                  className={`h-7 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer ${item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                  className={`h-7 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer ${
+                                    item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
                                       ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
-                                      : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
-                                    }`}
+                                      : isCurrentActive
+                                        ? 'bg-amber-500 hover:bg-amber-600 text-white font-bold animate-pulse'
+                                        : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
+                                  }`}
                                   title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                 >
                                   {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
@@ -9913,7 +9886,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   ) : item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? (
                                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                                   ) : (
-                                    <Clock className="w-3 h-3 text-amber-600" />
+                                    <Clock className={`w-3 h-3 ${isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) ? 'text-white' : 'text-amber-600'}`} />
                                   )}
                                   <span>
                                     {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')

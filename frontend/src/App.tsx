@@ -6588,11 +6588,11 @@ function PatientSection({
               </div>
             </div>
 
-            {/* Heading with Simple, Clean Modern Urdu Typography */}
+            {/* Heading with Classical Urdu Nastaliq Calligraphy Typography */}
             <h1
               dir="rtl"
               lang="ur"
-              className="font-urdu-hero text-2xl sm:text-4xl lg:text-[2.6rem] font-bold text-slate-900 dark:text-white leading-[1.4] sm:leading-[1.45] tracking-normal text-center mx-auto"
+              className="font-urdu-nastaliq text-2xl sm:text-4xl lg:text-[2.6rem] font-bold text-slate-900 dark:text-white leading-[1.8] sm:leading-[1.9] tracking-normal text-center mx-auto"
             >
               ڈاکٹر تلاش کریں اور اپوائنٹمنٹ لیں
               <span className="block mt-1 sm:mt-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-300 dark:to-cyan-400 bg-clip-text text-transparent">
@@ -9523,13 +9523,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         type="button"
                                         disabled={Boolean(appointmentActionLoading)}
                                         onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
-                                        className={`h-6 px-2.5 rounded-md text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer disabled:opacity-50 ${
-                                          item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                        className={`h-6 px-2.5 rounded-md text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer disabled:opacity-50 ${item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
                                             ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200'
                                             : isCurrentActive
                                               ? 'bg-amber-500 hover:bg-amber-600 text-white font-bold animate-pulse'
                                               : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200'
-                                        }`}
+                                          }`}
                                         title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                       >
                                         {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
@@ -9909,13 +9908,12 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   type="button"
                                   disabled={Boolean(appointmentActionLoading)}
                                   onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
-                                  className={`w-full h-8 px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer shadow-2xs ${
-                                    item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
+                                  className={`w-full h-8 px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer shadow-2xs ${item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
                                       ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
                                       : isCurrentActive
                                         ? 'bg-amber-500 hover:bg-amber-600 text-white font-extrabold shadow-xs animate-pulse'
                                         : 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100'
-                                  }`}
+                                    }`}
                                   title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                 >
                                   {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
@@ -14851,8 +14849,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                       disabled={doctorLateLoading === appt.id}
                                       onClick={() => handleDoctorToggleLate(appt.id, Boolean(appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')))}
                                       className={`px-2 py-1 border rounded-lg text-[11px] font-semibold transition-colors cursor-pointer disabled:opacity-50 ${appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')
-                                          ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
-                                          : 'border-amber-300 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 hover:bg-amber-100'
+                                        ? 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                                        : 'border-amber-300 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 hover:bg-amber-100'
                                         }`}
                                       title={appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                     >
@@ -14992,8 +14990,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   disabled={doctorLateLoading === appt.id}
                                   onClick={() => handleDoctorToggleLate(appt.id, Boolean(appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')))}
                                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer disabled:opacity-50 ${appt.notes && appt.notes.includes('[LATE_PUSHED_TO_END]')
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
-                                      : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                                    : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
                                     }`}
                                 >
                                   {doctorLateLoading === appt.id ? (
@@ -16015,11 +16013,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         key={tf}
                         type="button"
                         onClick={() => setCashTimeframe(tf)}
-                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${
-                          cashTimeframe === tf
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${cashTimeframe === tf
                             ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 shadow-2xs font-extrabold'
                             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
+                          }`}
                       >
                         {tf === 'today' ? 'Today' : tf === 'week' ? 'This Week' : tf === 'month' ? 'This Month' : 'All Time'}
                       </button>
@@ -16033,11 +16030,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         key={pf}
                         type="button"
                         onClick={() => setCashPaymentFilter(pf)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                          cashPaymentFilter === pf
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${cashPaymentFilter === pf
                             ? 'bg-emerald-700 text-white font-bold shadow-xs'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                        }`}
+                          }`}
                       >
                         {pf === 'ALL' ? 'All Payments' : pf === 'PAID' ? '✓ Paid in Full' : pf === 'PARTIAL' ? '⚠️ Partial Due' : '⏳ Unpaid Desk Cash'}
                       </button>
@@ -16133,13 +16129,12 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
                             <div className="text-right">
                               <div className="flex items-center gap-2 justify-end">
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${
-                                  isPaid
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${isPaid
                                     ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
                                     : isPartial
                                       ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
                                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                                }`}>
+                                  }`}>
                                   {isPaid ? 'PAID IN FULL' : isPartial ? 'PARTIAL' : 'DESK CASH'}
                                 </span>
                                 <span className="font-extrabold text-slate-900 dark:text-white font-mono text-sm">
@@ -16271,11 +16266,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         key={tf}
                         type="button"
                         onClick={() => setRecordsTimeframe(tf)}
-                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${
-                          recordsTimeframe === tf
+                        className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${recordsTimeframe === tf
                             ? 'bg-white dark:bg-slate-900 text-clinic-800 dark:text-clinic-300 shadow-2xs font-extrabold'
                             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
+                          }`}
                       >
                         {tf === 'all' ? 'All Time' : tf === 'today' ? 'Today' : tf === 'week' ? 'This Week' : 'This Month'}
                       </button>
@@ -16289,11 +16283,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         key={sf}
                         type="button"
                         onClick={() => setRecordsStatusFilter(sf)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                          recordsStatusFilter === sf
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${recordsStatusFilter === sf
                             ? 'bg-clinic-700 text-white font-bold shadow-xs'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                        }`}
+                          }`}
                       >
                         {sf === 'ALL' ? 'All Records' : sf === 'CONFIRMED' ? 'Confirmed' : sf === 'COMPLETED' ? 'Completed' : sf === 'PENDING' ? 'Pending Approval' : 'Cancelled / Rejected'}
                       </button>
@@ -17493,8 +17486,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         disabled={doctorLateLoading === selectedAppt.id}
                         onClick={() => handleDoctorToggleLate(selectedAppt.id, Boolean(selectedAppt.notes && selectedAppt.notes.includes('[LATE_PUSHED_TO_END]')))}
                         className={`px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ${selectedAppt.notes && selectedAppt.notes.includes('[LATE_PUSHED_TO_END]')
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
-                            : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100'
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                          : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100'
                           }`}
                       >
                         {doctorLateLoading === selectedAppt.id ? (

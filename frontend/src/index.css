@@ -1103,10 +1103,17 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
   border-color: rgba(52, 211, 153, 0.35) !important;
 }
 
-/* Clean, Modern & Simple Urdu Typography (No fancy/stylized display fonts) */
+/* Clean, Modern & Simple Urdu Typography (for general badges, buttons & notices) */
 .font-urdu-hero,
 .font-urdu {
   font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Arial, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Classical Urdu Nastaliq Calligraphy Typography (Applied ONLY to Main Hero Heading) */
+.font-urdu-nastaliq {
+  font-family: 'Noto Nastaliq Urdu', 'Gulzar', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }

@@ -24,7 +24,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     'Content-Type': 'application/json',
   };
 
-  const apiKey = context.env.GEMINI_API_KEY || atob('QVEuQWI4Uk42S1FtX0VwOXhXZ3RsODJhbGpVS21BZmpoV2tSQkpxc2JsejJ1REdyYjNCaHc=');
+  const apiKey = context.env.GEMINI_API_KEY || atob('QVEuQWI4Uk42TGxHRUFSbHhkM29qd0tqUEZvSnVXdkFTdzFMRVFxMk96czRFYXZfWF9fblE=');
 
   if (!apiKey) {
     return new Response(

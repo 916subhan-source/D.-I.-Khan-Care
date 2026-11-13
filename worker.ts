@@ -72,7 +72,7 @@ export default {
       }
 
       try {
-        const apiKey = env.GEMINI_API_KEY || atob('QVEuQWI4Uk42S1FtX0VwOXhXZ3RsODJhbGpVS21BZmpoV2tSQkpxc2JsejJ1REdyYjNCaHc=');
+        const apiKey = env.GEMINI_API_KEY || atob('QVEuQWI4Uk42TGxHRUFSbHhkM29qd0tqUEZvSnVXdkFTdzFMRVFxMk96czRFYXZfWF9fblE=');
         if (!apiKey) {
           return new Response(
             JSON.stringify({ error: 'Gemini API key not configured' }),
@@ -98,7 +98,7 @@ export default {
           }
         ];
 
-        const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+        const modelsToTry = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
         let reply = '';
         let chosenModel = '';
 

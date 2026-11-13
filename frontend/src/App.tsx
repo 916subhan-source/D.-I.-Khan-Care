@@ -4133,12 +4133,6 @@ function DoctorProfileAndBookingView({
         return;
       }
 
-      if (!patientEmail.trim() || !patientEmail.includes('@')) {
-        setErrorMessage('Please enter a valid email address to receive your digital appointment slip and notifications.');
-        setIsSubmitting(false);
-        return;
-      }
-
       const res: any = await apiFetch('/booking/request', {
         method: 'POST',
         body: JSON.stringify({
@@ -4146,7 +4140,6 @@ function DoctorProfileAndBookingView({
           slot_id: slotCodeToSubmit,
           full_name: patientName.trim(),
           phone: patientPhone.trim(),
-          email: patientEmail.trim().toLowerCase(),
           whatsapp_number: patientPhone.trim(),
           notes: patientReason
         })
@@ -5139,17 +5132,12 @@ function DoctorProfileAndBookingView({
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      Email Address (for digital appointment slip) *
-                    </label>
-                    <input
-                      type="email"
-                      value={patientEmail}
-                      onChange={(e) => setPatientEmail(e.target.value)}
-                      placeholder="yourname@gmail.com"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
-                    />
+                    <div className="bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl p-2.5 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                      <span className="text-base shrink-0">📲</span>
+                      <span>
+                        <strong>Instant WhatsApp Notification:</strong> Your digital token slip, confirmation, and live queue updates will be sent directly to your WhatsApp number.
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -5374,12 +5362,12 @@ function DoctorProfileAndBookingView({
                 </span>
               </div>
 
-              {confirmedSlip.patientEmail && (
-                <div className="pt-2 border-t border-teal-200/60">
-                  <div className="bg-sky-50 border border-sky-200/80 rounded-xl p-2.5 text-[11px] text-sky-800 flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
+              {confirmedSlip.patientPhone && (
+                <div className="pt-2 border-t border-emerald-200/60">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 rounded-xl p-2.5 text-[11px] text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <span className="text-base shrink-0">📲</span>
                     <span>
-                      Slip receipt &amp; status updates sent to: <strong>{confirmedSlip.patientEmail}</strong>
+                      Digital token &amp; live queue updates sent to your WhatsApp: <strong>{confirmedSlip.patientPhone}</strong>
                     </span>
                   </div>
                 </div>

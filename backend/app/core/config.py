@@ -42,7 +42,12 @@ class Settings(BaseSettings):
     RATE_LIMIT_WINDOW_SECONDS: int = 900  # 15 minutes
     MAX_OTP_VERIFY_ATTEMPTS: int = 5      # Max 5 failed verification attempts before invalidating OTP
     
-    # Notification / Email (Resend.com driver or Direct Gmail SMTP)
+    # WhatsApp Notification (Evolution API)
+    EVOLUTION_API_URL: str = os.getenv("EVOLUTION_API_URL", "http://76.13.18.85:32768")
+    EVOLUTION_API_KEY: str = os.getenv("EVOLUTION_API_KEY", os.getenv("API_KEY", "u8lzdSknWYziUvBemQX1hOBvTGGMSPkN"))
+    EVOLUTION_INSTANCE_NAME: str = os.getenv("EVOLUTION_INSTANCE_NAME", "D. I. khan Care")
+    
+    # Notification / Email (Legacy fallback)
     RESEND_API_KEY: str = ""
     SYSTEM_SENDER_EMAIL: str = "D.I. Khan Healthcare <onboarding@resend.dev>"
     

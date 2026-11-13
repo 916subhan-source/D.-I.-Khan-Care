@@ -341,37 +341,31 @@ class NotificationService:
             track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
             portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
 
-            # 1. WhatsApp to Patient
+            # 1. WhatsApp to Patient: No date & time, notifies request is sent, confirmation pending, stay connected
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_msg = (
-                    f"🏥 *D.I. Khan Care — Booking Received*\n\n"
+                    f"🏥 *D.I. Khan Care*\n\n"
                     f"محترم/محترمہ *{appt.patient_name}*،\n"
-                    f"آپ کی اپوائنٹمنٹ کی درخواست موصول ہو گئی ہے اور کلینک اسسٹنٹ کو جائزے کے لیے بھیج دی گئی ہے۔\n\n"
-                    f"📋 *Slip Number:* #{appt.slip_number}\n"
-                    f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
-                    f"📅 *Date:* {slot_date_str}\n"
-                    f"⏰ *Time:* {slot_time_str} (PKT)\n"
-                    f"📍 *Clinic:* {clinic_addr}\n\n"
-                    f"جیسے ہی کلینک ریسیپشن آپ کی بکنگ کنفرم کرے گا، آپ کو حتمی ڈیجیٹل ٹوکن نمبر موصول ہو جائے گا۔\n\n"
-                    f"🔍 *Live Queue & Slip Status:*\n"
-                    f"{track_url}\n\n"
+                    f"آپ کی بکنگ کی درخواست کامیابی سے بھیج دی گئی ہے۔\n\n"
+                    f"👨‍⚕️ *ڈاکٹر:* {doc_name} ({specialty})\n"
+                    f"📋 *درخواست نمبر:* #{appt.slip_number or ''}\n\n"
+                    f"جیسے ہی کلینک سے آپ کی بکنگ کنفرم ہو گی، آپ کو تصدیقی پیغام اور ٹوکن نمبر موصول ہو جائے گا۔\n\n"
+                    f"براہ کرم ہمارے ساتھ جڑے رہیں۔ (Stay connected with us)\n\n"
                     f"شکریہ،\n"
                     f"*D.I. Khan Care*"
                 )
                 await self.send_whatsapp(patient_phone, patient_msg)
 
-            # 2. WhatsApp to Assistant(s) / Doctor Desk
+            # 2. Short WhatsApp to Assistant(s): New request in portal inbox
             assistant_phones = await self.get_assistant_phones_for_doctor(db, appt.doctor_id)
             staff_msg = (
-                f"🔔 *New Booking Request — D.I. Khan Care*\n\n"
-                f"A new patient booking is waiting for desk review:\n\n"
+                f"🔔 *New Request in Portal Inbox — D.I. Khan Care*\n\n"
+                f"You have a new patient booking request in your portal inbox:\n\n"
                 f"👤 *Patient:* {appt.patient_name}\n"
-                f"📞 *WhatsApp:* {appt.patient_phone}\n"
                 f"👨‍⚕️ *Doctor:* {doc_name}\n"
-                f"📅 *Slot:* {slot_date_str} at {slot_time_str}\n"
-                f"📋 *Slip:* #{appt.slip_number}\n\n"
-                f"👉 *Open Desk to Confirm:* {portal_url}"
+                f"📋 *Slip:* #{appt.slip_number or ''}\n\n"
+                f"👉 *Open Inbox:* {portal_url}"
             )
             for p in assistant_phones:
                 await self.send_whatsapp(p, staff_msg)

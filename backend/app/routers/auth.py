@@ -5,7 +5,7 @@ Authentication endpoints:
 - Current user info
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from app.core.database import get_db
@@ -14,11 +14,17 @@ from app.core.deps import get_current_user
 from app.core.redis import redis_manager
 from app.models import User, DoctorAssistant
 from app.schemas import LoginRequest, TokenResponse, UserResponse
+from app.services.notification_service import notification_service
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/login", response_model=TokenResponse)
-async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(
+    request: Request,
+    credentials: LoginRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
     """Authenticate Doctor, Assistant, or Admin using Argon2 password verification with brute-force rate limiting."""
     clean_email = credentials.email.strip().lower()
     rate_key = f"rate_limit:login:{clean_email}"
@@ -118,6 +124,42 @@ async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
         "pwd_sig": pwd_sig
     })
     refresh_token = create_refresh_token(data={"sub": user.id})
+
+    # Multi-Device Login Alert for Doctor
+    if user.role == "DOCTOR":
+        current_device_id = (credentials.device_id or "").strip()
+        current_device_name = (credentials.device_name or "").strip()
+
+        if not current_device_id:
+            ua_header = request.headers.get("user-agent", "unknown_agent")
+            ip_header = request.headers.get("x-forwarded-for") or (request.client.host if request.client else "unknown_ip")
+            current_device_id = f"dev_{hashlib.md5((ua_header + ip_header).encode()).hexdigest()[:12]}"
+
+        if not current_device_name:
+            current_device_name = request.headers.get("user-agent", "Web Browser")
+            if len(current_device_name) > 60:
+                current_device_name = current_device_name[:60] + "..."
+
+        client_ip = request.headers.get("x-forwarded-for") or (request.client.host if request.client else "Unknown IP")
+        if "," in client_ip:
+            client_ip = client_ip.split(",")[0].strip()
+
+        first_device_key = f"doctor:first_device:{user.id}"
+        first_device_id = await redis_manager.get(first_device_key)
+
+        if not first_device_id:
+            # First device ever registered for this doctor: store as primary/first device
+            await redis_manager.set(first_device_key, current_device_id, expire=31536000)
+            await redis_manager.set(f"doctor:first_device_name:{user.id}", current_device_name, expire=31536000)
+        else:
+            # Check if doctor is logging in on ANOTHER device
+            if current_device_id != first_device_id:
+                background_tasks.add_task(
+                    notification_service.notify_doctor_new_device_login,
+                    doctor_user_id=user.id,
+                    device_name=current_device_name,
+                    client_ip=client_ip
+                )
 
     return {
         "access_token": access_token,

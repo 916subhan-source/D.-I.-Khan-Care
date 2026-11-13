@@ -193,6 +193,36 @@ function FloatingThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: 
   );
 }
 
+// ── Client Device Metadata Helper for Security & Multi-Device Login Tracking ────────
+export const getClientDeviceMeta = () => {
+  let deviceId = '';
+  try {
+    deviceId = localStorage.getItem('dikhan_device_uuid') || '';
+    if (!deviceId) {
+      deviceId = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+      localStorage.setItem('dikhan_device_uuid', deviceId);
+    }
+  } catch {
+    deviceId = 'dev_temp_' + Date.now().toString(36);
+  }
+
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  let os = 'Unknown Device';
+  if (/windows/i.test(ua)) os = 'Windows PC';
+  else if (/android/i.test(ua)) os = 'Android Mobile';
+  else if (/iphone|ipad|ipod/i.test(ua)) os = 'iPhone / iPad';
+  else if (/macintosh|mac os x/i.test(ua)) os = 'Mac';
+  else if (/linux/i.test(ua)) os = 'Linux';
+
+  let browser = 'Web Browser';
+  if (/edg/i.test(ua)) browser = 'Microsoft Edge';
+  else if (/chrome|crios/i.test(ua)) browser = 'Google Chrome';
+  else if (/firefox|fxios/i.test(ua)) browser = 'Mozilla Firefox';
+  else if (/safari/i.test(ua)) browser = 'Apple Safari';
+
+  return { device_id: deviceId, device_name: `${browser} on ${os}` };
+};
+
 // ── Shared: Portal Sidebar Layout ────────────────────────────────────────────────────
 function PortalSidebar({
   workspaceLabel,
@@ -8104,9 +8134,16 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
       setLoginError('');
       const targetEmail = (loginEmail !== undefined ? loginEmail : email).trim();
       const targetPass = loginPass !== undefined ? loginPass : password;
+      const devMeta = getClientDeviceMeta();
       const res: any = await apiFetch('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: targetEmail, password: targetPass, portal: 'ASSISTANT' })
+        body: JSON.stringify({
+          email: targetEmail,
+          password: targetPass,
+          portal: 'ASSISTANT',
+          device_id: devMeta.device_id,
+          device_name: devMeta.device_name
+        })
       });
       const userRole = res.user?.role?.toUpperCase();
       if (userRole !== 'ASSISTANT') {
@@ -12890,12 +12927,15 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       setLoginError('');
       const targetEmail = (emailInput !== undefined ? emailInput : loginEmail).trim();
       const targetPass = passInput !== undefined ? passInput : loginPass;
+      const devMeta = getClientDeviceMeta();
       const res: any = await apiFetch('/auth/login', {
         method: 'POST',
         body: JSON.stringify({
           email: targetEmail,
           password: targetPass,
-          portal: 'DOCTOR'
+          portal: 'DOCTOR',
+          device_id: devMeta.device_id,
+          device_name: devMeta.device_name
         })
       });
 
@@ -17031,9 +17071,16 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
       setLoginError('');
       const targetEmail = (adminEmail !== undefined ? adminEmail : email).trim();
       const targetPass = adminPass !== undefined ? adminPass : password;
+      const devMeta = getClientDeviceMeta();
       const res: any = await apiFetch('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: targetEmail, password: targetPass, portal: 'ADMIN' })
+        body: JSON.stringify({
+          email: targetEmail,
+          password: targetPass,
+          portal: 'ADMIN',
+          device_id: devMeta.device_id,
+          device_name: devMeta.device_name
+        })
       });
 
       // Role check: If Doctor or Assistant attempts to sign into Admin Portal, reject immediately

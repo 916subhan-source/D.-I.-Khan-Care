@@ -36,6 +36,8 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
     portal: Optional[str] = None
+    device_id: Optional[str] = None
+    device_name: Optional[str] = None
 
 # --- Doctor Schemas ---
 class DoctorBase(BaseModel):

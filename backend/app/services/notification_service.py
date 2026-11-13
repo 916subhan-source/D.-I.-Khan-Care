@@ -690,6 +690,66 @@ class NotificationService:
         except Exception as e:
             logger.error(f"Error checking 1h reminders: {e}")
 
+    # -------------------------------------------------------------
+    # EVENT 5: Doctor Login from Another / New Device Security Alert
+    # -------------------------------------------------------------
+    async def notify_doctor_new_device_login(
+        self,
+        doctor_user_id: str,
+        device_name: str,
+        client_ip: str
+    ):
+        """Sends WhatsApp security alert to doctor when their account logs in on another device."""
+        try:
+            from app.core.database import AsyncSessionLocal
+            from app.models import User, Doctor
+            from datetime import datetime, timezone, timedelta
+
+            async with AsyncSessionLocal() as db:
+                doctor_user = await db.get(User, doctor_user_id)
+                if not doctor_user:
+                    return
+
+                pkt_time = (datetime.now(timezone.utc) + timedelta(hours=5)).strftime("%d %b %Y, %I:%M %p")
+                raw_name = (doctor_user.full_name or "Doctor").strip()
+                doc_name = raw_name if raw_name.lower().startswith("dr") else f"Dr. {raw_name}"
+
+                phones_to_alert = []
+                if doctor_user.whatsapp_number and len(doctor_user.whatsapp_number.strip()) >= 7:
+                    phones_to_alert.append(doctor_user.whatsapp_number.strip())
+                if doctor_user.phone and len(doctor_user.phone.strip()) >= 7 and doctor_user.phone.strip() not in phones_to_alert:
+                    phones_to_alert.append(doctor_user.phone.strip())
+
+                # Also alert linked assistant(s) or clinic contact if doctor's personal phone not set or invalid
+                doc_res = await db.execute(select(Doctor).where(Doctor.user_id == doctor_user.id))
+                doc = doc_res.scalar_one_or_none()
+                if doc:
+                    assistant_phones = await self.get_assistant_phones_for_doctor(db, doc.id)
+                    for ap in assistant_phones:
+                        if ap not in phones_to_alert:
+                            phones_to_alert.append(ap)
+
+                alert_msg = (
+                    f"🚨 *SECURITY ALERT: NEW DEVICE LOGIN — D.I. KHAN CARE*\n\n"
+                    f"Assalam-o-Alaikum *{doc_name}*,\n\n"
+                    f"Aapke Doctor Portal account credentials ek doosri / nayi device par login kiye gaye hain:\n\n"
+                    f"📱 *Logged-in Device:* {device_name}\n"
+                    f"🌐 *IP Address:* {client_ip}\n"
+                    f"⏰ *Login Time:* {pkt_time} (PKT)\n"
+                    f"📧 *Account Email:* {doctor_user.email}\n\n"
+                    f"⚠️ *Ahem Security Notice:*\n"
+                    f"Agar yeh login aapne khud kisi nayi device par kiya hai, toh kisi action ki zaroorat nahi.\n\n"
+                    f"Agar yeh login aapne *nahi kiya*, toh foran apna password tabdeel karein ya D.I. Khan Care administration team se rabta karein taake aapka account mehfooz rahe.\n\n"
+                    f"Shukriya,\n"
+                    f"*D.I. Khan Care Security*"
+                )
+
+                for phone in phones_to_alert:
+                    await self.send_whatsapp(phone, alert_msg)
+
+        except Exception as e:
+            logger.error(f"Error in notify_doctor_new_device_login: {e}")
+
 notification_service = NotificationService()
 
 async def send_whatsapp(phone: str, text: str) -> bool:

@@ -414,7 +414,17 @@ class NotificationService:
                         pass
             token_display = f"#{token_num}" if token_num else f"#{appt.slip_number or '1'}"
 
-            # 1. WhatsApp to Patient: Professional Roman Urdu with Doctor Google Maps link
+            # Calculate 20 minutes before appointment arrival time
+            arrival_time_str = ""
+            if appt.slot and getattr(appt.slot, 'start_time', None):
+                try:
+                    from datetime import timedelta
+                    arrival_time_str = format_pkt_time(appt.slot.start_time - timedelta(minutes=20))
+                except Exception:
+                    pass
+            arrival_line = f"🚪 *Clinic Arrival Time:* {arrival_time_str} (20 minute pehle)\n" if arrival_time_str else "🚪 *Clinic Arrival Time:* Appointment se 20 minute pehle\n"
+
+            # 1. WhatsApp to Patient: Professional Roman Urdu with Doctor Google Maps link & 20 min early arrival
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 loyalty_notice = ""
@@ -433,14 +443,15 @@ class NotificationService:
                     f"📋 *Digital Slip:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
                     f"📅 *Date:* {slot_date_str}\n"
-                    f"⏰ *Time:* {slot_time_str} (PKT)\n"
+                    f"⏰ *Appointment Time:* {slot_time_str} (PKT)\n"
+                    f"{arrival_line}"
                     f"📍 *Clinic:* {clinic_addr}\n"
                     f"💵 *Fee:* Rs. {fee_val} (Clinic arrival par cash ada karein)\n"
                     f"{loyalty_notice}\n"
                     f"🗺️ *Clinic Google Maps Location:*\n"
                     f"{maps_url}\n\n"
                     f"⚠️ *Ahem Hidayat:*\n"
-                    f"Baraaye meherbani scheduled time se 10 se 15 minute pehle clinic tashreef layen aur reception par apna Token Number ({token_display}) dikhayen.\n\n"
+                    f"Baraaye meherbani apne scheduled time se *20 minute pehle* clinic reception par tashreef layen aur apna Token Number ({token_display}) dikhayen taake verification bar-waqt ho sake.\n\n"
                     f"📲 *Open Digital Slip & Live Queue:*\n"
                     f"{track_url}\n\n"
                     f"Shukriya,\n"
@@ -507,6 +518,16 @@ class NotificationService:
                         pass
             token_display = f"#{token_num}" if token_num else f"#{appt.slip_number or '1'}"
 
+            # Calculate 20 minutes before new appointment arrival time
+            arrival_time_str = ""
+            if appt.slot and getattr(appt.slot, 'start_time', None):
+                try:
+                    from datetime import timedelta
+                    arrival_time_str = format_pkt_time(appt.slot.start_time - timedelta(minutes=20))
+                except Exception:
+                    pass
+            arrival_line = f"🚪 *New Clinic Arrival Time:* {arrival_time_str} (20 minute pehle)\n" if arrival_time_str else "🚪 *New Clinic Arrival Time:* Naye time se 20 minute pehle\n"
+
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 maps_url = self._resolve_google_maps_url(appt)
@@ -519,13 +540,14 @@ class NotificationService:
                     f"📋 *Updated Slip Number:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
                     f"📅 *New Date:* {slot_date_str}\n"
-                    f"⏰ *New Time:* {slot_time_str} (PKT)\n"
+                    f"⏰ *New Appointment Time:* {slot_time_str} (PKT)\n"
+                    f"{arrival_line}"
                     f"📍 *Clinic:* {clinic_addr}\n"
                     f"📝 *Reason:* {reason or 'Clinic schedule adjustment'}\n\n"
                     f"🗺️ *Clinic Google Maps Location:*\n"
                     f"{maps_url}\n\n"
                     f"⚠️ *Ahem Hidayat:*\n"
-                    f"Baraaye meherbani naye time se 10 se 15 minute pehle clinic tashreef layen aur reception par apna naya Token Number ({token_display}) dikhayen.\n\n"
+                    f"Baraaye meherbani naye time se *20 minute pehle* clinic reception par tashreef layen aur apna naya Token Number ({token_display}) dikhayen.\n\n"
                     f"📲 *Open Updated Digital Slip & Live Queue:*\n"
                     f"{track_url}\n\n"
                     f"Shukriya,\n"
@@ -559,6 +581,16 @@ class NotificationService:
                         pass
             token_display = f"#{token_num}" if token_num else f"#{appt.slip_number or '1'}"
 
+            # Calculate 20 minutes before appointment arrival time
+            arrival_time_str = ""
+            if appt.slot and getattr(appt.slot, 'start_time', None):
+                try:
+                    from datetime import timedelta
+                    arrival_time_str = format_pkt_time(appt.slot.start_time - timedelta(minutes=20))
+                except Exception:
+                    pass
+            arrival_info = f"{arrival_time_str} (20 minute pehle)" if arrival_time_str else "20 minute pehle"
+
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 maps_url = self._resolve_google_maps_url(appt)
@@ -568,11 +600,13 @@ class NotificationService:
                     f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
                     f"Yeh ek reminder hai ke {doc_name} ke sath aapki appointment 1 ghante baad scheduled hai.\n\n"
                     f"🎫 *Token Number:* {token_display}\n"
-                    f"⏰ *Scheduled Time:* {slot_time_str} (PKT)\n"
+                    f"⏰ *Appointment Time:* {slot_time_str} (PKT)\n"
+                    f"🚪 *Clinic Arrival Time:* {arrival_info}\n"
                     f"📍 *Clinic:* {clinic_addr}\n\n"
                     f"🗺️ *Clinic Google Maps Location:*\n"
                     f"{maps_url}\n\n"
-                    f"Baraaye meherbani waqt par tashreef layen. Aap neeche diye gaye link se live calling queue check kar sakte hain:\n\n"
+                    f"⚠️ *Ahem Hidayat:*\n"
+                    f"Baraaye meherbani apne scheduled appointment time se *20 minute pehle* clinic tashreef layen aur reception par token check karwayen. Aap neeche diye gaye link se live calling queue check kar sakte hain:\n\n"
                     f"🔍 *Live Queue Tracker:*\n"
                     f"{track_url}\n\n"
                     f"Shukriya,\n"

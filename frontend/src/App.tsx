@@ -2604,12 +2604,12 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                     <div>
                       <p className="font-bold text-white text-base">Your queue position</p>
                       <p className="text-xs text-emerald-200/80">
-                        Confirmed visit &middot; Please arrive 15 mins before time
+                        Confirmed visit &middot; Please arrive 20 mins before time
                       </p>
                     </div>
                   </div>
                   <p className="text-xs text-emerald-100/90 leading-relaxed border-t border-white/10 pt-3">
-                    Please arrive at the clinic desk before your time slot. Show your slip to receptionist.
+                    Please arrive at the clinic desk 20 minutes before your scheduled appointment time. Show your slip to receptionist.
                   </p>
                 </div>
               )}
@@ -9480,7 +9480,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   </div>
 
                                   {/* Bottom Line: Secondary Actions (Reschedule, Not Arrived & Cancel) */}
-                                  <div className="flex items-center justify-end gap-1.5">
+                                  <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                                     {isConfirmed && isToday && (
                                       <button
                                         type="button"
@@ -9866,64 +9866,68 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                           {/* Secondary: Reschedule & Cancel in compact row */}
                           {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && item.status !== 'REJECTED' && (
-                            <div className="flex items-center justify-end gap-2 pt-0.5 flex-wrap">
+                            <div className="space-y-2 pt-1 w-full">
                               {isConfirmed && isToday && (
                                 <button
                                   type="button"
                                   disabled={Boolean(appointmentActionLoading)}
                                   onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
-                                  className={`h-7 px-2.5 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer ${
+                                  className={`w-full h-8 px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer shadow-2xs ${
                                     item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
                                       : isCurrentActive
-                                        ? 'bg-amber-500 hover:bg-amber-600 text-white font-bold animate-pulse'
-                                        : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700'
+                                        ? 'bg-amber-500 hover:bg-amber-600 text-white font-extrabold shadow-xs animate-pulse'
+                                        : 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100'
                                   }`}
                                   title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                 >
                                   {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'late' ? (
-                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                   ) : item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? (
-                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                   ) : (
-                                    <Clock className={`w-3 h-3 ${isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) ? 'text-white' : 'text-amber-600'}`} />
+                                    <Clock className={`w-3.5 h-3.5 ${isCurrentActive && !(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')) ? 'text-white' : 'text-amber-600'}`} />
                                   )}
                                   <span>
                                     {item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
-                                      ? '↩️ Arrived (Restore)'
-                                      : '⏳ Not Arrived (Push to End)'}
+                                      ? '↩️ Arrived (Restore Calling Order)'
+                                      : '⏳ Patient Not Arrived (Push to End)'}
                                   </span>
                                 </button>
                               )}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setReschedItem(item);
-                                  setSelectedNewSlotId('');
-                                  setSelectedNewSlot(null);
-                                  setReschedError('');
-                                  const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
-                                  setReschedSelectedDate(initialDate);
-                                  setDeskTab('smart_resched');
-                                }}
-                                className="h-7 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 text-slate-600 dark:text-slate-400 hover:text-sky-600 rounded-lg text-[11px] font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
-                              >
-                                <Clock className="w-3 h-3 text-sky-500" />
-                                <span>Reschedule</span>
-                              </button>
-                              <button
-                                type="button"
-                                disabled={Boolean(appointmentActionLoading)}
-                                onClick={() => handleCancelAppointment(item.id)}
-                                className="h-7 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-lg text-[11px] font-medium inline-flex items-center gap-1 transition-colors disabled:opacity-50 cursor-pointer"
-                              >
-                                {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
-                                  <Loader2 className="w-3 h-3 animate-spin text-rose-500" />
-                                ) : (
-                                  <X className="w-3 h-3 text-slate-400" />
-                                )}
-                                <span>Cancel</span>
-                              </button>
+                              <div className="grid grid-cols-2 gap-2 w-full">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReschedItem(item);
+                                    setSelectedNewSlotId('');
+                                    setSelectedNewSlot(null);
+                                    setReschedError('');
+                                    const initialDate = futureSlotDatesInfo.length > 0 ? futureSlotDatesInfo[0].date : pktTodayYmd;
+                                    setReschedSelectedDate(initialDate);
+                                    setDeskTab('smart_resched');
+                                  }}
+                                  className="w-full h-8 px-3 bg-white dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 hover:border-sky-300 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                                  title="Reschedule appointment to a new slot"
+                                >
+                                  <Clock className="w-3.5 h-3.5 text-sky-500" />
+                                  <span>Reschedule</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={Boolean(appointmentActionLoading)}
+                                  onClick={() => handleCancelAppointment(item.id)}
+                                  className="w-full h-8 px-3 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 hover:text-rose-700 dark:text-slate-300 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+                                  title="Cancel appointment"
+                                >
+                                  {appointmentActionLoading?.id === item.id && appointmentActionLoading.action === 'cancel' ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-500" />
+                                  ) : (
+                                    <X className="w-3.5 h-3.5 text-slate-400" />
+                                  )}
+                                  <span>Cancel</span>
+                                </button>
+                              </div>
                             </div>
                           )}
                         </div>

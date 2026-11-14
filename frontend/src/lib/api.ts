@@ -8,7 +8,7 @@
  * - Hardened timeout management with exponential backoff retry
  */
 
-const PROD_BACKEND_URL = 'https://d-i-khan-care.vercel.app/api/v1';
+const PROD_BACKEND_URL = 'https://dikhancare.io/api/v1';
 
 export const getApiBase = () => {
   if (typeof window !== 'undefined') {
@@ -20,6 +20,10 @@ export const getApiBase = () => {
         let clean = queryTunnel.trim().replace(/\/+$/, '');
         if (!clean.endsWith('/api/v1')) clean += '/api/v1';
         return clean;
+      }
+      // When hosted on dikhancare.io, localhost, or same VPS server, use direct relative /api/v1
+      if (window.location.hostname.includes('dikhancare.io') || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return '/api/v1';
       }
     } catch { }
     return PROD_BACKEND_URL;

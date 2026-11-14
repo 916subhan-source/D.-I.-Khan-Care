@@ -187,6 +187,10 @@ from fastapi.staticfiles import StaticFiles
 
 # Hardened CORS policy: strictly allow official production domain, preview branches, and local dev ports
 cors_origins = [
+    "https://dikhancare.io",
+    "https://www.dikhancare.io",
+    "http://dikhancare.io",
+    "http://www.dikhancare.io",
     "https://dikhan-doctor-appointment.pages.dev",
     "http://localhost:5173",
     "http://localhost:3000",
@@ -203,7 +207,7 @@ if hasattr(settings, "FRONTEND_URL") and settings.FRONTEND_URL:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(:[0-9]+)?$|^https://([a-zA-Z0-9-]+\.)?dikhan-doctor-appointment\.pages\.dev$",
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(:[0-9]+)?$|^https?://([a-zA-Z0-9-]+\.)?(dikhan-doctor-appointment\.pages\.dev|dikhancare\.io)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -3031,7 +3031,7 @@ function DoctorProfileModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-[#0c1424] rounded-3xl max-w-5xl w-full my-auto shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-white dark:bg-[#0f172a] rounded-3xl max-w-5xl w-full my-auto shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Top Bar */}
         <div className="bg-slate-900 text-white px-6 py-3.5 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2 text-xs font-semibold text-teal-400">
@@ -3055,7 +3055,7 @@ function DoctorProfileModal({
                 <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-teal-400/40 flex-shrink-0 bg-slate-800">
                   <img
                     src={getDoctorProfileImage(doctor, 200)}
-                    alt={doctor.full_name}
+                    alt={formatDoctorName(doctor.full_name)}
                     className="w-full h-full object-cover object-top"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';
@@ -3072,7 +3072,7 @@ function DoctorProfileModal({
                 </div>
                 <div>
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
-                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{doctor.full_name}</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">{formatDoctorName(doctor.full_name)}</h2>
                     {doctor.verification_status === 'verified' && (
                       <span className="bg-teal-500/20 border border-teal-400/40 text-teal-300 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full flex items-center gap-1">
                         <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400" /> Verified Specialist
@@ -3634,6 +3634,7 @@ function DoctorProfileAndBookingView({
   // Mobile tab navigation state ('booking' | 'profile') - Default to 'profile' so About Doctor shows first
   const [mobileActiveTab, setMobileActiveTab] = useState<'booking' | 'profile'>(initialMobileTab);
   const [profileActiveTab, setProfileActiveTab] = useState<'about' | 'services' | 'conditions' | 'schedule' | 'reviews' | 'faqs'>('about');
+  const displayName = formatDoctorName(doctor.full_name);
 
   // Synchronize when doctor changes or initialMobileTab changes
   useEffect(() => {
@@ -4270,7 +4271,7 @@ function DoctorProfileAndBookingView({
   };
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] dark:bg-[#080d14] text-slate-800 dark:text-slate-100 font-sans pb-16 selection:bg-[#0f766e]/20 selection:text-[#0f766e] animate-fade-in">
+    <div className="min-h-screen bg-[#fafbfc] dark:bg-[#0b1120] text-slate-800 dark:text-slate-100 font-sans pb-16 selection:bg-[#0f766e]/20 selection:text-[#0f766e] animate-fade-in">
       {/* ── Main Container ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 sm:pt-7 pb-36 sm:pb-16">
         {/* ── Breadcrumbs ── */}
@@ -4281,19 +4282,19 @@ function DoctorProfileAndBookingView({
           <ChevronRight className="w-3 h-3 text-slate-400" />
           <span className="text-slate-800 dark:text-slate-300 font-semibold">{doctor.specialty} Specialists</span>
           <ChevronRight className="w-3 h-3 text-slate-400" />
-          <span className="text-slate-900 dark:text-white font-bold truncate max-w-[200px]">{doctor.full_name}</span>
+          <span className="text-slate-900 dark:text-white font-bold truncate max-w-[200px]">{displayName}</span>
         </div>
 
         {/* ── Oladoc Web Full-Width Hero Card ── */}
-        <div className="scroll-reveal bg-white dark:bg-[#0c1424] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-7 shadow-xs mb-4 sm:mb-6 relative overflow-hidden">
+        <div className="scroll-reveal bg-white dark:bg-[#0f172a] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-7 shadow-xs dark:shadow-xl dark:shadow-slate-950/50 mb-4 sm:mb-6 relative overflow-hidden">
           <div className="flex flex-col gap-4 sm:gap-6">
             {/* Top row on mobile / Left on desktop: Portrait + Name & Details */}
             <div className="flex items-start sm:items-center gap-3.5 sm:gap-6">
               {/* Doctor Portrait */}
-              <div className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 sm:ring-4 ring-emerald-500/20 shadow-md">
+              <div className="relative w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 sm:ring-4 ring-emerald-500/20 dark:ring-emerald-500/30 shadow-md">
                 <img
                   src={getDoctorProfileImage(doctor, 500)}
-                  alt={doctor.full_name}
+                  alt={displayName}
                   className="w-full h-full object-cover object-top"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
@@ -4303,9 +4304,9 @@ function DoctorProfileAndBookingView({
                 />
                 <div
                   style={{ display: 'none' }}
-                  className="w-full h-full bg-gradient-to-br from-clinic-800 via-clinic-900 to-slate-950 text-white flex items-center justify-center font-extrabold text-2xl sm:text-3xl"
+                  className="w-full h-full bg-gradient-to-br from-emerald-700 via-teal-800 to-slate-950 text-white flex items-center justify-center font-extrabold text-2xl sm:text-3xl"
                 >
-                  {doctor.full_name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
+                  {displayName.split(' ').map((n: string) => n[0]).slice(0, 2).join('')}
                 </div>
                 {doctor.verification_status === 'verified' && (
                   <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-900" title="Verified Specialist">
@@ -4318,7 +4319,7 @@ function DoctorProfileAndBookingView({
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5">
                   <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {doctor.full_name}
+                    {displayName}
                   </h1>
                   {doctor.verification_status === 'verified' && (
                     <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
@@ -4382,7 +4383,7 @@ function DoctorProfileAndBookingView({
         </div>
 
         {/* ── Doctor Menu Navigation (Clean, Unified Segmented Control) ── */}
-        <div id="doctor-menu-tabs" className="sticky top-[60px] sm:top-[69px] z-30 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none touch-pan-x">
+        <div id="doctor-menu-tabs" className="sticky top-[60px] sm:top-[69px] z-30 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 p-1.5 mb-6 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none touch-pan-x">
           {/* TAB 1: ABOUT DOCTOR */}
           <button
             type="button"
@@ -4391,8 +4392,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'about'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <User className="w-3.5 h-3.5" />
@@ -4408,8 +4409,8 @@ function DoctorProfileAndBookingView({
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'booking'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Calendar className="w-3.5 h-3.5" />
@@ -4424,8 +4425,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'reviews'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Star className="w-3.5 h-3.5" />
@@ -4440,8 +4441,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'schedule'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -4456,8 +4457,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'services'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Stethoscope className="w-3.5 h-3.5" />
@@ -4472,8 +4473,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'conditions'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <Award className="w-3.5 h-3.5" />
@@ -4488,8 +4489,8 @@ function DoctorProfileAndBookingView({
               setMobileActiveTab('profile');
             }}
             className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'faqs'
-              ? 'bg-clinic-700 text-white font-bold shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
@@ -5256,7 +5257,7 @@ function DoctorProfileAndBookingView({
 
       {/* ── Mobile Persistent Bottom Quick-Booking Bar (Visible when in profile mode) ── */}
       {mobileActiveTab === 'profile' && (
-        <div className="lg:hidden fixed bottom-[calc(57px+env(safe-area-inset-bottom,0px))] inset-x-0 z-40 bg-white/95 dark:bg-[#0c1424]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
+        <div className="lg:hidden fixed bottom-[calc(57px+env(safe-area-inset-bottom,0px))] inset-x-0 z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
             <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{formatCurrency(doctor.fee_clinic)}</span>
@@ -5365,7 +5366,7 @@ function DoctorProfileAndBookingView({
             </div>
 
             {/* Slip Paper Card */}
-            <div className="bg-gradient-to-b from-teal-50/60 to-slate-50 dark:from-slate-900 dark:to-[#0c1424] border border-teal-200/80 dark:border-slate-700 rounded-2xl p-5 mb-6 space-y-3 font-sans shadow-2xs">
+            <div className="bg-gradient-to-b from-teal-50/60 to-slate-50 dark:from-slate-900 dark:to-slate-950 border border-teal-200/80 dark:border-slate-700 rounded-2xl p-5 mb-6 space-y-3 font-sans shadow-2xs">
               <div className="flex items-center justify-between border-b border-teal-200/60 pb-3">
                 <div>
                   <span className="text-[10px] font-bold text-[#0f766e] uppercase tracking-wider block">CLINIC SLIP NUMBER</span>
@@ -7199,19 +7200,19 @@ function PatientSection({
               <div className="mb-10">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                   <div>
-                    <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                    <h2 className="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>
                       Top Verified Specialists in D.I. Khan
                     </h2>
                     {/* Organic curved underline matching bisedik reference */}
                     <svg className="w-32 sm:w-40 h-2 sm:h-2.5 text-emerald-500/80 -mt-0.5" viewBox="0 0 140 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M2 7C32 2 85 2 138 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
                     </svg>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                       {sortedDoctors.length} verified specialists ready for consultation &middot; Pay cash on arrival
                     </p>
                   </div>
                   {sortedDoctors.some(d => d.is_spotlight) && (
-                    <span className="self-start sm:self-auto text-xs font-semibold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/80 shadow-2xs flex items-center gap-1.5">
+                    <span className="self-start sm:self-auto text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 px-3 py-1 rounded-full border border-amber-200/80 dark:border-amber-500/30 shadow-2xs flex items-center gap-1.5">
                       <span className="text-amber-500">★</span> Featured Specialists First
                     </span>
                   )}
@@ -7312,23 +7313,17 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
   const staggerClass = `stagger-${(index % 6) + 1}`;
-
-  // Format doctor name with proper title capitalization
-  let rawName = (doctor.full_name || '').trim();
-  let displayName = rawName.replace(/\b\w/g, c => c.toUpperCase());
-  if (!displayName.toLowerCase().startsWith('dr.') && !displayName.toLowerCase().startsWith('dr ')) {
-    displayName = `Dr. ${displayName}`;
-  }
+  const displayName = formatDoctorName(doctor.full_name);
 
   return (
-    <div className={`group relative bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 shadow-xs dark:shadow-md dark:shadow-slate-950/50 hover:shadow-xl dark:hover:shadow-emerald-950/20 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 ${staggerClass}`}>
+    <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-xs dark:shadow-lg dark:shadow-slate-950/40 hover:shadow-xl dark:hover:shadow-emerald-950/25 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 ${staggerClass}`}>
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">
           {/* Doctor Picture / Avatar */}
           <div
             onClick={() => onProfile(doctor)}
-            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-200/70 dark:ring-slate-700/80 shadow-2xs cursor-pointer hover:opacity-90 transition-opacity"
+            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-200/70 dark:ring-emerald-500/30 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
             title="Click to view doctor profile"
           >
             <img
@@ -7343,12 +7338,12 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             />
             <div
               style={{ display: 'none' }}
-              className="w-full h-full bg-gradient-to-br from-clinic-800 to-slate-900 text-white flex items-center justify-center font-bold text-xl"
+              className="w-full h-full bg-gradient-to-br from-emerald-600 via-teal-700 to-slate-900 text-white flex items-center justify-center font-bold text-xl"
             >
               {initials}
             </div>
             {doctor.verification_status === 'verified' && (
-              <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs" title="PMDC Verified">
+              <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs ring-1 ring-white dark:ring-slate-900" title="PMDC Verified">
                 <Check className="w-2.5 h-2.5 stroke-[3]" />
               </span>
             )}
@@ -7366,12 +7361,12 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
                 {displayName}
               </h3>
               {doctor.is_spotlight && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border border-amber-300/80 dark:border-amber-700/60 px-2 py-0.5 rounded-full shadow-2xs">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-300/80 dark:border-amber-500/30 px-2 py-0.5 rounded-full shadow-2xs">
                   ★ Featured
                 </span>
               )}
             </div>
-            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate uppercase tracking-wider">
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate tracking-wide">
               {doctor.specialty} Specialist
             </p>
             {doctor.qualification && (
@@ -7384,34 +7379,34 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300 mt-1 truncate group/loc transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
               title="Click to view clinic location on Google Maps"
             >
-              <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-500 group-hover/loc:text-emerald-500 flex-shrink-0" />
+              <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-400 group-hover/loc:text-emerald-500 flex-shrink-0" />
               <span className="truncate underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
             </a>
           </div>
         </div>
 
         {/* Availability & Fee Strip */}
-        <div className="bg-slate-50/90 dark:bg-slate-800/60 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-200/80 dark:border-slate-700/50 flex items-center justify-between gap-2 transition-colors">
+        <div className="bg-slate-50/90 dark:bg-slate-800/70 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between gap-2 transition-colors">
           {/* Availability */}
           <div className="min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
               Availability
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-400/80'}`} />
               <span className={`text-xs font-bold truncate ${avail.isAvailableToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}>
-                {avail.isAvailableToday ? 'Available Today' : (avail.nextSlotText || 'Consultation by Slot')}
+                {avail.isAvailableToday ? 'Available Today' : (avail.nextSlotText || 'OPD Slots Available')}
               </span>
             </div>
           </div>
 
           {/* Fee */}
           <div className="text-right flex-shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
-              Fee
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Consultation Fee
             </span>
             <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono">
               {formatCurrency(doctor.fee_clinic)}
@@ -7425,15 +7420,15 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
         <button
           type="button"
           onClick={() => onProfile(doctor)}
-          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-200 dark:border-slate-700/90 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
+          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
+          <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-300" />
           <span>View Profile</span>
         </button>
         <button
           type="button"
           onClick={() => onBook(doctor)}
-          className="py-2.5 px-2 sm:px-3 rounded-xl bg-clinic-700 hover:bg-clinic-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
+          className="py-2.5 px-2 sm:px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap active:scale-[0.98]"
         >
           <span className="hidden sm:inline">Book Appointment</span><span className="sm:hidden">Book Slot</span>
           <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>

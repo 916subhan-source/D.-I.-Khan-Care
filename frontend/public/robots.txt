@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /doctor
 Disallow: /assistant
 
-Sitemap: https://dikhan-doctor-appointment.pages.dev/sitemap.xml
+Sitemap: https://dikhancare.io/sitemap.xml

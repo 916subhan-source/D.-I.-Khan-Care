@@ -6610,6 +6610,9 @@ function PatientSection({
               >
                 کلینک میں لمبی لائنوں سے بچیں۔ باآسانی ماہر ڈاکٹر کا ٹوکن حاصل کریں اور فیس کلینک پہنچ کر ادا کریں۔
               </p>
+              <p className="text-[11px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-center mt-2 font-sans">
+                Doctor Appointment System in D.I. Khan &bull; Dera Ismail Khan Verified Clinics
+              </p>
 
               {/* Unified Floating Smart Search Bar in Hero */}
               {isHomeView && (

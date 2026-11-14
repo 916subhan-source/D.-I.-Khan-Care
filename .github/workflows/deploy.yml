@@ -15,12 +15,11 @@ jobs:
       - name: Trigger VPS Update via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.VPS_HOST || '76.13.18.85' }}
-          username: ${{ secrets.VPS_USER || 'root' }}
+          host: 76.13.18.85
+          username: root
           password: ${{ secrets.VPS_PASSWORD }}
-          key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
-            cd ~/app
+            cd /root/app
             git pull origin main
             docker compose up -d --build

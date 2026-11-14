@@ -1,0 +1,41 @@
+{
+  "name": "D.I. Khan Care — Doctor Appointment System",
+  "short_name": "DIK Care",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0d9488",
+  "background_color": "#0b1120",
+  "description": "Book verified specialist doctors across Dera Ismail Khan in 30 seconds. Skip hospital waiting queues with instant digital tokens. Pay cash at clinic arrival.",
+  "categories": ["medical", "health", "lifestyle"],
+  "lang": "en-PK",
+  "icons": [
+    {
+      "src": "/favicon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
+

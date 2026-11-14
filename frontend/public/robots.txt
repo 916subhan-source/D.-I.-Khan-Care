@@ -1,7 +1,23 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
 User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /doctor
 Disallow: /assistant
+Disallow: /api/
 
 Sitemap: https://dikhancare.io/sitemap.xml

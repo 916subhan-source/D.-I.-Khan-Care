@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Core Platform Pages -->
   <url>
     <loc>https://dikhancare.io/</loc>
     <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/images/private-clinic-consultation.jpg</image:loc>
+      <image:title>Doctor Appointment in Dera Ismail Khan — D.I. Khan Care</image:title>
+      <image:caption>Book verified specialist doctor consultations and digital clinic tokens in D.I. Khan</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://dikhancare.io/doctors</loc>
@@ -16,6 +23,84 @@
     <loc>https://dikhancare.io/track</loc>
     <lastmod>2026-11-14</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Verified Doctor Direct Profile Pages -->
+  <url>
+    <loc>https://dikhancare.io/doctors?doctor=f4158d94-9b2d-401e-9a07-ce6609ccf348</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/doctors/dr_tariq_babar.jpg</image:loc>
+      <image:title>Dr. Tariq Mehmood Babar — Consultant Cardiologist in D.I. Khan</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?doctor=5c7dadea-12b7-4305-aa36-77e6de2d05cb</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/doctors/dr_sadia_rehman.jpg</image:loc>
+      <image:title>Dr. Sadia Rehman — Consultant Gynecologist in D.I. Khan</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?doctor=6270c7d6-63de-46e3-8a9b-57cf0e620eaa</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/doctors/dr_asif_gandapur.jpg</image:loc>
+      <image:title>Dr. Asif Khan Gandapur — Pediatrician and Child Specialist in D.I. Khan</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?doctor=5f01f272-2ec5-41b4-9221-cc30500f3770</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/doctors/dr_moiz_ahmad.webp</image:loc>
+      <image:title>Dr. Moiz Ahmad — Child Specialist in D.I. Khan</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?doctor=3930a7d5-9b0c-4a22-ba0a-1973b09cfd7c</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/doctors/dr_subhan_sultan.webp</image:loc>
+      <image:title>Dr. Subhan Sultan — Cardiologist in D.I. Khan</image:title>
+    </image:image>
+  </url>
+
+  <!-- Specialty Filter Landing URLs for Local Search Keywords -->
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Cardiology</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Gynecology</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Pediatrics</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Dermatology</loc>
+    <lastmod>2026-11-14</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>

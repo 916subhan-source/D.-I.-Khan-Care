@@ -13,6 +13,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0d9488" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Local Geographic SEO Meta Tags for D.I. Khan Proximity Ranking -->
+    <meta name="geo.region" content="PK-KP" />
+    <meta name="geo.placename" content="Dera Ismail Khan" />
+    <meta name="geo.position" content="31.8314;70.9019" />
+    <meta name="ICBM" content="31.8314, 70.9019" />
+
+    <!-- Google Search Console Ownership Verification -->
     <meta name="google-site-verification" content="1yZrAQ09CacDlFTuaejTKMWzGimgejOoocgTZfK7vvU" />
     <meta name="google-site-verification" content="TKUkWb5P2wCESwgutihT_xYDSzobUoxshbbM0y5EEss" />
     <title>Doctor Appointment in D.I. Khan — D.I. Khan Care | Book Top Doctors</title>
@@ -43,7 +52,7 @@
     <meta name="twitter:description" content="Book doctor appointment in D.I. Khan. Find top verified specialist doctors across Dera Ismail Khan in 30 seconds. 100% free booking, pay cash at clinic arrival." />
     <meta name="twitter:image" content="https://dikhancare.io/icon-512.png" />
 
-    <!-- Google Structured Data (Schema.org JSON-LD for Medical / Healthcare Platform & Sitelinks) -->
+    <!-- Google Structured Data (Schema.org JSON-LD: MedicalBusiness, Physicians, FAQPage & Sitelinks) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -53,31 +62,46 @@
           "@id": "https://dikhancare.io/#website",
           "url": "https://dikhancare.io/",
           "name": "D.I. Khan Care",
-          "alternateName": ["DI Khan Care", "Doctor Appointment in D.I. Khan", "D.I. Khan Doctor Appointment System"],
+          "alternateName": ["DI Khan Care", "DIK Health Care", "Doctor Appointment in D.I. Khan", "D.I. Khan Doctor Appointment System"],
           "description": "Online doctor appointment booking, digital tokens, and consultation scheduling for clinics and specialists across Dera Ismail Khan, KP.",
-          "hasPart": [
-            {
-              "@type": "WebPage",
-              "@id": "https://dikhancare.io/track#webpage",
-              "url": "https://dikhancare.io/track",
-              "name": "Track Appointment & Live Queue Token — D.I. Khan Care",
-              "description": "Check real-time live appointment status, patient digital slip details, and clinic queue calling token number in Dera Ismail Khan."
-            }
-          ]
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://dikhancare.io/doctors?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
         },
         {
           "@type": "MedicalBusiness",
           "@id": "https://dikhancare.io/#medicalbusiness",
-          "name": "D.I. Khan Care",
+          "name": "D.I. Khan Care — DIK Health Care",
           "alternateName": "Doctor Appointment D.I. Khan",
           "url": "https://dikhancare.io/",
+          "telephone": "+923700593073",
+          "priceRange": "Rs. 1,000 - Rs. 1,500",
+          "currenciesAccepted": "PKR",
+          "paymentAccepted": "Cash on Arrival",
           "description": "Online doctor appointment booking, digital tokens, and consultation scheduling for clinics and specialists across Dera Ismail Khan, Khyber Pakhtunkhwa.",
           "address": {
             "@type": "PostalAddress",
+            "streetAddress": "Circular Road",
             "addressLocality": "Dera Ismail Khan",
             "addressRegion": "Khyber Pakhtunkhwa",
+            "postalCode": "29050",
             "addressCountry": "PK"
           },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 31.8314,
+            "longitude": 70.9019
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+              "opens": "08:00",
+              "closes": "21:00"
+            }
+          ],
           "areaServed": "Dera Ismail Khan",
           "medicalSpecialty": [
             "Cardiovascular",
@@ -85,6 +109,112 @@
             "Pediatric",
             "Gynecology",
             "Dermatology"
+          ]
+        },
+        {
+          "@type": "Physician",
+          "name": "Dr. Tariq Mehmood Babar",
+          "medicalSpecialty": "Cardiology",
+          "jobTitle": "Consultant Cardiologist",
+          "telephone": "+923700593073",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Babar Heart Clinic, Opposite DHQ Hospital, Circular Road",
+            "addressLocality": "Dera Ismail Khan",
+            "addressRegion": "Khyber Pakhtunkhwa",
+            "addressCountry": "PK"
+          },
+          "url": "https://dikhancare.io/doctors?doctor=f4158d94-9b2d-401e-9a07-ce6609ccf348"
+        },
+        {
+          "@type": "Physician",
+          "name": "Dr. Sadia Rehman",
+          "medicalSpecialty": "Gynecology",
+          "jobTitle": "Consultant Gynecologist & Obstetrician",
+          "telephone": "+923700593073",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Rehman Medical Complex, University Road",
+            "addressLocality": "Dera Ismail Khan",
+            "addressRegion": "Khyber Pakhtunkhwa",
+            "addressCountry": "PK"
+          },
+          "url": "https://dikhancare.io/doctors?doctor=5c7dadea-12b7-4305-aa36-77e6de2d05cb"
+        },
+        {
+          "@type": "Physician",
+          "name": "Dr. Asif Khan Gandapur",
+          "medicalSpecialty": "Pediatrics",
+          "jobTitle": "Pediatrician & Child Specialist",
+          "telephone": "+923700593073",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Gandapur Children Clinic, Near Topanwala Chowk",
+            "addressLocality": "Dera Ismail Khan",
+            "addressRegion": "Khyber Pakhtunkhwa",
+            "addressCountry": "PK"
+          },
+          "url": "https://dikhancare.io/doctors?doctor=6270c7d6-63de-46e3-8a9b-57cf0e620eaa"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://dikhancare.io/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How to book an online doctor appointment in D.I. Khan?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Visit dikhancare.io, choose your specialist doctor (Cardiologist, Gynecologist, Child Specialist, etc.), pick your preferred date and OPD time slot, enter your mobile number, and receive an instant digital token slip via SMS or WhatsApp."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the consultation fee for doctors in Dera Ismail Khan?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Doctor consultation fees in D.I. Khan range between Rs. 1,000 to Rs. 1,500 depending on the specialist. Booking through D.I. Khan Care is 100% free, and you pay cash at the clinic reception desk when you arrive."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I track my live clinic queue token online?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! D.I. Khan Care provides a live token tracking page at dikhancare.io/track where you can enter your slip number or mobile number to see the current calling token, remaining patients ahead, and estimated consultation time."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are the doctors on D.I. Khan Care PMDC verified?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, all featured specialists on D.I. Khan Care are verified by the Pakistan Medical and Dental Council (PMDC) and actively practice in leading medical clinics across Dera Ismail Khan."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://dikhancare.io/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Doctors in D.I. Khan",
+              "item": "https://dikhancare.io/doctors"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Live Queue Tracking",
+              "item": "https://dikhancare.io/track"
+            }
           ]
         }
       ]
@@ -151,6 +281,29 @@
         <section>
           <h2>Available Medical Specialties in D.I. Khan</h2>
           <p>Cardiology (Heart Specialist), Gynecology &amp; Obstetrics, Pediatrics (Child Specialist), Dermatology (Skin Specialist), General Physician, Orthopedic Surgery in D.I. Khan, Khyber Pakhtunkhwa.</p>
+        </section>
+        <section>
+          <h2>Frequently Asked Questions — Doctor Appointments in D.I. Khan</h2>
+          <article>
+            <h3>How to book an online doctor appointment in D.I. Khan?</h3>
+            <p>Visit dikhancare.io, choose your specialist doctor (Cardiologist, Gynecologist, Child Specialist, etc.), pick your preferred date and OPD time slot, enter your mobile number, and receive an instant digital token slip via SMS or WhatsApp.</p>
+          </article>
+          <article>
+            <h3>What is the consultation fee for doctors in Dera Ismail Khan?</h3>
+            <p>Doctor consultation fees in D.I. Khan range between Rs. 1,000 to Rs. 1,500 depending on the specialist. Booking through D.I. Khan Care is 100% free, and you pay cash at the clinic reception desk when you arrive.</p>
+          </article>
+          <article>
+            <h3>Can I track my live clinic queue token online?</h3>
+            <p>Yes! D.I. Khan Care provides a live token tracking page at <a href="/track">dikhancare.io/track</a> where you can enter your slip number or mobile number to see the current calling token, remaining patients ahead, and estimated consultation time.</p>
+          </article>
+          <article>
+            <h3>Are the doctors on D.I. Khan Care PMDC verified?</h3>
+            <p>Yes, all featured specialists on D.I. Khan Care are verified by the Pakistan Medical and Dental Council (PMDC) and actively practice in leading medical clinics across Dera Ismail Khan.</p>
+          </article>
+        </section>
+        <section>
+          <h2>Popular Clinics, Hospitals &amp; Locations in Dera Ismail Khan</h2>
+          <p>Babar Heart Clinic (Opposite DHQ Hospital, Circular Road), Rehman Medical Complex (University Road), Gandapur Children Clinic (Topanwala Chowk), District Headquarters (DHQ) Hospital D.I. Khan, Bannu Road clinics, Cantt D.I. Khan.</p>
         </section>
       </main>
     </div>

@@ -10628,21 +10628,6 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           </option>
                         ))}
                       </select>
-
-                      {/* Quick date picker */}
-                      <input
-                        type="date"
-                        value={asstSlotDateFilter === 'all' ? '' : asstSlotDateFilter}
-                        onChange={e => {
-                          const val = e.target.value;
-                          if (val && val < pktTodayYmd) {
-                            setAsstShowPastSlots(true);
-                          }
-                          setAsstSlotDateFilter(val || 'all');
-                        }}
-                        title="Jump directly to a specific calendar date"
-                        className="px-2.5 py-1 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
-                      />
                     </div>
 
                     {/* Row 2: Status, Past Slots Toggle & Reset (Starts at the exact same position as first line box) */}
@@ -14333,8 +14318,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
         <div className="p-3 sm:p-5 md:p-8 space-y-4 sm:space-y-6">
           {/* Portal sub-nav — Premium pill tabs with horizontal swipe on mobile */}
-          <div className="flex items-center gap-1 pb-1 overflow-x-auto scrollbar-none touch-scroll flex-nowrap">
-            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/90 p-1 sm:p-1.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex-nowrap shadow-xs">
+          <div className="flex items-center gap-1 pb-1 overflow-x-auto scrollbar-none touch-pan-x flex-nowrap w-full">
+            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-slate-900/90 p-1 sm:p-1.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex-nowrap shadow-xs min-w-max">
               {([
                 ['overview', 'Overview'],
                 ['schedule', 'Schedule & Slots'],
@@ -14365,100 +14350,103 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           {/* ── Overview Tab ── */}
           {activePortalTab === 'overview' && (
             <div className="space-y-4 sm:space-y-6">
-              {/* Premium Header */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.?\s*/i, '').trim()}</span>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-0.5 font-medium">
-                    {todayStr}
-                  </p>
+              {/* Premium Balanced Header Card */}
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100/80 dark:from-slate-900/80 dark:to-slate-800/50 p-4 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight break-words" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      Welcome back, <span className="text-gradient-clinic">Dr. {doctorName.replace(/^Dr\.?\s*/i, '').trim()}</span>
+                    </h2>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        {todayStr}
+                      </span>
+                      <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">&bull;</span>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium min-w-0">
+                        <RealtimeLive />
+                        <span className="truncate max-w-[200px] sm:max-w-none">{doctorProfile?.clinic_address || 'Rehmat Polyclinic · Circular Road'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-slate-800">
+                    <button
+                      onClick={() => setActivePortalTab('schedule')}
+                      className="w-full sm:w-auto px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-semibold rounded-xl shadow-xs transition-all whitespace-nowrap inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>Manage Schedule</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
-                  <button
-                    onClick={() => setActivePortalTab('schedule')}
-                    className="px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-all whitespace-nowrap"
-                  >
-                    Manage schedule
-                  </button>
-                </div>
-              </div>
 
-              {/* Sub bar: Realtime + 4 Timeframe Filter Buttons */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1">
-                <div className="flex items-center gap-2 min-w-0">
-                  <RealtimeLive />
-                  <span className="text-xs text-slate-500 font-medium truncate">
-                    {doctorProfile?.clinic_address || 'Rehmat Polyclinic · Circular Road'}
-                  </span>
-                </div>
                 {/* 4 Timeframe Filter Buttons: Today, This Week, This Month, All (swipeable scroll strip on mobile) */}
-                <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/90 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap flex-shrink-0 max-w-full">
-                  <button
-                    type="button"
-                    onClick={() => setTimeframe('today')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'today'
-                      ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                      }`}
-                  >
-                    <span>Today</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'today' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
-                      {todayCount}
-                    </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'today' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                      ({formatCurrency(todayIncome)})
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTimeframe('week')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'week'
-                      ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                      }`}
-                  >
-                    <span>This Week</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'week' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
-                      {weekCount}
-                    </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'week' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                      ({formatCurrency(weekIncome)})
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTimeframe('month')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'month'
-                      ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                      }`}
-                  >
-                    <span>This Month</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'month' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
-                      {monthCount}
-                    </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'month' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                      ({formatCurrency(monthIncome)})
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTimeframe('all')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 ${timeframe === 'all'
-                      ? 'bg-clinic-700 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                      }`}
-                  >
-                    <span>All</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
-                      {totalAllCount}
-                    </span>
-                    <span className={`text-[10px] font-mono font-bold ${timeframe === 'all' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                      ({formatCurrency(allIncome)})
-                    </span>
-                  </button>
+                <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/80 w-full overflow-x-auto pb-0.5 scrollbar-none touch-pan-x">
+                  <div className="inline-flex items-center gap-1.5 bg-white dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-2xs min-w-max">
+                    <button
+                      type="button"
+                      onClick={() => setTimeframe('today')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer ${timeframe === 'today'
+                        ? 'bg-clinic-700 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                      <span>Today</span>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'today' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
+                        {todayCount}
+                      </span>
+                      <span className={`text-[10px] font-mono font-bold ${timeframe === 'today' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                        ({formatCurrency(todayIncome)})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTimeframe('week')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer ${timeframe === 'week'
+                        ? 'bg-clinic-700 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                      <span>This Week</span>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'week' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
+                        {weekCount}
+                      </span>
+                      <span className={`text-[10px] font-mono font-bold ${timeframe === 'week' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                        ({formatCurrency(weekIncome)})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTimeframe('month')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer ${timeframe === 'month'
+                        ? 'bg-clinic-700 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                      <span>This Month</span>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'month' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
+                        {monthCount}
+                      </span>
+                      <span className={`text-[10px] font-mono font-bold ${timeframe === 'month' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                        ({formatCurrency(monthIncome)})
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTimeframe('all')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all whitespace-nowrap flex-shrink-0 cursor-pointer ${timeframe === 'all'
+                        ? 'bg-clinic-700 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                      <span>All</span>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${timeframe === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>
+                        {totalAllCount}
+                      </span>
+                      <span className={`text-[10px] font-mono font-bold ${timeframe === 'all' ? 'text-emerald-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                        ({formatCurrency(allIncome)})
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -15698,14 +15686,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     {/* Date Dropdown with formatted labels & slot counts */}
-                    <div className="flex items-center gap-1.5">
-                      <label className="text-xs text-slate-500 font-semibold">Filter Date:</label>
+                    <div className="flex items-center gap-1.5 min-w-[170px] flex-1 sm:flex-initial">
+                      <label className="text-xs text-slate-500 font-semibold shrink-0">Filter Date:</label>
                       <select
                         value={slotDateFilter}
                         onChange={e => setSlotDateFilter(e.target.value)}
-                        className="px-3 py-1.5 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-clinic-400"
+                        className="w-full px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs bg-white dark:bg-slate-800 font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-400"
                       >
                         <option value="all">
                           {doctorShowPastSlots ? `All Dates (${slots.length} slots)` : `All Upcoming Dates (${doctorVisibleSlots.length} slots)`}
@@ -15718,36 +15706,23 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </select>
                     </div>
 
-                    {/* Quick Direct Date Picker */}
-                    <input
-                      type="date"
-                      value={slotDateFilter === 'all' ? '' : slotDateFilter}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (val && val < activeTodayStr) {
-                          setDoctorShowPastSlots(true);
-                        }
-                        setSlotDateFilter(val || 'all');
-                      }}
-                      title="Jump directly to a specific calendar date"
-                      className="px-2.5 py-1 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
-                    />
-
                     {/* Status Filter */}
-                    <select
-                      value={slotStatusFilter}
-                      onChange={e => setSlotStatusFilter(e.target.value)}
-                      className="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs bg-white font-medium text-slate-700"
-                    >
-                      <option value="all">All Statuses</option>
-                      <option value="available">Available Only</option>
-                      <option value="hold">Hold Only</option>
-                      <option value="booked">Booked Only</option>
-                      <option value="blocked">Blocked Only</option>
-                    </select>
+                    <div className="flex items-center gap-1.5 min-w-[120px] flex-1 sm:flex-initial">
+                      <select
+                        value={slotStatusFilter}
+                        onChange={e => setSlotStatusFilter(e.target.value)}
+                        className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl text-xs bg-white dark:bg-slate-800 font-medium text-slate-700 dark:text-slate-200"
+                      >
+                        <option value="all">All Statuses</option>
+                        <option value="available">Available Only</option>
+                        <option value="hold">Hold Only</option>
+                        <option value="booked">Booked Only</option>
+                        <option value="blocked">Blocked Only</option>
+                      </select>
+                    </div>
 
                     {/* Show Past Slots Toggle */}
-                    <label className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold cursor-pointer select-none px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors">
+                    <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold cursor-pointer select-none px-3 py-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors">
                       <input
                         type="checkbox"
                         checked={doctorShowPastSlots}
@@ -15762,7 +15737,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       <button
                         type="button"
                         onClick={() => { setSlotDateFilter('all'); setSlotStatusFilter('all'); setDoctorShowPastSlots(false); }}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors cursor-pointer"
+                        className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition-colors cursor-pointer"
                       >
                         Reset Filters
                       </button>

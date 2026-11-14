@@ -218,8 +218,9 @@
     .portal-content {
       margin-left: 0 !important;
       width: 100% !important;
-      max-width: 100% !important;
+      max-width: 100vw !important;
       min-width: 0 !important;
+      overflow-x: hidden !important;
     }
   }
 
@@ -1396,14 +1397,14 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   overflow: visible;
-  font-weight: 700;
-  -webkit-text-stroke: 0.35px currentColor;
-  text-shadow: 0 0 0.35px currentColor;
-  word-spacing: 0.15em;
+  font-weight: 800;
+  -webkit-text-stroke: 0.8px currentColor;
+  text-shadow: 0 0 0.8px currentColor;
+  word-spacing: 0.35em;
 }
 
 @media (min-width: 640px) {
   .font-urdu-nastaliq {
-    word-spacing: 0.2em;
+    word-spacing: 0.45em;
   }
 }

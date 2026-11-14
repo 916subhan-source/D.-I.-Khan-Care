@@ -8947,32 +8947,34 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
             </button>
           </div>
         </div>
-        <div className="p-3 sm:p-5 md:p-8 space-y-4 sm:space-y-6">
+        <div className="max-w-6xl mx-auto w-full px-3 sm:px-6 md:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
           {/* Sub-nav tabs (inside content area) — smooth swipeable on mobile */}
-          <div className="flex items-center gap-1 border-b border-slate-100 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap">
-            {[
-              ['queue', 'Live desk'],
-              ['pos', 'POS / Walk-In Desk'],
-              ['schedule', 'Schedule & Slots'],
-              ['smart_resched', 'Smart rescheduling'],
-              ['cash', 'Cash ledger'],
-              ['all', 'All visit records']
-            ].map(([tab, label]) => (
-              <button
-                key={tab}
-                onClick={() => setDeskTab(tab as any)}
-                className={`px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${deskTab === tab ? 'border-clinic-700 text-clinic-700 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700'
-                  }`}
-              >
-                {label}
-              </button>
-            ))}
+          <div className="w-full max-w-full min-w-0 overflow-hidden">
+            <div className="flex items-center gap-1 border-b border-slate-100 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap">
+              {[
+                ['queue', 'Live desk'],
+                ['pos', 'POS / Walk-In Desk'],
+                ['schedule', 'Schedule & Slots'],
+                ['smart_resched', 'Smart rescheduling'],
+                ['cash', 'Cash ledger'],
+                ['all', 'All visit records']
+              ].map(([tab, label]) => (
+                <button
+                  key={tab}
+                  onClick={() => setDeskTab(tab as any)}
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${deskTab === tab ? 'border-clinic-700 text-clinic-700 font-semibold' : 'border-transparent text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Header heading */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
+          {/* Header heading — Balanced across mobile & desktop */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Reception Desk
@@ -8988,7 +8990,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
             <button
               onClick={() => fetchQueue(selectedDoctorId)}
               disabled={loading}
-              className="self-start sm:self-auto px-3.5 sm:px-4 py-1.5 sm:py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer shrink-0"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Refreshing Queue...' : 'Refresh Queue'}</span>
@@ -9034,8 +9036,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
           {deskTab === 'queue' && (
             <div className="scroll-reveal bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
               {/* Table controls */}
-              <div className="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 bg-white dark:bg-slate-900">
-                <div className="relative flex-1 max-w-sm w-full">
+              <div className="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 w-full min-w-0">
+                <div className="relative w-full md:max-w-sm">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
@@ -9046,7 +9048,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                   />
                 </div>
                 {/* Filter pills — swipeable scroll strip on mobile */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none touch-scroll flex-nowrap w-full md:w-auto min-w-0 max-w-full">
                   <div className="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-950/60 rounded-xl border border-slate-200/80 dark:border-slate-800">
                     {((['ALL', 'PENDING', 'CONFIRMED', 'PAID', 'LOYALTY'] as const)).map(f => (
                       <button
@@ -9121,8 +9123,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800 px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 dark:text-amber-200">
-                      <div className="flex items-center gap-2">
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping flex-shrink-0" />
                         <span className="font-bold">
                           ⏳ Calling Starts at {callingShiftInfo.callingStartTimeStr}
@@ -9134,7 +9136,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                       <button
                         type="button"
                         onClick={() => setManualCallingStarted(true)}
-                        className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-semibold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+                        className="w-full sm:w-auto px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors cursor-pointer text-center"
                       >
                         ▶ Start Calling Early
                       </button>
@@ -9601,7 +9603,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               </div>
 
               {/* Mobile Card Feed View (< md) */}
-              <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 w-full min-w-0 max-w-full">
                 {loading ? (
                   <div className="py-16 text-center">
                     <Loader2 className="w-8 h-8 animate-spin text-clinic-600 mx-auto mb-2" />
@@ -9636,7 +9638,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     return (
                       <div
                         key={`m-asst-${item.id}`}
-                        className={`p-4 transition-colors ${isCurrentActive
+                        className={`p-4 transition-colors w-full min-w-0 max-w-full overflow-hidden ${isCurrentActive
                           ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500'
                           : isNextInLineWaiting
                             ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'

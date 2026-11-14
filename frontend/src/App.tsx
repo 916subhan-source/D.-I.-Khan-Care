@@ -6372,7 +6372,25 @@ function PatientSection({
   const filteredDoctors = doctors.filter(doc => {
     const matchLoc = selectedLocality === 'All D.I. Khan' || doc.sub_region.toLowerCase().includes(selectedLocality.split('/')[0].trim().toLowerCase());
     const matchShift = selectedShift === 'Any shift' || doc.shift.toLowerCase().includes(selectedShift.toLowerCase());
-    const matchSearch = !searchTerm || doc.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doc.clinic_address.toLowerCase().includes(searchTerm.toLowerCase()) || (doc.bio && doc.bio.toLowerCase().includes(searchTerm.toLowerCase())) || (doc.expertise && doc.expertise.toLowerCase().includes(searchTerm.toLowerCase()));
+    const cleanQuery = searchTerm.trim().toLowerCase();
+    const isGenericDoctorQuery = cleanQuery === 'dr list' || cleanQuery === 'doctor list' || cleanQuery === 'doctors list' || cleanQuery === 'best medical specialist' || cleanQuery === 'specialist' || cleanQuery === 'specialists';
+    const isAliHospitalQuery = cleanQuery.includes('ali hospital') || cleanQuery.includes('al-shifa') || cleanQuery.includes('al shifa');
+    const isDhqQuery = cleanQuery.includes('dhq');
+    const isMuftiMehmoodQuery = cleanQuery.includes('mufti mehmood') || cleanQuery.includes('mti');
+    
+    const matchSearch = !searchTerm ||
+      isGenericDoctorQuery ||
+      doc.full_name.toLowerCase().includes(cleanQuery) ||
+      doc.specialty.toLowerCase().includes(cleanQuery) ||
+      doc.clinic_address.toLowerCase().includes(cleanQuery) ||
+      (doc.hospital_affiliations && doc.hospital_affiliations.toLowerCase().includes(cleanQuery)) ||
+      (doc.bio && doc.bio.toLowerCase().includes(cleanQuery)) ||
+      (doc.expertise && doc.expertise.toLowerCase().includes(cleanQuery)) ||
+      (doc.services_offered && doc.services_offered.toLowerCase().includes(cleanQuery)) ||
+      (doc.conditions_treated && doc.conditions_treated.toLowerCase().includes(cleanQuery)) ||
+      (isAliHospitalQuery && (doc.clinic_address.toLowerCase().includes('ali') || doc.clinic_address.toLowerCase().includes('shifa'))) ||
+      (isDhqQuery && (doc.clinic_address.toLowerCase().includes('dhq') || doc.bio?.toLowerCase().includes('dhq') || doc.hospital_affiliations?.toLowerCase().includes('dhq'))) ||
+      (isMuftiMehmoodQuery && (doc.hospital_affiliations?.toLowerCase().includes('mufti') || doc.bio?.toLowerCase().includes('mufti')));
     const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
       (selectedSpecialty.toLowerCase().includes('cardio') && (doc.specialty.toLowerCase().includes('cardio') || doc.specialty.toLowerCase().includes('heart'))) ||

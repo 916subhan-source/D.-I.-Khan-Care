@@ -186,7 +186,10 @@ export function getDoctorProfileImage(
   targetWidth: number = 400
 ): string {
   if (!doc) return '/dr_ayesha_khan.webp';
-  if (doc.profile_image) return optimizeCloudinaryUrl(doc.profile_image, targetWidth);
+  // Avoid old broken screenshot upload on doc_f4158d94, use official portrait instead
+  if (doc.profile_image && !doc.profile_image.includes('doc_f4158d94') && !doc.profile_image.includes('media_') && !doc.profile_image.includes('.png')) {
+    return optimizeCloudinaryUrl(doc.profile_image, targetWidth);
+  }
   const name = (doc.full_name || '').toLowerCase();
   const spec = (doc.specialty || '').toLowerCase();
 

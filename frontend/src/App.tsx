@@ -7313,20 +7313,27 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   const avail = getDoctorAvailability(doctor);
   const staggerClass = `stagger-${(index % 6) + 1}`;
 
+  // Format doctor name with proper title capitalization
+  let rawName = (doctor.full_name || '').trim();
+  let displayName = rawName.replace(/\b\w/g, c => c.toUpperCase());
+  if (!displayName.toLowerCase().startsWith('dr.') && !displayName.toLowerCase().startsWith('dr ')) {
+    displayName = `Dr. ${displayName}`;
+  }
+
   return (
-    <div className={`group relative bg-white dark:bg-[#111c2e] rounded-2xl border border-slate-200/90 dark:border-slate-800/90 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 scroll-reveal p-4 sm:p-5 flex flex-col justify-between shadow-xs ${staggerClass}`}>
+    <div className={`group relative bg-white dark:bg-slate-900/95 rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/60 dark:hover:border-emerald-400/60 shadow-xs dark:shadow-md dark:shadow-slate-950/50 hover:shadow-xl dark:hover:shadow-emerald-950/20 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 ${staggerClass}`}>
       <div>
         {/* Top Header: Doctor Picture + Name & Specialty */}
         <div className="flex items-start gap-3.5 mb-3.5">
           {/* Doctor Picture / Avatar */}
           <div
             onClick={() => onProfile(doctor)}
-            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-100 dark:ring-slate-700/80 shadow-2xs cursor-pointer hover:opacity-90 transition-opacity"
+            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-200/70 dark:ring-slate-700/80 shadow-2xs cursor-pointer hover:opacity-90 transition-opacity"
             title="Click to view doctor profile"
           >
             <img
               src={getDoctorProfileImage(doctor, 300)}
-              alt={doctor.full_name}
+              alt={displayName}
               className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = 'none';
@@ -7356,10 +7363,10 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
                 style={{ fontFamily: 'Outfit, sans-serif' }}
                 title="Click to view doctor profile"
               >
-                {doctor.full_name}
+                {displayName}
               </h3>
               {doctor.is_spotlight && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/30 px-1.5 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border border-amber-300/80 dark:border-amber-700/60 px-2 py-0.5 rounded-full shadow-2xs">
                   ★ Featured
                 </span>
               )}
@@ -7368,7 +7375,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
               {doctor.specialty} Specialist
             </p>
             {doctor.qualification && (
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5 font-medium">
+              <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5 font-medium">
                 {doctor.qualification}
               </p>
             )}
@@ -7377,25 +7384,25 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-300 mt-1 truncate group/loc transition-colors cursor-pointer"
               title="Click to view clinic location on Google Maps"
             >
-              <MapPin className="w-3 h-3 text-slate-500 group-hover/loc:text-emerald-500 flex-shrink-0" />
+              <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-500 group-hover/loc:text-emerald-500 flex-shrink-0" />
               <span className="truncate underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
             </a>
           </div>
         </div>
 
         {/* Availability & Fee Strip */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
+        <div className="bg-slate-50/90 dark:bg-slate-800/60 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-200/80 dark:border-slate-700/50 flex items-center justify-between gap-2 transition-colors">
           {/* Availability */}
           <div className="min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
               Availability
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+              <span className={`text-xs font-bold truncate ${avail.isAvailableToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}>
                 {avail.isAvailableToday ? 'Available Today' : (avail.nextSlotText || 'Consultation by Slot')}
               </span>
             </div>
@@ -7403,10 +7410,10 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
 
           {/* Fee */}
           <div className="text-right flex-shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 block">
               Fee
             </span>
-            <span className="font-black text-slate-900 dark:text-white text-sm sm:text-base font-mono">
+            <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono">
               {formatCurrency(doctor.fee_clinic)}
             </span>
           </div>
@@ -7418,7 +7425,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
         <button
           type="button"
           onClick={() => onProfile(doctor)}
-          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50/70 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
+          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-200 dark:border-slate-700/90 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
           <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
           <span>View Profile</span>
@@ -7426,7 +7433,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
         <button
           type="button"
           onClick={() => onBook(doctor)}
-          className="py-2.5 px-2 sm:px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
+          className="py-2.5 px-2 sm:px-3 rounded-xl bg-clinic-700 hover:bg-clinic-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap"
         >
           <span className="hidden sm:inline">Book Appointment</span><span className="sm:hidden">Book Slot</span>
           <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>

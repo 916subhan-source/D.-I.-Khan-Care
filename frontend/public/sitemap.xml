@@ -28,51 +28,35 @@
 
   <!-- Verified Doctor Direct Profile Pages -->
   <url>
-    <loc>https://dikhancare.io/doctors?doctor=f4158d94-9b2d-401e-9a07-ce6609ccf348</loc>
+    <loc>https://dikhancare.io/doctors?doctor=e3858a27-da7d-4d13-a4d4-9c6f1ffe7c71</loc>
     <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://dikhancare.io/doctors/dr_tariq_babar.jpg</image:loc>
-      <image:title>Dr. Tariq Mehmood Babar — Consultant Cardiologist in D.I. Khan</image:title>
+      <image:loc>https://dikhancare.io/doctors/dr_asif_gandapur.webp</image:loc>
+      <image:title>Dr. Waqar Khan Gandapur — Consultant General and Laparoscopic Surgeon in D.I. Khan</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://dikhancare.io/doctors?doctor=5c7dadea-12b7-4305-aa36-77e6de2d05cb</loc>
+    <loc>https://dikhancare.io/doctors?doctor=a22da1cd-e4c8-48bf-93d6-8c05789fdd4d</loc>
     <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://dikhancare.io/doctors/dr_sadia_rehman.jpg</image:loc>
-      <image:title>Dr. Sadia Rehman — Consultant Gynecologist in D.I. Khan</image:title>
+      <image:loc>https://dikhancare.io/doctors/dr_sahil_mehsood.webp</image:loc>
+      <image:title>Dr. Naveed Khan — Consultant Plastic and Aesthetic Surgeon in D.I. Khan</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://dikhancare.io/doctors?doctor=6270c7d6-63de-46e3-8a9b-57cf0e620eaa</loc>
+    <loc>https://dikhancare.io/doctors?doctor=52f87cb0-8e54-4d87-8acd-a9ab4d5e1282</loc>
     <lastmod>2026-11-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
-      <image:loc>https://dikhancare.io/doctors/dr_asif_gandapur.jpg</image:loc>
-      <image:title>Dr. Asif Khan Gandapur — Pediatrician and Child Specialist in D.I. Khan</image:title>
+      <image:loc>https://dikhancare.io/doctors/dr_haris_rehman.webp</image:loc>
+      <image:title>Surgeon Dr. Ali Raza — General and Laparoscopic Surgeon in D.I. Khan</image:title>
     </image:image>
   </url>
-  <url>
-    <loc>https://dikhancare.io/doctors?doctor=5f01f272-2ec5-41b4-9221-cc30500f3770</loc>
-    <lastmod>2026-11-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://dikhancare.io/doctors/dr_moiz_ahmad.webp</image:loc>
-      <image:title>Dr. Moiz Ahmad — Child Specialist in D.I. Khan</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://dikhancare.io/doctors?doctor=3930a7d5-9b0c-4a22-ba0a-1973b09cfd7c</loc>
-    <lastmod>2026-11-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
       <image:loc>https://dikhancare.io/doctors/dr_subhan_sultan.webp</image:loc>
       <image:title>Dr. Subhan Sultan — Cardiologist in D.I. Khan</image:title>
     </image:image>

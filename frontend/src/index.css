@@ -1398,13 +1398,15 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
   -webkit-font-smoothing: antialiased;
   overflow: visible;
   font-weight: 800;
-  -webkit-text-stroke: 0.8px currentColor;
-  text-shadow: 0 0 0.8px currentColor;
-  word-spacing: 0.35em;
+  -webkit-text-stroke: 0.5px currentColor;
+  text-shadow: 0 0 0.5px currentColor;
+  word-spacing: 0.05em;
 }
 
 @media (min-width: 640px) {
   .font-urdu-nastaliq {
-    word-spacing: 0.45em;
+    -webkit-text-stroke: 0.8px currentColor;
+    text-shadow: 0 0 0.8px currentColor;
+    word-spacing: 0.25em;
   }
 }

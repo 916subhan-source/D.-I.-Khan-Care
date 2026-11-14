@@ -6577,7 +6577,7 @@ function PatientSection({
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
             {/* Glassmorphism Luxury Hero Card */}
-            <div className="max-w-2xl lg:max-w-3xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
+            <div className="max-w-2xl lg:max-w-3xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-3.5 sm:p-7 relative transition-all">
               {/* Live District Verification Status Pill & Floating Micro-Badge in Urdu */}
               <div dir="rtl" className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs font-urdu-hero">
@@ -6594,12 +6594,12 @@ function PatientSection({
               <h1
                 dir="rtl"
                 lang="ur"
-                className="font-urdu-nastaliq text-center mx-auto flex flex-col gap-2.5 sm:gap-4 my-2 sm:my-3"
+                className="font-urdu-nastaliq text-center mx-auto flex flex-col gap-2 sm:gap-3.5 my-2 sm:my-3 max-w-full px-1"
               >
-                <span className="block whitespace-nowrap text-lg sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-slate-900 dark:text-white leading-[2.1] sm:leading-[2.3] tracking-normal">
+                <span className="block whitespace-nowrap text-[0.98rem] min-[360px]:text-[1.05rem] min-[390px]:text-[1.18rem] sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-slate-900 dark:text-white leading-[2.1] sm:leading-[2.3] tracking-normal">
                   اب ڈیرہ اسماعیل خان میں ڈاکٹر تلاش کریں
                 </span>
-                <span className="block whitespace-nowrap text-lg sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-emerald-600 dark:text-emerald-400 leading-[2.1] sm:leading-[2.3] tracking-normal">
+                <span className="block whitespace-nowrap text-[0.98rem] min-[360px]:text-[1.05rem] min-[390px]:text-[1.18rem] sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-emerald-600 dark:text-emerald-400 leading-[2.1] sm:leading-[2.3] tracking-normal">
                   اور اپوائنٹمنٹ بک کر لیں
                 </span>
               </h1>

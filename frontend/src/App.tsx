@@ -7242,18 +7242,31 @@ function PatientSection({
             )}
 
             {filteredDoctors.length === 0 && (
-              <div className="py-20 text-center bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 text-xl mx-auto mb-3">
-                  🔍
+              <div className="py-16 sm:py-20 text-center bg-white dark:bg-[#0f172a] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-sm max-w-2xl mx-auto">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-2xl mx-auto mb-3.5 shadow-2xs">
+                  👨‍⚕️
                 </div>
-                <h3 className="font-bold text-slate-800 text-base mb-1">No doctors found</h3>
-                <p className="text-slate-500 text-xs max-w-sm mx-auto">We couldn't find any doctor matching your current filter selections.</p>
-                <button
-                  onClick={() => { setSelectedLocality('All D.I. Khan'); setSelectedShift('Any shift'); setSelectedSpecialty('All specialties'); setQuickFilter('all'); setSearchTerm(''); }}
-                  className="mt-4 px-4 py-2 bg-clinic-700 hover:bg-clinic-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
-                >
-                  Clear all filters
-                </button>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl mb-1.5" style={{ fontFamily: 'Outfit,sans-serif' }}>
+                  Doctor Directory Updating
+                </h3>
+                <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+                  Verified specialist doctors across Dera Ismail Khan are currently being onboarded. Check back shortly or register your clinic with our verified network.
+                </p>
+                <div className="flex items-center justify-center gap-3 mt-5 flex-wrap">
+                  <button
+                    onClick={() => { setSelectedLocality('All D.I. Khan'); setSelectedShift('Any shift'); setSelectedSpecialty('All specialties'); setQuickFilter('all'); setSearchTerm(''); }}
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Refresh Directory
+                  </button>
+                  <button
+                    onClick={() => onSwitchRole?.('doctor' as any)}
+                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span>Register as Doctor</span>
+                    <span>&rarr;</span>
+                  </button>
+                </div>
               </div>
             )}
           </>

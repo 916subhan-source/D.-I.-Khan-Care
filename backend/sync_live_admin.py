@@ -109,3 +109,4 @@ for doc_payload in doctors_to_create:
     created_docs.append(res)
 
 print("All 3 doctors created successfully via Admin Portal API!")
+

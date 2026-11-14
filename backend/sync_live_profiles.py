@@ -140,3 +140,4 @@ for doc in doctors:
     print("Slots generated response:", slot_res)
 
 print("\nAll doctors updated with rich clinical profiles & booking slots!")
+

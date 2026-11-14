@@ -191,7 +191,6 @@ cors_origins = [
     "https://www.dikhancare.io",
     "http://dikhancare.io",
     "http://www.dikhancare.io",
-    "https://dikhan-doctor-appointment.pages.dev",
     "http://localhost:5173",
     "http://localhost:3000",
     "http://localhost:8000",

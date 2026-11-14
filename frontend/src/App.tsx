@@ -878,7 +878,7 @@ function StaffLoginSplitView({
 
         {/* Footer disclaimer */}
         <div className="text-[10px] text-slate-400 text-center pt-4">
-          Conceptual account shown. Passwords stay masked; no real credentials are displayed. All clinic payments are cash only.
+          D.I. Khan Care verified staff portal. Passwords stay encrypted. All clinic payments are cash at clinic arrival.
         </div>
       </div>
     </div>
@@ -5461,7 +5461,7 @@ function DoctorProfileAndBookingView({
                     `*Time:* ${confirmedSlip.time}\n` +
                     `*Fee:* ${formatCurrency(confirmedSlip.fee)} (Pay cash at clinic desk)\n` +
                     `*Clinic:* ${confirmedSlip.clinic}\n\n` +
-                    `Track online: https://dikhan-doctor-appointment.pages.dev/track`;
+                    `Track online: https://dikhancare.io/track`;
                   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
                 }}
                 className="w-full py-3 bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.98] text-white font-extrabold rounded-xl text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
@@ -8909,7 +8909,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
         activeNav={deskTab}
         onNavChange={(id) => setDeskTab(id as any)}
         onSignOut={handleSignOut}
-        bottomNote="Linked doctors only · Concept environment"
+        bottomNote="Linked doctors only · Live clinic management"
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
@@ -18078,7 +18078,7 @@ function AdminSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assist
           if (id === 'system' || id === 'audit') checkRedis();
         }}
         onSignOut={handleSignOut}
-        bottomNote="Administrator access · Concept environment"
+        bottomNote="Administrator access · D.I. Khan Care live portal"
         isOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />

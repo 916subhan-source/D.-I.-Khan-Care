@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     CLOUDINARY_URL: str = ""
     
     # Public Frontend Base URL for email notifications (tracking, review, desk)
-    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://dikhan-doctor-appointment.pages.dev")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://dikhancare.io")
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [

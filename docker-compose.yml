@@ -11,7 +11,7 @@ services:
       - ENVIRONMENT=production
       - DEBUG=False
       - PORT=8000
-      - SECRET_KEY=${SECRET_KEY:-dikhan-production-secret-key-change-in-prod}
+      - SECRET_KEY=${SECRET_KEY:-dikhan-production-secret-key-change-in-prod-2026}
       - DATABASE_URL=sqlite+aiosqlite:////app/backend/dikhan_care.db
       - REDIS_URL=redis://redis:6379/0
       - REDIS_ENABLED=true
@@ -22,22 +22,16 @@ services:
     volumes:
       - ./backend/dikhan_care.db:/app/backend/dikhan_care.db
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
 
   redis:
     image: redis:7-alpine
     container_name: dikhan_care_redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
 
 volumes:
   redis_data:

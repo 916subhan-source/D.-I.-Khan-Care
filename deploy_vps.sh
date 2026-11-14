@@ -84,9 +84,19 @@ EVOLUTION_INSTANCE_NAME=D. I. khan Care
 EOF
 fi
 
+# Ensure backend/dikhan_care.db is a valid file, not a directory
+if [ -d backend/dikhan_care.db ]; then
+    echo "Fixing database mount path..."
+    rm -rf backend/dikhan_care.db
+    git checkout -- backend/dikhan_care.db || touch backend/dikhan_care.db
+fi
+
 echo "🏗️ Building and starting Docker application containers..."
 docker compose down || true
 docker compose up -d --build
+
+echo "📋 Checking container status..."
+docker compose ps
 
 # 6. Request SSL Certificate (Let's Encrypt HTTPS)
 echo "🔒 Requesting Free SSL Certificate via Let's Encrypt Certbot..."

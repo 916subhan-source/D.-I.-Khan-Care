@@ -34,13 +34,13 @@ COPY backend/ ./backend/
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 # Setup database file
-ENV DATABASE_URL="sqlite+aiosqlite:///./dikhan_care.db"
-ENV PORT=7860
+ENV DATABASE_URL="sqlite+aiosqlite:////app/backend/dikhan_care.db"
+ENV PORT=8000
 ENV ENVIRONMENT=production
 ENV DEBUG=False
 
 WORKDIR /app/backend
 
-EXPOSE 7860
+EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

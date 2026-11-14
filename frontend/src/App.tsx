@@ -6508,203 +6508,203 @@ function PatientSection({
       {isHomeView && (
         <div className="relative bg-[#f0f6f3] dark:bg-[#071317] border-b border-clinic-100/80 dark:border-slate-800/80 pt-5 sm:pt-9 lg:pt-11 pb-6 sm:pb-10 overflow-hidden">
           {/* Cinematic Ambient Glow Blooms */}
-        <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
-        <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
+          <div className="absolute top-6 left-12 w-72 h-72 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow" />
+          <div className="absolute bottom-6 right-16 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/15 rounded-full blur-3xl pointer-events-none animate-ambient-glow stagger-3" />
 
-        {/* Monetag-Style Floating Geometric Particles */}
-        <div data-parallax-depth="-0.22" className="absolute top-12 left-[18%] w-3.5 h-3.5 rounded-sm bg-emerald-400/40 border border-emerald-500/50 pointer-events-none select-none animate-particle-1 hidden md:block" />
-        <div data-parallax-depth="0.18" className="absolute top-36 right-[22%] w-4 h-4 rounded-sm bg-teal-400/40 border border-teal-500/50 pointer-events-none select-none animate-particle-2 hidden md:block" />
-        <div data-parallax-depth="-0.15" className="absolute bottom-16 right-[45%] w-3 h-3 rounded-sm bg-indigo-400/35 border border-indigo-500/40 pointer-events-none select-none animate-particle-3 hidden sm:block" />
-        <div data-parallax-depth="0.25" className="absolute top-1/2 left-[5%] w-2.5 h-2.5 rounded-sm bg-amber-400/40 border border-amber-500/50 pointer-events-none select-none animate-particle-1 hidden lg:block" />
+          {/* Monetag-Style Floating Geometric Particles */}
+          <div data-parallax-depth="-0.22" className="absolute top-12 left-[18%] w-3.5 h-3.5 rounded-sm bg-emerald-400/40 border border-emerald-500/50 pointer-events-none select-none animate-particle-1 hidden md:block" />
+          <div data-parallax-depth="0.18" className="absolute top-36 right-[22%] w-4 h-4 rounded-sm bg-teal-400/40 border border-teal-500/50 pointer-events-none select-none animate-particle-2 hidden md:block" />
+          <div data-parallax-depth="-0.15" className="absolute bottom-16 right-[45%] w-3 h-3 rounded-sm bg-indigo-400/35 border border-indigo-500/40 pointer-events-none select-none animate-particle-3 hidden sm:block" />
+          <div data-parallax-depth="0.25" className="absolute top-1/2 left-[5%] w-2.5 h-2.5 rounded-sm bg-amber-400/40 border border-amber-500/50 pointer-events-none select-none animate-particle-1 hidden lg:block" />
 
-        {/* Floating Decorative Graphics (matching bisedik.edu.pk motion with real-time parallax drift) */}
-        <div data-parallax-depth="-0.18" className="absolute top-8 left-8 pointer-events-none opacity-25 dark:opacity-15 select-none hidden lg:block animate-float-sway">
-          <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
-            <circle cx="6" cy="6" r="3" fill="#0d9488" />
-            <circle cx="26" cy="6" r="3" fill="#0d9488" />
-            <circle cx="46" cy="6" r="3" fill="#0d9488" />
-            <circle cx="6" cy="26" r="3" fill="#0d9488" />
-            <circle cx="26" cy="26" r="3" fill="#0d9488" />
-            <circle cx="46" cy="26" r="3" fill="#0d9488" />
-            <circle cx="6" cy="46" r="3" fill="#0d9488" />
-            <circle cx="26" cy="46" r="3" fill="#0d9488" />
-            <circle cx="46" cy="46" r="3" fill="#0d9488" />
-          </svg>
-        </div>
-        <div data-parallax-depth="0.14" className="absolute bottom-10 left-1/3 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
-          <svg width="70" height="20" viewBox="0 0 70 20" fill="none">
-            <path d="M2 10C8 2 14 18 20 10C26 2 32 18 38 10C44 2 50 18 56 10C62 2 68 18 68 10" stroke="#059669" strokeWidth="3" strokeLinecap="round" />
-          </svg>
-        </div>
+          {/* Floating Decorative Graphics (matching bisedik.edu.pk motion with real-time parallax drift) */}
+          <div data-parallax-depth="-0.18" className="absolute top-8 left-8 pointer-events-none opacity-25 dark:opacity-15 select-none hidden lg:block animate-float-sway">
+            <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
+              <circle cx="6" cy="6" r="3" fill="#0d9488" />
+              <circle cx="26" cy="6" r="3" fill="#0d9488" />
+              <circle cx="46" cy="6" r="3" fill="#0d9488" />
+              <circle cx="6" cy="26" r="3" fill="#0d9488" />
+              <circle cx="26" cy="26" r="3" fill="#0d9488" />
+              <circle cx="46" cy="26" r="3" fill="#0d9488" />
+              <circle cx="6" cy="46" r="3" fill="#0d9488" />
+              <circle cx="26" cy="46" r="3" fill="#0d9488" />
+              <circle cx="46" cy="46" r="3" fill="#0d9488" />
+            </svg>
+          </div>
+          <div data-parallax-depth="0.14" className="absolute bottom-10 left-1/3 pointer-events-none opacity-20 dark:opacity-10 select-none hidden sm:block animate-float-smooth">
+            <svg width="70" height="20" viewBox="0 0 70 20" fill="none">
+              <path d="M2 10C8 2 14 18 20 10C26 2 32 18 38 10C44 2 50 18 56 10C62 2 68 18 68 10" stroke="#059669" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </div>
 
-        {/* Right photo filling the right side, seamlessly dissolving into the background on the left (displayed on tablet & desktop for optimal mobile LCP performance) */}
-        <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-full sm:w-[60%] lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
-          <picture>
-            <source
-              media="(max-width: 640px)"
-              srcSet="/images/private-clinic-consultation-mobile.webp"
-              type="image/webp"
+          {/* Right photo filling the right side, seamlessly dissolving into the background on the left (displayed on tablet & desktop for optimal mobile LCP performance) */}
+          <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-full sm:w-[60%] lg:w-[58%] xl:w-[55%] h-full pointer-events-none overflow-hidden select-none">
+            <picture>
+              <source
+                media="(max-width: 640px)"
+                srcSet="/images/private-clinic-consultation-mobile.webp"
+                type="image/webp"
+              />
+              <source
+                srcSet="/images/private-clinic-consultation.webp"
+                type="image/webp"
+              />
+              <img
+                src="/images/private-clinic-consultation.jpg"
+                srcSet="/images/private-clinic-consultation-mobile.jpg 600w, /images/private-clinic-consultation.jpg 1200w"
+                sizes="(max-width: 640px) 100vw, 55vw"
+                alt="Doctor consultation in a private clinic in Dera Ismail Khan"
+                className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-20 dark:mix-blend-luminosity"
+                style={{
+                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)',
+                  maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)'
+                }}
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                width={1200}
+                height={896}
+              />
+            </picture>
+            {/* Broad, soft linear gradient wash matching container background */}
+            <div
+              className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/95 sm:via-[#f0f6f3]/85 to-transparent dark:from-[#071317] dark:via-[#071317]/95 sm:dark:via-[#071317]/85 dark:to-transparent pointer-events-none"
             />
-            <source
-              srcSet="/images/private-clinic-consultation.webp"
-              type="image/webp"
-            />
-            <img
-              src="/images/private-clinic-consultation.jpg"
-              srcSet="/images/private-clinic-consultation-mobile.jpg 600w, /images/private-clinic-consultation.jpg 1200w"
-              sizes="(max-width: 640px) 100vw, 55vw"
-              alt="Doctor consultation in a private clinic in Dera Ismail Khan"
-              className="w-full h-full object-cover object-[center_right] lg:object-center opacity-40 sm:opacity-75 lg:opacity-100 dark:opacity-20 dark:mix-blend-luminosity"
-              style={{
-                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)',
-                maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.85) 50%, black 75%)'
-              }}
-              fetchPriority="high"
-              loading="eager"
-              decoding="async"
-              width={1200}
-              height={896}
-            />
-          </picture>
-          {/* Broad, soft linear gradient wash matching container background */}
-          <div
-            className="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#f0f6f3] via-[#f0f6f3]/95 sm:via-[#f0f6f3]/85 to-transparent dark:from-[#071317] dark:via-[#071317]/95 sm:dark:via-[#071317]/85 dark:to-transparent pointer-events-none"
-          />
-          {/* Subtle top & bottom dark fade in dark mode */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#071317] via-transparent to-[#071317]/40 pointer-events-none hidden dark:block" />
-        </div>
+            {/* Subtle top & bottom dark fade in dark mode */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#071317] via-transparent to-[#071317]/40 pointer-events-none hidden dark:block" />
+          </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
-          {/* Glassmorphism Luxury Hero Card */}
-          <div className="max-w-2xl lg:max-w-3xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
-            {/* Live District Verification Status Pill & Floating Micro-Badge in Urdu */}
-            <div dir="rtl" className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs font-urdu-hero">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span>★ ڈی آئی خان کا تصدیق شدہ نیٹ ورک</span>
-              </div>
-              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle font-urdu-hero">
-                <Sparkles className="w-3 h-3 text-emerald-500 shrink-0" />
-                <span>کوئی فیس نہیں · بالکل مفت</span>
-              </div>
-            </div>
-
-            {/* Heading with Classical Urdu Nastaliq Calligraphy Typography */}
-            <h1
-              dir="rtl"
-              lang="ur"
-              className="font-urdu-nastaliq text-center mx-auto flex flex-col gap-2.5 sm:gap-4 my-2 sm:my-3"
-            >
-              <span className="block whitespace-nowrap text-lg sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-slate-900 dark:text-white leading-[2.1] sm:leading-[2.3] tracking-normal">
-                اب ڈیرہ اسماعیل خان میں ڈاکٹر تلاش کریں
-              </span>
-              <span className="block whitespace-nowrap text-lg sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-emerald-600 dark:text-emerald-400 leading-[2.1] sm:leading-[2.3] tracking-normal">
-                اور اپوائنٹمنٹ بک کر لیں
-              </span>
-            </h1>
-            <p
-              dir="rtl"
-              lang="ur"
-              className="font-urdu-hero text-xs sm:text-sm md:text-[14px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.7] font-medium max-w-lg text-center mx-auto"
-            >
-              کلینک میں لمبی لائنوں سے بچیں۔ باآسانی ماہر ڈاکٹر کا ٹوکن حاصل کریں اور فیس کلینک پہنچ کر ادا کریں۔
-            </p>
-
-            {/* Unified Floating Smart Search Bar in Hero */}
-            {isHomeView && (
-              <div className="mt-4 sm:mt-5 p-1.5 sm:p-2 rounded-2xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-inner flex flex-col sm:flex-row items-center gap-2">
-                <div className="relative flex-1 w-full">
-                  <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    aria-label="Search doctor, clinic, specialty"
-                    placeholder="Search doctor, clinic, specialty (e.g. Heart, Child)..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
-                    className="w-full pl-10 pr-8 py-2.5 rounded-xl border-none bg-white dark:bg-slate-900 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
-                  />
-                  {searchTerm && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchTerm('')}
-                      aria-label="Clear search input"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full mb-3 sm:mb-4">
+            {/* Glassmorphism Luxury Hero Card */}
+            <div className="max-w-2xl lg:max-w-3xl backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-white/80 dark:border-slate-800 shadow-xl dark:shadow-2xl rounded-3xl p-5 sm:p-7 relative transition-all">
+              {/* Live District Verification Status Pill & Floating Micro-Badge in Urdu */}
+              <div dir="rtl" className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs font-urdu-hero">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span>★ ڈی آئی خان کا تصدیق شدہ نیٹ ورک</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={scrollToResults}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all hover:scale-[1.02] active:scale-95"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Search Doctors</span>
-                </button>
+                <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle font-urdu-hero">
+                  <Sparkles className="w-3 h-3 text-emerald-500 shrink-0" />
+                  <span>کوئی فیس نہیں · بالکل مفت</span>
+                </div>
               </div>
-            )}
 
-            {/* Popular Fast-Tap Tags */}
-            {isHomeView && (
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 pt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-                <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                  ⚡ Popular:
+              {/* Heading with Classical Urdu Nastaliq Calligraphy Typography */}
+              <h1
+                dir="rtl"
+                lang="ur"
+                className="font-urdu-nastaliq text-center mx-auto flex flex-col gap-2.5 sm:gap-4 my-2 sm:my-3"
+              >
+                <span className="block whitespace-nowrap text-lg sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-slate-900 dark:text-white leading-[2.1] sm:leading-[2.3] tracking-normal">
+                  اب ڈیرہ اسماعیل خان میں ڈاکٹر تلاش کریں
                 </span>
-                {[
-                  { label: '🫀 Cardiologist', spec: 'Cardiologist' },
-                  { label: '👶 Child Specialist', spec: 'Child Specialist' },
-                  { label: '🦴 Orthopedic', spec: 'Orthopedic Surgeon' },
-                  { label: '🩺 General Physician', spec: 'General Physician' },
-                  { label: '🌸 Gynecologist', spec: 'Gynaecologist' },
-                ].map(item => (
-                  <button
-                    key={item.spec}
-                    type="button"
-                    onClick={() => {
-                      setSelectedSpecialty(item.spec);
-                      setSelectedCondition('');
-                      setSelectedConditionLabel('');
-                      scrollToResults();
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-slate-800/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-300 dark:hover:border-emerald-600 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-all shadow-2xs cursor-pointer"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            )}
+                <span className="block whitespace-nowrap text-lg sm:text-2xl md:text-[1.8rem] lg:text-[2.1rem] font-bold text-emerald-600 dark:text-emerald-400 leading-[2.1] sm:leading-[2.3] tracking-normal">
+                  اور اپوائنٹمنٹ بک کر لیں
+                </span>
+              </h1>
+              <p
+                dir="rtl"
+                lang="ur"
+                className="font-urdu-hero text-xs sm:text-sm md:text-[14px] text-slate-600 dark:text-slate-300 mt-2.5 sm:mt-3 leading-[1.7] font-medium max-w-lg text-center mx-auto"
+              >
+                کلینک میں لمبی لائنوں سے بچیں۔ باآسانی ماہر ڈاکٹر کا ٹوکن حاصل کریں اور فیس کلینک پہنچ کر ادا کریں۔
+              </p>
 
-            {/* Three Trust Badges */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 font-semibold">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
-                100% Free Booking
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
-                Instant Digital Pass
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
-                Pay Cash at Clinic
-              </span>
+              {/* Unified Floating Smart Search Bar in Hero */}
+              {isHomeView && (
+                <div className="mt-4 sm:mt-5 p-1.5 sm:p-2 rounded-2xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-inner flex flex-col sm:flex-row items-center gap-2">
+                  <div className="relative flex-1 w-full">
+                    <Search className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      aria-label="Search doctor, clinic, specialty"
+                      placeholder="Search doctor, clinic, specialty (e.g. Heart, Child)..."
+                      value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
+                      className="w-full pl-10 pr-8 py-2.5 rounded-xl border-none bg-white dark:bg-slate-900 text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs"
+                    />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchTerm('')}
+                        aria-label="Clear search input"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={scrollToResults}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap transition-all hover:scale-[1.02] active:scale-95"
+                  >
+                    <Search className="w-4 h-4" />
+                    <span>Search Doctors</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Popular Fast-Tap Tags */}
+              {isHomeView && (
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 pt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                    ⚡ Popular:
+                  </span>
+                  {[
+                    { label: '🫀 Cardiologist', spec: 'Cardiologist' },
+                    { label: '👶 Child Specialist', spec: 'Child Specialist' },
+                    { label: '🦴 Orthopedic', spec: 'Orthopedic Surgeon' },
+                    { label: '🩺 General Physician', spec: 'General Physician' },
+                    { label: '🌸 Gynecologist', spec: 'Gynaecologist' },
+                  ].map(item => (
+                    <button
+                      key={item.spec}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSpecialty(item.spec);
+                        setSelectedCondition('');
+                        setSelectedConditionLabel('');
+                        scrollToResults();
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-slate-800/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-300 dark:hover:border-emerald-600 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-all shadow-2xs cursor-pointer"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Three Trust Badges */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                  100% Free Booking
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                  Instant Digital Pass
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
+                  Pay Cash at Clinic
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop >= 1024px) ── */}
-        <div
-          className="absolute z-10 pointer-events-auto hidden lg:block -translate-x-1/2 select-none"
-          style={{
-            left: '77%',
-            top: '14%'
-          }}
-        >
-          <Hero3DPass />
+          {/* ── 3D Timothy Ricks-Style Glassmorphic Digital Patient Pass (Desktop >= 1024px) ── */}
+          <div
+            className="absolute z-10 pointer-events-auto hidden lg:block -translate-x-1/2 select-none"
+            style={{
+              left: '77%',
+              top: '14%'
+            }}
+          >
+            <Hero3DPass />
+          </div>
         </div>
-      </div>
       )}
 
       {/* ── In Directory / Find a Doctor View: Clean Header with 4-part Search Bar (Hero Card Removed) ── */}
@@ -9532,10 +9532,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                         disabled={Boolean(appointmentActionLoading)}
                                         onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
                                         className={`h-6 px-2.5 rounded-md text-[11px] font-semibold transition-all inline-flex items-center gap-1 shadow-2xs cursor-pointer disabled:opacity-50 ${item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
-                                            ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200'
-                                            : isCurrentActive
-                                              ? 'bg-amber-500 hover:bg-amber-600 text-white font-bold animate-pulse'
-                                              : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200'
+                                          ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200'
+                                          : isCurrentActive
+                                            ? 'bg-amber-500 hover:bg-amber-600 text-white font-bold animate-pulse'
+                                            : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200'
                                           }`}
                                         title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                       >
@@ -9917,10 +9917,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                   disabled={Boolean(appointmentActionLoading)}
                                   onClick={() => handleToggleLate(item.id, Boolean(item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')))}
                                   className={`w-full h-8 px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer shadow-2xs ${item.notes && item.notes.includes('[LATE_PUSHED_TO_END]')
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
-                                      : isCurrentActive
-                                        ? 'bg-amber-500 hover:bg-amber-600 text-white font-extrabold shadow-xs animate-pulse'
-                                        : 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100'
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100'
+                                    : isCurrentActive
+                                      ? 'bg-amber-500 hover:bg-amber-600 text-white font-extrabold shadow-xs animate-pulse'
+                                      : 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100'
                                     }`}
                                   title={item.notes && item.notes.includes('[LATE_PUSHED_TO_END]') ? "Patient has arrived. Restore to regular calling order." : "Patient has not arrived yet. Push to last number of this shift."}
                                 >
@@ -16022,8 +16022,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => setCashTimeframe(tf)}
                         className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${cashTimeframe === tf
-                            ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 shadow-2xs font-extrabold'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 shadow-2xs font-extrabold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                           }`}
                       >
                         {tf === 'today' ? 'Today' : tf === 'week' ? 'This Week' : tf === 'month' ? 'This Month' : 'All Time'}
@@ -16039,8 +16039,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => setCashPaymentFilter(pf)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${cashPaymentFilter === pf
-                            ? 'bg-emerald-700 text-white font-bold shadow-xs'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                          ? 'bg-emerald-700 text-white font-bold shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                           }`}
                       >
                         {pf === 'ALL' ? 'All Payments' : pf === 'PAID' ? '✓ Paid in Full' : pf === 'PARTIAL' ? '⚠️ Partial Due' : '⏳ Unpaid Desk Cash'}
@@ -16138,10 +16138,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             <div className="text-right">
                               <div className="flex items-center gap-2 justify-end">
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide ${isPaid
-                                    ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                                    : isPartial
-                                      ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
-                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                                  : isPartial
+                                    ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                   }`}>
                                   {isPaid ? 'PAID IN FULL' : isPartial ? 'PARTIAL' : 'DESK CASH'}
                                 </span>
@@ -16275,8 +16275,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => setRecordsTimeframe(tf)}
                         className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize cursor-pointer ${recordsTimeframe === tf
-                            ? 'bg-white dark:bg-slate-900 text-clinic-800 dark:text-clinic-300 shadow-2xs font-extrabold'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-white dark:bg-slate-900 text-clinic-800 dark:text-clinic-300 shadow-2xs font-extrabold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                           }`}
                       >
                         {tf === 'all' ? 'All Time' : tf === 'today' ? 'Today' : tf === 'week' ? 'This Week' : 'This Month'}
@@ -16292,8 +16292,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         type="button"
                         onClick={() => setRecordsStatusFilter(sf)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${recordsStatusFilter === sf
-                            ? 'bg-clinic-700 text-white font-bold shadow-xs'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                          ? 'bg-clinic-700 text-white font-bold shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                           }`}
                       >
                         {sf === 'ALL' ? 'All Records' : sf === 'CONFIRMED' ? 'Confirmed' : sf === 'COMPLETED' ? 'Completed' : sf === 'PENDING' ? 'Pending Approval' : 'Cancelled / Rejected'}

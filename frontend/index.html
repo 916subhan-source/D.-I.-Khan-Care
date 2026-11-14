@@ -103,11 +103,57 @@
     </noscript>
 
     <!-- Backend API Preconnect for instantaneous data fetching & handshake -->
-    <link rel="preconnect" href="https://d-i-khan-care.vercel.app" crossorigin />
-    <link rel="dns-prefetch" href="https://d-i-khan-care.vercel.app" />
+    <link rel="preconnect" href="https://dikhancare.io" crossorigin />
+    <link rel="dns-prefetch" href="https://dikhancare.io" />
   </head>
   <body class="bg-slate-50 text-slate-900 font-['Inter'] antialiased min-h-screen">
-    <div id="root"></div>
+    <div id="root">
+      <!-- SEO Crawlable Pre-Render Content for Googlebot (Hydrated by React on client load) -->
+      <header style="padding: 20px; text-align: center;">
+        <h1>Doctor Appointment in D.I. Khan — D.I. Khan Care</h1>
+        <p>Book online appointments with verified specialist doctors across Dera Ismail Khan. Free digital token booking, skip hospital queues, pay cash on clinic arrival.</p>
+      </header>
+      <main style="max-width: 900px; margin: 0 auto; padding: 20px;">
+        <section>
+          <h2>Top Verified Specialist Doctors in Dera Ismail Khan</h2>
+          <ul>
+            <li>
+              <h3>Dr. Tariq Mehmood Babar — Consultant Cardiologist Specialist</h3>
+              <p>MBBS, FCPS Cardiology. Babar Heart Clinic, Opposite DHQ Hospital, Circular Road, D.I. Khan. Fee: Rs. 1,500.</p>
+            </li>
+            <li>
+              <h3>Dr. Sadia Rehman — Consultant Gynecologist &amp; Obstetrician</h3>
+              <p>MBBS, FCPS Gynecology. Rehman Medical Complex, University Road, D.I. Khan. Fee: Rs. 1,200.</p>
+            </li>
+            <li>
+              <h3>Dr. Asif Khan Gandapur — Pediatrician &amp; Child Specialist</h3>
+              <p>MBBS, FCPS Pediatrics. Gandapur Children Clinic, Near Topanwala Chowk, D.I. Khan. Fee: Rs. 1,000.</p>
+            </li>
+            <li>
+              <h3>Dr. Moiz Ahmad — Pediatrician Specialist</h3>
+              <p>MBBS, FCPS. Bannu Road opposite kadeeme shan halwa, D.I. Khan. Fee: Rs. 1,000.</p>
+            </li>
+            <li>
+              <h3>Dr. Subhan Sultan — Cardiologist Specialist</h3>
+              <p>MBBS, FCPS. Dera Ismail Khan. Fee: Rs. 1,000.</p>
+            </li>
+          </ul>
+        </section>
+        <section>
+          <h2>How to Book an Online Doctor Appointment in D.I. Khan</h2>
+          <ol>
+            <li>Select your specialist doctor or clinic in Dera Ismail Khan.</li>
+            <li>Choose your preferred date and OPD time slot.</li>
+            <li>Enter your patient mobile number to receive an instant digital token slip via SMS / WhatsApp.</li>
+            <li>Pay consultation fee directly in cash at the clinic reception desk upon arrival.</li>
+          </ol>
+        </section>
+        <section>
+          <h2>Available Medical Specialties in D.I. Khan</h2>
+          <p>Cardiology (Heart Specialist), Gynecology &amp; Obstetrics, Pediatrics (Child Specialist), Dermatology (Skin Specialist), General Physician, Orthopedic Surgery in D.I. Khan, Khyber Pakhtunkhwa.</p>
+        </section>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

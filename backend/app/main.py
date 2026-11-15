@@ -3,7 +3,7 @@ FastAPI Application Entry Point for D.I. Khan Doctor Appointment System.
 """
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from app.core.config import settings
@@ -317,6 +317,110 @@ async def test_gemini_api():
             "tested_at": datetime.now(timezone.utc).isoformat()
         }
     )
+
+@app.api_route("/sitemap.xml", methods=["GET", "HEAD"])
+async def dynamic_sitemap():
+    try:
+        from app.core.database import AsyncSessionLocal
+        from app.models import Doctor, User
+        from sqlalchemy import select
+        from datetime import datetime, timezone
+        from xml.sax.saxutils import escape
+
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        async with AsyncSessionLocal() as session:
+            stmt = select(Doctor, User).join(User, Doctor.user_id == User.id).where(Doctor.verification_status == "verified")
+            res = await session.execute(stmt)
+            rows = res.all()
+
+        specialties = [
+            "gynecologist",
+            "child-specialist",
+            "cardiologist",
+            "general-physician",
+            "general-surgeon",
+            "plastic-surgeon",
+            "dermatologist",
+            "rheumatologist",
+            "orthopedic-surgeon"
+        ]
+
+        xml_lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+            '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+            '  <!-- Core Platform Pages -->',
+            '  <url>',
+            '    <loc>https://dikhancare.io/</loc>',
+            f'    <lastmod>{today_str}</lastmod>',
+            '    <changefreq>daily</changefreq>',
+            '    <priority>1.0</priority>',
+            '    <image:image>',
+            '      <image:loc>https://dikhancare.io/icon-512.png</image:loc>',
+            '      <image:title>PMDC Verified Doctor Appointments in Dera Ismail Khan — D.I. Khan Care</image:title>',
+            '    </image:image>',
+            '  </url>',
+            '  <url>',
+            '    <loc>https://dikhancare.io/doctors</loc>',
+            f'    <lastmod>{today_str}</lastmod>',
+            '    <changefreq>daily</changefreq>',
+            '    <priority>0.9</priority>',
+            '  </url>',
+            '  <url>',
+            '    <loc>https://dikhancare.io/track</loc>',
+            f'    <lastmod>{today_str}</lastmod>',
+            '    <changefreq>daily</changefreq>',
+            '    <priority>0.8</priority>',
+            '  </url>',
+            '',
+            '  <!-- Dedicated Specialty Landing Pages (High-Intent SEO Ranking) -->'
+        ]
+
+        for s in specialties:
+            xml_lines.extend([
+                '  <url>',
+                f'    <loc>https://dikhancare.io/doctors/{s}</loc>',
+                f'    <lastmod>{today_str}</lastmod>',
+                '    <changefreq>daily</changefreq>',
+                '    <priority>0.9</priority>',
+                '  </url>'
+            ])
+
+        xml_lines.extend([
+            '',
+            '  <!-- Dynamically Generated Verified Doctor Profiles -->'
+        ])
+
+        for doc, user in rows:
+            doc_id = str(doc.id)
+            doc_name = escape(str(user.full_name or "Specialist Doctor"))
+            doc_spec = escape(str(doc.specialty or "Specialist"))
+            lastmod = doc.updated_at.strftime("%Y-%m-%d") if doc.updated_at else today_str
+            img_url = f"https://dikhancare.io{doc.profile_image}" if doc.profile_image and doc.profile_image.startswith("/") else (doc.profile_image or "https://dikhancare.io/icon-512.png")
+
+            xml_lines.extend([
+                '  <url>',
+                f'    <loc>https://dikhancare.io/doctors?doctor={doc_id}</loc>',
+                f'    <lastmod>{lastmod}</lastmod>',
+                '    <changefreq>daily</changefreq>',
+                '    <priority>0.9</priority>',
+                '    <image:image>',
+                f'      <image:loc>{escape(img_url)}</image:loc>',
+                f'      <image:title>{doc_name} — {doc_spec} in D.I. Khan</image:title>',
+                '    </image:image>',
+                '  </url>'
+            ])
+
+        xml_lines.append('</urlset>')
+        xml_content = "\n".join(xml_lines)
+        return Response(content=xml_content, media_type="application/xml; charset=utf-8")
+    except Exception as e:
+        frontend_dist_fallback = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+        sitemap_path = os.path.join(frontend_dist_fallback, "sitemap.xml")
+        if os.path.exists(sitemap_path):
+            return FileResponse(sitemap_path, media_type="application/xml; charset=utf-8")
+        return Response(content='<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', media_type="application/xml; charset=utf-8")
 
 # Check for production frontend bundle in frontend/dist
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))

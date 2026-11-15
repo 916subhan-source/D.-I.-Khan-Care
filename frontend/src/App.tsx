@@ -895,7 +895,7 @@ export default function App() {
       if (pathname === '/track' || pathname.startsWith('/track/')) return 'track';
       if (pathname === '/loyalty' || pathname.startsWith('/loyalty/')) return 'loyalty';
       if (pathname === '/join-doctor' || pathname === '/join' || pathname.startsWith('/join-doctor/')) return 'join-doctor';
-      if (pathname === '/doctors' || pathname.startsWith('/doctors/')) return 'patient';
+      if (pathname === '/doctors' || pathname.startsWith('/doctors/') || pathname.startsWith('/specialty/') || pathname.startsWith('/speciality/')) return 'patient';
       if (pathname === '/home') return 'home';
 
       const params = new URLSearchParams(window.location.search);
@@ -6155,6 +6155,55 @@ function DoctorProfileAndBookingView({
   );
 }
 
+const parseSpecialtyFromUrl = (): string => {
+  try {
+    const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+    const searchParams = new URLSearchParams(window.location.search);
+    const querySpec = searchParams.get('specialty') || searchParams.get('spec');
+
+    let target = '';
+    if (querySpec) {
+      target = querySpec.toLowerCase();
+    } else if (pathname.startsWith('/doctors/')) {
+      target = pathname.replace('/doctors/', '');
+    } else if (pathname.startsWith('/specialty/')) {
+      target = pathname.replace('/specialty/', '');
+    } else if (pathname.startsWith('/speciality/')) {
+      target = pathname.replace('/speciality/', '');
+    }
+
+    if (target) {
+      target = decodeURIComponent(target).toLowerCase();
+      if (target.includes('gyn') || target.includes('preg') || target.includes('women')) return 'Gynaecologist';
+      if (target.includes('child') || target.includes('pediat') || target.includes('kid')) return 'Child Specialist';
+      if (target.includes('cardio') || target.includes('heart')) return 'Cardiologist';
+      if (target.includes('physician') || target.includes('internal')) return 'General Physician';
+      if (target.includes('ortho') || target.includes('bone') || target.includes('joint')) return 'Orthopedic Surgeon';
+      if (target.includes('plastic') || target.includes('aesthetic') || target.includes('cosmetic')) return 'Face and Skin Surgeon';
+      if (target.includes('laparo')) return 'Laparoscopic Surgeon';
+      if (target.includes('surgeon') || target.includes('surgery')) return 'General Surgeon';
+      if (target.includes('derma') || target.includes('skin')) return 'Dermatologist';
+      if (target.includes('rheuma') || target.includes('arthrit')) return 'Rheumatologist';
+    }
+  } catch (_) { }
+  return 'All specialties';
+};
+
+const getSpecialtySlug = (spec: string): string => {
+  const s = spec.toLowerCase();
+  if (s.includes('gyn')) return 'gynecologist';
+  if (s.includes('child') || s.includes('pediat')) return 'child-specialist';
+  if (s.includes('cardio') || s.includes('heart')) return 'cardiologist';
+  if (s.includes('physician')) return 'general-physician';
+  if (s.includes('ortho')) return 'orthopedic-surgeon';
+  if (s.includes('face') || s.includes('plastic') || s.includes('aesthetic')) return 'plastic-surgeon';
+  if (s.includes('laparo')) return 'laparoscopic-surgeon';
+  if (s.includes('surgeon')) return 'general-surgeon';
+  if (s.includes('derma') || s.includes('skin')) return 'dermatologist';
+  if (s.includes('rheuma')) return 'rheumatologist';
+  return 'all';
+};
+
 function PatientSection({
   openTrackTrigger,
   onSwitchRole,
@@ -6190,7 +6239,7 @@ function PatientSection({
   });
   const [selectedLocality, setSelectedLocality] = useState('All D.I. Khan');
   const [selectedShift, setSelectedShift] = useState('Any shift');
-  const [selectedSpecialty, setSelectedSpecialty] = useState('All specialties');
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>(parseSpecialtyFromUrl);
   const [selectedCondition, setSelectedCondition] = useState('');
   const [selectedConditionLabel, setSelectedConditionLabel] = useState('');
   const [quickFilter, setQuickFilter] = useState('all');
@@ -6242,6 +6291,27 @@ function PatientSection({
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Dynamic SEO title, description, and auto-scroll for Specialty landing URLs
+  useEffect(() => {
+    if (selectedSpecialty && selectedSpecialty !== 'All specialties') {
+      const readable = selectedSpecialty === 'Gynaecologist' ? 'Gynecologist' : selectedSpecialty === 'Face and Skin Surgeon' ? 'Plastic & Aesthetic Surgeon' : selectedSpecialty;
+      document.title = `Best ${readable} in Dera Ismail Khan — Book PMDC Verified Doctor | D.I. Khan Care`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', `Book online appointment with top PMDC-verified ${readable} specialists in Dera Ismail Khan. Fast digital tokens, pay cash on arrival.`);
+      }
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes('/doctors/') || path.includes('/specialty/') || window.location.search.includes('specialty')) {
+        setTimeout(() => {
+          const el = document.getElementById('doctors-results-grid');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+      }
+    } else {
+      document.title = 'PMDC Verified Doctor Appointments in D.I. Khan — D.I. Khan Care | Official Healthcare Portal';
+    }
+  }, [selectedSpecialty]);
   const [availableSlots, setAvailableSlots] = useState<SlotData[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<SlotData | null>(null);
   const [slotsLoading, setSlotsLoading] = useState(false);
@@ -6455,9 +6525,14 @@ function PatientSection({
       (selectedSpecialty.toLowerCase().includes('ortho') && doc.specialty.toLowerCase().includes('ortho')) ||
       (selectedSpecialty.toLowerCase().includes('child') && (doc.specialty.toLowerCase().includes('child') || doc.specialty.toLowerCase().includes('pediatric'))) ||
       (selectedSpecialty.toLowerCase().includes('pediatric') && (doc.specialty.toLowerCase().includes('child') || doc.specialty.toLowerCase().includes('pediatric'))) ||
-      (selectedSpecialty.toLowerCase().includes('general surgeon') && (doc.specialty.toLowerCase().includes('general surgeon') || doc.specialty.toLowerCase().includes('surgeon'))) ||
-      (selectedSpecialty.toLowerCase().includes('lap') && doc.specialty.toLowerCase().includes('lap')) ||
-      (selectedSpecialty.toLowerCase().includes('face') && (doc.specialty.toLowerCase().includes('face') || doc.specialty.toLowerCase().includes('skin') || doc.specialty.toLowerCase().includes('derma')));
+      (selectedSpecialty.toLowerCase().includes('general surgeon') && (doc.specialty.toLowerCase().includes('surgeon') || doc.specialty.toLowerCase().includes('surgery'))) ||
+      (selectedSpecialty.toLowerCase().includes('lap') && (doc.specialty.toLowerCase().includes('lap') || doc.specialty.toLowerCase().includes('surgeon'))) ||
+      (selectedSpecialty.toLowerCase().includes('face') && (doc.specialty.toLowerCase().includes('face') || doc.specialty.toLowerCase().includes('plastic') || doc.specialty.toLowerCase().includes('aesthetic') || doc.specialty.toLowerCase().includes('skin'))) ||
+      (selectedSpecialty.toLowerCase().includes('plastic') && (doc.specialty.toLowerCase().includes('plastic') || doc.specialty.toLowerCase().includes('aesthetic') || doc.specialty.toLowerCase().includes('face'))) ||
+      ((selectedSpecialty.toLowerCase().includes('gyn') || selectedSpecialty.toLowerCase().includes('women')) && (doc.specialty.toLowerCase().includes('gyn') || doc.specialty.toLowerCase().includes('obstetric'))) ||
+      (selectedSpecialty.toLowerCase().includes('physician') && (doc.specialty.toLowerCase().includes('physician') || doc.specialty.toLowerCase().includes('medicine') || doc.specialty.toLowerCase().includes('general'))) ||
+      (selectedSpecialty.toLowerCase().includes('rheuma') && doc.specialty.toLowerCase().includes('rheuma')) ||
+      (selectedSpecialty.toLowerCase().includes('derma') && (doc.specialty.toLowerCase().includes('derma') || doc.specialty.toLowerCase().includes('skin')));
     if (!matchLoc || !matchShift || !matchSearch || !matchSpecialty) return false;
 
     if (selectedCondition) {
@@ -6733,11 +6808,13 @@ function PatientSection({
                     ⚡ Popular:
                   </span>
                   {[
-                    { label: '🫀 Cardiologist', spec: 'Cardiologist' },
-                    { label: '👶 Child Specialist', spec: 'Child Specialist' },
-                    { label: '🦴 Orthopedic', spec: 'Orthopedic Surgeon' },
-                    { label: '🩺 General Physician', spec: 'General Physician' },
-                    { label: '🌸 Gynecologist', spec: 'Gynaecologist' },
+                    { label: '🫀 Cardiologist', spec: 'Cardiologist', slug: 'cardiologist' },
+                    { label: '👶 Child Specialist', spec: 'Child Specialist', slug: 'child-specialist' },
+                    { label: '🦴 Orthopedic', spec: 'Orthopedic Surgeon', slug: 'orthopedic-surgeon' },
+                    { label: '🩺 General Physician', spec: 'General Physician', slug: 'general-physician' },
+                    { label: '🌸 Gynecologist', spec: 'Gynaecologist', slug: 'gynecologist' },
+                    { label: '🔪 General Surgeon', spec: 'General Surgeon', slug: 'general-surgeon' },
+                    { label: '✨ Plastic Surgeon', spec: 'Face and Skin Surgeon', slug: 'plastic-surgeon' },
                   ].map(item => (
                     <button
                       key={item.spec}
@@ -6746,6 +6823,9 @@ function PatientSection({
                         setSelectedSpecialty(item.spec);
                         setSelectedCondition('');
                         setSelectedConditionLabel('');
+                        try {
+                          window.history.pushState({}, '', `/doctors/${item.slug}`);
+                        } catch (_) {}
                         scrollToResults();
                       }}
                       className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-slate-800/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-300 dark:hover:border-emerald-600 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-all shadow-2xs cursor-pointer"
@@ -6938,10 +7018,15 @@ function PatientSection({
             onSelectSpecialty={(spec) => {
               if (selectedSpecialty.toLowerCase() === spec.toLowerCase()) {
                 setSelectedSpecialty('All specialties');
+                try { window.history.pushState({}, '', '/doctors'); } catch (_) {}
               } else {
                 setSelectedSpecialty(spec);
                 setSelectedCondition('');
                 setSelectedConditionLabel('');
+                try {
+                  const slug = getSpecialtySlug(spec);
+                  window.history.pushState({}, '', `/doctors/${slug}`);
+                } catch (_) {}
               }
               scrollToResults();
             }}
@@ -7323,10 +7408,14 @@ function PatientSection({
                   👨‍⚕️
                 </div>
                 <h3 className="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl mb-1.5" style={{ fontFamily: 'Outfit,sans-serif' }}>
-                  Doctor Directory Updating
+                  {selectedSpecialty !== 'All specialties'
+                    ? `PMDC ${selectedSpecialty === 'Gynaecologist' ? 'Gynecologist' : selectedSpecialty} Onboarding in D.I. Khan`
+                    : 'Doctor Directory Updating'}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-                  Verified specialist doctors across Dera Ismail Khan are currently being onboarded. Check back shortly or register your clinic with our verified network.
+                  {selectedSpecialty !== 'All specialties'
+                    ? `PMDC-verified ${selectedSpecialty === 'Gynaecologist' ? 'Gynecologist' : selectedSpecialty} consultants are being added to our Dera Ismail Khan schedule. View all verified doctors or register your clinic.`
+                    : 'Verified specialist doctors across Dera Ismail Khan are currently being onboarded. Check back shortly or register your clinic with our verified network.'}
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-5 flex-wrap">
                   <button

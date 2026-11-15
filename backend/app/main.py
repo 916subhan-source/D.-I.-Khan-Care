@@ -323,7 +323,7 @@ frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
 
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(full_path: str):
         if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path.startswith("openapi.json"):
             return JSONResponse(status_code=404, content={"detail": "Not found"})
@@ -332,7 +332,7 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
             return FileResponse(candidate_file)
         return FileResponse(os.path.join(frontend_dist, "index.html"))
 else:
-    @app.get("/")
+    @app.api_route("/", methods=["GET", "HEAD"])
     async def root():
         return {
             "system": settings.PROJECT_NAME,

@@ -166,8 +166,18 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
                 detail="Another patient is currently verifying this time slot. Please choose another slot or try again in a few minutes."
             )
 
-    # 4. Issue 6-digit OTP (rate limited)
-    success, msg, dev_code = await otp_service.issue_verification_code(payload.phone)
+    # 4. Issue 6-digit OTP (rate limited) and dispatch via WhatsApp
+    whatsapp_target = payload.whatsapp_number or payload.loyalty_whatsapp or payload.phone
+    doctor_name = slot.doctor.user.full_name if (slot.doctor and getattr(slot.doctor, "user", None)) else None
+    slot_time_str = slot.start_time.strftime("%a, %d %b %I:%M %p") if getattr(slot, 'start_time', None) else None
+
+    success, msg, dev_code = await otp_service.issue_verification_code(
+        contact=payload.phone,
+        whatsapp_number=whatsapp_target,
+        patient_name=payload.full_name,
+        doctor_name=doctor_name,
+        slot_time=slot_time_str
+    )
     if not success:
         # Release lock on failure
         await redis_manager.release_slot_lock(slot.id)
@@ -179,10 +189,53 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
         "status": "OTP_SENT",
         "message": msg,
         "contact": payload.phone,
+        "whatsapp_number": whatsapp_target,
         "slot_id": slot.id,
         "patient_id": patient.id,
         "dev_code": dev_code, # Rendered in floating UI banner/toast in dev mode
         "lock_ttl_seconds": 600
+    }
+
+class ResendOTPRequest(BaseModel):
+    phone: str
+    whatsapp_number: Optional[str] = None
+    full_name: Optional[str] = None
+    slot_id: Optional[str] = None
+
+@router.post("/resend-otp")
+async def resend_booking_otp(
+    payload: ResendOTPRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """Resends a 6-digit verification code to the patient's WhatsApp."""
+    whatsapp_target = payload.whatsapp_number or payload.phone
+    doctor_name = None
+    slot_time_str = None
+    if payload.slot_id:
+        s = (await db.execute(
+            select(DoctorSlot)
+            .options(selectinload(DoctorSlot.doctor).selectinload(Doctor.user))
+            .where(DoctorSlot.id == payload.slot_id)
+        )).scalar_one_or_none()
+        if s:
+            doctor_name = s.doctor.user.full_name if (s.doctor and getattr(s.doctor, "user", None)) else None
+            slot_time_str = s.start_time.strftime("%a, %d %b %I:%M %p") if getattr(s, 'start_time', None) else None
+
+    success, msg, dev_code = await otp_service.issue_verification_code(
+        contact=payload.phone,
+        whatsapp_number=whatsapp_target,
+        patient_name=payload.full_name,
+        doctor_name=doctor_name,
+        slot_time=slot_time_str
+    )
+    if not success:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=msg)
+    return {
+        "status": "OTP_SENT",
+        "message": msg,
+        "contact": payload.phone,
+        "whatsapp_number": whatsapp_target,
+        "dev_code": dev_code
     }
 
 @router.post("/verify")

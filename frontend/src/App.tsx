@@ -3847,6 +3847,42 @@ function DoctorProfileAndBookingView({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [confirmedSlip, setConfirmedSlip] = useState<any>(null);
+  const [resendCooldown, setResendCooldown] = useState<number>(0);
+  const [isResending, setIsResending] = useState<boolean>(false);
+  const [resendStatusMsg, setResendStatusMsg] = useState<string>('');
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setInterval(() => {
+      setResendCooldown(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [resendCooldown]);
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    setIsResending(true);
+    setResendStatusMsg('');
+    setErrorMessage('');
+    try {
+      const res: any = await apiFetch('/booking/resend-otp', {
+        method: 'POST',
+        body: JSON.stringify({
+          phone: patientPhone.trim(),
+          whatsapp_number: patientPhone.trim(),
+          full_name: patientName.trim(),
+          slot_id: activeSlotId || selectedSlotId
+        })
+      });
+      setResendCooldown(45);
+      setResendStatusMsg('New 6-digit code has been sent to your WhatsApp!');
+      if (res.dev_code) setDevCode(res.dev_code);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to resend code. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   const [availableSlots, setAvailableSlots] = useState<SlotData[]>([]);
   const [isSlotsLoading, setIsSlotsLoading] = useState(true);
@@ -4195,8 +4231,9 @@ function DoctorProfileAndBookingView({
       if (res.dev_code) {
         setDevCode(res.dev_code);
       } else {
-        setDevCode('849201');
+        setDevCode(null);
       }
+      setResendCooldown(45);
       setBookingState('otp');
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to initiate booking. Please try again.');
@@ -5280,61 +5317,82 @@ function DoctorProfileAndBookingView({
       {/* ── Interactive OTP Verification Modal ── */}
       {bookingState === 'otp' && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 p-7 relative">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 relative">
             <button
-              onClick={() => setBookingState('form')}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
+              onClick={() => { setBookingState('form'); setErrorMessage(''); setResendStatusMsg(''); }}
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              title="Go back"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-clinic-50 dark:bg-clinic-950/80 text-clinic-700 dark:text-clinic-300 flex items-center justify-center mx-auto mb-3 font-bold">
-                <ShieldCheck className="w-6 h-6" />
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/80 text-[#25D366] flex items-center justify-center mx-auto mb-3 font-bold border border-emerald-200/60 dark:border-emerald-800/60 shadow-xs">
+                <ShieldCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Verify your mobile</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Enter the 6-digit verification code sent to <strong className="text-slate-800 dark:text-slate-100">{patientPhone}</strong>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">WhatsApp Verification Code</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
+                6-digit code has been sent to your WhatsApp on <strong className="text-emerald-700 dark:text-emerald-400 font-bold">{patientPhone}</strong>. Please check your WhatsApp.
               </p>
             </div>
 
-            {/* Clickable Dev Code Preview for Fast Testing */}
+            {/* Clickable Dev Code Preview for Fast Testing (Dev Mode Only) */}
             {devCode && (
               <div
                 onClick={() => handleFillCode(devCode)}
-                className="mb-5 bg-clinic-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-clinic-200 dark:border-slate-700 p-3.5 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-clinic-100/80 dark:hover:bg-slate-750 transition shadow-xs group"
+                className="mb-4 bg-emerald-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-emerald-200 dark:border-slate-700 p-3 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-100/80 dark:hover:bg-slate-750 transition shadow-xs group"
                 title="Click to auto-fill code"
               >
                 <div>
-                  <span className="text-clinic-800 dark:text-clinic-400 text-[10px] font-bold block uppercase tracking-wider">DEMO VERIFICATION CODE</span>
-                  <span className="text-base font-black font-mono tracking-widest text-clinic-700 dark:text-clinic-300">{devCode}</span>
+                  <span className="text-emerald-800 dark:text-emerald-400 text-[10px] font-bold block uppercase tracking-wider">DEV VERIFICATION CODE</span>
+                  <span className="text-base font-black font-mono tracking-widest text-emerald-700 dark:text-emerald-300">{devCode}</span>
                 </div>
-                <span className="text-[11px] bg-white dark:bg-slate-700 group-hover:bg-clinic-700 group-hover:text-white px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 font-semibold border border-clinic-200 dark:border-transparent transition-colors">
+                <span className="text-[11px] bg-white dark:bg-slate-700 group-hover:bg-emerald-700 group-hover:text-white px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 font-semibold border border-emerald-200 dark:border-transparent transition-colors">
                   Auto-fill →
                 </span>
               </div>
             )}
 
+            {resendStatusMsg && (
+              <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 font-medium flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{resendStatusMsg}</span>
+              </div>
+            )}
+
             {errorMessage && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-xs text-red-700 dark:text-red-300 font-medium">
                 {errorMessage}
               </div>
             )}
 
             {/* 6 Digit Input Boxes */}
-            <form onSubmit={handleConfirmOtp} className="space-y-6">
+            <form onSubmit={handleConfirmOtp} className="space-y-5">
               <div className="flex justify-center items-center gap-1 sm:gap-2">
                 {otpDigits.map((digit, idx) => (
                   <input
                     key={idx}
                     id={`profile-otp-${idx}`}
                     type="text"
+                    inputMode="numeric"
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
-                    className="w-9 sm:w-11 h-11 sm:h-13 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-clinic-500 focus:border-clinic-500 shadow-2xs"
+                    className="w-10 sm:w-12 h-12 sm:h-14 text-center text-xl font-bold font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-2xs"
                   />
                 ))}
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+                <span>Didn't receive code?</span>
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  disabled={resendCooldown > 0 || isResending}
+                  className="font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : isResending ? 'Sending...' : 'Resend on WhatsApp'}
+                </button>
               </div>
 
               <button

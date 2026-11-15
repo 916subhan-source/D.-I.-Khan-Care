@@ -22,7 +22,11 @@ try:
     import httpx
 except ImportError:
     httpx = None
-import aiohttp
+
+try:
+    import aiohttp
+except ImportError:
+    aiohttp = None
 from email.message import EmailMessage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

@@ -39,7 +39,9 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
     """
     # 1. Verify slot exists and is available in DB (or dynamically provision slot for doctor)
     slot_res = await db.execute(
-        select(DoctorSlot).options(selectinload(DoctorSlot.doctor)).where(DoctorSlot.id == payload.slot_id)
+        select(DoctorSlot)
+        .options(selectinload(DoctorSlot.doctor).selectinload(Doctor.user))
+        .where(DoctorSlot.id == payload.slot_id)
     )
     slot = slot_res.scalar_one_or_none()
 
@@ -168,7 +170,16 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
 
     # 4. Issue 6-digit OTP (rate limited) and dispatch via WhatsApp
     whatsapp_target = payload.whatsapp_number or payload.loyalty_whatsapp or payload.phone
-    doctor_name = slot.doctor.user.full_name if (slot.doctor and getattr(slot.doctor, "user", None)) else None
+    doctor_name = None
+    if slot and slot.doctor:
+        try:
+            if hasattr(slot.doctor, "user") and slot.doctor.user:
+                doctor_name = slot.doctor.user.full_name
+        except Exception:
+            pass
+        if not doctor_name and hasattr(slot.doctor, "user_id"):
+            u_name = await db.scalar(select(User.full_name).where(User.id == slot.doctor.user_id))
+            doctor_name = u_name or "Specialist Doctor"
     slot_time_str = slot.start_time.strftime("%a, %d %b %I:%M %p") if getattr(slot, 'start_time', None) else None
 
     success, msg, dev_code = await otp_service.issue_verification_code(

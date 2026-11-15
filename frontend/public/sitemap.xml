@@ -4,24 +4,24 @@
   <!-- Core Platform Pages -->
   <url>
     <loc>https://dikhancare.io/</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://dikhancare.io/images/private-clinic-consultation.jpg</image:loc>
+      <image:loc>https://dikhancare.io/icon-512.png</image:loc>
       <image:title>Doctor Appointment in Dera Ismail Khan — D.I. Khan Care</image:title>
       <image:caption>Book verified specialist doctor consultations and digital clinic tokens in D.I. Khan</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://dikhancare.io/doctors</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://dikhancare.io/track</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -29,61 +29,78 @@
   <!-- Verified Doctor Direct Profile Pages -->
   <url>
     <loc>https://dikhancare.io/doctors?doctor=e3858a27-da7d-4d13-a4d4-9c6f1ffe7c71</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://dikhancare.io/doctors/dr_asif_gandapur.webp</image:loc>
       <image:title>Dr. Waqar Khan Gandapur — Consultant General and Laparoscopic Surgeon in D.I. Khan</image:title>
+      <image:caption>Specialist in Gallbladder, Hernia, Appendix, and Piles surgery at RK Surgical &amp; Aesthetic Clinic</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://dikhancare.io/doctors?doctor=a22da1cd-e4c8-48bf-93d6-8c05789fdd4d</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://dikhancare.io/doctors/dr_sahil_mehsood.webp</image:loc>
       <image:title>Dr. Naveed Khan — Consultant Plastic and Aesthetic Surgeon in D.I. Khan</image:title>
+      <image:caption>Specialist in Hair Transplant (FUE/FUT), Cosmetic Surgery, and Aesthetic Skin Care</image:caption>
     </image:image>
   </url>
   <url>
     <loc>https://dikhancare.io/doctors?doctor=52f87cb0-8e54-4d87-8acd-a9ab4d5e1282</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image>
       <image:loc>https://dikhancare.io/doctors/dr_haris_rehman.webp</image:loc>
       <image:title>Surgeon Dr. Ali Raza — General and Laparoscopic Surgeon in D.I. Khan</image:title>
-    </image:image>
-  </url>
-      <image:loc>https://dikhancare.io/doctors/dr_subhan_sultan.webp</image:loc>
-      <image:title>Dr. Subhan Sultan — Cardiologist in D.I. Khan</image:title>
+      <image:caption>Registrar Surgery DHQ Hospital, Al-Shifa (Ali) Hospital Opposite DHQ Hospital</image:caption>
     </image:image>
   </url>
 
-  <!-- Specialty Filter Landing URLs for Local Search Keywords -->
+  <!-- High-Intent Keyword Landing URLs -->
   <url>
-    <loc>https://dikhancare.io/doctors?specialty=Cardiology</loc>
-    <lastmod>2026-11-14</lastmod>
+    <loc>https://dikhancare.io/doctors?specialty=General+%26+Laparoscopic+Surgeon</loc>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://dikhancare.io/doctors?specialty=Gynecology</loc>
-    <lastmod>2026-11-14</lastmod>
+    <loc>https://dikhancare.io/doctors?specialty=Plastic+%26+Aesthetic+Surgeon</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=General+Physician</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Gynecologist</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Rheumatologist</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://dikhancare.io/doctors?specialty=Cardiology</loc>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://dikhancare.io/doctors?specialty=Pediatrics</loc>
-    <lastmod>2026-11-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dikhancare.io/doctors?specialty=Dermatology</loc>
-    <lastmod>2026-11-14</lastmod>
+    <lastmod>2026-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

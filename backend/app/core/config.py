@@ -65,6 +65,9 @@ class Settings(BaseSettings):
     # Public Frontend Base URL for email notifications (tracking, review, desk)
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://dikhancare.io")
     
+    # Google Gemini AI API Key for Health Assistant Chatbot
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

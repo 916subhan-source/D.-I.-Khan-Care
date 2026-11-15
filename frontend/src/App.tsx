@@ -6658,7 +6658,7 @@ function PatientSection({
               <div dir="rtl" className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs font-urdu-hero">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <span>★ ڈی آئی خان کا تصدیق شدہ نیٹ ورک</span>
+                  <span>★ PMDC تصدیق شدہ سپیشلسٹ ڈاکٹرز</span>
                 </div>
                 <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 border border-emerald-400/30 text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm animate-float-subtle font-urdu-hero">
                   <Sparkles className="w-3 h-3 text-emerald-500 shrink-0" />
@@ -6687,7 +6687,7 @@ function PatientSection({
                 کلینک میں لمبی لائنوں سے بچیں۔ باآسانی ماہر ڈاکٹر کا ٹوکن حاصل کریں اور فیس کلینک پہنچ کر ادا کریں۔
               </p>
               <p className="text-[11px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider text-center mt-2 font-sans">
-                Doctor Appointment System in D.I. Khan &bull; Dera Ismail Khan Verified Clinics
+                PMDC-Verified Specialist Doctors &bull; Dera Ismail Khan Healthcare Portal
               </p>
 
               {/* Unified Floating Smart Search Bar in Hero */}

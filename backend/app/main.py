@@ -584,8 +584,50 @@ frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "assets")):
     from fastapi.responses import HTMLResponse
     import re as _re_module
+    import gzip as _gzip_module
 
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+    @app.api_route("/assets/{asset_path:path}", methods=["GET", "HEAD"])
+    async def serve_assets(request: Request, asset_path: str):
+        asset_file = os.path.join(frontend_dist, "assets", asset_path)
+        if not os.path.isfile(asset_file):
+            return JSONResponse(status_code=404, content={"detail": "Asset not found"})
+
+        media_type = None
+        if asset_file.endswith(".js"):
+            media_type = "application/javascript; charset=utf-8"
+        elif asset_file.endswith(".css"):
+            media_type = "text/css; charset=utf-8"
+        elif asset_file.endswith(".webp"):
+            media_type = "image/webp"
+
+        accept_encoding = request.headers.get("accept-encoding", "").lower()
+        if "gzip" in accept_encoding and any(asset_file.endswith(ext) for ext in [".js", ".css", ".svg", ".json"]):
+            gz_file = asset_file + ".gz"
+            try:
+                if not os.path.exists(gz_file) or os.path.getmtime(gz_file) < os.path.getmtime(asset_file):
+                    with open(asset_file, "rb") as f_in:
+                        with _gzip_module.open(gz_file, "wb", compresslevel=9) as f_out:
+                            f_out.write(f_in.read())
+                return FileResponse(
+                    gz_file,
+                    media_type=media_type,
+                    headers={
+                        "Content-Encoding": "gzip",
+                        "Cache-Control": "public, max-age=31536000, immutable",
+                        "Vary": "Accept-Encoding"
+                    }
+                )
+            except Exception:
+                pass
+
+        return FileResponse(
+            asset_file,
+            media_type=media_type,
+            headers={
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "Vary": "Accept-Encoding"
+            }
+        )
 
     @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(full_path: str):

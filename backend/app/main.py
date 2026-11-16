@@ -225,6 +225,17 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     if request.url.scheme == "https" or request.headers.get("x-forwarded-proto") == "https":
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+
+    # Production Cache-Control: Eliminate Lighthouse 'Use efficient cache lifetimes'
+    path = request.url.path
+    if path.startswith("/assets/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    elif any(path.endswith(ext) for ext in [".webp", ".png", ".jpg", ".jpeg", ".ico", ".svg", ".woff2", ".woff", ".ttf", ".webmanifest", "manifest.json"]):
+        response.headers["Cache-Control"] = "public, max-age=2592000, stale-while-revalidate=86400"
+    elif path == "/" or path.endswith(".html") or not "." in path.split("/")[-1]:
+        if not path.startswith("/api"):
+            response.headers["Cache-Control"] = "no-cache, must-revalidate"
+
     return response
 
 # Compress responses > 1KB automatically to drastically reduce payload size and latency
@@ -540,8 +551,14 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
             return JSONResponse(status_code=404, content={"detail": "Not found"})
         candidate_file = os.path.join(frontend_dist, full_path)
         if full_path and os.path.isfile(candidate_file):
+            if candidate_file.endswith(".webp"):
+                return FileResponse(candidate_file, media_type="image/webp", headers={"Cache-Control": "public, max-age=2592000, immutable"})
+            elif candidate_file.endswith((".png", ".jpg", ".jpeg", ".ico", ".svg")):
+                return FileResponse(candidate_file, headers={"Cache-Control": "public, max-age=2592000, immutable"})
+            elif candidate_file.endswith((".js", ".css")):
+                return FileResponse(candidate_file, headers={"Cache-Control": "public, max-age=31536000, immutable"})
             return FileResponse(candidate_file)
-        return FileResponse(os.path.join(frontend_dist, "index.html"))
+        return FileResponse(os.path.join(frontend_dist, "index.html"), headers={"Cache-Control": "no-cache, must-revalidate"})
 else:
     @app.api_route("/", methods=["GET", "HEAD"])
     async def root():

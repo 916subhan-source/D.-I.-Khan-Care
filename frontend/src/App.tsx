@@ -3684,6 +3684,27 @@ function DoctorProfileAndBookingView({
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 80);
     }
+
+    if (doctor) {
+      const docName = formatDoctorName(doctor.full_name);
+      const spec = doctor.specialty || 'Specialist Doctor';
+      const loc = doctor.sub_region || 'D.I. Khan';
+      const originalTitle = document.title;
+      document.title = `${docName} — ${spec} in ${loc} | Book Online Appointment | D.I. Khan Care`;
+
+      const metaDesc = document.querySelector('meta[name="description"]');
+      const prevDesc = metaDesc?.getAttribute('content') || '';
+      if (metaDesc) {
+        metaDesc.setAttribute('content', `Book online appointment with ${docName} (${spec}). Clinic: ${doctor.clinic_address}. Consultation Fee: Rs. ${doctor.fee_clinic}. Verified by PMDC on D.I. Khan Care.`);
+      }
+
+      return () => {
+        document.title = originalTitle;
+        if (metaDesc && prevDesc) {
+          metaDesc.setAttribute('content', prevDesc);
+        }
+      };
+    }
   }, [doctor?.id, initialMobileTab]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
@@ -6316,6 +6337,10 @@ const parseSpecialtyFromUrl = (): string => {
 
     if (target) {
       target = decodeURIComponent(target).toLowerCase();
+      // If the URL is actually targeting a doctor profile, skip specialty filtering
+      if (target.includes('waqar') || target.includes('gandapur') || target.includes('naveed') || target.includes('ali-raza') || target.startsWith('dr-')) {
+        return 'All specialties';
+      }
       if (target.includes('gyn') || target.includes('preg') || target.includes('women')) return 'Gynaecologist';
       if (target.includes('child') || target.includes('pediat') || target.includes('kid')) return 'Child Specialist';
       if (target.includes('cardio') || target.includes('heart')) return 'Cardiologist';
@@ -6341,6 +6366,39 @@ const parseSpecialtyFromUrl = (): string => {
     }
   } catch (_) { }
   return 'All specialties';
+};
+
+export const getDoctorSlug = (doctor: DoctorData | { full_name?: string; id?: string }): string => {
+  const name = (doctor.full_name || '').toLowerCase();
+  if (name.includes('waqar') || name.includes('gandapur')) return 'dr-waqar-khan-gandapur';
+  if (name.includes('naveed')) return 'dr-naveed-khan';
+  if (name.includes('ali') || name.includes('raza')) return 'dr-ali-raza';
+  const clean = (doctor.full_name || '')
+    .toLowerCase()
+    .replace(/^(dr\.?|surgeon)\s+/i, '')
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return clean ? `dr-${clean}` : (doctor.id || 'doctor');
+};
+
+export const findDoctorBySlugOrId = (doctorsList: DoctorData[], slugOrId: string): DoctorData | undefined => {
+  if (!slugOrId) return undefined;
+  const target = decodeURIComponent(slugOrId).toLowerCase().trim();
+  const byId = doctorsList.find(d => d.id === target);
+  if (byId) return byId;
+
+  if (target.includes('waqar') || target.includes('gandapur')) {
+    return doctorsList.find(d => d.full_name.toLowerCase().includes('waqar') || d.full_name.toLowerCase().includes('gandapur'));
+  }
+  if (target.includes('naveed')) {
+    return doctorsList.find(d => d.full_name.toLowerCase().includes('naveed'));
+  }
+  if (target.includes('ali') && (target.includes('raza') || target.includes('surgeon'))) {
+    return doctorsList.find(d => d.full_name.toLowerCase().includes('ali') && d.full_name.toLowerCase().includes('raza'));
+  }
+
+  return doctorsList.find(d => getDoctorSlug(d) === target);
 };
 
 const getSpecialtySlug = (spec: string): string => {
@@ -6563,13 +6621,24 @@ function PatientSection({
         }
       } catch (_) { }
 
-      // Deep-link from completion notification email or URL params: ?doctor_id=... or ?action=book
+      // Deep-link from completion notification email, URL params, or direct path slug (/doctor/dr-waqar-khan-gandapur)
       try {
         const params = new URLSearchParams(window.location.search);
         const docIdParam = params.get('doctor_id') || params.get('doctor');
         const actionParam = params.get('action') || params.get('tab');
-        if (docIdParam && list.length > 0) {
-          const match = list.find(d => d.id === docIdParam);
+        const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+
+        let targetDoctorKey = docIdParam;
+        if (!targetDoctorKey) {
+          if (pathname.startsWith('/doctor/')) {
+            targetDoctorKey = pathname.replace('/doctor/', '');
+          } else if (pathname.startsWith('/doctors/') && (pathname.includes('waqar') || pathname.includes('gandapur') || pathname.includes('naveed') || pathname.includes('ali') || pathname.length > 25)) {
+            targetDoctorKey = pathname.replace('/doctors/', '');
+          }
+        }
+
+        if (targetDoctorKey && list.length > 0) {
+          const match = findDoctorBySlugOrId(list, targetDoctorKey);
           if (match) {
             setProfileDoctorInitialTab(actionParam === 'book' || actionParam === 'booking' ? 'booking' : 'profile');
             setProfileDoctor(match);
@@ -6593,7 +6662,7 @@ function PatientSection({
     setProfileDoctorInitialTab('booking');
     setProfileDoctor(doctor);
     try {
-      window.history.pushState({ doctorId: doctor.id, tab: 'booking' }, '', `/doctors?doctor=${encodeURIComponent(doctor.id)}&action=book`);
+      window.history.pushState({ doctorId: doctor.id, tab: 'booking' }, '', `/doctor/${getDoctorSlug(doctor)}?action=book`);
     } catch (_) { }
   };
 
@@ -6879,6 +6948,9 @@ function PatientSection({
         initialMobileTab={profileDoctorInitialTab}
         onBack={() => {
           setProfileDoctor(null);
+          try {
+            window.history.pushState({}, '', '/doctors');
+          } catch (_) { }
           window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
         }}
         onTrackNav={() => {
@@ -7705,7 +7777,7 @@ function PatientSection({
                         setProfileDoctorInitialTab('profile');
                         setProfileDoctor(doc);
                         try {
-                          window.history.pushState({ doctorId: doc.id }, '', `/doctors?doctor=${encodeURIComponent(doc.id)}`);
+                          window.history.pushState({ doctorId: doc.id }, '', `/doctor/${getDoctorSlug(doc)}`);
                         } catch (_) { }
                       }}
                     />
@@ -7816,7 +7888,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
       : (doctor.sub_region || 'Dera Ismail Khan');
 
   const shareText = encodeURIComponent(
-    `*${displayName}* (${doctor.specialty} Specialist)\n📍 ${doctor.clinic_address}\n💵 Consultation Fee: ${formatCurrency(doctor.fee_clinic)} (Free Online Token)\n👉 Book Free Appointment: https://dikhancare.io/doctors?doctor=${doctor.id}`
+    `*${displayName}* (${doctor.specialty} Specialist)\n📍 ${doctor.clinic_address}\n💵 Consultation Fee: ${formatCurrency(doctor.fee_clinic)} (Free Online Token)\n👉 Book Free Appointment: https://dikhancare.io/doctor/${getDoctorSlug(doctor)}`
   );
 
   return (

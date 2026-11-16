@@ -526,21 +526,46 @@ async def dynamic_sitemap():
 
         for doc, user in rows:
             doc_id = str(doc.id)
-            doc_name = escape(str(user.full_name or "Specialist Doctor"))
+            doc_raw_name = str(user.full_name or "Specialist Doctor")
+            doc_name = escape(doc_raw_name)
             doc_spec = escape(str(doc.specialty or "Specialist"))
             lastmod = doc.updated_at.strftime("%Y-%m-%d") if doc.updated_at else today_str
             img_url = f"https://dikhancare.io{doc.profile_image}" if doc.profile_image and doc.profile_image.startswith("/") else (doc.profile_image or "https://dikhancare.io/icon-512.png")
 
+            # Determine SEO clean slug
+            name_lower = doc_raw_name.lower()
+            if "waqar" in name_lower or "gandapur" in name_lower:
+                doc_slug = "dr-waqar-khan-gandapur"
+            elif "naveed" in name_lower:
+                doc_slug = "dr-naveed-khan"
+            elif "ali" in name_lower and ("raza" in name_lower or "surgeon" in name_lower):
+                doc_slug = "dr-ali-raza"
+            else:
+                import re as _re
+                clean_n = _re.sub(r'[^a-z0-9]+', '-', _re.sub(r'^(dr\.?|surgeon)\s+', '', name_lower, flags=_re.I)).strip('-')
+                doc_slug = f"dr-{clean_n}" if clean_n else doc_id
+
+            # Clean permalink profile URL (Highest SEO Priority)
             xml_lines.extend([
                 '  <url>',
-                f'    <loc>https://dikhancare.io/doctors?doctor={doc_id}</loc>',
+                f'    <loc>https://dikhancare.io/doctor/{doc_slug}</loc>',
                 f'    <lastmod>{lastmod}</lastmod>',
                 '    <changefreq>daily</changefreq>',
-                '    <priority>0.9</priority>',
+                '    <priority>1.0</priority>',
                 '    <image:image>',
                 f'      <image:loc>{escape(img_url)}</image:loc>',
                 f'      <image:title>{doc_name} — {doc_spec} in D.I. Khan</image:title>',
                 '    </image:image>',
+                '  </url>'
+            ])
+
+            # Query parameter profile URL (Secondary)
+            xml_lines.extend([
+                '  <url>',
+                f'    <loc>https://dikhancare.io/doctors?doctor={doc_id}</loc>',
+                f'    <lastmod>{lastmod}</lastmod>',
+                '    <changefreq>weekly</changefreq>',
+                '    <priority>0.8</priority>',
                 '  </url>'
             ])
 
@@ -557,6 +582,9 @@ async def dynamic_sitemap():
 # Check for production frontend bundle in frontend/dist
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
 if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "assets")):
+    from fastapi.responses import HTMLResponse
+    import re as _re_module
+
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
 
     @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
@@ -572,7 +600,51 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
             elif candidate_file.endswith((".js", ".css")):
                 return FileResponse(candidate_file, headers={"Cache-Control": "public, max-age=31536000, immutable"})
             return FileResponse(candidate_file)
-        return FileResponse(os.path.join(frontend_dist, "index.html"), headers={"Cache-Control": "no-cache, must-revalidate"})
+
+        index_file = os.path.join(frontend_dist, "index.html")
+        if not os.path.exists(index_file):
+            return JSONResponse(status_code=404, content={"detail": "Frontend bundle not found"})
+
+        try:
+            with open(index_file, "r", encoding="utf-8") as f:
+                html = f.read()
+
+            normalized_path = full_path.strip("/").lower()
+
+            # Dynamic SEO Title and Metadata injection for Doctor Profiles & Specialties
+            if "waqar" in normalized_path or "gandapur" in normalized_path or "e3858a27" in normalized_path:
+                doc_title = "Dr. Waqar Khan Gandapur — Consultant General &amp; Laparoscopic Surgeon | D.I. Khan Care"
+                doc_desc = "Book online appointment with Dr. Waqar Khan Gandapur (MBBS, MCPS, FCPS Surgery), Consultant General &amp; Laparoscopic Surgeon at RK Surgical &amp; Aesthetic Clinic, Opposite DHQ Hospital, Dera Ismail Khan. Fee: Rs. 1,000."
+                doc_url = "https://dikhancare.io/doctor/dr-waqar-khan-gandapur"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
+            elif "naveed" in normalized_path or "a22da1cd" in normalized_path:
+                doc_title = "Dr. Naveed Khan — Consultant Plastic &amp; Aesthetic Surgeon | D.I. Khan Care"
+                doc_desc = "Book online appointment with Dr. Naveed Khan (MBBS, MCPS, FCPS Plastic Surgery) at RK Surgical &amp; Aesthetic Clinic, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,500."
+                doc_url = "https://dikhancare.io/doctor/dr-naveed-khan"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
+            elif ("ali" in normalized_path and "raza" in normalized_path) or "52f87cb0" in normalized_path:
+                doc_title = "Surgeon Dr. Ali Raza — General &amp; Laparoscopic Surgeon (DHQ Hospital Registrar) | D.I. Khan Care"
+                doc_desc = "Book online appointment with Surgeon Dr. Ali Raza (MBBS, MCPS, FCPS Surgery), Registrar of Surgery DHQ Hospital at Al-Shifa (Ali) Hospital, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,000."
+                doc_url = "https://dikhancare.io/doctor/dr-ali-raza"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
+            elif normalized_path.startswith("doctors/") or normalized_path.startswith("specialty/"):
+                spec_slug = normalized_path.split("/")[-1].replace("-", " ").title()
+                spec_title = f"Best {spec_slug} in Dera Ismail Khan — Book PMDC Verified Doctor | D.I. Khan Care"
+                spec_desc = f"Find and book online appointments with verified {spec_slug} doctors in Dera Ismail Khan. Daily clinic timings, instant queue tokens, pay cash on arrival."
+                spec_url = f"https://dikhancare.io/{normalized_path}"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{spec_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{spec_url}"', html, flags=_re_module.IGNORECASE)
+
+            return HTMLResponse(content=html, headers={"Cache-Control": "no-cache, must-revalidate"})
+        except Exception:
+            return FileResponse(index_file, headers={"Cache-Control": "no-cache, must-revalidate"})
 else:
     @app.api_route("/", methods=["GET", "HEAD"])
     async def root():

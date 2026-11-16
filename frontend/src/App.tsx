@@ -6687,8 +6687,29 @@ function PatientSection({
     const isDhqQuery = cleanQuery.includes('dhq');
     const isMuftiMehmoodQuery = cleanQuery.includes('mufti mehmood') || cleanQuery.includes('mti');
     
+    const searchTokens = cleanQuery
+      .split(/\s+/)
+      .filter(t => t.length > 0 && !['dr', 'dr.', 'doctor', 'sahab', 'sahib'].includes(t));
+
+    const tokenMatch = searchTokens.length > 0 && searchTokens.every(token => {
+      // Normalize common transliteration / typo variants (e.g. waqas -> waqar)
+      const normalizedToken = token === 'waqas' ? 'waqar' : token;
+      return (
+        doc.full_name.toLowerCase().includes(normalizedToken) ||
+        doc.specialty.toLowerCase().includes(normalizedToken) ||
+        doc.clinic_address.toLowerCase().includes(normalizedToken) ||
+        doc.sub_region.toLowerCase().includes(normalizedToken) ||
+        (doc.hospital_affiliations && doc.hospital_affiliations.toLowerCase().includes(normalizedToken)) ||
+        (doc.bio && doc.bio.toLowerCase().includes(normalizedToken)) ||
+        (doc.expertise && doc.expertise.toLowerCase().includes(normalizedToken)) ||
+        (doc.services_offered && doc.services_offered.toLowerCase().includes(normalizedToken)) ||
+        (doc.conditions_treated && doc.conditions_treated.toLowerCase().includes(normalizedToken))
+      );
+    });
+
     const matchSearch = !searchTerm ||
       isGenericDoctorQuery ||
+      tokenMatch ||
       doc.full_name.toLowerCase().includes(cleanQuery) ||
       doc.specialty.toLowerCase().includes(cleanQuery) ||
       doc.clinic_address.toLowerCase().includes(cleanQuery) ||

@@ -256,13 +256,14 @@
   <link rel="preload" as="image" href="/images/private-clinic-consultation.webp" type="image/webp"
     media="(min-width: 641px)" fetchpriority="high" />
 
-    <!-- Google Fonts: Optimized weights for ultrafast mobile rendering -->
+    <!-- Google Fonts: Inter, Outfit & Noto Sans Arabic with display=swap for instantaneous modern UI typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@700&family=Noto+Sans+Arabic:wght@600;700&family=Outfit:wght@600;700;800&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@700&family=Noto+Sans+Arabic:wght@600;700&family=Outfit:wght@600;700;800&display=swap" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@600;700;800&family=Noto+Sans+Arabic:wght@600;700&display=swap" />
+    <!-- Urdu Nastaliq Calligraphy: display=optional prevents mobile font-swap LCP penalty (eliminating 5.6s repaint) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@700&display=optional" media="print" onload="this.media='all'" />
     <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@700&family=Noto+Sans+Arabic:wght@600;700&family=Outfit:wght@600;700;800&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@600;700;800&family=Noto+Sans+Arabic:wght@600;700&family=Noto+Nastaliq+Urdu:wght@700&display=swap" />
     </noscript>
 
     <!-- Backend API Preconnect for instantaneous data fetching & handshake -->
@@ -295,12 +296,12 @@
               <span>★ PMDC تصدیق شدہ سپیشلسٹ ڈاکٹرز</span>
             </div>
 
-            <h1 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; line-height: 1.8; margin: 6px 0; font-family: 'Noto Nastaliq Urdu', Tahoma, sans-serif;" dir="rtl">
+            <h1 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; line-height: 1.8; margin: 6px 0; font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', Tahoma, sans-serif;" dir="rtl">
               اب ڈیرہ اسماعیل خان میں ڈاکٹر تلاش کریں
               <span style="display: block; color: #059669;">اور اپوائنٹمنٹ بک کر لیں</span>
             </h1>
 
-            <p style="font-size: 12px; color: #475569; line-height: 1.6; margin: 8px auto 14px; max-width: 420px; font-family: Tahoma, sans-serif;" dir="rtl">
+            <p style="font-size: 12px; color: #475569; line-height: 1.6; margin: 8px auto 14px; max-width: 420px; font-family: 'Noto Sans Arabic', Tahoma, sans-serif;" dir="rtl">
               کلینک میں لمبی لائنوں سے بچیں۔ باآسانی ماہر ڈاکٹر کا ٹوکن حاصل کریں اور فیس کلینک پہنچ کر ادا کریں۔
             </p>
 
@@ -321,10 +322,6 @@
           </div>
         </div>
       </div>
-      <div style="font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #0f172a; margin-bottom: 6px;">D.I.
-        Khan Care</div>
-      <div style="font-size: 12px; color: #64748b; font-weight: 600;">PMDC Verified Doctor Appointments &bull; Dera
-        Ismail Khan</div>
     </div>
 
     <!-- SEO Crawlable Pre-Render Content for Googlebot (Hidden visually to prevent unstyled text flash, 100% indexable) -->

@@ -3623,8 +3623,12 @@ function DoctorProfileAndBookingView({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('10:30 AM');
   const [selectedSlotId, setSelectedSlotId] = useState<string>('');
   const [bookingFor, setBookingFor] = useState<'myself' | 'someone_else'>('myself');
-  const [patientName, setPatientName] = useState('');
-  const [patientPhone, setPatientPhone] = useState('');
+  const [patientName, setPatientName] = useState(() => {
+    try { return localStorage.getItem('dikhan_patient_name') || ''; } catch { return ''; }
+  });
+  const [patientPhone, setPatientPhone] = useState(() => {
+    try { return localStorage.getItem('dikhan_patient_phone') || ''; } catch { return ''; }
+  });
   const [patientEmail, setPatientEmail] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientGender, setPatientGender] = useState('Male');
@@ -4204,14 +4208,29 @@ function DoctorProfileAndBookingView({
       if (!patientName.trim()) {
         setErrorMessage('Please enter the patient full name.');
         setIsSubmitting(false);
+        const nameInput = document.getElementById('patient-name-input');
+        if (nameInput) {
+          nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          nameInput.focus();
+        }
         return;
       }
 
       if (!patientPhone.trim()) {
         setErrorMessage('Please enter a valid mobile number.');
         setIsSubmitting(false);
+        const phoneInput = document.getElementById('patient-phone-input');
+        if (phoneInput) {
+          phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          phoneInput.focus();
+        }
         return;
       }
+
+      try {
+        localStorage.setItem('dikhan_patient_name', patientName.trim());
+        localStorage.setItem('dikhan_patient_phone', patientPhone.trim());
+      } catch (_) { }
 
       const res: any = await apiFetch('/booking/request', {
         method: 'POST',
@@ -5135,9 +5154,10 @@ function DoctorProfileAndBookingView({
                     <p className="text-[11px] text-slate-400 mt-0.5">Please select another date above</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {activeSlotsToDisplay.map((slot) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                    {activeSlotsToDisplay.map((slot, sIdx) => {
                       const isSelected = selectedSlotId === slot.id || selectedTimeSlot === slot.timeLabel;
+                      const isEvening = slot.timeLabel.toLowerCase().includes('pm') && !slot.timeLabel.startsWith('12');
                       return (
                         <button
                           key={slot.id}
@@ -5146,12 +5166,27 @@ function DoctorProfileAndBookingView({
                             setSelectedSlotId(slot.id);
                             setSelectedTimeSlot(slot.timeLabel);
                           }}
-                          className={`py-2 px-2 rounded-xl text-xs font-bold transition-all text-center cursor-pointer active:scale-95 ${isSelected
-                            ? 'bg-clinic-700 text-white shadow-sm ring-2 ring-clinic-700/20'
-                            : 'bg-slate-50/80 dark:bg-slate-800/80 hover:bg-clinic-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-clinic-500'
+                          className={`p-2.5 rounded-xl text-left transition-all cursor-pointer relative overflow-hidden group active:scale-[0.98] ${isSelected
+                            ? 'bg-clinic-700 text-white shadow-md ring-2 ring-clinic-700/30 dark:ring-emerald-400/40'
+                            : 'bg-white dark:bg-slate-800/90 hover:bg-clinic-50/50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-clinic-500'
                             }`}
                         >
-                          {slot.timeLabel}
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-xs font-black font-mono tracking-tight">{slot.timeLabel}</span>
+                            {isSelected ? (
+                              <span className="w-4 h-4 rounded-full bg-white text-clinic-700 flex items-center justify-center text-[10px] font-bold shadow-xs">✓</span>
+                            ) : (
+                              <span className="text-[10px] opacity-70">{isEvening ? '🌆' : '🌅'}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between mt-1 text-[10px]">
+                            <span className={`font-bold ${isSelected ? 'text-emerald-100' : 'text-clinic-600 dark:text-emerald-400'}`}>
+                              Token #{sIdx + 1}
+                            </span>
+                            <span className={`text-[9px] uppercase tracking-wider font-medium ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                              Available
+                            </span>
+                          </div>
                         </button>
                       );
                     })}
@@ -5191,24 +5226,28 @@ function DoctorProfileAndBookingView({
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
                     <input
+                      id="patient-name-input"
                       type="text"
+                      autoComplete="name"
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
                       placeholder="e.g. Muhammad Ali"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-base sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Number *</label>
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Number (WhatsApp) *</label>
                     <input
+                      id="patient-phone-input"
                       type="tel"
+                      autoComplete="tel"
                       value={patientPhone}
                       onChange={(e) => setPatientPhone(e.target.value)}
                       placeholder="0300 1234567"
                       required
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-base sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition font-mono"
                     />
                   </div>
 
@@ -5228,7 +5267,7 @@ function DoctorProfileAndBookingView({
                       value={patientAge}
                       onChange={(e) => setPatientAge(e.target.value)}
                       placeholder="e.g. 32"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-base sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition"
                     />
                   </div>
 
@@ -5237,7 +5276,7 @@ function DoctorProfileAndBookingView({
                     <select
                       value={patientGender}
                       onChange={(e) => setPatientGender(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition cursor-pointer"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-base sm:text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-clinic-500/30 focus:border-clinic-600 transition cursor-pointer"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -5265,9 +5304,44 @@ function DoctorProfileAndBookingView({
                   </span>
                 </div>
 
+                {/* Live WhatsApp Digital Slip Preview Card */}
+                <div className="bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-slate-50/60 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 border-2 border-emerald-500/30 dark:border-emerald-600/30 rounded-2xl p-3.5 space-y-2.5 relative overflow-hidden shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#25D366]/20 text-[#075E54] dark:text-[#25D366] text-[10px] font-extrabold uppercase tracking-wider">
+                      <span>📲</span> WhatsApp Digital Slip Preview
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">100% Free Booking</span>
+                  </div>
+                  <div className="flex items-start justify-between gap-3 pt-1 border-t border-emerald-500/15 dark:border-emerald-700/20">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {patientName.trim() ? patientName : 'Patient Name'} &bull; {patientPhone.trim() ? patientPhone : '03xx-xxxxxxx'}
+                      </p>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                        👨‍⚕️ {displayName} ({doctor.specialty})
+                      </p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        📍 {doctor.clinic_address || 'Opposite DHQ Hospital, D.I. Khan'}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0 bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-emerald-500/20">
+                      <span className="block text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Token</span>
+                      <span className="text-xl font-black text-slate-900 dark:text-white font-mono leading-none">
+                        #{Math.max(1, activeSlotsToDisplay.findIndex(s => s.id === selectedSlotId || s.timeLabel === selectedTimeSlot) + 1)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="pt-1 flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-slate-300 border-t border-dashed border-emerald-500/20">
+                    <span>Consultation Fee:</span>
+                    <span className="font-extrabold text-clinic-700 dark:text-emerald-400 font-mono">
+                      {formatCurrency(doctor.fee_clinic)} (Pay Cash at Clinic Desk)
+                    </span>
+                  </div>
+                </div>
+
                 {/* Form Error Notification */}
                 {errorMessage && bookingState === 'form' && (
-                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-semibold flex items-center gap-2">
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-semibold flex items-center gap-2 animate-shake">
                     <span>⚠️</span>
                     <span>{errorMessage}</span>
                   </div>
@@ -5292,27 +5366,61 @@ function DoctorProfileAndBookingView({
         </div>
       </main>
 
-      {/* ── Mobile Persistent Bottom Quick-Booking Bar (Visible when in profile mode) ── */}
-      {mobileActiveTab === 'profile' && (
-        <div className="lg:hidden fixed bottom-[calc(57px+env(safe-area-inset-bottom,0px))] inset-x-0 z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg animate-fade-in">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
-            <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{formatCurrency(doctor.fee_clinic)}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setMobileActiveTab('booking');
-              const el = document.getElementById('oladoc-booking-card');
-              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-            className="py-2.5 px-5 bg-clinic-700 hover:bg-clinic-800 active:scale-95 text-white font-bold rounded-xl text-xs shadow-sm flex items-center gap-1.5 cursor-pointer"
-          >
-            <Calendar className="w-4 h-4 text-white" />
-            <span>Book Appointment &rarr;</span>
-          </button>
-        </div>
-      )}
+      {/* ── Mobile Persistent Bottom Quick-Booking Bar (Smart & Context-Aware) ── */}
+      <div className="lg:hidden fixed bottom-[calc(57px+env(safe-area-inset-bottom,0px))] inset-x-0 z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 px-3.5 py-2.5 flex items-center justify-between gap-3 shadow-[0_-6px_20px_rgba(0,0,0,0.08)] animate-fade-in">
+        {mobileActiveTab === 'profile' ? (
+          <>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Fee</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold">Pay at Clinic</span>
+              </div>
+              <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono leading-tight">{formatCurrency(doctor.fee_clinic)}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileActiveTab('booking');
+                const el = document.getElementById('oladoc-booking-card');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="py-2.5 px-5 bg-clinic-700 hover:bg-clinic-800 active:scale-95 text-white font-bold rounded-xl text-xs shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <Calendar className="w-4 h-4 text-white" />
+              <span>Book Appointment &rarr;</span>
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate">
+                {selectedDayObj?.label?.split(',')[0] || 'Selected Day'} &bull; {selectedTimeSlot}
+              </p>
+              <p className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 truncate">
+                {formatCurrency(doctor.fee_clinic)} (Cash at Desk)
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleStartBooking}
+              disabled={isSubmitting || activeSlotsToDisplay.length === 0}
+              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs shadow-md flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Securing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Confirm Free</span>
+                  <span>&rarr;</span>
+                </>
+              )}
+            </button>
+          </>
+        )}
+      </div>
 
       {/* ── Interactive OTP Verification Modal ── */}
       {bookingState === 'otp' && (

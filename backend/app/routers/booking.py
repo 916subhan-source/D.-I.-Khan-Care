@@ -768,118 +768,134 @@ async def get_live_queue(doctor_id: Optional[str] = None, db: AsyncSession = Dep
     today_start = pkt_now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(hours=5)
     today_end = pkt_now.replace(hour=23, minute=59, second=59, microsecond=999999) - timedelta(hours=5)
 
-    target_doctor: Optional[Doctor] = None
-    if doctor_id:
-        doc_res = await db.execute(
-            select(Doctor).options(selectinload(Doctor.user)).where(Doctor.id == doctor_id)
-        )
-        target_doctor = doc_res.scalar_one_or_none()
+    try:
+        target_doctor: Optional[Doctor] = None
+        if doctor_id:
+            doc_res = await db.execute(
+                select(Doctor).options(selectinload(Doctor.user)).where(Doctor.id == doctor_id)
+            )
+            target_doctor = doc_res.scalar_one_or_none()
 
-    if not target_doctor:
-        doc_res = await db.execute(
-            select(Doctor).options(selectinload(Doctor.user)).where(Doctor.is_active == True).limit(1)
-        )
-        target_doctor = doc_res.scalar_one_or_none()
+        if not target_doctor:
+            doc_res = await db.execute(
+                select(Doctor).options(selectinload(Doctor.user)).where(Doctor.verification_status == "verified").limit(1)
+            )
+            target_doctor = doc_res.scalar_one_or_none()
 
-    if not target_doctor:
+        if not target_doctor:
+            doc_res = await db.execute(
+                select(Doctor).options(selectinload(Doctor.user)).limit(1)
+            )
+            target_doctor = doc_res.scalar_one_or_none()
+
+        if not target_doctor:
+            return {
+                "doctor": None,
+                "now_serving": None,
+                "upcoming": [],
+                "stats": {"total": 0, "completed": 0, "waiting": 0},
+                "server_time_pkt": pkt_now.strftime("%I:%M %p"),
+                "server_date_pkt": pkt_now.strftime("%A, %d %B %Y")
+            }
+
+        # Fetch today's appointments for this doctor
+        appt_stmt = (
+            select(Appointment)
+            .options(
+                selectinload(Appointment.slot),
+                selectinload(Appointment.patient)
+            )
+            .where(
+                Appointment.doctor_id == target_doctor.id,
+                Appointment.created_at >= today_start,
+                Appointment.created_at <= today_end,
+                Appointment.status.notin_(["CANCELLED", "REJECTED"])
+            )
+            .order_by(Appointment.created_at.asc())
+        )
+        appts_res = await db.execute(appt_stmt)
+        appts = appts_res.scalars().all()
+
+        def mask_name(full_name: Optional[str]) -> str:
+            if not full_name:
+                return "Patient"
+            parts = full_name.strip().split()
+            if len(parts) == 1:
+                return f"{parts[0][:3]}***" if len(parts[0]) > 3 else parts[0]
+            return f"{parts[0]} {parts[-1][0]}."
+
+        def extract_token_num(slip: Optional[str], idx: int) -> int:
+            if slip:
+                parts = slip.strip().split("-")
+                if len(parts) >= 4 and parts[3].isdigit():
+                    try:
+                        val = int(parts[3])
+                        if 1 <= val <= 999:
+                            return val
+                    except ValueError:
+                        pass
+            return idx + 1
+
+        completed_list = []
+        in_progress_appt = None
+        upcoming_list = []
+
+        for idx, appt in enumerate(appts):
+            t_num = extract_token_num(appt.slip_number, idx)
+            p_name = mask_name(appt.patient_name or (appt.patient.full_name if appt.patient else None))
+            item = {
+                "token_number": t_num,
+                "patient_name": p_name,
+                "slip_number": appt.slip_number,
+                "status": appt.status,
+                "time": format_pkt_time(appt.created_at) if appt.created_at else None
+            }
+
+            if appt.status == "COMPLETED":
+                completed_list.append(item)
+            elif appt.status in ("IN_PROGRESS", "CONSULTING"):
+                if not in_progress_appt:
+                    in_progress_appt = item
+                else:
+                    upcoming_list.append(item)
+            elif appt.status in ("CONFIRMED", "PENDING_ASSISTANT_APPROVAL", "HOLD"):
+                upcoming_list.append(item)
+
+        now_serving = in_progress_appt
+        if not now_serving and upcoming_list:
+            now_serving = upcoming_list[0]
+            upcoming_list = upcoming_list[1:]
+
+        doc_name = target_doctor.user.full_name if target_doctor.user else "Specialist Doctor"
+        return {
+            "doctor": {
+                "id": target_doctor.id,
+                "name": f"Dr. {doc_name}" if not doc_name.lower().startswith("dr") else doc_name,
+                "specialty": target_doctor.specialty,
+                "qualification": target_doctor.qualification,
+                "clinic_name": target_doctor.sub_region or "D.I. Khan Clinic",
+                "clinic_address": target_doctor.clinic_address or "Opposite DHQ Hospital, D.I. Khan",
+                "fee": float(target_doctor.fee_clinic or 0)
+            },
+            "now_serving": now_serving,
+            "upcoming": upcoming_list[:6],
+            "stats": {
+                "total": len(appts),
+                "completed": len(completed_list),
+                "waiting": len(upcoming_list) + (1 if now_serving else 0)
+            },
+            "server_time_pkt": pkt_now.strftime("%I:%M %p"),
+            "server_date_pkt": pkt_now.strftime("%A, %d %B %Y")
+        }
+    except Exception as exc:
         return {
             "doctor": None,
             "now_serving": None,
             "upcoming": [],
             "stats": {"total": 0, "completed": 0, "waiting": 0},
             "server_time_pkt": pkt_now.strftime("%I:%M %p"),
-            "server_date_pkt": pkt_now.strftime("%A, %d %B %Y")
+            "server_date_pkt": pkt_now.strftime("%A, %d %B %Y"),
+            "error": str(exc)
         }
-
-    # Fetch today's appointments for this doctor
-    appt_stmt = (
-        select(Appointment)
-        .options(
-            selectinload(Appointment.slot),
-            selectinload(Appointment.patient)
-        )
-        .where(
-            Appointment.doctor_id == target_doctor.id,
-            Appointment.created_at >= today_start,
-            Appointment.created_at <= today_end,
-            Appointment.status.notin_(["CANCELLED", "REJECTED"])
-        )
-        .order_by(Appointment.created_at.asc())
-    )
-    appts_res = await db.execute(appt_stmt)
-    appts = appts_res.scalars().all()
-
-    def mask_name(full_name: Optional[str]) -> str:
-        if not full_name:
-            return "Patient"
-        parts = full_name.strip().split()
-        if len(parts) == 1:
-            return f"{parts[0][:3]}***" if len(parts[0]) > 3 else parts[0]
-        return f"{parts[0]} {parts[-1][0]}."
-
-    def extract_token_num(slip: Optional[str], idx: int) -> int:
-        if slip:
-            parts = slip.strip().split("-")
-            if len(parts) >= 4 and parts[3].isdigit():
-                try:
-                    val = int(parts[3])
-                    if 1 <= val <= 999:
-                        return val
-                except ValueError:
-                    pass
-        return idx + 1
-
-    completed_list = []
-    in_progress_appt = None
-    upcoming_list = []
-
-    for idx, appt in enumerate(appts):
-        t_num = extract_token_num(appt.slip_number, idx)
-        p_name = mask_name(appt.patient_name or (appt.patient.full_name if appt.patient else None))
-        item = {
-            "token_number": t_num,
-            "patient_name": p_name,
-            "slip_number": appt.slip_number,
-            "status": appt.status,
-            "time": format_pkt_time(appt.created_at) if appt.created_at else None
-        }
-
-        if appt.status == "COMPLETED":
-            completed_list.append(item)
-        elif appt.status in ("IN_PROGRESS", "CONSULTING"):
-            if not in_progress_appt:
-                in_progress_appt = item
-            else:
-                upcoming_list.append(item)
-        elif appt.status in ("CONFIRMED", "PENDING_ASSISTANT_APPROVAL", "HOLD"):
-            upcoming_list.append(item)
-
-    now_serving = in_progress_appt
-    if not now_serving and upcoming_list:
-        # If there are waiting patients and none marked in-progress yet, first one is ready
-        now_serving = upcoming_list[0]
-        upcoming_list = upcoming_list[1:]
-
-    doc_name = target_doctor.user.full_name if target_doctor.user else "Specialist Doctor"
-    return {
-        "doctor": {
-            "id": target_doctor.id,
-            "name": f"Dr. {doc_name}" if not doc_name.lower().startswith("dr") else doc_name,
-            "specialty": target_doctor.specialty,
-            "qualification": target_doctor.qualification,
-            "clinic_name": target_doctor.sub_region or "D.I. Khan Clinic",
-            "clinic_address": target_doctor.clinic_address or "Opposite DHQ Hospital, D.I. Khan",
-            "fee": float(target_doctor.fee_clinic or 0)
-        },
-        "now_serving": now_serving,
-        "upcoming": upcoming_list[:6],
-        "stats": {
-            "total": len(appts),
-            "completed": len(completed_list),
-            "waiting": len(upcoming_list) + (1 if now_serving else 0)
-        },
-        "server_time_pkt": pkt_now.strftime("%I:%M %p"),
-        "server_date_pkt": pkt_now.strftime("%A, %d %B %Y")
-    }
 
 

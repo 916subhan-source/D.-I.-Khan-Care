@@ -453,15 +453,29 @@ async def dynamic_sitemap():
             rows = res.all()
 
         specialties = [
-            "gynecologist",
-            "child-specialist",
-            "cardiologist",
-            "general-physician",
+            "laparoscopic-surgeon",
             "general-surgeon",
+            "cardiologist",
+            "child-specialist",
+            "pediatrician",
+            "gynecologist",
+            "orthopedic-surgeon",
+            "general-physician",
             "plastic-surgeon",
             "dermatologist",
+            "urologist",
+            "neurologist",
+            "gastroenterologist",
+            "psychiatrist",
+            "pulmonologist",
+            "ent-specialist",
+            "eye-specialist",
+            "dentist",
             "rheumatologist",
-            "orthopedic-surgeon"
+            "nephrologist",
+            "endocrinologist",
+            "neurosurgeon",
+            "oncologist"
         ]
 
         xml_lines = [

@@ -6325,7 +6325,19 @@ const parseSpecialtyFromUrl = (): string => {
       if (target.includes('laparo')) return 'Laparoscopic Surgeon';
       if (target.includes('surgeon') || target.includes('surgery')) return 'General Surgeon';
       if (target.includes('derma') || target.includes('skin')) return 'Dermatologist';
+      if (target.includes('urolog') || target.includes('kidney stone') || target.includes('prostate')) return 'Urologist';
+      if (target.includes('neurosur')) return 'Neurosurgeon';
+      if (target.includes('neuro')) return 'Neurologist';
+      if (target.includes('gastro') || target.includes('stomach') || target.includes('liver')) return 'Gastroenterologist';
+      if (target.includes('psych')) return 'Psychiatrist';
+      if (target.includes('pulmo') || target.includes('chest') || target.includes('lung')) return 'Pulmonologist';
+      if (target.includes('ent') || target.includes('ear') || target.includes('throat')) return 'ENT Specialist';
+      if (target.includes('eye') || target.includes('ophthalm')) return 'Eye Specialist';
+      if (target.includes('dent') || target.includes('teeth')) return 'Dentist';
       if (target.includes('rheuma') || target.includes('arthrit')) return 'Rheumatologist';
+      if (target.includes('nephro')) return 'Nephrologist';
+      if (target.includes('endo') || target.includes('diabet')) return 'Endocrinologist';
+      if (target.includes('onco') || target.includes('cancer')) return 'Oncologist';
     }
   } catch (_) { }
   return 'All specialties';
@@ -6340,9 +6352,21 @@ const getSpecialtySlug = (spec: string): string => {
   if (s.includes('ortho')) return 'orthopedic-surgeon';
   if (s.includes('face') || s.includes('plastic') || s.includes('aesthetic')) return 'plastic-surgeon';
   if (s.includes('laparo')) return 'laparoscopic-surgeon';
+  if (s.includes('neurosur')) return 'neurosurgeon';
   if (s.includes('surgeon')) return 'general-surgeon';
   if (s.includes('derma') || s.includes('skin')) return 'dermatologist';
+  if (s.includes('urolog')) return 'urologist';
+  if (s.includes('neuro')) return 'neurologist';
+  if (s.includes('gastro')) return 'gastroenterologist';
+  if (s.includes('psych')) return 'psychiatrist';
+  if (s.includes('pulmo') || s.includes('chest')) return 'pulmonologist';
+  if (s.includes('ent') || s.includes('ear')) return 'ent-specialist';
+  if (s.includes('eye') || s.includes('ophthalm')) return 'eye-specialist';
+  if (s.includes('dent')) return 'dentist';
   if (s.includes('rheuma')) return 'rheumatologist';
+  if (s.includes('nephro')) return 'nephrologist';
+  if (s.includes('endo') || s.includes('diabet')) return 'endocrinologist';
+  if (s.includes('onco') || s.includes('cancer')) return 'oncologist';
   return 'all';
 };
 
@@ -6724,17 +6748,29 @@ function PatientSection({
     const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
       (selectedSpecialty.toLowerCase().includes('cardio') && (doc.specialty.toLowerCase().includes('cardio') || doc.specialty.toLowerCase().includes('heart'))) ||
-      (selectedSpecialty.toLowerCase().includes('ortho') && doc.specialty.toLowerCase().includes('ortho')) ||
+      (selectedSpecialty.toLowerCase().includes('ortho') && (doc.specialty.toLowerCase().includes('ortho') || doc.specialty.toLowerCase().includes('bone') || doc.specialty.toLowerCase().includes('joint'))) ||
       (selectedSpecialty.toLowerCase().includes('child') && (doc.specialty.toLowerCase().includes('child') || doc.specialty.toLowerCase().includes('pediatric'))) ||
       (selectedSpecialty.toLowerCase().includes('pediatric') && (doc.specialty.toLowerCase().includes('child') || doc.specialty.toLowerCase().includes('pediatric'))) ||
       (selectedSpecialty.toLowerCase().includes('general surgeon') && (doc.specialty.toLowerCase().includes('surgeon') || doc.specialty.toLowerCase().includes('surgery'))) ||
-      (selectedSpecialty.toLowerCase().includes('lap') && (doc.specialty.toLowerCase().includes('lap') || doc.specialty.toLowerCase().includes('surgeon'))) ||
+      (selectedSpecialty.toLowerCase().includes('lap') && (doc.specialty.toLowerCase().includes('lap') || doc.specialty.toLowerCase().includes('surgeon') || doc.specialty.toLowerCase().includes('surgery'))) ||
       (selectedSpecialty.toLowerCase().includes('face') && (doc.specialty.toLowerCase().includes('face') || doc.specialty.toLowerCase().includes('plastic') || doc.specialty.toLowerCase().includes('aesthetic') || doc.specialty.toLowerCase().includes('skin'))) ||
       (selectedSpecialty.toLowerCase().includes('plastic') && (doc.specialty.toLowerCase().includes('plastic') || doc.specialty.toLowerCase().includes('aesthetic') || doc.specialty.toLowerCase().includes('face'))) ||
       ((selectedSpecialty.toLowerCase().includes('gyn') || selectedSpecialty.toLowerCase().includes('women')) && (doc.specialty.toLowerCase().includes('gyn') || doc.specialty.toLowerCase().includes('obstetric'))) ||
       (selectedSpecialty.toLowerCase().includes('physician') && (doc.specialty.toLowerCase().includes('physician') || doc.specialty.toLowerCase().includes('medicine') || doc.specialty.toLowerCase().includes('general'))) ||
-      (selectedSpecialty.toLowerCase().includes('rheuma') && doc.specialty.toLowerCase().includes('rheuma')) ||
-      (selectedSpecialty.toLowerCase().includes('derma') && (doc.specialty.toLowerCase().includes('derma') || doc.specialty.toLowerCase().includes('skin')));
+      (selectedSpecialty.toLowerCase().includes('rheuma') && (doc.specialty.toLowerCase().includes('rheuma') || doc.specialty.toLowerCase().includes('arthrit'))) ||
+      (selectedSpecialty.toLowerCase().includes('derma') && (doc.specialty.toLowerCase().includes('derma') || doc.specialty.toLowerCase().includes('skin'))) ||
+      (selectedSpecialty.toLowerCase().includes('urolog') && (doc.specialty.toLowerCase().includes('urolog') || doc.specialty.toLowerCase().includes('kidney stone'))) ||
+      (selectedSpecialty.toLowerCase().includes('neurosur') && doc.specialty.toLowerCase().includes('neurosur')) ||
+      (selectedSpecialty.toLowerCase().includes('neuro') && doc.specialty.toLowerCase().includes('neuro')) ||
+      (selectedSpecialty.toLowerCase().includes('gastro') && (doc.specialty.toLowerCase().includes('gastro') || doc.specialty.toLowerCase().includes('stomach') || doc.specialty.toLowerCase().includes('liver') || doc.specialty.toLowerCase().includes('endoscop'))) ||
+      (selectedSpecialty.toLowerCase().includes('psych') && (doc.specialty.toLowerCase().includes('psych') || doc.specialty.toLowerCase().includes('mental'))) ||
+      (selectedSpecialty.toLowerCase().includes('pulmo') && (doc.specialty.toLowerCase().includes('pulmo') || doc.specialty.toLowerCase().includes('chest') || doc.specialty.toLowerCase().includes('lung') || doc.specialty.toLowerCase().includes('respirat'))) ||
+      (selectedSpecialty.toLowerCase().includes('ent') && (doc.specialty.toLowerCase().includes('ent') || doc.specialty.toLowerCase().includes('ear') || doc.specialty.toLowerCase().includes('throat') || doc.specialty.toLowerCase().includes('otolaryng'))) ||
+      (selectedSpecialty.toLowerCase().includes('eye') && (doc.specialty.toLowerCase().includes('eye') || doc.specialty.toLowerCase().includes('ophthalm'))) ||
+      (selectedSpecialty.toLowerCase().includes('dent') && (doc.specialty.toLowerCase().includes('dent') || doc.specialty.toLowerCase().includes('teeth') || doc.specialty.toLowerCase().includes('oral'))) ||
+      (selectedSpecialty.toLowerCase().includes('nephro') && (doc.specialty.toLowerCase().includes('nephro') || doc.specialty.toLowerCase().includes('dialysis') || doc.specialty.toLowerCase().includes('kidney'))) ||
+      (selectedSpecialty.toLowerCase().includes('endo') && (doc.specialty.toLowerCase().includes('endo') || doc.specialty.toLowerCase().includes('diabet') || doc.specialty.toLowerCase().includes('hormon'))) ||
+      (selectedSpecialty.toLowerCase().includes('onco') && (doc.specialty.toLowerCase().includes('onco') || doc.specialty.toLowerCase().includes('cancer')));
     if (!matchLoc || !matchShift || !matchSearch || !matchSpecialty) return false;
 
     if (selectedCondition) {
@@ -7117,10 +7153,45 @@ function PatientSection({
                   </div>
                   <select
                     value={selectedSpecialty}
-                    onChange={e => { setSelectedSpecialty(e.target.value); setSelectedCondition(''); setSelectedConditionLabel(''); setQuickFilter('all'); }}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setSelectedSpecialty(val);
+                      setSelectedCondition('');
+                      setSelectedConditionLabel('');
+                      setQuickFilter('all');
+                      try {
+                        const slug = getSpecialtySlug(val);
+                        window.history.pushState({}, '', slug === 'all' ? '/doctors' : `/doctors/${slug}`);
+                      } catch (_) {}
+                    }}
                     className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                   >
-                    {['All specialties', 'Cardiologist', 'Orthopedic Surgeon', 'Child Specialist', 'General Surgeon', 'Laparoscopic Surgeon', 'Face and Skin Surgeon', 'General Physician', 'Dermatologist', 'Gynaecologist', 'ENT Specialist', 'Ophthalmologist', 'Pediatrician', 'Neurologist', 'Urologist'].map(s => (
+                    {[
+                      'All specialties',
+                      'Laparoscopic Surgeon',
+                      'General Surgeon',
+                      'Cardiologist',
+                      'Child Specialist',
+                      'Pediatrician',
+                      'Gynaecologist',
+                      'Orthopedic Surgeon',
+                      'General Physician',
+                      'Face and Skin Surgeon',
+                      'Dermatologist',
+                      'Urologist',
+                      'Neurologist',
+                      'Gastroenterologist',
+                      'Psychiatrist',
+                      'Pulmonologist',
+                      'ENT Specialist',
+                      'Eye Specialist',
+                      'Dentist',
+                      'Rheumatologist',
+                      'Nephrologist',
+                      'Endocrinologist',
+                      'Neurosurgeon',
+                      'Oncologist'
+                    ].map(s => (
                       <option key={s} value={s}>{s === 'All specialties' ? 'All Specialties' : s}</option>
                     ))}
                   </select>
@@ -7320,6 +7391,10 @@ function PatientSection({
                       setSelectedCondition('');
                       setSelectedConditionLabel('');
                       setQuickFilter('all');
+                      try {
+                        const slug = getSpecialtySlug(spec.name);
+                        window.history.pushState({}, '', slug === 'all' ? '/doctors' : `/doctors/${slug}`);
+                      } catch (_) {}
                     }}
                     className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
                       ? 'bg-clinic-800 dark:bg-emerald-600 text-white shadow-sm border border-clinic-800 dark:border-emerald-500 font-bold'

@@ -919,12 +919,25 @@ export default function App() {
       const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
       if (pathname === '/queue-display' || pathname === '/queue' || pathname === '/tv' || pathname.startsWith('/queue-display/')) return 'queue-display';
       if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
-      if (pathname === '/doctor' || pathname.startsWith('/doctor/')) return 'doctor';
+
+      // PUBLIC PATIENT DOCTOR PROFILE & SPECIALTY DIRECTORIES
+      // Any /doctor/dr-* or /doctor/{slug} or /doctors/* MUST open the public patient booking profile!
+      if (
+        pathname.startsWith('/doctor/') ||
+        pathname.startsWith('/doctors/') ||
+        pathname === '/doctors' ||
+        pathname.startsWith('/specialty/') ||
+        pathname.startsWith('/speciality/')
+      ) {
+        return 'patient';
+      }
+
+      // DOCTOR POS WORKSPACE ONLY ON EXACT /doctor OR /doctor-portal OR /doctor-login
+      if (pathname === '/doctor' || pathname === '/doctor-portal' || pathname === '/doctor-login') return 'doctor';
       if (pathname === '/assistant' || pathname.startsWith('/assistant/')) return 'assistant';
       if (pathname === '/track' || pathname.startsWith('/track/')) return 'track';
       if (pathname === '/loyalty' || pathname.startsWith('/loyalty/')) return 'loyalty';
       if (pathname === '/join-doctor' || pathname === '/join' || pathname.startsWith('/join-doctor/')) return 'join-doctor';
-      if (pathname === '/doctors' || pathname.startsWith('/doctors/') || pathname.startsWith('/specialty/') || pathname.startsWith('/speciality/')) return 'patient';
       if (pathname === '/home') return 'home';
 
       const params = new URLSearchParams(window.location.search);
@@ -6546,18 +6559,47 @@ function PatientSection({
   const [zoomLevel, setZoomLevel] = useState<'105' | '100' | '110'>('100');
 
   // Profile / booking
-  const [profileDoctor, setProfileDoctor] = useState<DoctorData | null>(null);
+  const [profileDoctor, setProfileDoctor] = useState<DoctorData | null>(() => {
+    try {
+      const pathname = typeof window !== 'undefined' ? window.location.pathname.toLowerCase().replace(/\/+$/, '') : '';
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+      const docParam = params.get('doctor') || params.get('doctor_id');
+      let targetKey = docParam || '';
+      if (!targetKey) {
+        if (pathname.startsWith('/doctor/')) {
+          targetKey = pathname.replace('/doctor/', '');
+        } else if (pathname.startsWith('/doctors/') && (pathname.includes('waqar') || pathname.includes('naveed') || pathname.includes('ali') || pathname.includes('gandapur') || pathname.length > 25)) {
+          targetKey = pathname.replace('/doctors/', '');
+        }
+      }
+      if (targetKey) {
+        const cached = localStorage.getItem('cached_public_doctors');
+        if (cached) {
+          const list = JSON.parse(cached);
+          if (Array.isArray(list)) {
+            const found = findDoctorBySlugOrId(list, targetKey);
+            if (found) return found;
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  });
   const [profileDoctorInitialTab, setProfileDoctorInitialTab] = useState<'booking' | 'profile'>('profile');
   const [bookingDoctor, setBookingDoctor] = useState<DoctorData | null>(null);
 
-  // Whenever user taps Home, Find Doctor, or Track from any navigation bar/drawer, reset doctor view
+  // Whenever user taps Home, Find Doctor, or Track from any navigation bar/drawer, reset doctor view (unless currently on a dedicated doctor URL)
   useEffect(() => {
     if (navResetTrigger > 0) {
-      setProfileDoctor(null);
-      setBookingDoctor(null);
+      const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      const isDoctorPage = pathname.startsWith('/doctor/') || (pathname.startsWith('/doctors/') && (pathname.includes('waqar') || pathname.includes('naveed') || pathname.includes('ali') || pathname.length > 25));
+      if (!isDoctorPage) {
+        setProfileDoctor(null);
+        setBookingDoctor(null);
+      }
       setShowTrack(false);
 
-      if (activeTab === 'patient') {
+      if (activeTab === 'patient' && !isDoctorPage) {
         setTimeout(() => {
           const el = document.getElementById('doctors-results-grid');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -6572,7 +6614,9 @@ function PatientSection({
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
-      if (!params.get('doctor') && !params.get('doctor_id')) {
+      const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      const isDoctorUrl = pathname.startsWith('/doctor/') || (pathname.startsWith('/doctors/') && (pathname.includes('waqar') || pathname.includes('naveed') || pathname.includes('ali') || pathname.length > 25));
+      if (!params.get('doctor') && !params.get('doctor_id') && !isDoctorUrl) {
         setProfileDoctor(null);
         setBookingDoctor(null);
       }

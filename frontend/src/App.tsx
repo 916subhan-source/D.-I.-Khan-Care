@@ -61,13 +61,15 @@ import {
   Maximize2,
   ArrowUp,
   PhoneCall,
-  Share2
+  Share2,
+  Tv
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
 import JoinAsDoctorSection from './components/JoinAsDoctorSection';
+import QueueDisplay from './components/QueueDisplay';
 
 
 // ── Shared Domain Types, Formatters, Calling Order & Constants ──
@@ -886,9 +888,10 @@ function StaffLoginSplitView({
 }
 
 export default function App() {
-  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' => {
+  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' | 'queue-display' => {
     try {
       const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      if (pathname === '/queue-display' || pathname === '/queue' || pathname === '/tv' || pathname.startsWith('/queue-display/')) return 'queue-display';
       if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
       if (pathname === '/doctor' || pathname.startsWith('/doctor/')) return 'doctor';
       if (pathname === '/assistant' || pathname.startsWith('/assistant/')) return 'assistant';
@@ -900,10 +903,12 @@ export default function App() {
 
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
+      if (tabParam === 'queue-display' || tabParam === 'queue' || tabParam === 'tv') return 'queue-display';
       if (tabParam === 'admin' || tabParam === 'doctor' || tabParam === 'assistant' || tabParam === 'track' || tabParam === 'loyalty' || tabParam === 'join-doctor' || tabParam === 'patient' || tabParam === 'home') {
         return tabParam as any;
       }
       const hash = window.location.hash.replace('#', '').replace(/^\/+/, '').toLowerCase();
+      if (hash === 'queue-display' || hash === 'queue' || hash === 'tv') return 'queue-display';
       if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track' || hash === 'loyalty' || hash === 'join-doctor' || hash === 'doctors' || hash === 'home') {
         return hash === 'doctors' ? 'patient' : hash as any;
       }
@@ -911,7 +916,7 @@ export default function App() {
     return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
+  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' | 'queue-display'>(getTabFromUrl);
   const [navResetTrigger, setNavResetTrigger] = useState<number>(0);
   const [openTrackTrigger, setOpenTrackTrigger] = useState(0);
   const [showStaffModal, setShowStaffModal] = useState(false);
@@ -1021,7 +1026,7 @@ export default function App() {
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   // Sync tab with browser URL history
-  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track' | 'loyalty' | 'join-doctor') => {
+  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track' | 'loyalty' | 'join-doctor' | 'queue-display') => {
     setActiveTab(newRole as any);
     setNavResetTrigger(prev => prev + 1);
     setShowMobileNav(false);
@@ -1031,11 +1036,12 @@ export default function App() {
       const targetPath = newRole === 'admin' ? '/admin'
         : newRole === 'doctor' ? '/doctor'
           : newRole === 'assistant' ? '/assistant'
-            : newRole === 'track' ? '/track'
-              : newRole === 'loyalty' ? '/loyalty'
-                : newRole === 'join-doctor' ? '/join-doctor'
-                  : newRole === 'patient' ? '/doctors'
-                    : '/';
+            : newRole === 'queue-display' ? '/queue-display'
+              : newRole === 'track' ? '/track'
+                : newRole === 'loyalty' ? '/loyalty'
+                  : newRole === 'join-doctor' ? '/join-doctor'
+                    : newRole === 'patient' ? '/doctors'
+                      : '/';
       if (window.location.pathname.toLowerCase().replace(/\/+$/, '') !== targetPath.replace(/\/+$/, '')) {
         window.history.pushState(null, '', targetPath);
       }
@@ -1078,6 +1084,13 @@ export default function App() {
       <div className="animate-fade-in min-h-screen">
         <AdminSection onSwitchRole={handleSwitchRole} />
         <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
+      </div>
+    );
+  }
+  if (activeTab === 'queue-display') {
+    return (
+      <div className="animate-fade-in min-h-screen">
+        <QueueDisplay onBack={() => handleSwitchRole('home')} />
       </div>
     );
   }
@@ -1272,6 +1285,14 @@ export default function App() {
                   <Headphones className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>Assistant Desk</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchRole('queue-display')}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/40 text-left cursor-pointer"
+                >
+                  <Tv className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <span>Waiting Room TV (Live Kiosk)</span>
+                </button>
               </div>
             </div>
 
@@ -1326,6 +1347,19 @@ export default function App() {
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">Reception queue & approvals</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-clinic-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+              </button>
+              <button
+                onClick={() => { setShowStaffModal(false); handleSwitchRole('queue-display'); }}
+                className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/90 text-left transition-all group flex items-center gap-4 shadow-xs cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center bg-teal-50 dark:bg-teal-950/60 border border-teal-200/50 dark:border-teal-800/60">
+                  <Tv className="w-5 h-5 text-teal-700 dark:text-teal-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors">Waiting Room TV (Live Kiosk)</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Fullscreen TV queue counter & audio chime</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
               </button>
             </div>
           </div>
@@ -6353,6 +6387,45 @@ function PatientSection({
   const [quickFilter, setQuickFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Dynamic Typewriter Search Placeholder for Hero Search Bar
+  const searchPlaceholders = useMemo(() => [
+    "Search 'Dr Naveed Anjum' or 'Bachon ka doctor'...",
+    "Search 'Dil ka doctor' or 'Cardiologist'...",
+    "Search 'Opposite DHQ Hospital' or 'Al-Shifa'...",
+    "Search 'Dr Qaiser' or 'Haddi ka doctor'...",
+    "Search 'Pitta operation' or 'Dr Abdul Basit'...",
+    "Search 'Skin specialist' or 'Lady doctor'...",
+    "Search 'General Physician' or 'Bukhar ka doctor'..."
+  ], []);
+  const [placeholderText, setPlaceholderText] = useState('');
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [isDeletingPlaceholder, setIsDeletingPlaceholder] = useState(false);
+
+  useEffect(() => {
+    let timer: any;
+    const currentFull = searchPlaceholders[placeholderIndex % searchPlaceholders.length];
+
+    if (!isDeletingPlaceholder) {
+      if (placeholderText.length < currentFull.length) {
+        timer = setTimeout(() => {
+          setPlaceholderText(currentFull.slice(0, placeholderText.length + 1));
+        }, 55);
+      } else {
+        timer = setTimeout(() => setIsDeletingPlaceholder(true), 2200);
+      }
+    } else {
+      if (placeholderText.length > 0) {
+        timer = setTimeout(() => {
+          setPlaceholderText(placeholderText.slice(0, -1));
+        }, 25);
+      } else {
+        setIsDeletingPlaceholder(false);
+        setPlaceholderIndex((prev) => (prev + 1) % searchPlaceholders.length);
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [placeholderText, isDeletingPlaceholder, placeholderIndex, searchPlaceholders]);
+
   const scrollToResults = () => {
     setTimeout(() => {
       const el = document.getElementById('doctors-results-grid');
@@ -6881,7 +6954,7 @@ function PatientSection({
                     <input
                       type="text"
                       aria-label="Search doctor, clinic, specialty"
-                      placeholder="Search doctor, clinic, specialty (e.g. Heart, Child)..."
+                      placeholder={placeholderText || "Search doctor, clinic, specialty (e.g. Heart, Child)..."}
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') scrollToResults(); }}
@@ -6892,7 +6965,7 @@ function PatientSection({
                         type="button"
                         onClick={() => setSearchTerm('')}
                         aria-label="Clear search input"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -6909,38 +6982,73 @@ function PatientSection({
                 </div>
               )}
 
-              {/* Popular Fast-Tap Tags */}
+              {/* Specialty Icon Grid in Hero */}
               {isHomeView && (
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 pt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                    ⚡ Popular:
-                  </span>
-                  {[
-                    { label: '🫀 Cardiologist', spec: 'Cardiologist', slug: 'cardiologist' },
-                    { label: '👶 Child Specialist', spec: 'Child Specialist', slug: 'child-specialist' },
-                    { label: '🦴 Orthopedic', spec: 'Orthopedic Surgeon', slug: 'orthopedic-surgeon' },
-                    { label: '🩺 General Physician', spec: 'General Physician', slug: 'general-physician' },
-                    { label: '🌸 Gynecologist', spec: 'Gynaecologist', slug: 'gynecologist' },
-                    { label: '🔪 General Surgeon', spec: 'General Surgeon', slug: 'general-surgeon' },
-                    { label: '✨ Plastic Surgeon', spec: 'Face and Skin Surgeon', slug: 'plastic-surgeon' },
-                  ].map(item => (
-                    <button
-                      key={item.spec}
-                      type="button"
-                      onClick={() => {
-                        setSelectedSpecialty(item.spec);
-                        setSelectedCondition('');
-                        setSelectedConditionLabel('');
-                        try {
-                          window.history.pushState({}, '', `/doctors/${item.slug}`);
-                        } catch (_) {}
-                        scrollToResults();
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-white/90 dark:bg-slate-800/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-300 dark:hover:border-emerald-600 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold transition-all shadow-2xs cursor-pointer"
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                <div className="mt-4 pt-1">
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Browse Specialties in D.I. Khan</span>
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                      PMDC Verified
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                    {[
+                      { icon: '🫀', title: 'Cardiologist', urdu: 'امراضِ دل', sub: 'Heart & BP', spec: 'Cardiologist', slug: 'cardiologist' },
+                      { icon: '👶', title: 'Child Specialist', urdu: 'امراضِ اطفال', sub: 'Kids Health', spec: 'Child Specialist', slug: 'child-specialist' },
+                      { icon: '🦴', title: 'Orthopedic', urdu: 'ہڈی و جوڑ', sub: 'Bones & Joints', spec: 'Orthopedic Surgeon', slug: 'orthopedic-surgeon' },
+                      { icon: '🩺', title: 'General Physician', urdu: 'معالجِ عام', sub: 'Fever & General', spec: 'General Physician', slug: 'general-physician' },
+                      { icon: '🌸', title: 'Gynecologist', urdu: 'امراضِ نسواں', sub: 'Maternal Care', spec: 'Gynaecologist', slug: 'gynecologist' },
+                      { icon: '🔪', title: 'General Surgeon', urdu: 'سرجری', sub: 'Gallbladder & Hernia', spec: 'General Surgeon', slug: 'general-surgeon' },
+                      { icon: '✨', title: 'Face & Skin', urdu: 'جلد و حسن', sub: 'Plastic & Aesthetic', spec: 'Face and Skin Surgeon', slug: 'plastic-surgeon' },
+                      { icon: '🔬', title: 'All Specialties', urdu: 'تمام ڈاکٹرز', sub: 'All Specialists', spec: 'All specialties', slug: '' },
+                    ].map(item => {
+                      const isSelected = selectedSpecialty.toLowerCase() === item.spec.toLowerCase();
+                      return (
+                        <button
+                          key={item.title}
+                          type="button"
+                          onClick={() => {
+                            if (item.spec === 'All specialties') {
+                              setSelectedSpecialty('All specialties');
+                              try { window.history.pushState({}, '', '/doctors'); } catch (_) {}
+                            } else {
+                              setSelectedSpecialty(item.spec);
+                              try { window.history.pushState({}, '', `/doctors/${item.slug}`); } catch (_) {}
+                            }
+                            setSelectedCondition('');
+                            setSelectedConditionLabel('');
+                            scrollToResults();
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition-all duration-200 flex items-center gap-2.5 cursor-pointer group shadow-2xs hover:shadow-xs active:scale-95 ${
+                            isSelected
+                              ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-500 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/30'
+                              : 'bg-white/90 dark:bg-slate-800/90 border-slate-200/90 dark:border-slate-700/80 hover:border-emerald-400 dark:hover:border-emerald-500/60 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/30'
+                          }`}
+                        >
+                          <span className="text-xl sm:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                            {item.icon}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className={`text-xs font-bold truncate ${isSelected ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-800 dark:text-slate-200'}`}>
+                                {item.title}
+                              </span>
+                              <span dir="rtl" className="text-[10px] font-medium text-slate-400 truncate hidden min-[400px]:inline">
+                                {item.urdu}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                              {item.sub}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -7604,10 +7712,45 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   const staggerClass = `stagger-${(index % 6) + 1}`;
   const displayName = formatDoctorName(doctor.full_name);
 
+  // Landmark normalization for prominent D.I. Khan badge
+  const landmarkBadge = doctor.clinic_address?.toLowerCase().includes('dhq')
+    ? 'Opposite DHQ Hospital'
+    : doctor.clinic_address?.toLowerCase().includes('ali hospital') || doctor.clinic_address?.toLowerCase().includes('al-shifa')
+      ? 'Al-Shifa (Ali) Hospital'
+      : (doctor.sub_region || 'Dera Ismail Khan');
+
+  const shareText = encodeURIComponent(
+    `*${displayName}* (${doctor.specialty} Specialist)\n📍 ${doctor.clinic_address}\n💵 Consultation Fee: ${formatCurrency(doctor.fee_clinic)} (Free Online Token)\n👉 Book Free Appointment: https://dikhancare.io/doctors?doctor=${doctor.id}`
+  );
+
   return (
     <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-xs dark:shadow-lg dark:shadow-slate-950/40 hover:shadow-xl dark:hover:shadow-emerald-950/25 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 ${staggerClass}`}>
       <div>
-        {/* Top Header: Doctor Picture + Name & Specialty */}
+        {/* Top Badges Bar: Live OPD Status & Landmark Tag */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          {avail.isAvailableToday ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300 shadow-2xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span>OPD ACTIVE TODAY</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <span>🕒</span>
+              <span className="truncate max-w-[130px]">{avail.nextSlotText || 'OPD Tomorrow'}</span>
+            </span>
+          )}
+
+          {/* D.I. Khan Landmark Pill */}
+          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-200/80 dark:border-teal-800/80 truncate max-w-[155px]">
+            <span>📍</span>
+            <span className="truncate">{landmarkBadge}</span>
+          </span>
+        </div>
+
+        {/* Doctor Main Info: Avatar + Details */}
         <div className="flex items-start gap-3.5 mb-3.5">
           {/* Doctor Picture / Avatar */}
           <div
@@ -7663,18 +7806,44 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
                 {doctor.qualification}
               </p>
             )}
-            <a
-              href={doctor.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.clinic_address + ' Dera Ismail Khan')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 mt-1 truncate group/loc transition-colors cursor-pointer"
-              title="Click to view clinic location on Google Maps"
-            >
-              <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-400 group-hover/loc:text-emerald-500 flex-shrink-0" />
-              <span className="truncate underline decoration-slate-300 dark:decoration-slate-700 underline-offset-2">{doctor.clinic_address} &bull; {doctor.sub_region}</span>
-            </a>
+
+            {/* PMDC Verified Seal Tag & WhatsApp Quick Share */}
+            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/60">
+                <Check className="w-2.5 h-2.5 stroke-[3]" /> PMDC Verified
+              </span>
+              <a
+                href={`https://wa.me/?text=${shareText}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:text-[#25D366] transition-colors cursor-pointer"
+                title="Share doctor on WhatsApp"
+              >
+                <span>📲</span> Share
+              </a>
+            </div>
           </div>
+        </div>
+
+        {/* Address Link with 1-Tap Google Maps Navigation */}
+        <div className="mb-3.5">
+          <a
+            href={doctor.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.clinic_address + ' Dera Ismail Khan')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center justify-between text-[11px] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition group/map cursor-pointer"
+            title="Click to open clinic on Google Maps"
+          >
+            <div className="flex items-center gap-1.5 min-w-0 pr-2">
+              <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+              <span className="truncate">{doctor.clinic_address}</span>
+            </div>
+            <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 flex-shrink-0 group-hover/map:underline">
+              Directions &rarr;
+            </span>
+          </a>
         </div>
 
         {/* Availability & Fee Strip */}
@@ -7682,12 +7851,12 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
           {/* Availability */}
           <div className="min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-              Availability
+              Today's Shift
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-400/80'}`} />
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${avail.isAvailableToday ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
               <span className={`text-xs font-bold truncate ${avail.isAvailableToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}>
-                {avail.isAvailableToday ? 'Available Today' : (avail.nextSlotText || 'OPD Slots Available')}
+                {avail.shiftBadge || 'Evening Shift (04:00 PM - 09:00 PM)'}
               </span>
             </div>
           </div>
@@ -7712,14 +7881,14 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
           className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
           <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-300" />
-          <span>View Profile</span>
+          <span>Profile &amp; Timings</span>
         </button>
         <button
           type="button"
           onClick={() => onBook(doctor)}
           className="py-2.5 px-2 sm:px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap active:scale-[0.98]"
         >
-          <span className="hidden sm:inline">Book Appointment</span><span className="sm:hidden">Book Slot</span>
+          <span className="hidden sm:inline">Book Free Token</span><span className="sm:hidden">Book Token</span>
           <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>
         </button>
       </div>

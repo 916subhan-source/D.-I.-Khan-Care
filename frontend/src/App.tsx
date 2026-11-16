@@ -3737,10 +3737,19 @@ function DoctorProfileAndBookingView({
         metaDesc.setAttribute('content', `Book online appointment with ${docName} (${spec}). Clinic: ${doctor.clinic_address}. Consultation Fee: Rs. ${doctor.fee_clinic}. Verified by PMDC on D.I. Khan Care.`);
       }
 
+      const metaKeywords = document.querySelector('meta[name="keywords"]');
+      const prevKeywords = metaKeywords?.getAttribute('content') || '';
+      if (metaKeywords) {
+        metaKeywords.setAttribute('content', `${docName.toLowerCase()}, ${docName.toLowerCase()} appointment, ${docName.toLowerCase()} clinic timings, ${docName.toLowerCase()} fee, ${spec.toLowerCase()} in dera ismail khan, ${spec.toLowerCase()} di khan, best doctors opposite dhq hospital, pmdc verified ${spec.toLowerCase()}`);
+      }
+
       return () => {
         document.title = originalTitle;
         if (metaDesc && prevDesc) {
           metaDesc.setAttribute('content', prevDesc);
+        }
+        if (metaKeywords && prevKeywords) {
+          metaKeywords.setAttribute('content', prevKeywords);
         }
       };
     }
@@ -6633,6 +6642,10 @@ function PatientSection({
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute('content', `Book online appointment with top PMDC-verified ${readable} specialists in Dera Ismail Khan. Fast digital tokens, pay cash on arrival.`);
+      }
+      const metaKeywords = document.querySelector('meta[name="keywords"]');
+      if (metaKeywords) {
+        metaKeywords.setAttribute('content', `${readable.toLowerCase()} in dera ismail khan, best ${readable.toLowerCase()} in di khan, top ${readable.toLowerCase()} opposite dhq hospital, ${readable.toLowerCase()} clinic timings di khan, book ${readable.toLowerCase()} appointment, pmdc verified ${readable.toLowerCase()}`);
       }
       const path = window.location.pathname.toLowerCase();
       if (path.includes('/doctors/') || path.includes('/specialty/') || window.location.search.includes('specialty')) {

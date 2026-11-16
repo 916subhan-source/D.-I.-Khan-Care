@@ -169,7 +169,7 @@ function StatusPill({ status }: { status: string }) {
 // ── Global Floating Theme Toggle Component ──────────────────────────────────────────
 function FloatingThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: () => void }) {
   return (
-    <div className="hidden md:block fixed bottom-5 left-5 z-40">
+    <div className="hidden md:block fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40">
       <button
         type="button"
         onClick={onToggle}
@@ -395,10 +395,10 @@ function StaffLoginSplitView({
       : 'Admin email';
 
   const usernamePlaceholder = currentRole === 'assistant'
-    ? 'nida.reception'
+    ? '915subhan@gmail.com'
     : currentRole === 'doctor'
-      ? 'doctor@dikhanhealth.pk'
-      : 'admin@dikhan.care';
+      ? 'dr.waqar.gandapur@dikhancare.io'
+      : 'admin@dikhancare.io';
 
   const submitButtonLabel = currentRole === 'assistant'
     ? 'Sign in to assistant desk'
@@ -430,10 +430,10 @@ function StaffLoginSplitView({
       badgeText: 'DOCTOR WORKSPACE',
       heading: null,
       subheading: 'Access your live patient queue, consultation records, and daily counter fee reconciliations across Dera Ismail Khan.',
-      image: '/dr_ayesha_khan.jpg',
-      alt: 'D.I. Khan Doctor Consultation Suite',
-      captionTitle: 'Dr. Ayesha Khan Consultation Room',
-      captionBadge: 'Verified Specialist',
+      image: '/doctors/dr_asif_gandapur.webp',
+      alt: 'Dr. Waqar Khan Gandapur Consultation Room',
+      captionTitle: 'Dr. Waqar Khan Gandapur Consultation Room',
+      captionBadge: 'PMDC Verified Specialist',
       gradientOverlay: 'from-[#0c2823]/85',
       bullets: [
         { title: 'Live Token Consultation Queue', desc: 'Call patients in order, review check-in timestamps, and sync room status.' },
@@ -651,7 +651,7 @@ function StaffLoginSplitView({
                     }`}
                 >
                   <img
-                    src="/dr_ayesha_khan.jpg"
+                    src="/doctors/dr_asif_gandapur.webp"
                     alt="Doctor"
                     className="w-5 h-5 rounded-full object-cover border border-emerald-400 flex-shrink-0"
                   />
@@ -713,12 +713,12 @@ function StaffLoginSplitView({
                   </div>
                   <div className="flex items-center justify-between text-[11px] pt-1 border-t border-clinic-100">
                     <div>
-                      <p className="font-semibold text-slate-800">Zeeshan (Reception Desk 2)</p>
-                      <p className="text-slate-500 font-mono">zeeshan.reception@dikhanhealth.pk</p>
+                      <p className="font-semibold text-slate-800">Clinic Reception Desk</p>
+                      <p className="text-slate-500 font-mono">assistant@dikhancare.io</p>
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setEmail('zeeshan.reception@dikhanhealth.pk'); setPassword('AssistantPass123!'); }}
+                      onClick={() => { setEmail('assistant@dikhancare.io'); setPassword('AssistantPass123!'); }}
                       className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
                     >
                       Fill
@@ -730,12 +730,38 @@ function StaffLoginSplitView({
                 <>
                   <div className="flex items-center justify-between text-[11px]">
                     <div>
-                      <p className="font-semibold text-slate-800">Dr. Tariq (Cardiologist)</p>
-                      <p className="text-slate-500 font-mono">dr.tariq@dikhanhealth.pk</p>
+                      <p className="font-semibold text-slate-800">Dr. Waqar Khan Gandapur (Surgeon)</p>
+                      <p className="text-slate-500 font-mono">dr.waqar.gandapur@dikhancare.io</p>
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setEmail('dr.tariq@dikhanhealth.pk'); setPassword('DoctorPass123!'); }}
+                      onClick={() => { setEmail('dr.waqar.gandapur@dikhancare.io'); setPassword('DoctorPass123!'); }}
+                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
+                    >
+                      Fill
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] pt-1 border-t border-clinic-100">
+                    <div>
+                      <p className="font-semibold text-slate-800">Dr. Naveed Khan (Plastic Surgeon)</p>
+                      <p className="text-slate-500 font-mono">dr.naveed.khan@dikhancare.io</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setEmail('dr.naveed.khan@dikhancare.io'); setPassword('DoctorPass123!'); }}
+                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
+                    >
+                      Fill
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] pt-1 border-t border-clinic-100">
+                    <div>
+                      <p className="font-semibold text-slate-800">Surgeon Dr. Ali Raza (DHQ Registrar)</p>
+                      <p className="text-slate-500 font-mono">dr.ali.raza@dikhancare.io</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setEmail('dr.ali.raza@dikhancare.io'); setPassword('DoctorPass123!'); }}
                       className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
                     >
                       Fill
@@ -747,11 +773,11 @@ function StaffLoginSplitView({
                 <div className="flex items-center justify-between text-[11px]">
                   <div>
                     <p className="font-semibold text-slate-800">System Administrator</p>
-                    <p className="text-slate-500 font-mono">admin@dikhan.care</p>
+                    <p className="text-slate-500 font-mono">admin@dikhancare.io</p>
                   </div>
                   <button
                     type="button"
-                    onClick={() => { setEmail('admin@dikhan.care'); setPassword('AdminPass123!'); }}
+                    onClick={() => { setEmail('admin@dikhancare.io'); setPassword('AdminPass123!'); }}
                     className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
                   >
                     Fill

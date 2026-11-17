@@ -82,6 +82,8 @@ class OTPService:
             f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
         )
 
+        wa_caption = "🌐 https://dikhancare.io"
+
         try:
             from app.services.notification_service import notification_service
             from app.services.wa_card_generator import generate_otp_card
@@ -92,7 +94,13 @@ class OTPService:
                     slip_number="DIK-CARE-OTP",
                     doctor_name=doctor_name or "Specialist"
                 )
-                wa_sent = await notification_service.send_whatsapp_media(target_phone, card_bytes, wa_message, filename=f"otp_{plain_code}.png")
+                wa_sent = await notification_service.send_whatsapp_media(
+                    target_phone,
+                    card_bytes,
+                    caption=wa_caption,
+                    fallback_text=wa_message,
+                    filename=f"otp_{plain_code}.png"
+                )
             except Exception as card_err:
                 logger.warning(f"[OTP Card ERROR] {card_err}, falling back to text notification.")
                 wa_sent = await notification_service.send_whatsapp(target_phone, wa_message)

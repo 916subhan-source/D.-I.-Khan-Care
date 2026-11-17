@@ -344,18 +344,27 @@ class NotificationService:
             print(f"[Evolution WhatsApp ERROR] {e}")
             return False
 
-    async def send_whatsapp_media(self, phone: str, image_bytes: bytes, caption: str, filename: str = "appointment_notice.png") -> bool:
+    async def send_whatsapp_media(
+        self,
+        phone: str,
+        image_bytes: bytes,
+        caption: str,
+        fallback_text: Optional[str] = None,
+        filename: str = "appointment_notice.png"
+    ) -> bool:
         """
         Sends WhatsApp graphic card image notification with caption via Evolution API v2.
-        Seamlessly falls back to formatted text if image transmission encounters any issue.
+        Seamlessly falls back to formatted text (fallback_text or caption) if image transmission encounters any issue.
         """
         clean_number = self.normalize_pk_phone(phone)
         if not clean_number:
             logger.warning(f"[Evolution WhatsApp Media] Invalid phone number skipped: {phone}")
             return False
 
+        fallback = fallback_text if fallback_text else caption
+
         if not self.evolution_url or not self.evolution_key or not image_bytes:
-            return await self.send_whatsapp(phone, caption)
+            return await self.send_whatsapp(phone, fallback)
 
         import base64
         media_data = base64.b64encode(image_bytes).decode("utf-8")
@@ -385,7 +394,7 @@ class NotificationService:
                     else:
                         logger.warning(f"[Evolution WhatsApp Media FAILED] Status {resp.status_code}: {resp.text}, falling back to text.")
                         print(f"[Evolution WhatsApp Media FAILED] Status {resp.status_code}: {resp.text}")
-                        return await self.send_whatsapp(phone, caption)
+                        return await self.send_whatsapp(phone, fallback)
             else:
                 async with aiohttp.ClientSession() as session:
                     async with session.post(url, headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=20.0)) as resp:
@@ -397,11 +406,11 @@ class NotificationService:
                             txt = await resp.text()
                             logger.warning(f"[Evolution WhatsApp Media FAILED] Status {resp.status}: {txt}, falling back to text.")
                             print(f"[Evolution WhatsApp Media FAILED] Status {resp.status}: {txt}")
-                            return await self.send_whatsapp(phone, caption)
+                            return await self.send_whatsapp(phone, fallback)
         except Exception as e:
             logger.error(f"[Evolution WhatsApp Media ERROR] {e}, falling back to text notification.")
             print(f"[Evolution WhatsApp Media ERROR] {e}")
-            return await self.send_whatsapp(phone, caption)
+            return await self.send_whatsapp(phone, fallback)
 
     # -------------------------------------------------------------
     # EVENT 1: Patient submits an appointment request
@@ -420,10 +429,10 @@ class NotificationService:
             track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
             portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
 
-            # 1. WhatsApp to Patient: Visual Card + Formatted Text
+            # 1. WhatsApp to Patient: Visual Card + Only Tracking Link Caption
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
-                patient_msg = (
+                patient_fallback_msg = (
                     f"🏥 *DI Khan Care — Clinic Appointment Notice*\n\n"
                     f"🔔 *Appointment Request Received*\n\n"
                     f"Assalam-o-Alaikum *{appt.patient_name}*,\n"
@@ -437,6 +446,7 @@ class NotificationService:
                     f"📲 *Track Live Status:*\n{track_url}\n\n"
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
+                patient_card_caption = f"📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
                 try:
                     card_bytes = generate_request_received_card(
                         patient_name=appt.patient_name or "Patient",
@@ -445,10 +455,16 @@ class NotificationService:
                         visit_date=slot_date_str,
                         slot_time=slot_time_str
                     )
-                    await self.send_whatsapp_media(patient_phone, card_bytes, patient_msg, filename=f"request_{appt.slip_number}.png")
+                    await self.send_whatsapp_media(
+                        patient_phone,
+                        card_bytes,
+                        caption=patient_card_caption,
+                        fallback_text=patient_fallback_msg,
+                        filename=f"request_{appt.slip_number}.png"
+                    )
                 except Exception as card_err:
                     logger.warning(f"Card generation error: {card_err}, falling back to text.")
-                    await self.send_whatsapp(patient_phone, patient_msg)
+                    await self.send_whatsapp(patient_phone, patient_fallback_msg)
 
             # 2. Short WhatsApp to Assistant(s): New request in portal inbox
             assistant_phones = await self.get_assistant_phones_for_doctor(db, appt.doctor_id)
@@ -459,7 +475,7 @@ class NotificationService:
                 f"• *Patient:* {appt.patient_name}\n"
                 f"• *Doctor:* {doc_name}\n"
                 f"• *Slip:* #{appt.slip_number or ''}\n\n"
-                f"👉 *Open Inbox:* {portal_url}"
+                f"👩‍⚕️ *Doctor Assistant Desk:*\n{portal_url}"
             )
             for p in assistant_phones:
                 await self.send_whatsapp(p, staff_msg)
@@ -539,6 +555,10 @@ class NotificationService:
                     f"Shukriya,\n"
                     f"*D.I. Khan Care*"
                 )
+                patient_card_caption = (
+                    f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
+                    f"📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
+                )
                 try:
                     card_bytes = generate_confirmed_card(
                         patient_name=appt.patient_name or "Patient",
@@ -548,7 +568,13 @@ class NotificationService:
                         slip_number=appt.slip_number or "DIK-CARE",
                         token_number=token_num
                     )
-                    await self.send_whatsapp_media(patient_phone, card_bytes, patient_msg, filename=f"confirmed_{appt.slip_number}.png")
+                    await self.send_whatsapp_media(
+                        patient_phone,
+                        card_bytes,
+                        caption=patient_card_caption,
+                        fallback_text=patient_msg,
+                        filename=f"confirmed_{appt.slip_number}.png"
+                    )
                 except Exception as card_err:
                     logger.warning(f"Card generation error: {card_err}, falling back to text.")
                     await self.send_whatsapp(patient_phone, patient_msg)
@@ -585,6 +611,7 @@ class NotificationService:
                     f"{rebook_url}\n\n"
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
+                patient_card_caption = f"🌐 *Book Again / Clinic Portal:*\n{rebook_url}"
                 try:
                     card_bytes = generate_cancelled_card(
                         patient_name=appt.patient_name or "Patient",
@@ -593,7 +620,13 @@ class NotificationService:
                         visit_date=slot_date_str,
                         slot_time=slot_time_str
                     )
-                    await self.send_whatsapp_media(patient_phone, card_bytes, patient_msg, filename=f"cancelled_{appt.slip_number}.png")
+                    await self.send_whatsapp_media(
+                        patient_phone,
+                        card_bytes,
+                        caption=patient_card_caption,
+                        fallback_text=patient_msg,
+                        filename=f"cancelled_{appt.slip_number}.png"
+                    )
                 except Exception as card_err:
                     logger.warning(f"Card generation error: {card_err}, falling back to text.")
                     await self.send_whatsapp(patient_phone, patient_msg)
@@ -657,6 +690,10 @@ class NotificationService:
                     f"📲 *Open Updated Digital Slip & Live Queue:*\n{track_url}\n\n"
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
+                patient_card_caption = (
+                    f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
+                    f"📲 *Open Updated Digital Slip & Live Queue:*\n{track_url}"
+                )
                 try:
                     card_bytes = generate_rescheduled_card(
                         patient_name=appt.patient_name or "Patient",
@@ -667,7 +704,13 @@ class NotificationService:
                         new_date=slot_date_str,
                         new_time=slot_time_str
                     )
-                    await self.send_whatsapp_media(patient_phone, card_bytes, patient_msg, filename=f"rescheduled_{appt.slip_number}.png")
+                    await self.send_whatsapp_media(
+                        patient_phone,
+                        card_bytes,
+                        caption=patient_card_caption,
+                        fallback_text=patient_msg,
+                        filename=f"rescheduled_{appt.slip_number}.png"
+                    )
                 except Exception as card_err:
                     logger.warning(f"Card generation error: {card_err}, falling back to text.")
                     await self.send_whatsapp(patient_phone, patient_msg)
@@ -729,6 +772,10 @@ class NotificationService:
                     f"🔍 *Live Queue Tracker:*\n{track_url}\n\n"
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
+                rem_card_caption = (
+                    f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
+                    f"📲 *Live Queue Tracker:*\n{track_url}"
+                )
                 try:
                     card_bytes = generate_reminder_card(
                         patient_name=appt.patient_name or "Patient",
@@ -737,7 +784,13 @@ class NotificationService:
                         slot_time=slot_time_str,
                         slip_number=appt.slip_number or "DIK-CARE"
                     )
-                    await self.send_whatsapp_media(patient_phone, card_bytes, rem_msg, filename=f"reminder_{appt.slip_number}.png")
+                    await self.send_whatsapp_media(
+                        patient_phone,
+                        card_bytes,
+                        caption=rem_card_caption,
+                        fallback_text=rem_msg,
+                        filename=f"reminder_{appt.slip_number}.png"
+                    )
                 except Exception as card_err:
                     logger.warning(f"Card generation error: {card_err}, falling back to text.")
                     await self.send_whatsapp(patient_phone, rem_msg)

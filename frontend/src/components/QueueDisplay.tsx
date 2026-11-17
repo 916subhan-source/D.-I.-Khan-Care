@@ -204,23 +204,15 @@ export default function QueueDisplay({
     clinic_address: doctorsList.find(d => d.id === selectedDoctorId)?.clinic_address || 'Opposite DHQ Hospital, Dera Ismail Khan'
   } : null);
 
-  const displayNowServing = queueData?.now_serving || (queueData?.stats?.total === 0 ? {
-    token_number: 1,
-    patient_name: 'Next Patient Ready',
-    status: 'READY'
-  } : null);
+  const displayNowServing = queueData?.now_serving || null;
 
   const displayUpcoming = (queueData?.upcoming && queueData.upcoming.length > 0)
     ? queueData.upcoming
-    : [
-        { token_number: 2, patient_name: 'Patient A.', status: 'WAITING' },
-        { token_number: 3, patient_name: 'Patient M.', status: 'WAITING' },
-        { token_number: 4, patient_name: 'Patient K.', status: 'WAITING' }
-      ];
+    : [];
 
-  const totalPatients = queueData?.stats?.total || 14;
-  const completedPatients = queueData?.stats?.completed || 5;
-  const waitingPatients = queueData?.stats?.waiting || 8;
+  const totalPatients = queueData?.stats?.total ?? 0;
+  const completedPatients = queueData?.stats?.completed ?? 0;
+  const waitingPatients = queueData?.stats?.waiting ?? 0;
 
   return (
     <div className="min-h-screen bg-[#070d18] text-white flex flex-col justify-between selection:bg-emerald-500 selection:text-white font-sans overflow-x-hidden">
@@ -423,10 +415,10 @@ export default function QueueDisplay({
               <div className="my-6 sm:my-8 text-center">
                 <div className="inline-block relative">
                   <div className="text-[5.5rem] sm:text-[7.5rem] md:text-[8.5rem] font-black leading-none tracking-tight font-mono text-white drop-shadow-[0_10px_25px_rgba(16,185,129,0.35)]">
-                    #{String(displayNowServing?.token_number ?? 1).padStart(2, '0')}
+                    {displayNowServing ? `#${String(displayNowServing.token_number).padStart(2, '0')}` : '--'}
                   </div>
                   <span className="absolute -bottom-2 right-0 left-0 text-center text-xs sm:text-sm font-extrabold uppercase tracking-widest text-emerald-400">
-                    TOKEN NUMBER
+                    {displayNowServing ? 'TOKEN NUMBER' : 'NO PATIENT IN ROOM'}
                   </span>
                 </div>
               </div>
@@ -436,16 +428,16 @@ export default function QueueDisplay({
             <div className="bg-[#070f1a]/80 border border-emerald-900/60 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">
-                  Patient Calling
+                  {displayNowServing ? 'Patient Calling' : 'Consultation Desk'}
                 </span>
                 <p className="text-base sm:text-xl font-extrabold text-white truncate">
-                  {displayNowServing?.patient_name || 'Patient'}
+                  {displayNowServing?.patient_name || 'Waiting for next patient check-in'}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-xs sm:text-sm font-extrabold whitespace-nowrap">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>With Doctor</span>
+                <span>{displayNowServing ? 'With Doctor' : 'Desk Ready'}</span>
               </div>
             </div>
           </div>
@@ -469,42 +461,48 @@ export default function QueueDisplay({
 
               {/* Upcoming List */}
               <div className="space-y-3">
-                {displayUpcoming.map((item, idx) => (
-                  <div
-                    key={item.token_number || idx}
-                    className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                      idx === 0
-                        ? 'bg-emerald-950/40 border-emerald-600/70 shadow-md shadow-emerald-950/20'
-                        : 'bg-slate-900/70 border-slate-800'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-black text-sm ${
+                {displayUpcoming.length > 0 ? (
+                  displayUpcoming.map((item, idx) => (
+                    <div
+                      key={item.token_number || idx}
+                      className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                         idx === 0
-                          ? 'bg-emerald-600 text-white shadow-xs'
-                          : 'bg-slate-800 text-slate-300'
-                      }`}>
-                        #{String(item.token_number).padStart(2, '0')}
+                          ? 'bg-emerald-950/40 border-emerald-600/70 shadow-md shadow-emerald-950/20'
+                          : 'bg-slate-900/70 border-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-black text-sm ${
+                          idx === 0
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : 'bg-slate-800 text-slate-300'
+                        }`}>
+                          #{String(item.token_number).padStart(2, '0')}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-extrabold text-slate-200 truncate">
+                            {item.patient_name}
+                          </p>
+                          <p className="text-[11px] text-slate-400">
+                            {idx === 0 ? '👉 Next in Line' : `Est. wait: ~${(idx + 1) * 10} mins`}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-extrabold text-slate-200 truncate">
-                          {item.patient_name}
-                        </p>
-                        <p className="text-[11px] text-slate-400">
-                          {idx === 0 ? '👉 Next in Line' : `Est. wait: ~${(idx + 1) * 10} mins`}
-                        </p>
-                      </div>
-                    </div>
 
-                    <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                      idx === 0
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                        : 'bg-slate-800 text-slate-400'
-                    }`}>
-                      {idx === 0 ? 'Ready' : 'In Queue'}
-                    </span>
+                      <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                        idx === 0
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {idx === 0 ? 'Ready' : 'In Queue'}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-10 text-center text-slate-500 text-xs font-semibold">
+                    No waiting tokens in queue at this time.
                   </div>
-                ))}
+                )}
               </div>
             </div>
 

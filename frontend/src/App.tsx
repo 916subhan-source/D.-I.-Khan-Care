@@ -386,7 +386,6 @@ function StaffLoginSplitView({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [showHelp, setShowHelp] = useState(false);
 
   const usernameLabel = currentRole === 'assistant'
     ? 'Staff username'
@@ -686,107 +685,6 @@ function StaffLoginSplitView({
             </div>
           )}
 
-
-          {/* Credential Help Drawer (Demo Quick Fills) */}
-          {showHelp && (
-            <div className="mb-4 p-3 bg-clinic-50 border border-clinic-200 rounded-md text-xs space-y-2 animate-fade-in">
-              <div className="flex items-center justify-between font-bold text-clinic-900 border-b border-clinic-100 pb-1">
-                <span>1-Click Test Credentials ({currentRole})</span>
-                <button type="button" onClick={() => setShowHelp(false)} className="text-slate-400 hover:text-slate-600">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              {currentRole === 'assistant' && (
-                <>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <div>
-                      <p className="font-semibold text-slate-800">Moez Ahmad (Reception Desk 1)</p>
-                      <p className="text-slate-500 font-mono">915subhan@gmail.com</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setEmail('915subhan@gmail.com'); setPassword('ncpa.cpl'); }}
-                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
-                    >
-                      Fill
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] pt-1 border-t border-clinic-100">
-                    <div>
-                      <p className="font-semibold text-slate-800">Clinic Reception Desk</p>
-                      <p className="text-slate-500 font-mono">assistant@dikhancare.io</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setEmail('assistant@dikhancare.io'); setPassword('AssistantPass123!'); }}
-                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
-                    >
-                      Fill
-                    </button>
-                  </div>
-                </>
-              )}
-              {currentRole === 'doctor' && (
-                <>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <div>
-                      <p className="font-semibold text-slate-800">Dr. Waqar Khan Gandapur (Surgeon)</p>
-                      <p className="text-slate-500 font-mono">dr.waqar.gandapur@dikhancare.io</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setEmail('dr.waqar.gandapur@dikhancare.io'); setPassword('DoctorPass123!'); }}
-                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
-                    >
-                      Fill
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] pt-1 border-t border-clinic-100">
-                    <div>
-                      <p className="font-semibold text-slate-800">Dr. Naveed Khan (Plastic Surgeon)</p>
-                      <p className="text-slate-500 font-mono">dr.naveed.khan@dikhancare.io</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setEmail('dr.naveed.khan@dikhancare.io'); setPassword('DoctorPass123!'); }}
-                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
-                    >
-                      Fill
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] pt-1 border-t border-clinic-100">
-                    <div>
-                      <p className="font-semibold text-slate-800">Surgeon Dr. Ali Raza (DHQ Registrar)</p>
-                      <p className="text-slate-500 font-mono">dr.ali.raza@dikhancare.io</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setEmail('dr.ali.raza@dikhancare.io'); setPassword('DoctorPass123!'); }}
-                      className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
-                    >
-                      Fill
-                    </button>
-                  </div>
-                </>
-              )}
-              {currentRole === 'admin' && (
-                <div className="flex items-center justify-between text-[11px]">
-                  <div>
-                    <p className="font-semibold text-slate-800">System Administrator</p>
-                    <p className="text-slate-500 font-mono">admin@dikhancare.io</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => { setEmail('admin@dikhancare.io'); setPassword('AdminPass123!'); }}
-                    className="px-2 py-1 bg-clinic-700 text-white rounded font-bold hover:bg-clinic-800 cursor-pointer"
-                  >
-                    Fill
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -838,13 +736,14 @@ function StaffLoginSplitView({
                 />
                 <span>Remember this device</span>
               </label>
-              <button
-                type="button"
-                onClick={() => setShowHelp(!showHelp)}
-                className="text-clinic-700 hover:underline font-semibold cursor-pointer"
+              <a
+                href="https://wa.me/923325255879?text=Assalam-o-Alaikum%20Admin,%20I%20need%20assistance%20logging%20in%20to%20my%20clinic%20account."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-clinic-700 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
               >
-                Credential help
-              </button>
+                Forgot password?
+              </a>
             </div>
 
             {/* Error Message */}
@@ -5546,23 +5445,6 @@ function DoctorProfileAndBookingView({
                 6-digit code has been sent to your WhatsApp on <strong className="text-emerald-700 dark:text-emerald-400 font-bold">{patientPhone}</strong>. Please check your WhatsApp.
               </p>
             </div>
-
-            {/* Clickable Dev Code Preview for Fast Testing (Dev Mode Only) */}
-            {devCode && (
-              <div
-                onClick={() => handleFillCode(devCode)}
-                className="mb-4 bg-emerald-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-emerald-200 dark:border-slate-700 p-3 rounded-2xl flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-100/80 dark:hover:bg-slate-750 transition shadow-xs group"
-                title="Click to auto-fill code"
-              >
-                <div>
-                  <span className="text-emerald-800 dark:text-emerald-400 text-[10px] font-bold block uppercase tracking-wider">DEV VERIFICATION CODE</span>
-                  <span className="text-base font-black font-mono tracking-widest text-emerald-700 dark:text-emerald-300">{devCode}</span>
-                </div>
-                <span className="text-[11px] bg-white dark:bg-slate-700 group-hover:bg-emerald-700 group-hover:text-white px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 font-semibold border border-emerald-200 dark:border-transparent transition-colors">
-                  Auto-fill →
-                </span>
-              </div>
-            )}
 
             {resendStatusMsg && (
               <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 font-medium flex items-center gap-1.5">

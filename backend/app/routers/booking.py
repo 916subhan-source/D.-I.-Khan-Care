@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
+from app.core.config import settings
 from app.core.redis import redis_manager
 from app.core.security import create_access_token
 from app.services.otp_service import otp_service
@@ -203,7 +204,7 @@ async def initiate_booking(payload: BookingRequestSchema, db: AsyncSession = Dep
         "whatsapp_number": whatsapp_target,
         "slot_id": slot.id,
         "patient_id": patient.id,
-        "dev_code": dev_code, # Rendered in floating UI banner/toast in dev mode
+        "dev_code": dev_code if (settings.DEBUG and settings.ENVIRONMENT == "development") else None,
         "lock_ttl_seconds": 600
     }
 
@@ -246,7 +247,7 @@ async def resend_booking_otp(
         "message": msg,
         "contact": payload.phone,
         "whatsapp_number": whatsapp_target,
-        "dev_code": dev_code
+        "dev_code": dev_code if (settings.DEBUG and settings.ENVIRONMENT == "development") else None
     }
 
 @router.post("/verify")

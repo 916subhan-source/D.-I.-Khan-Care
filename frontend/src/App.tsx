@@ -61,15 +61,13 @@ import {
   Maximize2,
   ArrowUp,
   PhoneCall,
-  Share2,
-  Tv
+  Share2
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
 import JoinAsDoctorSection from './components/JoinAsDoctorSection';
-import QueueDisplay from './components/QueueDisplay';
 
 
 // ── Shared Domain Types, Formatters, Calling Order & Constants ──
@@ -813,10 +811,10 @@ function StaffLoginSplitView({
 }
 
 export default function App() {
-  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' | 'queue-display' => {
+  const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' => {
     try {
       const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
-      if (pathname === '/queue-display' || pathname === '/queue' || pathname === '/tv' || pathname.startsWith('/queue-display/')) return 'queue-display';
+      if (pathname === '/queue-display' || pathname === '/queue' || pathname === '/tv' || pathname.startsWith('/queue-display/')) return 'home';
       if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
 
       // PUBLIC PATIENT DOCTOR PROFILE & SPECIALTY DIRECTORIES
@@ -841,12 +839,12 @@ export default function App() {
 
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'queue-display' || tabParam === 'queue' || tabParam === 'tv') return 'queue-display';
+      if (tabParam === 'queue-display' || tabParam === 'queue' || tabParam === 'tv') return 'home';
       if (tabParam === 'admin' || tabParam === 'doctor' || tabParam === 'assistant' || tabParam === 'track' || tabParam === 'loyalty' || tabParam === 'join-doctor' || tabParam === 'patient' || tabParam === 'home') {
         return tabParam as any;
       }
       const hash = window.location.hash.replace('#', '').replace(/^\/+/, '').toLowerCase();
-      if (hash === 'queue-display' || hash === 'queue' || hash === 'tv') return 'queue-display';
+      if (hash === 'queue-display' || hash === 'queue' || hash === 'tv') return 'home';
       if (hash === 'admin' || hash === 'doctor' || hash === 'assistant' || hash === 'track' || hash === 'loyalty' || hash === 'join-doctor' || hash === 'doctors' || hash === 'home') {
         return hash === 'doctors' ? 'patient' : hash as any;
       }
@@ -854,7 +852,7 @@ export default function App() {
     return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' | 'queue-display'>(getTabFromUrl);
+  const [activeTab, setActiveTab] = useState<'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin'>(getTabFromUrl);
   const [navResetTrigger, setNavResetTrigger] = useState<number>(0);
   const [openTrackTrigger, setOpenTrackTrigger] = useState(0);
   const [showStaffModal, setShowStaffModal] = useState(false);
@@ -964,7 +962,7 @@ export default function App() {
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   // Sync tab with browser URL history
-  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track' | 'loyalty' | 'join-doctor' | 'queue-display') => {
+  const handleSwitchRole = (newRole: 'home' | 'patient' | 'assistant' | 'doctor' | 'admin' | 'track' | 'loyalty' | 'join-doctor') => {
     setActiveTab(newRole as any);
     setNavResetTrigger(prev => prev + 1);
     setShowMobileNav(false);
@@ -974,12 +972,11 @@ export default function App() {
       const targetPath = newRole === 'admin' ? '/admin'
         : newRole === 'doctor' ? '/doctor'
           : newRole === 'assistant' ? '/assistant'
-            : newRole === 'queue-display' ? '/queue-display'
-              : newRole === 'track' ? '/track'
-                : newRole === 'loyalty' ? '/loyalty'
-                  : newRole === 'join-doctor' ? '/join-doctor'
-                    : newRole === 'patient' ? '/doctors'
-                      : '/';
+            : newRole === 'track' ? '/track'
+              : newRole === 'loyalty' ? '/loyalty'
+                : newRole === 'join-doctor' ? '/join-doctor'
+                  : newRole === 'patient' ? '/doctors'
+                    : '/';
       if (window.location.pathname.toLowerCase().replace(/\/+$/, '') !== targetPath.replace(/\/+$/, '')) {
         window.history.pushState(null, '', targetPath);
       }
@@ -1022,13 +1019,6 @@ export default function App() {
       <div className="animate-fade-in min-h-screen">
         <AdminSection onSwitchRole={handleSwitchRole} />
         <FloatingThemeToggle isDark={isDarkMode} onToggle={toggleDarkMode} />
-      </div>
-    );
-  }
-  if (activeTab === 'queue-display') {
-    return (
-      <div className="animate-fade-in min-h-screen">
-        <QueueDisplay onBack={() => handleSwitchRole('home')} />
       </div>
     );
   }
@@ -1223,14 +1213,6 @@ export default function App() {
                   <Headphones className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>Assistant Desk</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleSwitchRole('queue-display')}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/40 text-left cursor-pointer"
-                >
-                  <Tv className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                  <span>Waiting Room TV (Live Kiosk)</span>
-                </button>
               </div>
             </div>
 
@@ -1285,19 +1267,6 @@ export default function App() {
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">Reception queue & approvals</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-clinic-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
-              </button>
-              <button
-                onClick={() => { setShowStaffModal(false); handleSwitchRole('queue-display'); }}
-                className="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-teal-500/50 dark:hover:border-teal-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/90 text-left transition-all group flex items-center gap-4 shadow-xs cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center bg-teal-50 dark:bg-teal-950/60 border border-teal-200/50 dark:border-teal-800/60">
-                  <Tv className="w-5 h-5 text-teal-700 dark:text-teal-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors">Waiting Room TV (Live Kiosk)</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Fullscreen TV queue counter & audio chime</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
               </button>
             </div>
           </div>

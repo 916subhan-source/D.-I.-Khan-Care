@@ -358,8 +358,7 @@ class NotificationService:
             return await self.send_whatsapp(phone, caption)
 
         import base64
-        b64_str = base64.b64encode(image_bytes).decode("utf-8")
-        media_data = f"data:image/png;base64,{b64_str}"
+        media_data = base64.b64encode(image_bytes).decode("utf-8")
 
         url = f"{self.evolution_url.rstrip('/')}/message/sendMedia/{urllib.parse.quote(self.evolution_instance)}"
         headers = {
@@ -377,27 +376,31 @@ class NotificationService:
 
         try:
             if httpx is not None:
-                async with httpx.AsyncClient(timeout=16.0) as client:
+                async with httpx.AsyncClient(timeout=20.0) as client:
                     resp = await client.post(url, headers=headers, json=payload)
                     if resp.status_code in (200, 201):
                         logger.info(f"[Evolution WhatsApp Media SUCCESS] Card delivered to {clean_number}")
                         print(f"[Evolution WhatsApp Media SUCCESS] Card delivered to {clean_number}")
                         return True
                     else:
-                        logger.warning(f"[Evolution WhatsApp Media FAILED] Status {resp.status_code}, falling back to text.")
+                        logger.warning(f"[Evolution WhatsApp Media FAILED] Status {resp.status_code}: {resp.text}, falling back to text.")
+                        print(f"[Evolution WhatsApp Media FAILED] Status {resp.status_code}: {resp.text}")
                         return await self.send_whatsapp(phone, caption)
             else:
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(url, headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=16.0)) as resp:
+                    async with session.post(url, headers=headers, json=payload, timeout=aiohttp.ClientTimeout(total=20.0)) as resp:
                         if resp.status in (200, 201):
                             logger.info(f"[Evolution WhatsApp Media SUCCESS] Card delivered to {clean_number}")
                             print(f"[Evolution WhatsApp Media SUCCESS] Card delivered to {clean_number}")
                             return True
                         else:
-                            logger.warning(f"[Evolution WhatsApp Media FAILED] Status {resp.status}, falling back to text.")
+                            txt = await resp.text()
+                            logger.warning(f"[Evolution WhatsApp Media FAILED] Status {resp.status}: {txt}, falling back to text.")
+                            print(f"[Evolution WhatsApp Media FAILED] Status {resp.status}: {txt}")
                             return await self.send_whatsapp(phone, caption)
         except Exception as e:
             logger.error(f"[Evolution WhatsApp Media ERROR] {e}, falling back to text notification.")
+            print(f"[Evolution WhatsApp Media ERROR] {e}")
             return await self.send_whatsapp(phone, caption)
 
     # -------------------------------------------------------------

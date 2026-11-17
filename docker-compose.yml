@@ -19,6 +19,7 @@ services:
       - EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-u8lzdSknWYziUvBemQX1hOBvTGGMSPkN}
       - EVOLUTION_INSTANCE_NAME=D. I. khan Care
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CLOUDINARY_URL=${CLOUDINARY_URL:-}
     volumes:
       - ./backend/dikhan_care.db:/app/backend/dikhan_care.db
     depends_on:

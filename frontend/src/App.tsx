@@ -263,7 +263,7 @@ function PortalSidebar({
           {/* Logo & Mobile Close */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 rounded-full object-contain flex-shrink-0 shadow-sm bg-white" />
+              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-10 h-10 rounded-full object-cover flex-shrink-0 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 bg-white" />
               <div>
                 <div className="text-white font-extrabold text-sm leading-tight tracking-wide" style={{ fontFamily: 'Outfit,sans-serif' }}>
                   D.I. Khan Care
@@ -508,7 +508,7 @@ function StaffLoginSplitView({
         <div>
           {/* Brand header */}
           <div className="flex items-center gap-3 mb-4 sm:mb-6">
-            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-10 h-10 rounded-full object-contain shadow-md flex-shrink-0 bg-white" />
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-11 h-11 rounded-full object-cover shadow-md flex-shrink-0 ring-1 ring-slate-900/5 dark:ring-white/10 bg-white" />
             <div>
               <div className="text-white font-extrabold text-sm tracking-wide" style={{ fontFamily: 'Outfit, sans-serif' }}>
                 D.I. Khan Care
@@ -577,7 +577,7 @@ function StaffLoginSplitView({
         {/* Top bar */}
         <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-8 h-8 rounded-full object-contain shadow-xs bg-white lg:hidden" />
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 rounded-full object-cover shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10 bg-white lg:hidden" />
             <div>
               <span className="font-bold text-slate-900 dark:text-white lg:hidden block text-xs">D.I. Khan Care</span>
               <span className="hidden lg:inline">D.I. Khan Doctor Appointment System</span>
@@ -1041,7 +1041,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between w-full">
           {/* Logo */}
           <button onClick={() => handleSwitchRole('home')} className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer">
-            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform bg-white" />
+            <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10 flex-shrink-0 group-hover:scale-105 transition-transform bg-white" />
             <div>
               <div className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base leading-tight tracking-tight" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</div>
               <div className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-400 uppercase tracking-[0.06em] sm:tracking-[0.15em] truncate">Doctor Appointment System</div>
@@ -1152,7 +1152,7 @@ export default function App() {
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
                 <div className="flex items-center gap-2">
-                  <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white" />
+                  <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-8 h-8 rounded-full object-cover shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10 bg-white" />
                   <span className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit,sans-serif' }}>D.I. Khan Care</span>
                 </div>
                 <button onClick={() => setShowMobileNav(false)} aria-label="Close mobile navigation" className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
@@ -1334,7 +1334,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 space-y-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-7 h-7 rounded-full object-contain shadow-xs bg-white" />
+              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-8 h-8 rounded-full object-cover shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10 bg-white" />
               <div>
                 <span className="text-sm font-black text-slate-800 dark:text-slate-200" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
                 <span className="block text-[10px] text-slate-400">Doctor Appointment System</span>
@@ -13042,7 +13042,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                 <div id="printable-pos-slip" className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-5 bg-slate-50/50 dark:bg-[#0c1424] space-y-3 font-sans">
                   {/* Clinic & Doctor Header */}
                   <div className="text-center pb-2 border-b border-dashed border-slate-300 dark:border-slate-700">
-                    <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-12 h-12 mx-auto mb-1.5 rounded-full object-contain bg-white shadow-xs" />
+                    <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-14 h-14 mx-auto mb-1.5 rounded-full object-cover bg-white shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-full inline-block mb-1 border border-transparent dark:border-emerald-700/50">
                       Confirmed Walk-In Slip
                     </span>

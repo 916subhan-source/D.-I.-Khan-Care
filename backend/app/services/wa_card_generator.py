@@ -13,6 +13,7 @@ Uses custom vector rendering for all icons (no missing glyph boxes or unsupporte
 
 import os
 import io
+import math
 from PIL import Image, ImageDraw, ImageFont
 from typing import Optional, Tuple, Any
 
@@ -95,6 +96,15 @@ def _draw_info_badge(draw: ImageDraw.ImageDraw, cx: int, cy: int, r: int = 16, c
     draw.ellipse((cx - r, cy - r, cx + r, cy + r), outline=color, width=2)
     draw.ellipse((cx - 2, cy - 9, cx + 2, cy - 5), fill=color)
     draw.line([(cx, cy - 2), (cx, cy + 8)], fill=color, width=3)
+
+def _draw_star(draw: ImageDraw.ImageDraw, cx: int, cy: int, r: int = 14, color: str = "#f59e0b"):
+    """Draws a crisp 5-pointed star."""
+    points = []
+    for i in range(10):
+        angle = i * math.pi / 5 - math.pi / 2
+        radius = r if i % 2 == 0 else r * 0.45
+        points.append((cx + radius * math.cos(angle), cy + radius * math.sin(angle)))
+    draw.polygon(points, fill=color)
 
 def _draw_row_bullet(draw: ImageDraw.ImageDraw, cx: int, cy: int, color: str = "#64748b"):
     """Draws a subtle, sleek bullet point for detail rows."""
@@ -524,6 +534,89 @@ def generate_cancelled_card(patient_name: str, doctor_name: str, slip_number: st
     _draw_info_badge(draw, 95, ny + 46, r=18, color="#dc2626")
     draw.text((130, ny + 20), "Your appointment has been cancelled.", fill="#991b1b", font=_get_font(bold=True, size=22))
     draw.text((130, ny + 52), "To book again, please visit dikhancare.io", fill="#991b1b", font=_get_font(bold=False, size=20))
+
+    _draw_footer(draw, W, H)
+
+    out = io.BytesIO()
+    img.save(out, format="PNG", optimize=True)
+    return out.getvalue()
+
+
+# -------------------------------------------------------------
+# TEMPLATE 7: Consultation / Appointment Completed
+# -------------------------------------------------------------
+def generate_completed_card(patient_name: str, doctor_name: str, slip_number: str, visit_date: str, slot_time: str) -> bytes:
+    """Template 7: Consultation / Appointment Completed Card."""
+    W, H = 850, 1020
+    img, draw = _create_base_canvas(W, H)
+    _draw_header(draw, W, "CLINIC • CONSULTATION COMPLETED")
+
+    # Big Green Check Badge
+    draw.ellipse(((W // 2) - 45, 190, (W // 2) + 45, 280), fill="#ecfdf5", outline="#10b981", width=3)
+    _draw_check_badge(draw, W // 2, 235, r=26, bg_color="#10b981", fg_color="#ffffff")
+
+    # Heading
+    f_h1 = _get_font(bold=True, size=40)
+    h_txt = "Consultation Completed"
+    draw.text(((W - f_h1.getbbox(h_txt)[2]) // 2, 295), h_txt, fill="#0f172a", font=f_h1)
+
+    # Subheading
+    f_sub = _get_font(bold=True, size=24)
+    sub_txt = f"Check-up Completed for {patient_name.title()}"
+    draw.text(((W - f_sub.getbbox(sub_txt)[2]) // 2, 345), sub_txt, fill="#047857", font=f_sub)
+
+    # Details Box
+    bx, by, bw, bh = 60, 390, W - 120, 270
+    draw.rounded_rectangle((bx, by, bx + bw, by + bh), radius=20, fill="#f8fafc", outline="#e2e8f0", width=2)
+
+    f_lbl = _get_font(bold=True, size=26)
+    f_val = _get_font(bold=False, size=26)
+
+    rows = [
+        ("Doctor:", f"Dr. {doctor_name.replace('Dr. ', '').strip()}", "#1e293b", False),
+        ("Slip No:", slip_number, "#0c3a4f", True),
+        ("Date:", visit_date, "#1e293b", False),
+        ("Time:", slot_time, "#1e293b", True),
+    ]
+
+    ry = by + 22
+    for label, val, color, is_bold in rows:
+        _draw_row_bullet(draw, bx + 35, ry + 16, "#10b981")
+        draw.text((bx + 55, ry), label, fill="#475569", font=f_lbl)
+        vf = _get_font(bold=is_bold, size=26)
+        draw.text((bx + 210, ry), val[:34], fill=color, font=vf)
+        ry += 46
+
+    # Status Pill: Completed
+    py = ry + 6
+    _draw_row_bullet(draw, bx + 35, py + 16, "#10b981")
+    draw.text((bx + 55, py), "Status:", fill="#475569", font=f_lbl)
+    draw.rounded_rectangle((bx + 210, py - 4, bx + 380, py + 38), radius=14, fill="#10b981")
+    draw.text((bx + 240, py + 5), "Completed", fill="#ffffff", font=_get_font(bold=True, size=20))
+
+    # Rating & Feedback Callout Box
+    fy = 675
+    draw.rounded_rectangle((60, fy, W - 60, fy + 145), radius=18, fill="#fffbeb", outline="#fde68a", width=2)
+
+    # 5 Vector Gold Stars in Center
+    star_start_x = (W - (5 * 34)) // 2 + 17
+    for idx in range(5):
+        _draw_star(draw, star_start_x + (idx * 34), fy + 32, r=13, color="#f59e0b")
+
+    f_rate = _get_font(bold=True, size=24)
+    r_txt = "Rate Your Doctor & Experience"
+    draw.text(((W - f_rate.getbbox(r_txt)[2]) // 2, fy + 58), r_txt, fill="#92400e", font=f_rate)
+
+    f_rate_sub = _get_font(bold=False, size=20)
+    rs_txt = "Aapka tajurba kaisa raha? 30 sec mein review darj karein."
+    draw.text(((W - f_rate_sub.getbbox(rs_txt)[2]) // 2, fy + 95), rs_txt, fill="#78350f", font=f_rate_sub)
+
+    # Blessing / Note Box
+    ny = 835
+    draw.rounded_rectangle((60, ny, W - 60, ny + 70), radius=14, fill="#f0fdf4", outline="#86efac", width=2)
+    _draw_info_badge(draw, 95, ny + 35, r=16, color="#166534")
+    f_bless = _get_font(bold=True, size=20)
+    draw.text((125, ny + 23), "Allah Ta'ala aapko mukammal sehat aur tandrusti ata farmaye.", fill="#166534", font=f_bless)
 
     _draw_footer(draw, W, H)
 

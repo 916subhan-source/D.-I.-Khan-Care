@@ -47,7 +47,8 @@ from app.services.wa_card_generator import (
     generate_confirmed_card,
     generate_reminder_card,
     generate_rescheduled_card,
-    generate_cancelled_card
+    generate_cancelled_card,
+    generate_completed_card
 )
 
 logger = logging.getLogger("notification_service")
@@ -811,17 +812,37 @@ class NotificationService:
 
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
-                comp_msg = (
+                slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "Completed"
+                slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Today"
+
+                comp_fallback_msg = (
                     f"🩺 *CONSULTATION COMPLETED — D.I. KHAN CARE*\n\n"
                     f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
                     f"{doc_name} ke sath aapka check-up mukammal ho chuka hai. Allah Ta'ala aapko mukammal sehat ata farmaye.\n\n"
                     f"⭐ *Doctor Feedback & Rating:*\n"
                     f"Aapka tajurba kaisa raha? Doosre mareezon ki rehnumai ke liye 30 second mein apna review darj karein:\n"
                     f"{review_url}\n\n"
-                    f"Shukriya,\n"
-                    f"*D.I. Khan Care*"
+                    f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
-                await self.send_whatsapp(patient_phone, comp_msg)
+                comp_card_caption = f"⭐ *Rate Doctor & Leave Review:*\n{review_url}"
+                try:
+                    card_bytes = generate_completed_card(
+                        patient_name=appt.patient_name or "Patient",
+                        doctor_name=doc_name,
+                        slip_number=appt.slip_number or "DIK-CARE",
+                        visit_date=slot_date_str,
+                        slot_time=slot_time_str
+                    )
+                    await self.send_whatsapp_media(
+                        patient_phone,
+                        card_bytes,
+                        caption=comp_card_caption,
+                        fallback_text=comp_fallback_msg,
+                        filename=f"completed_{appt.slip_number}.png"
+                    )
+                except Exception as card_err:
+                    logger.warning(f"Card generation error in notify_appointment_completed: {card_err}, falling back to text.")
+                    await self.send_whatsapp(patient_phone, comp_fallback_msg)
 
         except Exception as e:
             logger.error(f"Error in notify_appointment_completed: {e}")

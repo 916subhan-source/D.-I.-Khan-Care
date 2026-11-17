@@ -223,7 +223,7 @@ export default function QueueDisplay({
           <button
             type="button"
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-[transform,background-color] duration-150 ease-out active:scale-[0.96] cursor-pointer"
             title="Exit to Portal Home"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -306,7 +306,7 @@ export default function QueueDisplay({
               setAudioEnabled(next);
               if (next) playChime();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-[transform,background-color,border-color] duration-150 ease-out active:scale-[0.96] cursor-pointer border ${
               audioEnabled
                 ? 'bg-emerald-600/30 text-emerald-300 border-emerald-500/50'
                 : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200'
@@ -319,7 +319,7 @@ export default function QueueDisplay({
 
           {/* Live PKT Clock */}
           <div className="text-right">
-            <div className="font-mono font-black text-sm sm:text-base text-emerald-400 tracking-wider">
+            <div className="font-mono font-black text-sm sm:text-base text-emerald-400 tracking-wider tabular-nums">
               {currentTimeStr || '00:00:00 PKT'}
             </div>
             <div className="text-[10px] text-slate-400 truncate max-w-[170px]">
@@ -331,7 +331,7 @@ export default function QueueDisplay({
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-[transform,background-color] duration-150 ease-out active:scale-[0.96] cursor-pointer"
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen TV Mode'}
           >
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
@@ -537,19 +537,19 @@ export default function QueueDisplay({
           <div className="flex items-center gap-1.5 text-slate-300">
             <Users className="w-3.5 h-3.5 text-slate-400" />
             <span>Today's Tokens:</span>
-            <span className="font-mono font-bold text-white">{totalPatients}</span>
+            <span className="font-mono font-bold text-white tabular-nums">{totalPatients}</span>
           </div>
           <div className="text-slate-700">|</div>
           <div className="flex items-center gap-1.5 text-emerald-400">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Attended:</span>
-            <span className="font-mono font-bold text-white">{completedPatients}</span>
+            <span className="font-mono font-bold text-white tabular-nums">{completedPatients}</span>
           </div>
           <div className="text-slate-700">|</div>
           <div className="flex items-center gap-1.5 text-amber-400">
             <Clock className="w-3.5 h-3.5" />
             <span>Waiting:</span>
-            <span className="font-mono font-bold text-white">{waitingPatients}</span>
+            <span className="font-mono font-bold text-white tabular-nums">{waitingPatients}</span>
           </div>
         </div>
       </footer>

@@ -6473,7 +6473,7 @@ function PatientSection({
           }
         }
       }
-    } catch (_) {}
+    } catch (_) { }
     return null;
   });
   const [profileDoctorInitialTab, setProfileDoctorInitialTab] = useState<'booking' | 'profile'>('profile');
@@ -6744,7 +6744,7 @@ function PatientSection({
     const isAliHospitalQuery = cleanQuery.includes('ali hospital') || cleanQuery.includes('al-shifa') || cleanQuery.includes('al shifa');
     const isDhqQuery = cleanQuery.includes('dhq');
     const isMuftiMehmoodQuery = cleanQuery.includes('mufti mehmood') || cleanQuery.includes('mti');
-    
+
     const searchTokens = cleanQuery
       .split(/\s+/)
       .filter(t => t.length > 0 && !['dr', 'dr.', 'doctor', 'sahab', 'sahib'].includes(t));
@@ -7108,20 +7108,19 @@ function PatientSection({
                           onClick={() => {
                             if (item.spec === 'All specialties') {
                               setSelectedSpecialty('All specialties');
-                              try { window.history.pushState({}, '', '/doctors'); } catch (_) {}
+                              try { window.history.pushState({}, '', '/doctors'); } catch (_) { }
                             } else {
                               setSelectedSpecialty(item.spec);
-                              try { window.history.pushState({}, '', `/doctors/${item.slug}`); } catch (_) {}
+                              try { window.history.pushState({}, '', `/doctors/${item.slug}`); } catch (_) { }
                             }
                             setSelectedCondition('');
                             setSelectedConditionLabel('');
                             scrollToResults();
                           }}
-                          className={`p-2.5 rounded-xl border text-left transition-all duration-200 flex items-center gap-2.5 cursor-pointer group shadow-2xs hover:shadow-xs active:scale-95 ${
-                            isSelected
+                          className={`p-2.5 rounded-xl border text-left transition-all duration-200 flex items-center gap-2.5 cursor-pointer group shadow-2xs hover:shadow-xs active:scale-95 ${isSelected
                               ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-500 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/30'
                               : 'bg-white/90 dark:bg-slate-800/90 border-slate-200/90 dark:border-slate-700/80 hover:border-emerald-400 dark:hover:border-emerald-500/60 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/30'
-                          }`}
+                            }`}
                         >
                           <span className="text-xl sm:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
                             {item.icon}
@@ -7199,7 +7198,7 @@ function PatientSection({
                       try {
                         const slug = getSpecialtySlug(val);
                         window.history.pushState({}, '', slug === 'all' ? '/doctors' : `/doctors/${slug}`);
-                      } catch (_) {}
+                      } catch (_) { }
                     }}
                     className="w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                   >
@@ -7363,7 +7362,7 @@ function PatientSection({
             onSelectSpecialty={(spec) => {
               if (selectedSpecialty.toLowerCase() === spec.toLowerCase()) {
                 setSelectedSpecialty('All specialties');
-                try { window.history.pushState({}, '', '/doctors'); } catch (_) {}
+                try { window.history.pushState({}, '', '/doctors'); } catch (_) { }
               } else {
                 setSelectedSpecialty(spec);
                 setSelectedCondition('');
@@ -7371,7 +7370,7 @@ function PatientSection({
                 try {
                   const slug = getSpecialtySlug(spec);
                   window.history.pushState({}, '', `/doctors/${slug}`);
-                } catch (_) {}
+                } catch (_) { }
               }
               scrollToResults();
             }}
@@ -7431,7 +7430,7 @@ function PatientSection({
                       try {
                         const slug = getSpecialtySlug(spec.name);
                         window.history.pushState({}, '', slug === 'all' ? '/doctors' : `/doctors/${slug}`);
-                      } catch (_) {}
+                      } catch (_) { }
                     }}
                     className={`px-3.5 py-1.5 rounded-full font-semibold whitespace-nowrap transition-all shadow-2xs cursor-pointer group flex items-center ${isActive
                       ? 'bg-clinic-800 dark:bg-emerald-600 text-white shadow-sm border border-clinic-800 dark:border-emerald-500 font-bold'
@@ -7857,7 +7856,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   );
 
   return (
-    <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-xs dark:shadow-lg dark:shadow-slate-950/40 hover:shadow-xl dark:hover:shadow-emerald-950/25 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 ${staggerClass}`}>
+    <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-[transform,box-shadow,border-color] duration-200 ease-out ${staggerClass}`}>
       <div>
         {/* Top Badges Bar: Live OPD Status & Landmark Tag */}
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -7885,16 +7884,16 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
 
         {/* Doctor Main Info: Avatar + Details */}
         <div className="flex items-start gap-3.5 mb-3.5">
-          {/* Doctor Picture / Avatar */}
+          {/* Doctor Picture / Avatar with Concentric Inset */}
           <div
             onClick={() => onProfile(doctor)}
-            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-200/70 dark:ring-emerald-500/30 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
+            className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-1 ring-black/5 dark:ring-white/10 shadow-xs cursor-pointer hover:opacity-95 transition-opacity"
             title="Click to view doctor profile"
           >
             <img
               src={getDoctorProfileImage(doctor, 300)}
               alt={displayName}
-              className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover object-top transition-transform duration-200 group-hover:scale-105"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = 'none';
                 const fallback = (e.target as HTMLElement).nextElementSibling;
@@ -7966,7 +7965,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-between text-[11px] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition group/map cursor-pointer"
+            className="flex items-center justify-between text-[11px] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors group/map cursor-pointer"
             title="Click to open clinic on Google Maps"
           >
             <div className="flex items-center gap-1.5 min-w-0 pr-2">
@@ -7994,24 +7993,24 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             </div>
           </div>
 
-          {/* Fee */}
+          {/* Fee with Tabular Numerals */}
           <div className="text-right flex-shrink-0">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
               Consultation Fee
             </span>
-            <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono">
+            <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono tabular-nums">
               {formatCurrency(doctor.fee_clinic)}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Dual Action Buttons (Oladoc Style: View Profile & Book Appointment) */}
+      {/* Dual Action Buttons (Emil Kowalski 0.96 scale on press + optical alignment) */}
       <div className="grid grid-cols-2 gap-2 pt-1 mt-auto">
         <button
           type="button"
           onClick={() => onProfile(doctor)}
-          className="py-2.5 px-2.5 sm:px-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
+          className="py-2.5 pl-2.5 pr-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-[transform,background-color,border-color] duration-150 ease-out text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.96]"
         >
           <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-300" />
           <span>Profile &amp; Timings</span>
@@ -8019,10 +8018,10 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
         <button
           type="button"
           onClick={() => onBook(doctor)}
-          className="py-2.5 px-2 sm:px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-[13px] font-extrabold transition-all shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap active:scale-[0.98]"
+          className="py-2.5 pl-3 pr-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-[13px] font-extrabold transition-[transform,background-color,box-shadow] duration-150 ease-out shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap active:scale-[0.96]"
         >
           <span className="hidden sm:inline">Book Free Token</span><span className="sm:hidden">Book Token</span>
-          <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform font-bold">&rarr;</span>
+          <span className="text-xs group-hover/btn:translate-x-0.5 transition-transform duration-150 font-bold">&rarr;</span>
         </button>
       </div>
     </div>

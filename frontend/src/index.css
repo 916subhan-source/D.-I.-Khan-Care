@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -48,13 +50,34 @@
   }
 }
 
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
 /* ─── Component Utilities ────────────────────────────── */
 @layer components {
 
-  /* ── Premium Buttons ── */
+  /* ── Tabular Numerals for Anti-Jitter (better-typography) ── */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* ── Optical Image Inset (better-ui) ── */
+  .img-outline {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
+  .dark .img-outline {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+
+  /* ── Premium Buttons (Emil Kowalski 0.96 Press Scale & Composite Transitions) ── */
   .btn-primary {
-    @apply w-full py-2.5 px-4 font-semibold text-sm rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-clinic-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-md hover:shadow-lg active:scale-[0.98];
+    @apply w-full py-2.5 px-4 font-semibold text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-clinic-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-md hover:shadow-lg active:scale-[0.96];
     background: linear-gradient(135deg, #1a6359 0%, #143d38 100%);
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease-out;
   }
 
   .btn-primary:hover {
@@ -62,15 +85,18 @@
   }
 
   .btn-secondary {
-    @apply py-2 px-4 border border-clinic-300 text-clinic-800 hover:bg-clinic-50 font-semibold text-sm rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-clinic-400 focus:ring-offset-1 shadow-sm hover:shadow-md;
+    @apply py-2 px-4 border border-clinic-300 text-clinic-800 hover:bg-clinic-50 font-semibold text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-clinic-400 focus:ring-offset-1 shadow-sm hover:shadow-md active:scale-[0.96];
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease-out;
   }
 
   .btn-ghost {
-    @apply py-1.5 px-3 text-clinic-700 hover:bg-clinic-50 font-medium text-sm rounded transition-all duration-150;
+    @apply py-1.5 px-3 text-clinic-700 hover:bg-clinic-50 font-medium text-sm rounded-lg active:scale-[0.96];
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease-out;
   }
 
   .btn-danger {
-    @apply py-2 px-4 border border-danger-300 text-danger-600 hover:bg-danger-50 font-semibold text-sm rounded-md transition-all duration-200 shadow-sm;
+    @apply py-2 px-4 border border-danger-300 text-danger-600 hover:bg-danger-50 font-semibold text-sm rounded-xl shadow-sm active:scale-[0.96];
+    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease-out;
   }
 
   /* ── Status Pills ── */
@@ -1384,14 +1410,14 @@ html.dark [class*="hover:bg-emerald-100"]:hover {
 /* Clean, Modern & Simple Urdu Typography (for general badges, buttons & notices) */
 .font-urdu-hero,
 .font-urdu {
-  font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, 'Noto Sans Arabic', sans-serif;
+  font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Arial, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Classical Urdu Nastaliq Calligraphy Typography (Applied ONLY to Main Hero Heading) */
 .font-urdu-nastaliq {
-  font-family: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', 'Segoe UI', Tahoma, Arial, system-ui, -apple-system, sans-serif;
+  font-family: 'Noto Nastaliq Urdu', 'Gulzar', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   overflow: visible;

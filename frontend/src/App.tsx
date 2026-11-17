@@ -3565,10 +3565,32 @@ function DoctorProfileAndBookingView({
   const [selectedSlotId, setSelectedSlotId] = useState<string>('');
   const [bookingFor, setBookingFor] = useState<'myself' | 'someone_else'>('myself');
   const [patientName, setPatientName] = useState(() => {
-    try { return localStorage.getItem('dikhan_patient_name') || ''; } catch { return ''; }
+    try {
+      if (typeof window !== 'undefined') {
+        const p = new URLSearchParams(window.location.search);
+        const urlName = p.get('name') || p.get('patient_name');
+        if (urlName) {
+          const decoded = decodeURIComponent(urlName).trim();
+          try { localStorage.setItem('dikhan_patient_name', decoded); } catch (_) { }
+          return decoded;
+        }
+      }
+      return localStorage.getItem('dikhan_patient_name') || '';
+    } catch { return ''; }
   });
   const [patientPhone, setPatientPhone] = useState(() => {
-    try { return localStorage.getItem('dikhan_patient_phone') || ''; } catch { return ''; }
+    try {
+      if (typeof window !== 'undefined') {
+        const p = new URLSearchParams(window.location.search);
+        const urlPhone = p.get('phone') || p.get('mobile');
+        if (urlPhone) {
+          const cleaned = urlPhone.trim();
+          try { localStorage.setItem('dikhan_patient_phone', cleaned); } catch (_) { }
+          return cleaned;
+        }
+      }
+      return localStorage.getItem('dikhan_patient_phone') || '';
+    } catch { return ''; }
   });
   const [patientEmail, setPatientEmail] = useState('');
   const [patientAge, setPatientAge] = useState('');
@@ -8431,13 +8453,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     if (!selectedDoctorId || !asstBlackoutDate) return;
     try {
       setAsstBlackoutLoading(true);
-      setAsstBlackoutMsg('Applying blackout for this doctor...');
-      const res: any = await apiFetch(`/doctor/blackout?date=${asstBlackoutDate}&doctor_id=${selectedDoctorId}`, {
+      setAsstBlackoutMsg('Applying blackout for this doctor & checking booked appointments...');
+      const encodedReason = encodeURIComponent(asstBlackoutReason || 'Clinic leave / maintenance');
+      const res: any = await apiFetch(`/doctor/blackout?date=${asstBlackoutDate}&doctor_id=${selectedDoctorId}&reason=${encodedReason}`, {
         method: 'POST'
       });
-      setAsstBlackoutMsg(`✓ Blackout applied for ${asstBlackoutDate}: ${res.slots_blocked || 0} slots blocked.`);
+      const cancelledNote = res.appointments_cancelled > 0 ? ` · ${res.appointments_cancelled} booked patient(s) notified via WhatsApp to reschedule.` : '';
+      setAsstBlackoutMsg(`✓ Blackout applied for ${asstBlackoutDate}: ${res.slots_blocked || 0} slots blocked${cancelledNote}`);
       await fetchAsstSlots(selectedDoctorId);
-      setTimeout(() => setAsstBlackoutMsg(''), 5000);
+      setTimeout(() => setAsstBlackoutMsg(''), 7000);
     } catch (err: any) {
       setAsstBlackoutMsg(`Error: ${err.message || 'Failed to apply blackout'}`);
     } finally {
@@ -11093,6 +11117,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           placeholder="e.g. Doctor emergency leave / Maintenance"
                           className="w-full px-3 py-1.5 border border-slate-200 dark:border-slate-700 rounded-xl text-xs bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
                         />
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 text-[10px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                        <span className="font-bold">⚠️ Automatic Patient Notification:</span> Applying blackout blocks all slots on this date, cancels any booked appointments, and sends patients an instant WhatsApp message to select another day/time with their name and phone pre-retained.
                       </div>
 
                       {asstBlackoutMsg && (
@@ -14273,14 +14301,16 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     if (!blackoutDate) return;
     try {
       setBlackoutLoading(true);
-      setBlackoutMsg('Applying blackout...');
-      const res: any = await apiFetch(`/doctor/blackout?date=${blackoutDate}`, {
+      setBlackoutMsg('Applying blackout & checking booked appointments...');
+      const encodedReason = encodeURIComponent(blackoutReason || 'Clinic maintenance');
+      const res: any = await apiFetch(`/doctor/blackout?date=${blackoutDate}&reason=${encodedReason}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
-      setBlackoutMsg(`✓ Blackout applied for ${blackoutDate}: ${res.slots_blocked || 0} slots blocked.`);
+      const cancelledNote = res.appointments_cancelled > 0 ? ` · ${res.appointments_cancelled} booked patient(s) notified via WhatsApp to reschedule.` : '';
+      setBlackoutMsg(`✓ Blackout applied for ${blackoutDate}: ${res.slots_blocked || 0} slots blocked${cancelledNote}`);
       await loadDoctorData();
-      setTimeout(() => setBlackoutMsg(''), 5000);
+      setTimeout(() => setBlackoutMsg(''), 7000);
     } catch (err: any) {
       setBlackoutMsg(`Error: ${err.message}`);
     } finally {

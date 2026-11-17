@@ -594,25 +594,62 @@ class NotificationService:
             doc_name = raw_name if raw_name.lower().startswith("dr") else f"Dr. {raw_name}"
             slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "Scheduled"
             slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Upcoming"
-            rebook_url = f"{settings.FRONTEND_URL.rstrip('/')}/"
+            
+            # Construct direct 1-click rebook URL with retained patient details
+            import urllib.parse
+            doc_id_val = str(appt.doctor_id) if appt.doctor_id else ""
+            clean_name = (appt.patient_name or "").strip()
+            patient_phone = self._resolve_patient_phone(appt) or ""
+            rebook_params = []
+            if doc_id_val:
+                rebook_params.append(f"doctor_id={doc_id_val}")
+            rebook_params.append("action=booking")
+            if clean_name:
+                rebook_params.append(f"name={urllib.parse.quote_plus(clean_name)}")
+            if patient_phone:
+                rebook_params.append(f"phone={patient_phone}")
+            if appt.slip_number:
+                rebook_params.append(f"slip={appt.slip_number}")
+
+            rebook_query = "&".join(rebook_params)
+            rebook_url = f"{settings.FRONTEND_URL.rstrip('/')}/?{rebook_query}" if rebook_query else f"{settings.FRONTEND_URL.rstrip('/')}/"
 
             # WhatsApp to Patient ONLY
-            patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
-                patient_msg = (
-                    f"❌ *APPOINTMENT CANCELLED — DI KHAN CARE*\n\n"
-                    f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
-                    f"Maazrat ke sath {doc_name} ke sath aapki appointment cancel kardi gayi hai.\n\n"
-                    f"📋 *Slip Number:* #{appt.slip_number or 'N/A'}\n"
-                    f"📅 *Date:* {slot_date_str}\n"
-                    f"⏰ *Time:* {slot_time_str}\n"
-                    f"📝 *Reason:* {reason or 'Clinic schedule adjustment ya patient request'}\n\n"
-                    f"ℹ️ _Your appointment has been cancelled. To book again please visit dikhancare.io_\n\n"
-                    f"🔄 *Book Another Appointment Slot:*\n"
-                    f"{rebook_url}\n\n"
-                    f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
-                )
-                patient_card_caption = f"🌐 *Book Again / Clinic Portal:*\n{rebook_url}"
+                is_blackout = any(k in (reason or "").lower() for k in ["clinic closed", "blackout", "leave", "maintenance", "band"])
+                if is_blackout:
+                    patient_msg = (
+                        f"❌ *CLINIC CLOSED — APPOINTMENT CANCELLED*\n\n"
+                        f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                        f"Clinic emergency leave / band hone ki wajah se {doc_name} ke sath aapki appointment cancel kardi gayi hai.\n\n"
+                        f"📋 *Old Slip Number:* #{appt.slip_number or 'N/A'}\n"
+                        f"📅 *Cancelled Date:* {slot_date_str}\n"
+                        f"⏰ *Time:* {slot_time_str}\n"
+                        f"📝 *Reason:* {reason or 'Clinic closed for this date'}\n\n"
+                        f"🔄 *Naya din aur waqt muntakhib karne ke liye is link par click karein:*\n"
+                        f"{rebook_url}\n\n"
+                        f"*(Aapka naam aur mobile number pehle se mehfooz hai, dobara likhne ki zaroorat nahi.)*\n\n"
+                        f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
+                    )
+                    patient_card_caption = (
+                        f"❌ *Clinic Closed — Appointment Cancelled*\n"
+                        f"Please select another date and time (details pre-retained):\n"
+                        f"🌐 {rebook_url}"
+                    )
+                else:
+                    patient_msg = (
+                        f"❌ *APPOINTMENT CANCELLED — DI KHAN CARE*\n\n"
+                        f"Assalam-o-Alaikum *{appt.patient_name}*,\n\n"
+                        f"Maazrat ke sath {doc_name} ke sath aapki appointment cancel kardi gayi hai.\n\n"
+                        f"📋 *Slip Number:* #{appt.slip_number or 'N/A'}\n"
+                        f"📅 *Date:* {slot_date_str}\n"
+                        f"⏰ *Time:* {slot_time_str}\n"
+                        f"📝 *Reason:* {reason or 'Clinic schedule adjustment ya patient request'}\n\n"
+                        f"🔄 *Book Another Appointment Slot:*\n"
+                        f"{rebook_url}\n\n"
+                        f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
+                    )
+                    patient_card_caption = f"🌐 *Book Again / Clinic Portal:*\n{rebook_url}"
                 try:
                     card_bytes = generate_cancelled_card(
                         patient_name=appt.patient_name or "Patient",

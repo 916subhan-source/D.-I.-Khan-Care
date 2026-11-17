@@ -564,30 +564,37 @@ async def unblock_slot(
 @router.post("/blackout")
 async def blackout_date(
     date: str,  # YYYY-MM-DD
+    reason: Optional[str] = Query("Clinic leave / maintenance"),
     doctor_id: Optional[str] = Query(None),
+    background_tasks: BackgroundTasks = None,
     current_user: User = Depends(require_roles(["DOCTOR", "ASSISTANT", "ADMIN"])),
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Bulk Blackout: Blocks ALL available slots on a given date in one call.
-    For emergency leaves or clinic-wide closure days. Accessible by Doctor and Assistant.
+    Bulk Blackout: Blocks ALL slots on a given date for this doctor.
+    Automatically cancels any active appointments booked on this date,
+    and dispatches a WhatsApp notification to affected patients explaining that
+    the clinic is closed, with a direct 1-click link to pick another date/time
+    retaining their name and mobile number. Accessible by Doctor, Assistant, and Admin.
     """
+    from app.services.background_tasks import bg_notify_appointment_cancelled
+
     doc = await resolve_target_doctor(current_user, doctor_id, db)
 
     try:
-        target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        base_dt = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=PKT)
+        start_utc = base_dt.astimezone(timezone.utc)
+        end_utc = (base_dt + timedelta(days=1)).astimezone(timezone.utc)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
-    # Fetch all available slots for this doctor on this date
-    next_day = target_date + timedelta(days=1)
+    # 1. Fetch and block ALL slots for this doctor on this date
     slots_result = await db.execute(
         select(DoctorSlot).where(
             and_(
                 DoctorSlot.doctor_id == doc.id,
-                DoctorSlot.start_time >= target_date,
-                DoctorSlot.start_time < next_day,
-                DoctorSlot.status == "available"
+                DoctorSlot.start_time >= start_utc,
+                DoctorSlot.start_time < end_utc
             )
         )
     )
@@ -597,6 +604,44 @@ async def blackout_date(
         slot.status = "blocked"
         blocked_count += 1
 
+    # 2. Fetch and cancel all active / booked appointments on this date
+    appts_result = await db.execute(
+        select(Appointment)
+        .join(DoctorSlot, Appointment.slot_id == DoctorSlot.id)
+        .where(
+            and_(
+                Appointment.doctor_id == doc.id,
+                DoctorSlot.start_time >= start_utc,
+                DoctorSlot.start_time < end_utc,
+                Appointment.status.in_(["BOOKED", "CONFIRMED", "PENDING", "PENDING_ASSISTANT_APPROVAL", "REQUESTED"])
+            )
+        )
+        .options(
+            selectinload(Appointment.patient),
+            selectinload(Appointment.doctor).selectinload(Doctor.user),
+            selectinload(Appointment.slot)
+        )
+    )
+    active_appts = appts_result.scalars().all()
+    cancelled_count = 0
+    formatted_date_pkt = format_pkt_date(base_dt)
+    effective_reason = (reason or "").strip() or "Clinic leave / maintenance"
+    cancel_notice = f"Clinic closed on {formatted_date_pkt} ({effective_reason}). Please select another date and time."
+
+    for appt in active_appts:
+        appt.status = "CANCELLED"
+        if hasattr(appt, "cancellation_reason"):
+            appt.cancellation_reason = cancel_notice
+        cancelled_count += 1
+        if background_tasks:
+            background_tasks.add_task(bg_notify_appointment_cancelled, appt.id, cancel_notice)
+        else:
+            try:
+                from app.services.notification_service import notification_service
+                await notification_service.notify_appointment_cancelled(db, appt, reason=cancel_notice)
+            except Exception as notify_err:
+                logger.error(f"Failed to notify cancelled appt {appt.id}: {notify_err}")
+
     await db.commit()
     await redis_manager.clear_cache_pattern("doctors:*")
     await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
@@ -604,7 +649,8 @@ async def blackout_date(
         "status": "SUCCESS",
         "date": date,
         "slots_blocked": blocked_count,
-        "message": f"All {blocked_count} available slots on {date} have been blocked."
+        "appointments_cancelled": cancelled_count,
+        "message": f"All {blocked_count} slots on {date} have been blocked. {cancelled_count} booked appointment(s) cancelled and notified to pick another date."
     }
 
 
@@ -621,17 +667,18 @@ async def lift_blackout_date(
     doc = await resolve_target_doctor(current_user, doctor_id, db)
 
     try:
-        target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        base_dt = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=PKT)
+        start_utc = base_dt.astimezone(timezone.utc)
+        end_utc = (base_dt + timedelta(days=1)).astimezone(timezone.utc)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
 
-    next_day = target_date + timedelta(days=1)
     slots_result = await db.execute(
         select(DoctorSlot).where(
             and_(
                 DoctorSlot.doctor_id == doc.id,
-                DoctorSlot.start_time >= target_date,
-                DoctorSlot.start_time < next_day,
+                DoctorSlot.start_time >= start_utc,
+                DoctorSlot.start_time < end_utc,
                 DoctorSlot.status == "blocked"
             )
         )

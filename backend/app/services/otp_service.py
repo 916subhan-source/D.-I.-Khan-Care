@@ -69,20 +69,34 @@ class OTPService:
         slot_line = f"\n📅 *Slot:* {slot_time.strip()}" if (slot_time and slot_time.strip()) else ""
 
         wa_message = (
-            f"🏥 *D.I. Khan Care — Clinic Verification Code*\n\n"
+            f"🏥 *DI Khan Care — Security Verification*\n\n"
+            f"🔒 *OTP Verification*\n\n"
             f"Assalam-o-Alaikum{salutation},\n"
-            f"Aapki doctor appointment verification ka 6-digit verification code yeh hai:\n\n"
-            f"🔐 *{plain_code}*\n"
+            f"Aapki appointment verification ka 6-digit OTP yeh hai:\n\n"
+            f"👉 *| {' | '.join(list(plain_code))} |*\n"
             f"{doc_line}{slot_line}\n\n"
-            f"⏱️ Yeh code *10 minute* tak valid hai.\n"
-            f"⚠️ Yeh code kisi ke sath share na karein.\n\n"
-            f"Appointment confirm karne ke liye yeh code website par enter karein.\n"
-            f"🌐 https://dikhancare.io"
+            f"⏱️ Yeh code *5 minute* tak valid hai.\n"
+            f"⚠️ Do not share this code with anyone.\n\n"
+            f"Appointment verify karne ke liye yeh code website par enter karein:\n"
+            f"🌐 https://dikhancare.io\n\n"
+            f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
         )
 
         try:
             from app.services.notification_service import notification_service
-            wa_sent = await notification_service.send_whatsapp(target_phone, wa_message)
+            from app.services.wa_card_generator import generate_otp_card
+            try:
+                card_bytes = generate_otp_card(
+                    patient_name=patient_name or "Patient",
+                    otp_code=plain_code,
+                    slip_number="DIK-CARE-OTP",
+                    doctor_name=doctor_name or "Specialist"
+                )
+                wa_sent = await notification_service.send_whatsapp_media(target_phone, card_bytes, wa_message, filename=f"otp_{plain_code}.png")
+            except Exception as card_err:
+                logger.warning(f"[OTP Card ERROR] {card_err}, falling back to text notification.")
+                wa_sent = await notification_service.send_whatsapp(target_phone, wa_message)
+
             if wa_sent:
                 logger.info(f"[OTP WhatsApp SUCCESS] 6-digit OTP code dispatched to {target_phone}")
             else:

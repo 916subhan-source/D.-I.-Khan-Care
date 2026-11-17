@@ -6543,11 +6543,11 @@ function PatientSection({
 
   useEffect(() => {
     if (activeTab === 'track') {
-      document.title = 'Track Doctor Appointment & Live Queue Token — D.I. Khan Care';
+      document.title = 'D.I. Khan Care — Track Doctor Appointment & Live Queue Token';
     } else if (activeTab === 'loyalty') {
-      document.title = 'VIP Healthcare Loyalty Card & Discounts — D.I. Khan Care';
+      document.title = 'D.I. Khan Care — VIP Healthcare Loyalty Card & Discounts';
     } else if (activeTab === 'join-doctor') {
-      document.title = 'Join As Doctor or Clinic Partner — D.I. Khan Care';
+      document.title = 'D.I. Khan Care — Join As Doctor or Clinic Partner';
     } else if (!selectedSpecialty || selectedSpecialty === 'All specialties') {
       document.title = 'PMDC Verified Doctor Appointments in D.I. Khan — D.I. Khan Care';
     }

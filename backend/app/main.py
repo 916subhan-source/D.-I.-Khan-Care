@@ -665,9 +665,9 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
 
             # Dynamic SEO Title and Metadata injection for Doctor Profiles & Specialties & Core Pages
             if normalized_path == "track" or normalized_path.startswith("track"):
-                track_title = "Track Doctor Appointment &amp; Live Queue Token — D.I. Khan Care"
+                track_title = "D.I. Khan Care — Track Doctor Appointment &amp; Live Queue Token"
                 track_desc = "Track your live doctor appointment queue token in D.I. Khan in real-time. Enter your slip number or mobile number to see current calling token, waiting time, and clinic status."
-                track_keywords = "track appointment in di khan, check doctor token di khan, live queue tracking di khan, slip number tracking dikhan care, live token di khan care, check appointment status di khan"
+                track_keywords = "d.i. khan care track appointment, track doctor token di khan, live queue tracking di khan, slip number tracking dikhan care, live token di khan care, check appointment status di khan"
                 track_url = "https://dikhancare.io/track"
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{track_title}</title>', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{track_desc}"', html, flags=_re_module.IGNORECASE)

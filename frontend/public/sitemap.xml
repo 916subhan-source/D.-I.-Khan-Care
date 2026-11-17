@@ -21,9 +21,14 @@
   </url>
   <url>
     <loc>https://dikhancare.io/track</loc>
-    <lastmod>2026-11-15</lastmod>
+    <lastmod>2026-11-17</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://dikhancare.io/icon-512.png</image:loc>
+      <image:title>D.I. Khan Care — Track Doctor Appointment &amp; Live Queue Token</image:title>
+      <image:caption>Live token queue and appointment slip status tracker in D.I. Khan</image:caption>
+    </image:image>
   </url>
 
   <!-- Dedicated Specialty Landing Pages (High-Intent Local SEO Ranking) -->

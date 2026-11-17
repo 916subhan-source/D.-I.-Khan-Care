@@ -5272,40 +5272,6 @@ function DoctorProfileAndBookingView({
                   </span>
                 </div>
 
-                {/* Live WhatsApp Digital Slip Preview Card */}
-                <div className="bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-slate-50/60 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 border-2 border-emerald-500/30 dark:border-emerald-600/30 rounded-2xl p-3.5 space-y-2.5 relative overflow-hidden shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#25D366]/20 text-[#075E54] dark:text-[#25D366] text-[10px] font-extrabold uppercase tracking-wider">
-                      <span>📲</span> WhatsApp Digital Slip Preview
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">100% Free Booking</span>
-                  </div>
-                  <div className="flex items-start justify-between gap-3 pt-1 border-t border-emerald-500/15 dark:border-emerald-700/20">
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                        {patientName.trim() ? patientName : 'Patient Name'} &bull; {patientPhone.trim() ? patientPhone : '03xx-xxxxxxx'}
-                      </p>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5">
-                        👨‍⚕️ {displayName} ({doctor.specialty})
-                      </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                        📍 {doctor.clinic_address || 'Opposite DHQ Hospital, D.I. Khan'}
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0 bg-white/80 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-emerald-500/20">
-                      <span className="block text-[9px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Token</span>
-                      <span className="text-xl font-black text-slate-900 dark:text-white font-mono leading-none">
-                        #{Math.max(1, activeSlotsToDisplay.findIndex(s => s.id === selectedSlotId || s.timeLabel === selectedTimeSlot) + 1)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="pt-1 flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-slate-300 border-t border-dashed border-emerald-500/20">
-                    <span>Consultation Fee:</span>
-                    <span className="font-extrabold text-clinic-700 dark:text-emerald-400 font-mono">
-                      {formatCurrency(doctor.fee_clinic)} (Pay Cash at Clinic Desk)
-                    </span>
-                  </div>
-                </div>
 
                 {/* Form Error Notification */}
                 {errorMessage && bookingState === 'form' && (

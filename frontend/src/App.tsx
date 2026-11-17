@@ -6537,9 +6537,21 @@ function PatientSection({
         }, 300);
       }
     } else {
-      document.title = 'PMDC Verified Doctor Appointments in D.I. Khan — D.I. Khan Care | Official Healthcare Portal';
+      document.title = 'PMDC Verified Doctor Appointments in D.I. Khan — D.I. Khan Care';
     }
   }, [selectedSpecialty]);
+
+  useEffect(() => {
+    if (activeTab === 'track') {
+      document.title = 'Track Doctor Appointment & Live Queue Token — D.I. Khan Care';
+    } else if (activeTab === 'loyalty') {
+      document.title = 'VIP Healthcare Loyalty Card & Discounts — D.I. Khan Care';
+    } else if (activeTab === 'join-doctor') {
+      document.title = 'Join As Doctor or Clinic Partner — D.I. Khan Care';
+    } else if (!selectedSpecialty || selectedSpecialty === 'All specialties') {
+      document.title = 'PMDC Verified Doctor Appointments in D.I. Khan — D.I. Khan Care';
+    }
+  }, [activeTab, selectedSpecialty]);
   const [availableSlots, setAvailableSlots] = useState<SlotData[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<SlotData | null>(null);
   const [slotsLoading, setSlotsLoading] = useState(false);

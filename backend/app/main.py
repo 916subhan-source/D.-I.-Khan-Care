@@ -663,8 +663,44 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
 
             normalized_path = full_path.strip("/").lower()
 
-            # Dynamic SEO Title and Metadata injection for Doctor Profiles & Specialties
-            if "waqar" in normalized_path or "gandapur" in normalized_path or "e3858a27" in normalized_path:
+            # Dynamic SEO Title and Metadata injection for Doctor Profiles & Specialties & Core Pages
+            if normalized_path == "track" or normalized_path.startswith("track"):
+                track_title = "Track Doctor Appointment &amp; Live Queue Token — D.I. Khan Care"
+                track_desc = "Track your live doctor appointment queue token in D.I. Khan in real-time. Enter your slip number or mobile number to see current calling token, waiting time, and clinic status."
+                track_keywords = "track appointment in di khan, check doctor token di khan, live queue tracking di khan, slip number tracking dikhan care, live token di khan care, check appointment status di khan"
+                track_url = "https://dikhancare.io/track"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{track_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{track_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{track_keywords}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{track_url}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{track_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{track_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:url" content=".*?"', f'<meta property="og:url" content="{track_url}"', html, flags=_re_module.IGNORECASE)
+            elif normalized_path == "loyalty" or normalized_path.startswith("loyalty"):
+                loyalty_title = "VIP Healthcare Loyalty Card &amp; Discounts — D.I. Khan Care"
+                loyalty_desc = "Get 10% instant discount on doctor consultations and exclusive benefits with D.I. Khan Care VIP Healthcare Loyalty Card across partner clinics in Dera Ismail Khan."
+                loyalty_keywords = "vip health card di khan, doctor discount card dera ismail khan, clinic loyalty card di khan, medical discounts di khan"
+                loyalty_url = "https://dikhancare.io/loyalty"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{loyalty_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{loyalty_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{loyalty_keywords}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{loyalty_url}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{loyalty_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{loyalty_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:url" content=".*?"', f'<meta property="og:url" content="{loyalty_url}"', html, flags=_re_module.IGNORECASE)
+            elif normalized_path in ("join-doctor", "join", "doctor-join"):
+                join_title = "Join As Doctor or Clinic Partner — D.I. Khan Care"
+                join_desc = "Partner with D.I. Khan Care to digitize your clinic, manage patient queue tokens, and offer PMDC-verified online bookings in Dera Ismail Khan."
+                join_keywords = "doctor join di khan care, clinic registration di khan, hospital software di khan, pmdc doctor registration dera ismail khan"
+                join_url = "https://dikhancare.io/join-doctor"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{join_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{join_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{join_keywords}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{join_url}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{join_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{join_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:url" content=".*?"', f'<meta property="og:url" content="{join_url}"', html, flags=_re_module.IGNORECASE)
+            elif "waqar" in normalized_path or "gandapur" in normalized_path or "e3858a27" in normalized_path:
                 doc_title = "Dr. Waqar Khan Gandapur — Consultant General &amp; Laparoscopic Surgeon | D.I. Khan Care"
                 doc_desc = "Book online appointment with Dr. Waqar Khan Gandapur (MBBS, MCPS, FCPS Surgery), Consultant General &amp; Laparoscopic Surgeon at RK Surgical &amp; Aesthetic Clinic, Opposite DHQ Hospital, Dera Ismail Khan. Fee: Rs. 1,000."
                 doc_keywords = "dr waqar khan gandapur, dr waqar gandapur, doctor waqar khan gandapur appointment in dikhan, dr waqar surgeon di khan, laparoscopic surgeon in d i khan, pitta operation di khan, gallbladder surgery dera ismail khan, hernia surgery di khan, appendix specialist di khan, rk surgical clinic opposite dhq hospital, pmdc verified surgeon di khan"

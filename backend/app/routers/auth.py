@@ -7,7 +7,7 @@ Authentication endpoints:
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from app.core.database import get_db
 from app.core.security import verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.deps import get_current_user
@@ -38,7 +38,7 @@ async def login(
             detail="Too many failed login attempts. Account temporarily locked for 15 minutes to protect against brute-force attacks. Please try again later."
         )
 
-    result = await db.execute(select(User).where(User.email == credentials.email))
+    result = await db.execute(select(User).where(func.lower(User.email) == clean_email))
     user = result.scalar_one_or_none()
 
     if not user or not user.password_hash or not verify_password(credentials.password, user.password_hash):

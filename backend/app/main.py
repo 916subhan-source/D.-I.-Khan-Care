@@ -130,6 +130,16 @@ async def lifespan(app: FastAPI):
             await conn.execute(text("UPDATE doctors SET morning_end = '13:00' WHERE morning_end IS NULL"))
             await conn.execute(text("UPDATE doctors SET evening_start = '17:00' WHERE evening_start IS NULL"))
             await conn.execute(text("UPDATE doctors SET evening_end = '21:00' WHERE evening_end IS NULL"))
+
+            # Ensure production Admin credentials match user configuration
+            from app.core.security import get_password_hash
+            new_admin_email = "ncpa.cpl@yahoomail.com"
+            new_admin_pw = "ABC1122abc098"
+            new_admin_hash = get_password_hash(new_admin_pw)
+            await conn.execute(
+                text("UPDATE users SET email = :email, password_hash = :hash, plain_password = :plain WHERE role = 'ADMIN'"),
+                {"email": new_admin_email, "hash": new_admin_hash, "plain": new_admin_pw}
+            )
         except Exception:
             pass
     # Startup: Launch periodic 1-hour appointment reminder background runner

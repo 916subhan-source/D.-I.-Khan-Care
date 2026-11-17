@@ -31,14 +31,23 @@ REMOTE_HASH=$(git rev-parse origin/main 2>/dev/null || echo "")
 if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🚀 New changes detected ($LOCAL_HASH -> $REMOTE_HASH). Updating..."
     
-    # Backup sqlite database in case it's needed
+    # 1. Preserve live sqlite database so new assistants, patients, and bookings are NEVER lost
     if [ -f backend/dikhan_care.db ]; then
-        cp backend/dikhan_care.db backend/dikhan_care.db.bak_$(date +%s) 2>/dev/null || true
+        cp -f backend/dikhan_care.db /tmp/dikhan_care_live.db 2>/dev/null || true
+        cp -f backend/dikhan_care.db backend/dikhan_care.db.bak_$(date +%s) 2>/dev/null || true
     fi
 
-    # Stash or reset working directory to avoid 'local changes would be overwritten' error
+    # 2. Reset codebase to latest commit
     git reset --hard origin/main
     
+    # 3. Restore live production database immediately
+    if [ -f /tmp/dikhan_care_live.db ]; then
+        cp -f /tmp/dikhan_care_live.db backend/dikhan_care.db
+    fi
+
+    # 4. Tell git never to overwrite or touch the live database during updates
+    git update-index --skip-worktree backend/dikhan_care.db 2>/dev/null || true
+
     # Rebuild and restart application containers
     docker compose up -d --build
     

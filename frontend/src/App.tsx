@@ -14915,10 +14915,6 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </button>
               ))}
             </div>
-            <div className="ml-auto items-center gap-3 hidden sm:flex">
-              <RealtimeLive />
-              <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{doctorProfile?.clinic_address || 'Clinic'}</span>
-            </div>
           </div>
 
           {/* ── Overview Tab ── */}

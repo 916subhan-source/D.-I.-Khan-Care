@@ -153,7 +153,7 @@ export function formatDoctorName(name?: string): string {
   if (!name) return 'Doctor';
   const clean = name.trim();
   const titled = clean.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-  if (/^dr\.?\s+/i.test(titled)) {
+  if (/^(surgeon\s+dr\.?|prof\.?\s+dr\.?|dr\.?)\s+/i.test(titled)) {
     return titled;
   }
   return `Dr. ${titled}`;

@@ -5150,12 +5150,9 @@ function DoctorProfileAndBookingView({
                               <span className="text-[10px] opacity-70">{isEvening ? '🌆' : '🌅'}</span>
                             )}
                           </div>
-                          <div className="flex items-center justify-between mt-1 text-[10px]">
+                          <div className="mt-1 text-[10px]">
                             <span className={`font-bold ${isSelected ? 'text-emerald-100' : 'text-clinic-600 dark:text-emerald-400'}`}>
                               Token #{sIdx + 1}
-                            </span>
-                            <span className={`text-[9px] uppercase tracking-wider font-medium ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                              Available
                             </span>
                           </div>
                         </button>
@@ -7839,7 +7836,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   return (
     <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-[transform,box-shadow,border-color] duration-200 ease-out ${staggerClass}`}>
       <div>
-        {/* Top Badges Bar: Live OPD Status & Landmark Tag */}
+        {/* Top Badges Bar: Live OPD Status & Quick Share */}
         <div className="flex items-center justify-between gap-2 mb-3">
           {avail.isAvailableToday ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300 shadow-2xs">
@@ -7856,15 +7853,21 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             </span>
           )}
 
-          {/* D.I. Khan Landmark Pill */}
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-200/80 dark:border-teal-800/80 truncate max-w-[155px]">
-            <span>📍</span>
-            <span className="truncate">{landmarkBadge}</span>
-          </span>
+          <a
+            href={`https://wa.me/?text=${shareText}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-[#25D366] transition-colors p-1 rounded-md"
+            title="Share doctor on WhatsApp"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline text-[10px]">Share</span>
+          </a>
         </div>
 
         {/* Doctor Main Info: Avatar + Details */}
-        <div className="flex items-start gap-3.5 mb-3.5">
+        <div className="flex items-start gap-3.5 mb-3">
           {/* Doctor Picture / Avatar with Concentric Inset */}
           <div
             onClick={() => onProfile(doctor)}
@@ -7912,30 +7915,15 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
               )}
             </div>
             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 truncate tracking-wide">
-              {doctor.specialty} Specialist
+              {doctor.specialty?.toLowerCase().includes('surgeon') || doctor.specialty?.toLowerCase().includes('specialist')
+                ? doctor.specialty
+                : `${doctor.specialty} Specialist`}
             </p>
             {doctor.qualification && (
-              <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5 font-medium">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 font-medium">
                 {doctor.qualification}
               </p>
             )}
-
-            {/* PMDC Verified Seal Tag & WhatsApp Quick Share */}
-            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/60">
-                <Check className="w-2.5 h-2.5 stroke-[3]" /> PMDC Verified
-              </span>
-              <a
-                href={`https://wa.me/?text=${shareText}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:text-[#25D366] transition-colors cursor-pointer"
-                title="Share doctor on WhatsApp"
-              >
-                <span>📲</span> Share
-              </a>
-            </div>
           </div>
         </div>
 

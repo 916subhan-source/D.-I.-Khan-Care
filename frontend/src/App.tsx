@@ -10706,29 +10706,22 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/60 shadow-2xs'
                         : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                         }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-lg">⭐</span>
-                            <div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-slate-900 dark:text-white text-xs">Special Day Schedule</span>
-                                <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold bg-purple-100 dark:bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
-                                  Optional
-                                </span>
-                              </div>
-                              <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                                Dedicated consultation hours for selected days (remaining days follow standard shifts above)
-                              </span>
-                            </div>
+                        <div className="flex items-center justify-between gap-2.5 mb-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base sm:text-lg">⭐</span>
+                            <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Special Day Schedule</span>
+                            <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold bg-purple-100 dark:bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                              Optional
+                            </span>
                           </div>
-                          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                          <div className="flex items-center gap-2 shrink-0 ml-auto">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstCustomSundayEnabled
                               ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                               }`}>
-                              {asstCustomSundayEnabled ? '✓ Active Special Schedule' : 'Inactive (Optional)'}
+                              {asstCustomSundayEnabled ? '✓ Active' : 'Inactive'}
                             </span>
-                            <label className="relative inline-flex items-center cursor-pointer">
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
                               <input
                                 type="checkbox"
                                 checked={asstCustomSundayEnabled}
@@ -10745,6 +10738,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             </label>
                           </div>
                         </div>
+
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                          Dedicated consultation hours for selected days (remaining days follow standard shifts above).
+                        </p>
 
                         {/* Multi-Select Special Days in a Week */}
                         <div className="pt-1 pb-2">
@@ -10770,14 +10767,14 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                       return finalDays;
                                     });
                                   }}
-                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
-                                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
+                                  className={`py-1.5 px-0.5 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
+                                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-1.5 ring-purple-300 dark:ring-purple-900'
                                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
                                     }`}
                                   title={`Toggle ${day.full} as a Special Day`}
                                 >
-                                  <span className="block text-[11px] sm:text-xs font-bold leading-none">{day.label}</span>
-                                  <span className={`block text-[9px] font-medium mt-1 leading-none tracking-tight truncate ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+                                  <span className="block text-[11px] font-bold leading-none">{day.label}</span>
+                                  <span className={`block text-[8.5px] font-medium mt-1 leading-none tracking-tight ${isSelected ? 'text-white' : 'text-slate-400'}`}>
                                     {isSelected ? 'Special' : 'Std'}
                                   </span>
                                 </button>
@@ -15726,29 +15723,22 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         ? 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800/60 shadow-2xs'
                         : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800'
                         }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-lg">⭐</span>
-                            <div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-slate-900 dark:text-white text-xs">Special Day Schedule</span>
-                                <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold bg-purple-100 dark:bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
-                                  Optional
-                                </span>
-                              </div>
-                              <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                                Dedicated consultation hours for selected days (remaining days follow standard shifts above)
-                              </span>
-                            </div>
+                        <div className="flex items-center justify-between gap-2.5 mb-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base sm:text-lg">⭐</span>
+                            <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Special Day Schedule</span>
+                            <span className="text-[10px] text-purple-700 dark:text-purple-300 font-semibold bg-purple-100 dark:bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                              Optional
+                            </span>
                           </div>
-                          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                          <div className="flex items-center gap-2 shrink-0 ml-auto">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${customSundayEnabled
                               ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                               : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                               }`}>
-                              {customSundayEnabled ? '✓ Active Special Schedule' : 'Inactive (Optional)'}
+                              {customSundayEnabled ? '✓ Active' : 'Inactive'}
                             </span>
-                            <label className="relative inline-flex items-center cursor-pointer">
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
                               <input
                                 type="checkbox"
                                 checked={customSundayEnabled}
@@ -15765,6 +15755,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             </label>
                           </div>
                         </div>
+
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                          Dedicated consultation hours for selected days (remaining days follow standard shifts above).
+                        </p>
 
                         {/* Multi-Select Special Days in a Week */}
                         <div className="pt-1 pb-2">
@@ -15790,14 +15784,14 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                       return finalDays;
                                     });
                                   }}
-                                  className={`py-1.5 px-1 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
-                                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-2 ring-purple-300 dark:ring-purple-900'
+                                  className={`py-1.5 px-0.5 rounded-xl text-center text-xs font-bold transition-all border cursor-pointer ${isSelected
+                                    ? 'bg-purple-600 text-white border-purple-700 shadow-xs ring-1.5 ring-purple-300 dark:ring-purple-900'
                                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700'
                                     }`}
                                   title={`Toggle ${day.full} as a Special Day`}
                                 >
-                                  <span className="block text-[11px] sm:text-xs font-bold leading-none">{day.label}</span>
-                                  <span className={`block text-[9px] font-medium mt-1 leading-none tracking-tight truncate ${isSelected ? 'text-white' : 'text-slate-400'}`}>
+                                  <span className="block text-[11px] font-bold leading-none">{day.label}</span>
+                                  <span className={`block text-[8.5px] font-medium mt-1 leading-none tracking-tight ${isSelected ? 'text-white' : 'text-slate-400'}`}>
                                     {isSelected ? 'Special' : 'Std'}
                                   </span>
                                 </button>

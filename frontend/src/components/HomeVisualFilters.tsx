@@ -64,47 +64,41 @@ const SPECIALTY_STYLES: Record<string, { bg: string; border: string; glow: strin
 };
 
 const CONDITION_STYLES: Record<string, { bg: string; border: string; glow: string; badge: string }> = {
-  fever: {
-    bg: 'bg-orange-50 dark:bg-orange-950/40',
-    border: 'border-orange-200/90 dark:border-orange-800/60',
-    glow: 'group-hover:bg-orange-100 group-hover:border-orange-300',
-    badge: 'Viral & Infection'
-  },
-  heart_attack: {
-    bg: 'bg-red-50 dark:bg-red-950/40',
-    border: 'border-red-200/90 dark:border-red-800/60',
-    glow: 'group-hover:bg-red-100 group-hover:border-red-300',
-    badge: 'Chest & Pulse'
-  },
-  pregnancy: {
-    bg: 'bg-pink-50 dark:bg-pink-950/40',
-    border: 'border-pink-200/90 dark:border-pink-800/60',
-    glow: 'group-hover:bg-pink-100 group-hover:border-pink-300',
-    badge: 'Maternal Care'
-  },
-  high_blood: {
-    bg: 'bg-blue-50 dark:bg-blue-950/40',
-    border: 'border-blue-200/90 dark:border-blue-800/60',
-    glow: 'group-hover:bg-blue-100 group-hover:border-blue-300',
-    badge: 'Hypertension'
-  },
-  piles: {
-    bg: 'bg-amber-50 dark:bg-amber-950/40',
-    border: 'border-amber-200/90 dark:border-amber-800/60',
-    glow: 'group-hover:bg-amber-100 group-hover:border-amber-300',
-    badge: 'Digestive & Rectal'
-  },
-  diarrhea: {
+  gallstones: {
     bg: 'bg-emerald-50 dark:bg-emerald-950/40',
     border: 'border-emerald-200/90 dark:border-emerald-800/60',
     glow: 'group-hover:bg-emerald-100 group-hover:border-emerald-300',
-    badge: 'Stomach & Gut'
+    badge: 'Biliary & Gallbladder'
   },
-  acne: {
+  appendicitis: {
+    bg: 'bg-red-50 dark:bg-red-950/40',
+    border: 'border-red-200/90 dark:border-red-800/60',
+    glow: 'group-hover:bg-red-100 group-hover:border-red-300',
+    badge: 'Acute Abdominal Pain'
+  },
+  hair_loss: {
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    border: 'border-amber-200/90 dark:border-amber-800/60',
+    glow: 'group-hover:bg-amber-100 group-hover:border-amber-300',
+    badge: 'Baldness & Scalp'
+  },
+  burn_scars: {
+    bg: 'bg-pink-50 dark:bg-pink-950/40',
+    border: 'border-pink-200/90 dark:border-pink-800/60',
+    glow: 'group-hover:bg-pink-100 group-hover:border-pink-300',
+    badge: 'Scar Revision & Skin'
+  },
+  hernia: {
     bg: 'bg-purple-50 dark:bg-purple-950/40',
     border: 'border-purple-200/90 dark:border-purple-800/60',
     glow: 'group-hover:bg-purple-100 group-hover:border-purple-300',
-    badge: 'Skin & Pimples'
+    badge: 'Groin & Abdominal Bulge'
+  },
+  piles: {
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    border: 'border-blue-200/90 dark:border-blue-800/60',
+    glow: 'group-hover:bg-blue-100 group-hover:border-blue-300',
+    badge: 'Digestive & Rectal'
   }
 };
 
@@ -149,53 +143,46 @@ export const HOME_SPECIALTIES: SpecialtyItem[] = [
 
 export const HOME_CONDITIONS: ConditionItem[] = [
   {
-    id: 'fever',
-    label: 'Fever',
-    keywords: ['fever', 'infection', 'viral', 'flu', 'general', 'internal', 'malaria', 'typhoid'],
-    specialtyHint: 'General Physician',
-    image: '/filters/cond_fever.png'
+    id: 'gallstones',
+    label: 'Gallstones',
+    keywords: ['gallstones', 'gallbladder', 'cholecystectomy', 'laparoscopic', 'waqar', 'stones', 'biliary', 'bile'],
+    specialtyHint: 'General & Laparoscopic Surgeon',
+    image: '/filters/cond_gallstones.png'
   },
   {
-    id: 'heart_attack',
-    label: 'Heart Attack',
-    keywords: ['heart', 'cardio', 'chest pain', 'cardiology', 'angina', 'coronary', 'attack'],
-    specialtyHint: 'Cardiologist',
-    image: '/filters/cond_heart_attack.png'
+    id: 'appendicitis',
+    label: 'Appendicitis',
+    keywords: ['appendicitis', 'appendix', 'laparoscopic', 'waqar', 'abdominal pain', 'belly pain'],
+    specialtyHint: 'General & Laparoscopic Surgeon',
+    image: '/filters/cond_appendicitis.png'
   },
   {
-    id: 'pregnancy',
-    label: 'Pregnancy',
-    keywords: ['pregnancy', 'gynae', 'maternity', 'obstetrics', 'women', 'fertility', 'antenatal', 'birth'],
-    specialtyHint: 'Gynaecologist',
-    image: '/filters/cond_pregnancy.png'
+    id: 'hair_loss',
+    label: 'Hair Loss',
+    keywords: ['hair loss', 'baldness', 'hair fall', 'hair transplant', 'fue', 'fut', 'naveed', 'prp', 'scalp'],
+    specialtyHint: 'Plastic & Aesthetic Surgeon',
+    image: '/filters/cond_hair_loss.png'
   },
   {
-    id: 'high_blood',
-    label: 'High Blood',
-    keywords: ['blood pressure', 'hypertension', 'bp', 'cardio', 'heart', 'vascular'],
-    specialtyHint: 'Cardiologist',
-    image: '/filters/cond_high_blood_pressure.png'
+    id: 'burn_scars',
+    label: 'Burn Scars',
+    keywords: ['burn scars', 'scars', 'burn', 'naveed', 'scar revision', 'facial aging', 'wrinkles', 'rhinoplasty', 'plastic', 'aesthetic'],
+    specialtyHint: 'Plastic & Aesthetic Surgeon',
+    image: '/filters/cond_burn_scars.png'
+  },
+  {
+    id: 'hernia',
+    label: 'Hernia',
+    keywords: ['hernia', 'inguinal hernia', 'ali raza', 'laparoscopic hernia', 'abdominal bulge', 'mesh repair', 'swelling', 'umbilical hernia'],
+    specialtyHint: 'General & Laparoscopic Surgeon',
+    image: '/filters/cond_hernia.png'
   },
   {
     id: 'piles',
-    label: 'Piles',
-    keywords: ['piles', 'hemorrhoids', 'fissure', 'fistula', 'surgeon', 'surgery', 'laparoscopic', 'rectal'],
-    specialtyHint: 'General Surgeon',
+    label: 'Piles / Bawasir',
+    keywords: ['piles', 'bawasir', 'hemorrhoids', 'fistula', 'fissure', 'ali raza', 'waqar', 'rectal bleeding'],
+    specialtyHint: 'General & Laparoscopic Surgeon',
     image: '/filters/cond_piles.png'
-  },
-  {
-    id: 'diarrhea',
-    label: 'Diarrhea',
-    keywords: ['diarrhea', 'stomach', 'gastro', 'gut', 'acidity', 'abdominal', 'digestion', 'vomiting'],
-    specialtyHint: 'Gastroenterologist',
-    image: '/filters/cond_diarrhea.png'
-  },
-  {
-    id: 'acne',
-    label: 'Acne',
-    keywords: ['acne', 'skin', 'derma', 'rash', 'pimples', 'eczema', 'allergy', 'hair'],
-    specialtyHint: 'Dermatologist',
-    image: '/filters/cond_acne.png'
   }
 ];
 

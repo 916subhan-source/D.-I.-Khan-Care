@@ -6831,7 +6831,7 @@ function PatientSection({
     if (selectedCondition) {
       const cond = HOME_CONDITIONS.find(c => c.id === selectedCondition);
       if (cond) {
-        const textToSearch = `${doc.full_name} ${doc.specialty} ${doc.bio || ''} ${doc.expertise || ''}`.toLowerCase();
+        const textToSearch = `${doc.full_name} ${doc.specialty} ${doc.bio || ''} ${doc.expertise || ''} ${doc.conditions_treated || ''} ${doc.services_offered || ''}`.toLowerCase();
         const matchesKeyword = cond.keywords.some(k => textToSearch.includes(k.toLowerCase()));
         const matchesHint = cond.specialtyHint && doc.specialty.toLowerCase().includes(cond.specialtyHint.toLowerCase());
         if (!matchesKeyword && !matchesHint) {

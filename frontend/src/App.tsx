@@ -7991,23 +7991,6 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
           )}
 
           <div className="flex items-center gap-1.5 ml-auto">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(prev => !prev);
-              }}
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
-                isExpanded
-                  ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-emerald-50 dark:hover:bg-slate-700 hover:text-emerald-700'
-              }`}
-              title={isExpanded ? 'Click to collapse details' : 'Click to preview timings & clinic details'}
-            >
-              <span>{isExpanded ? 'Less' : 'Preview'}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''}`} />
-            </button>
-
             <a
               href={`https://wa.me/?text=${shareText}`}
               target="_blank"

@@ -860,6 +860,23 @@ export default function App() {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+  // Handle Startup Splash Screen Exit Animation
+  useEffect(() => {
+    const splash = document.getElementById('dikhan-app-splash');
+    if (!splash) return;
+
+    // Minimum display time (850ms) to ensure smooth deliberate entrance without delaying the user
+    const timer = setTimeout(() => {
+      splash.classList.add('splash-exit');
+      const removeTimer = setTimeout(() => {
+        splash.remove();
+      }, 400);
+      return () => clearTimeout(removeTimer);
+    }, 850);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // Real-time Scroll Parallax & Cinematic Scroll Reveal Observer
   useEffect(() => {
     let ticking = false;

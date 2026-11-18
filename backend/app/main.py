@@ -701,30 +701,42 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{join_desc}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta property="og:url" content=".*?"', f'<meta property="og:url" content="{join_url}"', html, flags=_re_module.IGNORECASE)
             elif "waqar" in normalized_path or "gandapur" in normalized_path or "e3858a27" in normalized_path:
-                doc_title = "Dr. Waqar Khan Gandapur — Consultant General &amp; Laparoscopic Surgeon | D.I. Khan Care"
-                doc_desc = "Book online appointment with Dr. Waqar Khan Gandapur (MBBS, MCPS, FCPS Surgery), Consultant General &amp; Laparoscopic Surgeon at RK Surgical &amp; Aesthetic Clinic, Opposite DHQ Hospital, Dera Ismail Khan. Fee: Rs. 1,000."
+                doc_title = "Dr. Waqar Khan Gandapur — Laparoscopic Surgeon D.I. Khan"
+                doc_desc = "Book online appointment with Dr. Waqar Khan Gandapur (MBBS, MCPS, FCPS Surgery), Consultant General & Laparoscopic Surgeon at RK Surgical & Aesthetic Clinic, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,000."
                 doc_keywords = "dr waqar khan gandapur, dr waqar gandapur, doctor waqar khan gandapur appointment in dikhan, dr waqar surgeon di khan, laparoscopic surgeon in d i khan, pitta operation di khan, gallbladder surgery dera ismail khan, hernia surgery di khan, appendix specialist di khan, rk surgical clinic opposite dhq hospital, pmdc verified surgeon di khan"
                 doc_url = "https://dikhancare.io/doctor/dr-waqar-khan-gandapur"
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="title" content=".*?"', f'<meta name="title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="twitter:title" content=".*?"', f'<meta name="twitter:title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{doc_keywords}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
             elif "naveed" in normalized_path or "a22da1cd" in normalized_path:
-                doc_title = "Dr. Naveed Khan — Consultant Plastic &amp; Aesthetic Surgeon | D.I. Khan Care"
-                doc_desc = "Book online appointment with Dr. Naveed Khan (MBBS, MCPS, FCPS Plastic Surgery) at RK Surgical &amp; Aesthetic Clinic, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,500."
+                doc_title = "Dr. Naveed Khan — Plastic & Aesthetic Surgeon D.I. Khan"
+                doc_desc = "Book online appointment with Dr. Naveed Khan (MBBS, MCPS, FCPS Plastic Surgery) at RK Surgical & Aesthetic Clinic, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,500."
                 doc_keywords = "dr naveed khan, dr naveed khan plastic surgeon, plastic surgeon in dera ismail khan, aesthetic surgeon di khan, hair transplant in dera ismail khan, fue hair transplant di khan, cosmetic surgeon di khan, rk aesthetic clinic di khan, skin specialist opposite dhq hospital"
                 doc_url = "https://dikhancare.io/doctor/dr-naveed-khan"
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="title" content=".*?"', f'<meta name="title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="twitter:title" content=".*?"', f'<meta name="twitter:title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{doc_keywords}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
             elif ("ali" in normalized_path and "raza" in normalized_path) or "52f87cb0" in normalized_path:
-                doc_title = "Surgeon Dr. Ali Raza — General &amp; Laparoscopic Surgeon (DHQ Hospital Registrar) | D.I. Khan Care"
+                doc_title = "Surgeon Dr. Ali Raza — Laparoscopic Surgeon D.I. Khan"
                 doc_desc = "Book online appointment with Surgeon Dr. Ali Raza (MBBS, MCPS, FCPS Surgery), Registrar of Surgery DHQ Hospital at Al-Shifa (Ali) Hospital, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,000."
-                doc_keywords = "surgeon dr ali raza, dr ali raza dhq hospital, dr ali raza surgery registrar, dr ali raza al shifa hospital, ali hospital di khan doctor ali raza, general surgeon dera ismail khan, laparoscopic surgeon di khan, gallbladder stone doctor di khan, dhq hospital registrar clinic"
+                doc_keywords = "surgeon dr ali raza, dr ali raza, dr ali raza appointment in dikhan, dr ali raza dhq hospital, dr ali raza surgery registrar, dr ali raza al shifa hospital, ali hospital di khan doctor ali raza, general surgeon dera ismail khan, laparoscopic surgeon di khan, gallbladder stone doctor di khan, dhq hospital registrar clinic"
                 doc_url = "https://dikhancare.io/doctor/dr-ali-raza"
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="title" content=".*?"', f'<meta name="title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="twitter:title" content=".*?"', f'<meta name="twitter:title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{doc_keywords}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
             elif normalized_path.startswith("doctors/") or normalized_path.startswith("specialty/"):

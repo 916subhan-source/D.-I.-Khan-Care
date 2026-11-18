@@ -3758,7 +3758,16 @@ function DoctorProfileAndBookingView({
       const spec = doctor.specialty || 'Specialist Doctor';
       const loc = doctor.sub_region || 'D.I. Khan';
       const originalTitle = document.title;
-      document.title = `${docName} — ${spec} in ${loc} | Book Online Appointment | D.I. Khan Care`;
+      const cleanDocTitle = `${docName} — ${spec} D.I. Khan`;
+      document.title = cleanDocTitle;
+
+      const metaTitle = document.querySelector('meta[name="title"]');
+      const prevTitle = metaTitle?.getAttribute('content') || '';
+      if (metaTitle) metaTitle.setAttribute('content', cleanDocTitle);
+
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const prevOgTitle = ogTitle?.getAttribute('content') || '';
+      if (ogTitle) ogTitle.setAttribute('content', cleanDocTitle);
 
       const metaDesc = document.querySelector('meta[name="description"]');
       const prevDesc = metaDesc?.getAttribute('content') || '';

@@ -3720,34 +3720,16 @@ function DoctorProfileAndBookingView({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('10:30 AM');
   const [selectedSlotId, setSelectedSlotId] = useState<string>('');
   const [bookingFor, setBookingFor] = useState<'myself' | 'someone_else'>('myself');
-  const [patientName, setPatientName] = useState(() => {
+  const [patientName, setPatientName] = useState<string>('');
+  const [patientPhone, setPatientPhone] = useState<string>('');
+
+  // Clear any legacy saved booking info from localStorage so form always stays clean with placeholders only
+  useEffect(() => {
     try {
-      if (typeof window !== 'undefined') {
-        const p = new URLSearchParams(window.location.search);
-        const urlName = p.get('name') || p.get('patient_name');
-        if (urlName) {
-          const decoded = decodeURIComponent(urlName).trim();
-          try { localStorage.setItem('dikhan_patient_name', decoded); } catch (_) { }
-          return decoded;
-        }
-      }
-      return localStorage.getItem('dikhan_patient_name') || '';
-    } catch { return ''; }
-  });
-  const [patientPhone, setPatientPhone] = useState(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const p = new URLSearchParams(window.location.search);
-        const urlPhone = p.get('phone') || p.get('mobile');
-        if (urlPhone) {
-          const cleaned = urlPhone.trim();
-          try { localStorage.setItem('dikhan_patient_phone', cleaned); } catch (_) { }
-          return cleaned;
-        }
-      }
-      return localStorage.getItem('dikhan_patient_phone') || '';
-    } catch { return ''; }
-  });
+      localStorage.removeItem('dikhan_patient_name');
+      localStorage.removeItem('dikhan_patient_phone');
+    } catch (_) { }
+  }, []);
   const [patientEmail, setPatientEmail] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientGender, setPatientGender] = useState('Male');
@@ -4376,11 +4358,6 @@ function DoctorProfileAndBookingView({
         }
         return;
       }
-
-      try {
-        localStorage.setItem('dikhan_patient_name', patientName.trim());
-        localStorage.setItem('dikhan_patient_phone', patientPhone.trim());
-      } catch (_) { }
 
       const res: any = await apiFetch('/booking/request', {
         method: 'POST',
@@ -5388,8 +5365,9 @@ function DoctorProfileAndBookingView({
                     <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
                     <input
                       id="patient-name-input"
+                      name="full_name"
                       type="text"
-                      autoComplete="name"
+                      autoComplete="off"
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
                       placeholder="e.g. Muhammad Ali"
@@ -5402,8 +5380,9 @@ function DoctorProfileAndBookingView({
                     <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Number (WhatsApp) *</label>
                     <input
                       id="patient-phone-input"
+                      name="mobile_phone"
                       type="tel"
-                      autoComplete="tel"
+                      autoComplete="off"
                       value={patientPhone}
                       onChange={(e) => setPatientPhone(e.target.value)}
                       placeholder="0300 1234567"

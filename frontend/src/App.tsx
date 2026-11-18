@@ -928,6 +928,7 @@ export default function App() {
   }, [activeTab]);
 
   // Global Theme Mode: Light or Dark
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('dikhan_theme');
@@ -1298,15 +1299,20 @@ export default function App() {
         )}
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-8">
-        <div className="max-w-7xl mx-auto px-6 space-y-4">
+      {/* ── Unified Master Healthcare Footer ── */}
+      <footer className="mt-auto border-t border-slate-200/90 dark:border-slate-800/80 bg-white dark:bg-[#080d14] py-8 text-slate-600 dark:text-slate-400">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-8 h-8 rounded-full object-cover shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10 bg-white" />
+              <img src="/logo.png" alt="DIKHAN HEALTH CARE" className="w-9 h-9 rounded-full object-cover shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10 bg-white flex-shrink-0" />
               <div>
-                <span className="text-sm font-black text-slate-800 dark:text-slate-200" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
-                <span className="block text-[10px] text-slate-400">Doctor Appointment System</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-slate-800 dark:text-slate-200" style={{ fontFamily: 'Outfit, sans-serif' }}>D.I. Khan Care</span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
+                    Care closer to home
+                  </span>
+                </div>
+                <span className="block text-[10px] text-slate-400">Doctor Appointment System · Dera Ismail Khan</span>
               </div>
             </div>
 
@@ -1320,12 +1326,23 @@ export default function App() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 text-center">
-            <span>&copy; {new Date().getFullYear()} D.I. Khan Care · Dera Ismail Khan, KP. All rights reserved.</span>
-            <span className="flex items-center gap-1.5">
-              <span>Doctor Onboarding Admin:</span>
-              <a href="tel:+923325255879" className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline">03325255879</a>
+          {/* Emergency Alert Banner */}
+          <div className="rounded-xl p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 flex items-start sm:items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400">
+            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5 sm:mt-0" />
+            <span className="leading-relaxed">
+              <strong className="text-slate-700 dark:text-slate-300 font-semibold">Medical emergency:</strong> For a medical emergency, please call <a href="tel:1122" className="text-rose-600 dark:text-rose-400 font-bold hover:underline">1122</a> or visit your nearest emergency department. This service is for scheduled appointments only.
             </span>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 text-center">
+            <span>&copy; {new Date().getFullYear()} D.I. Khan Care · Care closer to home. All rights reserved.</span>
+            <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <button onClick={() => setLegalModal('privacy')} className="hover:text-slate-800 dark:hover:text-slate-200 transition cursor-pointer">Privacy policy</button>
+              <span>·</span>
+              <button onClick={() => setLegalModal('terms')} className="hover:text-slate-800 dark:hover:text-slate-200 transition cursor-pointer">Terms of service</button>
+              <span>·</span>
+              <a href="tel:+923325255879" className="hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-emerald-700 dark:text-emerald-400 transition">Contact us</a>
+            </div>
           </div>
         </div>
       </footer>
@@ -1383,6 +1400,84 @@ export default function App() {
           </button>
         </div>
       </nav>
+
+      {/* ── Legal / Privacy Policy & Terms Modal ── */}
+      {legalModal && (
+        <div
+          onClick={() => setLegalModal(null)}
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {legalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLegalModal(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {legalModal === 'privacy' ? (
+              <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p>
+                  <strong>D.I. Khan Care</strong> is dedicated to safeguarding patient confidentiality across Dera Ismail Khan.
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-white block">1. Patient Information</span>
+                  <p>When booking an appointment, your name and WhatsApp number are collected solely to deliver your confirmed digital appointment token slip and live waiting queue updates.</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-white block">2. Zero Data Sharing</span>
+                  <p>We do not share, sell, or rent patient contact or medical data to third parties or marketing platforms.</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-white block">3. Medical Confidentiality</span>
+                  <p>Prescriptions, diagnostic histories, and consultation notes remain strictly between you and your attending PMDC-licensed specialist.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p>
+                  Welcome to <strong>D.I. Khan Care</strong>. By using our appointment booking platform, you agree to the following terms:
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-white block">1. 100% Free Booking</span>
+                  <p>Generating an appointment token through D.I. Khan Care is completely free of charge. No upfront online deposit or credit card is required.</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-slate-900 dark:text-white block">2. Cash Payment at Clinic Arrival</span>
+                  <p>Doctor consultation fees are settled directly in cash at the clinic or hospital reception desk when you arrive.</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1">
+                  <span className="font-bold text-amber-700 dark:text-amber-400 block">3. Emergency Disclaimer</span>
+                  <p>This service manages scheduled outpatient appointments only. In a life-threatening medical emergency, call 1122 or visit the nearest DHQ / Mufti Mehmood emergency room immediately.</p>
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLegalModal(null)}
+                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -6237,22 +6332,6 @@ function DoctorProfileAndBookingView({
           </div>
         </div>
       )}
-
-      {/* ── Footer ── */}
-      <footer className="mt-16 pt-8 border-t border-slate-200 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p>&copy; 2026 D.I. Khan Care. Care closer to home.</p>
-          <div className="flex items-center gap-6 font-medium">
-            <button onClick={onBack} className="hover:text-slate-900 transition-colors">Privacy policy</button>
-            <button onClick={onBack} className="hover:text-slate-900 transition-colors">Terms of service</button>
-            <button onClick={onBack} className="hover:text-slate-900 transition-colors">Contact us</button>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-6 mt-4 flex items-center gap-2 text-[11px] text-slate-400">
-          <AlertCircle className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-          <span>For a medical emergency, please call 1122 or visit your nearest emergency department. This service is for scheduled appointments only.</span>
-        </div>
-      </footer>
     </div>
   );
 }

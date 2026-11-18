@@ -860,21 +860,27 @@ export default function App() {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Handle Startup Splash Screen Exit Animation
+  // Native Startup Splash Animation Controller
+  const [showStartupSplash, setShowStartupSplash] = useState(true);
+  const [splashExiting, setSplashExiting] = useState(false);
+
   useEffect(() => {
-    const splash = document.getElementById('dikhan-app-splash');
-    if (!splash) return;
+    // Clean up HTML pre-hydration shell immediately once React mounts
+    const htmlSplash = document.getElementById('dikhan-app-splash');
+    if (htmlSplash) {
+      htmlSplash.remove();
+    }
 
-    // Minimum display time (850ms) to ensure smooth deliberate entrance without delaying the user
-    const timer = setTimeout(() => {
-      splash.classList.add('splash-exit');
-      const removeTimer = setTimeout(() => {
-        splash.remove();
+    // Play startup splash for 1.25s, then trigger smooth uncurtain dissolve
+    const exitTimer = setTimeout(() => {
+      setSplashExiting(true);
+      const closeTimer = setTimeout(() => {
+        setShowStartupSplash(false);
       }, 400);
-      return () => clearTimeout(removeTimer);
-    }, 850);
+      return () => clearTimeout(closeTimer);
+    }, 1250);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(exitTimer);
   }, []);
 
   // Real-time Scroll Parallax & Cinematic Scroll Reveal Observer
@@ -1044,6 +1050,44 @@ export default function App() {
   // ── Public Patient-Facing Page ──
   return (
     <div className="min-h-screen bg-white dark:bg-[#080d14] text-slate-900 dark:text-slate-100 flex flex-col">
+      {/* ── Native Startup Splash Animation (React Guaranteed) ── */}
+      {showStartupSplash && (
+        <div
+          className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#080d14] text-white overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            splashExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+          }`}
+          aria-hidden="true"
+        >
+          {/* Ambient Breathing Aura */}
+          <div className="absolute w-[240px] h-[240px] rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.45)_0%,rgba(13,148,136,0)_70%)] blur-[35px] animate-pulse" />
+
+          {/* Emblem with Breathing Pulse Ring */}
+          <div className="relative w-28 h-28 mb-5 animate-scale-in">
+            <div className="absolute -inset-3 rounded-full border-2 border-teal-400/50 animate-ping opacity-60" />
+            <img
+              src="/logo.png"
+              alt="D.I. Khan Care"
+              className="w-full h-full rounded-full object-cover shadow-[0_12px_30px_-6px_rgba(13,148,136,0.5)] bg-white"
+            />
+          </div>
+
+          {/* Brand Title */}
+          <div className="font-extrabold text-2xl sm:text-3xl tracking-tight text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            D.I. Khan Care
+          </div>
+
+          {/* Tagline Capsule Badge */}
+          <div className="text-[11px] font-bold text-teal-300 bg-teal-950/70 border border-teal-500/40 px-3.5 py-1 rounded-full tracking-wide mb-8 shadow-xs">
+            Care closer to home &bull; PMDC Verified
+          </div>
+
+          {/* Micro Shimmer Loader */}
+          <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden relative">
+            <div className="absolute top-0 bottom-0 w-10 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-shimmer" />
+          </div>
+        </div>
+      )}
+
       {/* ── Public Top Navbar — Responsive & Desktop-Preserved ── */}
       <header className="sticky top-0 z-50 bg-white/95 border-b border-slate-100" style={{ backdropFilter: 'blur(12px)' }}>
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between w-full">

@@ -39,6 +39,7 @@ doctors = [
             "services_offered": "Laparoscopic Gallbladder (Cholecystectomy), Appendix Surgery, Hernia Repair, Piles & Fistula Surgery, Ovarian Cyst Removal, Hysterectomy, Breast Surgery, Male Infertility Treatment, Weight Loss Surgery",
             "conditions_treated": "Gallstones, Appendicitis, Hernia, Hemorrhoids & Piles, Ovarian Cysts, Uterine Fibroids, Breast Tumors, Male Infertility, Morbid Obesity",
             "hospital_affiliations": "RK Surgical & Aesthetic Clinic, D.I. Khan",
+            "google_maps_url": "https://www.google.com/maps/search/?api=1&query=RK+Surgical+%26+Aesthetic+Clinic+Jinnah+2+Opposite+DHQ+Hospital+Dera+Ismail+Khan",
             "custom_sunday_enabled": False
         },
         "slot_gen": {
@@ -67,6 +68,7 @@ doctors = [
             "services_offered": "Hair Transplant (FUE / FUT), Cosmetic Facial Surgery, Rhinoplasty, Blepharoplasty, Skin Rejuvenation, Scar Revision, Anti-Aging & Aesthetic Injectables, Body Contouring",
             "conditions_treated": "Hair Loss & Baldness, Facial Aging & Wrinkles, Post-Surgical & Burn Scars, Skin Pores Dilatation, Aesthetic Body Contouring",
             "hospital_affiliations": "RK Surgical & Aesthetic Clinic, D.I. Khan",
+            "google_maps_url": "https://www.google.com/maps/search/?api=1&query=RK+Surgical+%26+Aesthetic+Clinic+Jinnah+2+Opposite+DHQ+Hospital+Dera+Ismail+Khan",
             "custom_sunday_enabled": False
         },
         "slot_gen": {
@@ -95,6 +97,7 @@ doctors = [
             "services_offered": "Laparoscopic Gallbladder Surgery, Hernia Repair Surgery, Appendix Removal, Cancer Surgery, Thyroid Gland Surgery, Prostate Surgery, Liver Resection, Breast Cancer Surgery, Piles & Fistula Surgery, Diabetic Wound Care",
             "conditions_treated": "Hernia, Gallbladder Stones, Stomach Cancer, Appendicitis, Intestinal Obstruction, Kidney & Bladder Stones, Tumors & Cancers, Diabetic Foot Ulcers, Thyroid Goiter, Prostate Enlargement, Breast Tumors, Piles (Bawasir), Uterine Fibroids",
             "hospital_affiliations": "Registrar Surgery, District Headquarter (DHQ) Hospital D.I. Khan",
+            "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Al-Shifa+Hospital+Opposite+DHQ+Hospital+Dera+Ismail+Khan",
             "custom_sunday_enabled": True,
             "sunday_start": "08:00",
             "sunday_end": "20:00"

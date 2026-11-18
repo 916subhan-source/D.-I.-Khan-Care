@@ -7792,6 +7792,7 @@ function DoctorCardSkeleton() {
 }
 
 function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void; index?: number }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
   const staggerClass = `stagger-${(index % 6) + 1}`;
@@ -7809,9 +7810,16 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
   );
 
   return (
-    <div className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1 scroll-reveal p-4 sm:p-5 flex flex-col justify-between transition-[transform,box-shadow,border-color] duration-200 ease-out ${staggerClass}`}>
+    <div
+      onClick={() => setIsExpanded(prev => !prev)}
+      className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border transition-all duration-300 ease-out scroll-reveal p-4 sm:p-5 flex flex-col justify-between cursor-pointer interactive-card ${staggerClass} ${
+        isExpanded
+          ? 'border-emerald-500 dark:border-emerald-400 card-active-glow ring-2 ring-emerald-500/25 bg-emerald-50/20 dark:bg-emerald-950/20'
+          : 'border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1'
+      }`}
+    >
       <div>
-        {/* Top Badges Bar: Live OPD Status & Quick Share */}
+        {/* Top Badges Bar: Live OPD Status, Preview Pill & Quick Share */}
         <div className="flex items-center justify-between gap-2 mb-3">
           {avail.isAvailableToday ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-300 shadow-2xs">
@@ -7828,24 +7836,43 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             </span>
           )}
 
-          <a
-            href={`https://wa.me/?text=${shareText}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-[#25D366] transition-colors p-1 rounded-md"
-            title="Share doctor on WhatsApp"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-[10px]">Share</span>
-          </a>
+          <div className="flex items-center gap-1.5 ml-auto">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(prev => !prev);
+              }}
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                isExpanded
+                  ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-emerald-50 dark:hover:bg-slate-700 hover:text-emerald-700'
+              }`}
+              title={isExpanded ? 'Click to collapse details' : 'Click to preview timings & clinic details'}
+            >
+              <span>{isExpanded ? 'Less' : 'Preview'}</span>
+              <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''}`} />
+            </button>
+
+            <a
+              href={`https://wa.me/?text=${shareText}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-[#25D366] transition-colors p-1 rounded-md"
+              title="Share doctor on WhatsApp"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline text-[10px]">Share</span>
+            </a>
+          </div>
         </div>
 
         {/* Doctor Main Info: Avatar + Details */}
         <div className="flex items-start gap-3.5 mb-3">
           {/* Doctor Picture / Avatar with Concentric Inset */}
           <div
-            onClick={() => onProfile(doctor)}
+            onClick={(e) => { e.stopPropagation(); onProfile(doctor); }}
             className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 dark:bg-slate-800 ring-1 ring-black/5 dark:ring-white/10 shadow-xs cursor-pointer hover:opacity-95 transition-opacity"
             title="Click to view doctor profile"
           >
@@ -7876,7 +7903,7 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <h3
-                onClick={() => onProfile(doctor)}
+                onClick={(e) => { e.stopPropagation(); onProfile(doctor); }}
                 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1 cursor-pointer"
                 style={{ fontFamily: 'Outfit, sans-serif' }}
                 title="Click to view doctor profile"
@@ -7922,8 +7949,15 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
           </a>
         </div>
 
-        {/* Availability & Fee Strip */}
-        <div className="bg-slate-50/90 dark:bg-slate-800/70 rounded-xl p-2.5 sm:p-3 mb-3.5 border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between gap-2 transition-colors">
+        {/* Availability & Fee Strip with Clickable Expand */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(prev => !prev);
+          }}
+          className="bg-slate-50/90 dark:bg-slate-800/70 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 rounded-xl p-2.5 sm:p-3 mb-3 border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between gap-2 transition-colors cursor-pointer select-none"
+          title="Click to toggle timing & clinic details"
+        >
           {/* Availability */}
           <div className="min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
@@ -7937,14 +7971,81 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             </div>
           </div>
 
-          {/* Fee with Tabular Numerals */}
-          <div className="text-right flex-shrink-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-              Consultation Fee
-            </span>
-            <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono tabular-nums">
-              {formatCurrency(doctor.fee_clinic)}
-            </span>
+          {/* Fee with Tabular Numerals & Expand Indicator */}
+          <div className="text-right flex-shrink-0 flex items-center gap-2">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+                Consultation Fee
+              </span>
+              <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono tabular-nums">
+                {formatCurrency(doctor.fee_clinic)}
+              </span>
+            </div>
+            <div className={`w-6 h-6 rounded-lg flex items-center justify-center bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''}`}>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Haulix-Style Fluid Expandable Drawer */}
+        <div className="expandable-grid mb-3" data-expanded={isExpanded ? "true" : "false"}>
+          <div className="expandable-content">
+            <div className="expandable-inner pt-1 pb-1 space-y-2.5 text-xs border-t border-slate-100 dark:border-slate-800/80">
+              
+              {/* Timing & Room Grid */}
+              <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider block">OPD Schedule</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-xs block mt-0.5 truncate">
+                    {avail.shiftBadge || 'Morning & Evening'}
+                  </span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                    Mon &ndash; Sat Regular
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider block">Clinic &amp; Room</span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400 text-xs block mt-0.5 truncate">
+                    {(doctor as any).clinic_room || doctor.hospital_affiliations || 'Specialist Clinic Room'}
+                  </span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate">
+                    {landmarkBadge}
+                  </span>
+                </div>
+              </div>
+
+              {/* Verified & Free Booking Guarantee */}
+              <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 text-[11px]">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="font-semibold text-emerald-900 dark:text-emerald-200 truncate">
+                    PMDC Verified Specialist
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shrink-0 bg-white/90 dark:bg-emerald-900/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-700">
+                  100% Free Token
+                </span>
+              </div>
+
+              {/* Direct Quick Action Inside Drawer */}
+              <div className="flex items-center justify-between gap-2 pt-0.5 text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 text-[10.5px]">
+                  Pay at desk &bull; Instant WhatsApp slip
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBook(doctor);
+                  }}
+                  className="font-extrabold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Select Slot</span>
+                  <span>&rarr;</span>
+                </button>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
@@ -7953,7 +8054,10 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
       <div className="grid grid-cols-2 gap-2 pt-1 mt-auto">
         <button
           type="button"
-          onClick={() => onProfile(doctor)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onProfile(doctor);
+          }}
           className="py-2.5 pl-2.5 pr-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-white dark:bg-slate-800/90 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 text-xs sm:text-[13px] font-bold transition-[transform,background-color,border-color] duration-150 ease-out text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.96]"
         >
           <User className="w-3.5 h-3.5 text-slate-400 dark:text-slate-300" />
@@ -7961,7 +8065,10 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
         </button>
         <button
           type="button"
-          onClick={() => onBook(doctor)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onBook(doctor);
+          }}
           className="py-2.5 pl-3 pr-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-[13px] font-extrabold transition-[transform,background-color,box-shadow] duration-150 ease-out shadow-sm shadow-emerald-950/20 hover:shadow-md text-center flex items-center justify-center gap-1 cursor-pointer group/btn whitespace-nowrap active:scale-[0.96]"
         >
           <span className="hidden sm:inline">Book Free Token</span><span className="sm:hidden">Book Token</span>
@@ -8077,6 +8184,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
   const [callingOrderActive, setCallingOrderActive] = useState<boolean>(() => {
     return localStorage.getItem('asst_calling_order') === 'true';
   });
+  const [expandedQueueId, setExpandedQueueId] = useState<string | number | null>(null);
 
   // ── POS (Point of Sale) & Walk-In Desk State ──
   interface PosSlotItem {
@@ -9735,7 +9843,20 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                         const canComplete = isConfirmed && isPaid && !isFutureDay && (isDateTimeReached || (isToday && isCallingStarted));
 
                         return (
-                          <tr key={item.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70'}`}>
+                          <React.Fragment key={item.id}>
+                            <tr
+                              onClick={() => setExpandedQueueId(prev => prev === item.id ? null : item.id)}
+                              className={`transition-all duration-200 cursor-pointer select-none interactive-card ${
+                                expandedQueueId === item.id
+                                  ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600 shadow-sm'
+                                  : isCurrentActive
+                                    ? 'bg-emerald-50/80 hover:bg-emerald-100/70 border-l-4 border-l-emerald-600 shadow-sm'
+                                    : isNextInLineWaiting
+                                      ? 'bg-amber-50/60 hover:bg-amber-100/60 border-l-4 border-l-amber-500'
+                                      : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/60'
+                              }`}
+                              title={expandedQueueId === item.id ? "Click to collapse details" : "Click to view patient details & quick actions"}
+                            >
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2.5">
                                 <InitialsAvatar name={item.patient_name || 'Patient'} size="sm" />
@@ -10112,7 +10233,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                     <button
                                       type="button"
                                       disabled={Boolean(appointmentActionLoading)}
-                                      onClick={() => handleCancelAppointment(item.id)}
+                                      onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelAppointment(item.id);
+                                  }}
                                       className="h-6 px-2 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 hover:border-rose-200 rounded-md text-[11px] font-medium transition-all inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
                                       title="Cancel appointment"
                                     >
@@ -10133,12 +10257,107 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               )}
                             </td>
                           </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                          {expandedQueueId === item.id && (
+                            <tr className="bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-700/80">
+                              <td colSpan={6} className="p-0">
+                                <div className="expandable-grid" data-expanded="true">
+                                  <div className="expandable-content">
+                                    <div className="expandable-inner p-4 sm:p-5 space-y-3">
+                                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+                                        <div className="flex items-center gap-3">
+                                          <InitialsAvatar name={item.patient_name || 'Patient'} size="md" />
+                                          <div>
+                                            <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">
+                                              {item.patient_name || 'Walk-in Patient'}
+                                            </h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                              {item.notes ? item.notes.replace(/\[[^\]]+\]/g, '').trim() || 'General Medical Consultation' : 'General Medical Consultation'}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        {/* Direct Quick Action Buttons */}
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          {item.patient_phone && (
+                                            <>
+                                              <a
+                                                href={`tel:${item.patient_phone}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 transition-colors"
+                                                title="Direct Call Patient"
+                                              >
+                                                <Phone className="w-3.5 h-3.5 text-slate-500" />
+                                                <span>Call</span>
+                                              </a>
+                                              <a
+                                                href={`https://wa.me/${item.patient_phone.replace(/[^0-9]/g, '')}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold inline-flex items-center gap-1.5 transition-colors"
+                                                title="Open WhatsApp Chat"
+                                              >
+                                                <Share2 className="w-3.5 h-3.5 text-[#25D366]" />
+                                                <span>WhatsApp</span>
+                                              </a>
+                                            </>
+                                          )}
+                                          {item.slip_number && (
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedLoyaltyAppt(item);
+                                              }}
+                                              className="px-3 py-1.5 rounded-lg bg-clinic-50 dark:bg-clinic-950/60 text-clinic-700 dark:text-clinic-300 border border-clinic-200 dark:border-clinic-800 text-xs font-bold inline-flex items-center gap-1.5 hover:bg-clinic-100 transition-colors cursor-pointer"
+                                            >
+                                              <FileText className="w-3.5 h-3.5" />
+                                              <span>Digital Slip</span>
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Quick Metrics Bar: Fee, Due, Slot info */}
+                                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                        <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60">
+                                          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Total Fee</span>
+                                          <span className="font-extrabold text-slate-800 dark:text-slate-200 font-mono mt-0.5 block">
+                                            {formatCurrency(item.fee_amount || 1000)}
+                                          </span>
+                                        </div>
+                                        <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60">
+                                          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Paid Amount</span>
+                                          <span className="font-extrabold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5 block">
+                                            {formatCurrency(item.amount_paid || 0)}
+                                          </span>
+                                        </div>
+                                        <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60">
+                                          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Due Balance</span>
+                                          <span className={`font-extrabold font-mono mt-0.5 block ${(item.amount_due || 0) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'}`}>
+                                            {formatCurrency(item.amount_due || 0)}
+                                          </span>
+                                        </div>
+                                        <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60">
+                                          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Queue Token</span>
+                                          <span className="font-extrabold text-teal-700 dark:text-teal-300 font-mono mt-0.5 block">
+                                            Token #{parseQueueNumberFromSlip(item.slip_number, item.token_number) || '1'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
 
               {/* Mobile Card Feed View (< md) */}
               <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 w-full min-w-0 max-w-full">
@@ -10176,12 +10395,17 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                     return (
                       <div
                         key={`m-asst-${item.id}`}
-                        className={`p-4 transition-colors w-full min-w-0 max-w-full overflow-hidden ${isCurrentActive
-                          ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500'
-                          : isNextInLineWaiting
-                            ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500'
-                            : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850'
-                          }`}
+                        onClick={() => setExpandedQueueId(prev => prev === item.id ? null : item.id)}
+                        className={`p-4 transition-all duration-300 w-full min-w-0 max-w-full overflow-hidden cursor-pointer interactive-card rounded-2xl mb-2.5 border select-none ${
+                          expandedQueueId === item.id
+                            ? 'border-emerald-500 dark:border-emerald-400 card-active-glow ring-2 ring-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-950/20'
+                            : isCurrentActive
+                              ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-l-4 border-l-emerald-500 border-slate-200 dark:border-slate-800'
+                              : isNextInLineWaiting
+                                ? 'bg-amber-50/60 dark:bg-amber-950/20 border-l-4 border-l-amber-500 border-slate-200 dark:border-slate-800'
+                                : 'bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-850 border-slate-200 dark:border-slate-800'
+                        }`}
+                        title={expandedQueueId === item.id ? "Tap to collapse" : "Tap to view patient details & actions"}
                       >
                         {/* Calling Status Banner if active */}
                         {isCurrentActive && (
@@ -10479,7 +10703,8 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               <div className="grid grid-cols-2 gap-2 w-full">
                                 <button
                                   type="button"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setReschedItem(item);
                                     setSelectedNewSlotId('');
                                     setSelectedNewSlot(null);
@@ -10497,7 +10722,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                                 <button
                                   type="button"
                                   disabled={Boolean(appointmentActionLoading)}
-                                  onClick={() => handleCancelAppointment(item.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelAppointment(item.id);
+                                  }}
                                   className="w-full h-8 px-3 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/60 text-slate-600 hover:text-rose-700 dark:text-slate-300 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
                                   title="Cancel appointment"
                                 >
@@ -10512,6 +10740,45 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                             </div>
                           )}
                         </div>
+                          {/* Fluid Expandable Accordion (Haulix Style) */}
+                          <div className="expandable-grid" data-expanded={expandedQueueId === item.id ? "true" : "false"}>
+                            <div className="expandable-content">
+                              <div className="expandable-inner pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                                {/* Quick Contact & WhatsApp Bar */}
+                                <div className="flex items-center gap-2">
+                                  {item.patient_phone && (
+                                    <>
+                                      <a
+                                        href={`tel:${item.patient_phone}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="flex-1 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                                      >
+                                        <Phone className="w-3.5 h-3.5 text-slate-500" />
+                                        <span>Call</span>
+                                      </a>
+                                      <a
+                                        href={`https://wa.me/${item.patient_phone.replace(/[^0-9]/g, "")}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="flex-1 py-2 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                                      >
+                                        <Share2 className="w-3.5 h-3.5 text-[#25D366]" />
+                                        <span>WhatsApp</span>
+                                      </a>
+                                    </>
+                                  )}
+                                </div>
+                                {/* Clinical notes / symptoms */}
+                                {item.notes && (
+                                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300">
+                                    <span className="font-bold text-slate-700 dark:text-slate-200 block text-[10px] uppercase">Notes:</span>
+                                    {item.notes.replace(/\[[^\]]+\]/g, "").trim() || "No specific notes."}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                       </div>
                     );
                   })
@@ -13322,6 +13589,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   });
   const [slots, setSlots] = useState<SlotData[]>([]);
   const [activePortalTab, setActivePortalTab] = useState<'overview' | 'schedule' | 'cash' | 'records' | 'assistants' | 'profile'>('overview');
+  const [expandedDocApptId, setExpandedDocApptId] = useState<string | number | null>(null);
 
   // Cash Ledger tab state
   const [cashSearch, setCashSearch] = useState('');
@@ -15260,7 +15528,20 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                             const isNextInLineWaiting = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && !isCallingEligible;
 
                             return (
-                              <tr key={appt.id} className={`transition-colors ${isCurrentActive ? 'bg-emerald-50/80 hover:bg-emerald-100/70 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600 shadow-sm' : isNextInLineWaiting ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/30 border-l-4 border-l-amber-500' : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/50'}`}>
+                              <React.Fragment key={appt.id}>
+                                <tr
+                                  onClick={() => setExpandedDocApptId(prev => prev === appt.id ? null : appt.id)}
+                                  className={`transition-all duration-200 cursor-pointer select-none interactive-card ${
+                                    expandedDocApptId === appt.id
+                                      ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600 shadow-sm'
+                                      : isCurrentActive
+                                        ? 'bg-emerald-50/80 hover:bg-emerald-100/70 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600 shadow-sm'
+                                        : isNextInLineWaiting
+                                          ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/30 border-l-4 border-l-amber-500'
+                                          : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/50'
+                                  }`}
+                                  title={expandedDocApptId === appt.id ? "Click to collapse" : "Click to view patient consultation & symptoms"}
+                                >
                                 <td className="py-3 px-3 sm:px-4">
                                   <div className="space-y-0.5">
                                     <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-xs">
@@ -15409,15 +15690,63 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                   )}
                                   <button
                                     type="button"
-                                    onClick={() => setSelectedAppt(appt)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedAppt(appt);
+                                    }}
                                     className="px-2 py-1 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg text-[11px] transition-colors"
                                   >
                                     Details
                                   </button>
                                 </td>
                               </tr>
-                            );
-                          })}
+                              {expandedDocApptId === appt.id && (
+                                <tr className="bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-700/80">
+                                  <td colSpan={6} className="p-0">
+                                    <div className="expandable-grid" data-expanded="true">
+                                      <div className="expandable-content">
+                                        <div className="expandable-inner p-4 space-y-3">
+                                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+                                            <div className="space-y-1">
+                                              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Clinical Notes &amp; Symptoms</span>
+                                              <p className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                                                {appt.notes ? appt.notes.replace(/\[[^\]]+\]/g, '').trim() || 'No specific symptoms noted.' : 'No specific symptoms noted.'}
+                                              </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              {appt.patient_phone && (
+                                                <a
+                                                  href={`tel:${appt.patient_phone}`}
+                                                  onClick={(e) => e.stopPropagation()}
+                                                  className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold inline-flex items-center gap-1.5 transition-colors"
+                                                >
+                                                  <Phone className="w-3.5 h-3.5 text-slate-500" />
+                                                  <span>Call Patient</span>
+                                                </a>
+                                              )}
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setSelectedAppt(appt);
+                                                  setConsultNote(appt.notes || '');
+                                                }}
+                                                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-clinic-700 to-clinic-800 hover:from-clinic-800 hover:to-clinic-900 text-white text-xs font-bold shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                                              >
+                                                <FileText className="w-3.5 h-3.5" />
+                                                <span>Open Rx / Consultation</span>
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
                         </tbody>
                       </table>
                     </div>
@@ -15432,7 +15761,18 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         const isCurrentActive = callingOrderActive && idx === 0 && appt.status?.toUpperCase() === 'CONFIRMED' && (getApptDateStrGlobal(appt) === activeTodayStr || getApptDateStr(appt) === activeTodayStr) && docCallingShiftInfo.isCallingStarted;
 
                         return (
-                          <div key={`m-${appt.id}`} className={`p-4 space-y-3 transition-colors ${isCurrentActive ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600' : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/60'}`}>
+                          <div
+                            key={`m-${appt.id}`}
+                            onClick={() => setExpandedDocApptId(prev => prev === appt.id ? null : appt.id)}
+                            className={`p-4 space-y-3 transition-all duration-300 interactive-card cursor-pointer rounded-2xl mb-2.5 border select-none ${
+                              expandedDocApptId === appt.id
+                                ? 'border-emerald-500 dark:border-emerald-400 card-active-glow ring-2 ring-emerald-500/20 bg-emerald-50/20 dark:bg-emerald-950/20'
+                                : isCurrentActive
+                                  ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-l-4 border-l-emerald-600 border-slate-200 dark:border-slate-800'
+                                  : 'bg-white dark:bg-slate-900 hover:bg-slate-50/70 dark:hover:bg-slate-800/60 border-slate-200 dark:border-slate-800'
+                            }`}
+                            title={expandedDocApptId === appt.id ? "Tap to collapse" : "Tap to view clinical details & actions"}
+                          >
                             <div className="flex items-start justify-between gap-2">
                               <div>
                                 {isCurrentActive && (
@@ -15542,11 +15882,52 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               )}
                               <button
                                 type="button"
-                                onClick={() => setSelectedAppt(appt)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedAppt(appt);
+                                }}
                                 className="px-2.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
                               >
                                 Details
                               </button>
+                            </div>
+
+                            {/* Fluid Expandable Accordion (Haulix Style) */}
+                            <div className="expandable-grid" data-expanded={expandedDocApptId === appt.id ? "true" : "false"}>
+                              <div className="expandable-content">
+                                <div className="expandable-inner pt-3 mt-2 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                                  {appt.notes && (
+                                    <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300">
+                                      <span className="font-bold text-slate-700 dark:text-slate-200 block text-[10px] uppercase">Symptoms / Notes:</span>
+                                      {appt.notes.replace(/\[[^\]]+\]/g, '').trim() || 'No specific notes recorded.'}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-2">
+                                    {appt.patient_phone && (
+                                      <a
+                                        href={`tel:${appt.patient_phone}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="flex-1 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                                      >
+                                        <Phone className="w-3.5 h-3.5 text-slate-500" />
+                                        <span>Call Patient</span>
+                                      </a>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedAppt(appt);
+                                        setConsultNote(appt.notes || '');
+                                      }}
+                                      className="flex-1 py-2 px-3 rounded-xl bg-clinic-700 hover:bg-clinic-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      <span>Write Rx</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         );

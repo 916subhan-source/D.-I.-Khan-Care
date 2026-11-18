@@ -10714,28 +10714,31 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                               Optional
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0 ml-auto">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${asstCustomSundayEnabled
-                              ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                              }`}>
-                              {asstCustomSundayEnabled ? '✓ Active' : 'Inactive'}
-                            </span>
-                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                              <input
-                                type="checkbox"
-                                checked={asstCustomSundayEnabled}
-                                onChange={e => {
-                                  const checked = e.target.checked;
-                                  setAsstCustomSundayEnabled(checked);
-                                  if (checked) {
-                                    setAsstOffDays(prev => prev.filter(d => !asstSpecialDays.includes(d)));
-                                  }
-                                }}
-                                className="sr-only peer"
-                              />
-                              <div className="w-10 h-5.5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-purple-600"></div>
-                            </label>
+                          <div className="shrink-0 ml-auto">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = !asstCustomSundayEnabled;
+                                setAsstCustomSundayEnabled(next);
+                                if (next) {
+                                  setAsstOffDays(prev => prev.filter(d => !asstSpecialDays.includes(d)));
+                                }
+                              }}
+                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer border select-none ${asstCustomSundayEnabled
+                                ? 'bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white border-purple-700 shadow-purple-500/20'
+                                : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
+                                }`}
+                              title={asstCustomSundayEnabled ? 'Click to make Special Schedule Inactive' : 'Click to make Special Schedule Active'}
+                            >
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${asstCustomSundayEnabled ? 'bg-emerald-300 animate-pulse' : 'bg-slate-400'}`}></span>
+                              <span>{asstCustomSundayEnabled ? 'Active' : 'Inactive'}</span>
+                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${asstCustomSundayEnabled
+                                ? 'bg-purple-700/80 text-purple-100'
+                                : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                                }`}>
+                                {asstCustomSundayEnabled ? 'Click to Turn Off' : 'Click to Turn On'}
+                              </span>
+                            </button>
                           </div>
                         </div>
 
@@ -10821,7 +10824,7 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
                           </div>
                         ) : (
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
-                            Special Day Schedule is currently <strong>Inactive (Optional)</strong>. Selected days ({asstSpecialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}) will follow the standard shift. Turn toggle ON to activate custom hours.
+                            Special Day Schedule is currently <strong>Inactive (Optional)</strong>. Selected days ({asstSpecialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}) will follow the standard shift. Click the button above to activate custom hours.
                           </p>
                         )}
                       </div>
@@ -15731,28 +15734,31 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                               Optional
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0 ml-auto">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${customSundayEnabled
-                              ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                              }`}>
-                              {customSundayEnabled ? '✓ Active' : 'Inactive'}
-                            </span>
-                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                              <input
-                                type="checkbox"
-                                checked={customSundayEnabled}
-                                onChange={e => {
-                                  const checked = e.target.checked;
-                                  setCustomSundayEnabled(checked);
-                                  if (checked) {
-                                    setDocOffDays(prev => prev.filter(d => !specialDays.includes(d)));
-                                  }
-                                }}
-                                className="sr-only peer"
-                              />
-                              <div className="w-10 h-5.5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-purple-600"></div>
-                            </label>
+                          <div className="shrink-0 ml-auto">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = !customSundayEnabled;
+                                setCustomSundayEnabled(next);
+                                if (next) {
+                                  setDocOffDays(prev => prev.filter(d => !specialDays.includes(d)));
+                                }
+                              }}
+                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer border select-none ${customSundayEnabled
+                                ? 'bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white border-purple-700 shadow-purple-500/20'
+                                : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
+                                }`}
+                              title={customSundayEnabled ? 'Click to make Special Schedule Inactive' : 'Click to make Special Schedule Active'}
+                            >
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${customSundayEnabled ? 'bg-emerald-300 animate-pulse' : 'bg-slate-400'}`}></span>
+                              <span>{customSundayEnabled ? 'Active' : 'Inactive'}</span>
+                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${customSundayEnabled
+                                ? 'bg-purple-700/80 text-purple-100'
+                                : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                                }`}>
+                                {customSundayEnabled ? 'Click to Turn Off' : 'Click to Turn On'}
+                              </span>
+                            </button>
                           </div>
                         </div>
 
@@ -15838,7 +15844,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                           </div>
                         ) : (
                           <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
-                            Special Day Schedule is currently <strong>Inactive (Optional)</strong>. Selected days ({specialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}) will follow the standard shift. Turn toggle ON to activate custom hours.
+                            Special Day Schedule is currently <strong>Inactive (Optional)</strong>. Selected days ({specialDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}) will follow the standard shift. Click the button above to activate custom hours.
                           </p>
                         )}
                       </div>

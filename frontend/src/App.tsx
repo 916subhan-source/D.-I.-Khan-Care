@@ -63,7 +63,7 @@ import {
   PhoneCall,
   Share2
 } from 'lucide-react';
-import { apiFetch } from './lib/api';
+import { apiFetch, invalidateApiCache } from './lib/api';
 import { playStartupChime } from './utils/sound';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
@@ -116,6 +116,48 @@ import {
 
 export type { DoctorData, SlotData, AppointmentItem, DoctorAvailabilityInfo };
 export { formatCurrency, getDoctorAvailability };
+
+export function getSafeGoogleMapsUrl(doc?: DoctorData | null): string {
+  if (!doc) return 'https://www.google.com/maps/search/?api=1&query=Dera+Ismail+Khan';
+
+  let raw = (doc.google_maps_url || '').trim();
+
+  // If user pasted iframe embed code: <iframe src="https://..."></iframe>
+  if (raw.includes('<iframe') && raw.includes('src=')) {
+    const match = raw.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      raw = match[1].trim();
+    }
+  }
+
+  // Strip leading/trailing quotes or backslashes
+  raw = raw.replace(/^["']|["']$/g, '').trim();
+
+  // If user pasted maps.app.goo.gl/... or google.com/maps/... without protocol
+  if (raw && !raw.startsWith('http://') && !raw.startsWith('https://')) {
+    raw = `https://${raw.replace(/^\/+/, '')}`;
+  }
+
+  // If valid map URL, return it
+  if (raw && (raw.startsWith('http://') || raw.startsWith('https://'))) {
+    return raw;
+  }
+
+  // Pinpoint search fallback: remove room numbers so Google Maps pinpoints accurately
+  const clinicClean = (doc.clinic_address || '')
+    .replace(/Room\s*#?\d+,?\s*(1st|2nd|3rd|4th)?\s*Floor,?\s*/gi, '')
+    .trim();
+
+  if (clinicClean.toLowerCase().includes('ali hospital') || clinicClean.toLowerCase().includes('al-shifa')) {
+    return 'https://www.google.com/maps/search/?api=1&query=Al-Shifa+Hospital+Opposite+DHQ+Hospital+Dera+Ismail+Khan';
+  }
+  if (clinicClean.toLowerCase().includes('rk')) {
+    return 'https://www.google.com/maps/search/?api=1&query=RK+Surgical+%26+Aesthetic+Clinic+Jinnah+2+Opposite+DHQ+Hospital+Dera+Ismail+Khan';
+  }
+
+  const searchTarget = `${clinicClean || doc.full_name} Opposite DHQ Hospital Dera Ismail Khan`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTarget)}`;
+}
 
 function InitialsAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
@@ -3092,7 +3134,7 @@ function DoctorProfileModal({
 
   const dynamicInfo = getSpecialtyServices(doctor.specialty);
 
-  const googleMapsUrl = doctor.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.full_name + ' ' + doctor.clinic_address + ' ' + doctor.sub_region + ' D.I. Khan')}`;
+  const googleMapsUrl = getSafeGoogleMapsUrl(doctor);
 
   const reviewsList = [
     {
@@ -4539,9 +4581,13 @@ function DoctorProfileAndBookingView({
                 </p>
 
                 <a
-                  href={doctor.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((doctor.clinic_address || 'Opposite DHQ Hospital') + ' Dera Ismail Khan')}`}
+                  href={getSafeGoogleMapsUrl(doctor)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(getSafeGoogleMapsUrl(doctor), '_blank', 'noopener,noreferrer');
+                  }}
                   className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 mt-1.5 group transition cursor-pointer max-w-full"
                   title="Open clinic location in Google Maps"
                 >
@@ -5039,9 +5085,13 @@ function DoctorProfileAndBookingView({
                       <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{doctor.sub_region}, Dera Ismail Khan, KP</div>
                     </div>
                     <a
-                      href={doctor.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(doctor.full_name + ' ' + doctor.clinic_address + ' D.I. Khan')}`}
+                      href={getSafeGoogleMapsUrl(doctor)}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(getSafeGoogleMapsUrl(doctor), '_blank', 'noopener,noreferrer');
+                      }}
                       className="inline-flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer"
                     >
                       <MapPin className="w-3.5 h-3.5 text-white" />
@@ -7946,7 +7996,6 @@ function DoctorCardSkeleton() {
 }
 
 function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorData; onBook: (d: DoctorData) => void; onProfile: (d: DoctorData) => void; index?: number }) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const initials = doctor.full_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const avail = getDoctorAvailability(doctor);
   const staggerClass = `stagger-${(index % 6) + 1}`;
@@ -7965,12 +8014,8 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
 
   return (
     <div
-      onClick={() => setIsExpanded(prev => !prev)}
-      className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border transition-all duration-300 ease-out scroll-reveal p-4 sm:p-5 flex flex-col justify-between cursor-pointer interactive-card ${staggerClass} ${
-        isExpanded
-          ? 'border-emerald-500 dark:border-emerald-400 card-active-glow ring-2 ring-emerald-500/25 bg-emerald-50/20 dark:bg-emerald-950/20'
-          : 'border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1'
-      }`}
+      onClick={() => onProfile(doctor)}
+      className={`group relative bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/70 dark:hover:border-emerald-500/60 shadow-[0_1px_3px_rgba(0,0,0,0.05),0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out scroll-reveal p-4 sm:p-5 flex flex-col justify-between cursor-pointer interactive-card ${staggerClass}`}
     >
       <div>
         {/* Top Badges Bar: Live OPD Status, Preview Pill & Quick Share */}
@@ -8069,10 +8114,13 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
         {/* Address Link with 1-Tap Google Maps Navigation */}
         <div className="mb-3.5">
           <a
-            href={doctor.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.clinic_address + ' Dera Ismail Khan')}`}
+            href={getSafeGoogleMapsUrl(doctor)}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(getSafeGoogleMapsUrl(doctor), '_blank', 'noopener,noreferrer');
+            }}
             className="flex items-center justify-between text-[11px] bg-slate-50/70 dark:bg-slate-800/40 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 p-2 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors group/map cursor-pointer"
             title="Click to open clinic on Google Maps"
           >
@@ -8086,15 +8134,8 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
           </a>
         </div>
 
-        {/* Availability & Fee Strip with Clickable Expand */}
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsExpanded(prev => !prev);
-          }}
-          className="bg-slate-50/90 dark:bg-slate-800/70 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 rounded-xl p-2.5 sm:p-3 mb-3 border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between gap-2 transition-colors cursor-pointer select-none"
-          title="Click to toggle timing & clinic details"
-        >
+        {/* Availability & Fee Strip */}
+        <div className="bg-slate-50/90 dark:bg-slate-800/70 rounded-xl p-2.5 sm:p-3 mb-3 border border-slate-200/80 dark:border-slate-700/70 flex items-center justify-between gap-2 select-none">
           {/* Availability */}
           <div className="min-w-0">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
@@ -8108,81 +8149,14 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
             </div>
           </div>
 
-          {/* Fee with Tabular Numerals & Expand Indicator */}
-          <div className="text-right flex-shrink-0 flex items-center gap-2">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-                Consultation Fee
-              </span>
-              <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono tabular-nums">
-                {formatCurrency(doctor.fee_clinic)}
-              </span>
-            </div>
-            <div className={`w-6 h-6 rounded-lg flex items-center justify-center bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-500 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''}`}>
-              <ChevronDown className="w-3.5 h-3.5" />
-            </div>
-          </div>
-        </div>
-
-        {/* Haulix-Style Fluid Expandable Drawer */}
-        <div className="expandable-grid mb-3" data-expanded={isExpanded ? "true" : "false"}>
-          <div className="expandable-content">
-            <div className="expandable-inner pt-1 pb-1 space-y-2.5 text-xs border-t border-slate-100 dark:border-slate-800/80">
-              
-              {/* Timing & Room Grid */}
-              <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider block">OPD Schedule</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 text-xs block mt-0.5 truncate">
-                    {avail.shiftBadge || 'Morning & Evening'}
-                  </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                    Mon &ndash; Sat Regular
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider block">Clinic &amp; Room</span>
-                  <span className="font-bold text-emerald-700 dark:text-emerald-400 text-xs block mt-0.5 truncate">
-                    {(doctor as any).clinic_room || doctor.hospital_affiliations || 'Specialist Clinic Room'}
-                  </span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate">
-                    {landmarkBadge}
-                  </span>
-                </div>
-              </div>
-
-              {/* Verified & Free Booking Guarantee */}
-              <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/50 text-[11px]">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <span className="font-semibold text-emerald-900 dark:text-emerald-200 truncate">
-                    PMDC Verified Specialist
-                  </span>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shrink-0 bg-white/90 dark:bg-emerald-900/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-700">
-                  100% Free Token
-                </span>
-              </div>
-
-              {/* Direct Quick Action Inside Drawer */}
-              <div className="flex items-center justify-between gap-2 pt-0.5 text-[11px]">
-                <span className="text-slate-500 dark:text-slate-400 text-[10.5px]">
-                  Pay at desk &bull; Instant WhatsApp slip
-                </span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onBook(doctor);
-                  }}
-                  className="font-extrabold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Select Slot</span>
-                  <span>&rarr;</span>
-                </button>
-              </div>
-
-            </div>
+          {/* Fee with Tabular Numerals */}
+          <div className="text-right flex-shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
+              Consultation Fee
+            </span>
+            <span className="font-extrabold text-slate-900 dark:text-emerald-300 text-sm sm:text-base font-mono tabular-nums">
+              {formatCurrency(doctor.fee_clinic)}
+            </span>
           </div>
         </div>
       </div>

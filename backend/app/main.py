@@ -131,6 +131,20 @@ async def lifespan(app: FastAPI):
             await conn.execute(text("UPDATE doctors SET evening_start = '17:00' WHERE evening_start IS NULL"))
             await conn.execute(text("UPDATE doctors SET evening_end = '21:00' WHERE evening_end IS NULL"))
 
+            # Ensure verified Google Maps URLs for clinics opposite DHQ hospital if empty
+            await conn.execute(text("""
+                UPDATE doctors 
+                SET google_maps_url = 'https://www.google.com/maps/search/?api=1&query=Al-Shifa+Hospital+Opposite+DHQ+Hospital+Dera+Ismail+Khan'
+                WHERE (google_maps_url IS NULL OR TRIM(google_maps_url) = '')
+                  AND (clinic_address LIKE '%Ali Hospital%' OR clinic_address LIKE '%Al-Shifa%' OR id = '52f87cb0-8e54-4d87-8acd-a9ab4d5e1282')
+            """))
+            await conn.execute(text("""
+                UPDATE doctors 
+                SET google_maps_url = 'https://www.google.com/maps/search/?api=1&query=RK+Surgical+%26+Aesthetic+Clinic+Jinnah+2+Opposite+DHQ+Hospital+Dera+Ismail+Khan'
+                WHERE (google_maps_url IS NULL OR TRIM(google_maps_url) = '')
+                  AND (clinic_address LIKE '%RK%' OR id IN ('e3858a27-da7d-4d13-a4d4-9c6f1ffe7c71', 'a22da1cd-e4c8-48bf-93d6-8c05789fdd4d'))
+            """))
+
             # Ensure production Admin credentials match user configuration
             from app.core.security import get_password_hash
             new_admin_email = "ncpa.cpl@yahoomail.com"
@@ -727,9 +741,9 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{doc_keywords}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
             elif ("ali" in normalized_path and "raza" in normalized_path) or "52f87cb0" in normalized_path:
-                doc_title = "Surgeon Dr. Ali Raza — Laparoscopic Surgeon D.I. Khan"
-                doc_desc = "Book online appointment with Surgeon Dr. Ali Raza (MBBS, MCPS, FCPS Surgery), Registrar of Surgery DHQ Hospital at Al-Shifa (Ali) Hospital, Opposite DHQ Hospital, D.I. Khan. Fee: Rs. 1,000."
-                doc_keywords = "surgeon dr ali raza, dr ali raza, dr ali raza appointment in dikhan, dr ali raza dhq hospital, dr ali raza surgery registrar, dr ali raza al shifa hospital, ali hospital di khan doctor ali raza, general surgeon dera ismail khan, laparoscopic surgeon di khan, gallbladder stone doctor di khan, dhq hospital registrar clinic"
+                doc_title = "Surgeon Dr. Ali Raza — General & Laparoscopic Surgeon (DHQ Registrar) D.I. Khan"
+                doc_desc = "Book online appointment with Surgeon Dr. Ali Raza (MBBS, MCPS, FCPS Surgery), Registrar Surgery DHQ Hospital at Al-Shifa (Ali) Hospital, Opposite DHQ Hospital, D.I. Khan. Specialist in gallbladder surgery (pitta operation), laparoscopic cholecystectomy, hernia & appendix. Fee: Rs. 1,000."
+                doc_keywords = "surgeon dr ali raza, dr ali raza, dr ali raza appointment in dikhan, pita ke operation ka doctor in dikhan, pitta stone doctor dikhan, gallbladder operation dera ismail khan, laparoscopic surgeon di khan, pitta ke operation ka doctor dera ismail khan, dr ali raza dhq hospital, dr ali raza surgery registrar, dr ali raza al shifa hospital, ali hospital di khan doctor ali raza, general surgeon dera ismail khan, dhq hospital registrar clinic"
                 doc_url = "https://dikhancare.io/doctor/dr-ali-raza"
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{doc_title}</title>', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="title" content=".*?"', f'<meta name="title" content="{doc_title}"', html, flags=_re_module.IGNORECASE)

@@ -1752,7 +1752,15 @@ async def update_doctor_profile(
     if payload.sub_region is not None:
         doc.sub_region = payload.sub_region
     if payload.google_maps_url is not None:
-        doc.google_maps_url = payload.google_maps_url
+        raw_map = payload.google_maps_url.strip()
+        if "<iframe" in raw_map and 'src=' in raw_map:
+            import re
+            m = re.search(r'src=["\']([^"\']+)["\']', raw_map)
+            if m:
+                raw_map = m.group(1).strip()
+        if raw_map and not raw_map.startswith("http://") and not raw_map.startswith("https://"):
+            raw_map = "https://" + raw_map
+        doc.google_maps_url = raw_map if raw_map else None
     if payload.morning_start is not None:
         doc.morning_start = payload.morning_start
     if payload.morning_end is not None:
@@ -1794,6 +1802,7 @@ async def update_doctor_profile(
         "fee_clinic": float(doc.fee_clinic),
         "shift": doc.shift,
         "clinic_address": doc.clinic_address,
+        "google_maps_url": doc.google_maps_url,
         "morning_start": doc.morning_start or "09:00",
         "morning_end": doc.morning_end or "13:00",
         "evening_start": doc.evening_start or "17:00",

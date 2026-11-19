@@ -905,44 +905,29 @@ export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Native Startup Splash Animation Controller & Sound
-  const [showStartupSplash, setShowStartupSplash] = useState(true);
+  // Native HTML shell in index.html handles the initial entrance seamlessly at 0ms.
+  const [showStartupSplash, setShowStartupSplash] = useState(false);
   const [splashExiting, setSplashExiting] = useState(false);
 
   useEffect(() => {
-    // Clean up HTML pre-hydration shell immediately once React mounts
-    const htmlSplash = document.getElementById('dikhan-app-splash');
-    if (htmlSplash) {
-      htmlSplash.remove();
+    // If the startup chime was not triggered at 0ms (e.g. strict browser autoplay policy),
+    // register immediate one-shot gesture listeners to unlock it upon first interaction
+    if (!(window as any).__dikhan_chime_played) {
+      const unlockAudio = () => {
+        playStartupChime(0.45, true);
+      };
+      window.addEventListener('pointerdown', unlockAudio, { once: true });
+      window.addEventListener('touchstart', unlockAudio, { once: true });
+      window.addEventListener('click', unlockAudio, { once: true });
+      window.addEventListener('keydown', unlockAudio, { once: true });
+
+      return () => {
+        window.removeEventListener('pointerdown', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
     }
-
-    // Play startup chime immediately
-    playStartupChime(0.45);
-
-    // Audio unlock listener for mobile & desktop browsers enforcing strict user gesture on first visit
-    const unlockAudio = () => {
-      playStartupChime(0.45, true);
-    };
-    window.addEventListener('pointerdown', unlockAudio, { once: true });
-    window.addEventListener('touchstart', unlockAudio, { once: true });
-    window.addEventListener('click', unlockAudio, { once: true });
-    window.addEventListener('keydown', unlockAudio, { once: true });
-
-    // Play startup splash for 2.0s, then trigger smooth uncurtain dissolve
-    const exitTimer = setTimeout(() => {
-      setSplashExiting(true);
-      const closeTimer = setTimeout(() => {
-        setShowStartupSplash(false);
-      }, 450);
-      return () => clearTimeout(closeTimer);
-    }, 2000);
-
-    return () => {
-      clearTimeout(exitTimer);
-      window.removeEventListener('pointerdown', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
-      window.removeEventListener('click', unlockAudio);
-      window.removeEventListener('keydown', unlockAudio);
-    };
   }, []);
 
   // Real-time Scroll Parallax & Cinematic Scroll Reveal Observer

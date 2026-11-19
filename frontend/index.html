@@ -436,6 +436,20 @@
       background: linear-gradient(90deg, transparent, #10b981, transparent);
       animation: splashShimmer 1.1s infinite cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .splash-sound-hint {
+      margin-top: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(45, 212, 191, 0.9);
+      background: rgba(13, 148, 136, 0.18);
+      border: 1px solid rgba(45, 212, 191, 0.28);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.2px;
+      animation: splashAura 2s infinite ease-in-out;
+      cursor: pointer;
+      user-select: none;
+    }
     @keyframes splashShimmer {
       0% { left: -40px; }
       100% { left: 106px; }
@@ -455,7 +469,7 @@
 
 <body class="bg-slate-50 text-slate-900 font-['Inter'] antialiased min-h-screen">
   <!-- D.I. Khan Care Native Startup Splash Animation Shell -->
-  <div id="dikhan-app-splash" aria-hidden="true">
+  <div id="dikhan-app-splash" aria-hidden="true" onclick="window.__playDikhanChime && window.__playDikhanChime(0.45)" ontouchstart="window.__playDikhanChime && window.__playDikhanChime(0.45)">
     <div class="splash-glow"></div>
     <div class="splash-emblem-wrap">
       <div class="splash-pulse-ring"></div>
@@ -464,10 +478,14 @@
     <div class="splash-title">D.I. Khan Care</div>
     <div class="splash-badge">Care closer to home &bull; PMDC Verified</div>
     <div class="splash-loader"></div>
+    <div id="splash-sound-hint" class="splash-sound-hint">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>Tap anywhere for chime
+    </div>
   </div>
   <audio id="dikhan-pre-chime" src="/startup_chime.wav" preload="auto"></audio>
   <script>
     (function() {
+      // 1. Instant theme detection
       try {
         var theme = localStorage.getItem('dikhan_theme');
         if (theme === 'light') {
@@ -478,27 +496,116 @@
         }
       } catch(e) {}
 
-      // Play soft startup audio chime
-      try {
-        var chime = document.getElementById('dikhan-pre-chime');
-        if (chime) {
-          chime.volume = 0.45;
-          var p = chime.play();
-          if (p && p.catch) {
-            p.catch(function() {
-              var onFirstGesture = function() {
-                chime.play().catch(function() {});
-                window.removeEventListener('pointerdown', onFirstGesture);
-                window.removeEventListener('touchstart', onFirstGesture);
-                window.removeEventListener('click', onFirstGesture);
-              };
-              window.addEventListener('pointerdown', onFirstGesture, { once: true, passive: true });
-              window.addEventListener('touchstart', onFirstGesture, { once: true, passive: true });
-              window.addEventListener('click', onFirstGesture, { once: true, passive: true });
-            });
+      // 2. Real-time zero-latency Web Audio Synthesizer (starts at 0ms, no network delay)
+      window.__dikhan_chime_played = false;
+      var hasSynthesized = false;
+
+      function synthesizeStartupChime(volume) {
+        if (hasSynthesized || window.__dikhan_chime_played) return;
+        try {
+          var AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) {
+            var fallback = document.getElementById('dikhan-pre-chime');
+            if (fallback) fallback.play().catch(function() {});
+            return;
           }
+          var ctx = window.__dikhan_audio_ctx || new AudioCtx();
+          window.__dikhan_audio_ctx = ctx;
+
+          var playNotes = function() {
+            if (hasSynthesized || window.__dikhan_chime_played) return;
+            var now = ctx.currentTime;
+            var master = ctx.createGain();
+            master.gain.setValueAtTime(volume || 0.45, now);
+            master.connect(ctx.destination);
+
+            // Sub-bass heartbeat warmth (80Hz -> 48Hz)
+            var sub = ctx.createOscillator();
+            var subG = ctx.createGain();
+            sub.type = 'sine';
+            sub.frequency.setValueAtTime(80, now);
+            sub.frequency.exponentialRampToValueAtTime(48, now + 0.32);
+            subG.gain.setValueAtTime(0.0001, now);
+            subG.gain.linearRampToValueAtTime(0.28, now + 0.04);
+            subG.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
+            sub.connect(subG);
+            subG.connect(master);
+            sub.start(now);
+            sub.stop(now + 0.4);
+
+            // Harmonic medical chimes: G4, C5, E5, C6 shimmer, G5 resolution
+            var notes = [
+              { d: 0.04, f: 392.00, dur: 1.15, v: 0.32 },
+              { d: 0.16, f: 523.25, dur: 1.15, v: 0.36 },
+              { d: 0.28, f: 659.25, dur: 1.20, v: 0.40 },
+              { d: 0.30, f: 1046.50, dur: 0.90, v: 0.15 },
+              { d: 0.42, f: 783.99, dur: 1.10, v: 0.30 }
+            ];
+
+            notes.forEach(function(n) {
+              var osc = ctx.createOscillator();
+              var g = ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(n.f, now + n.d);
+              g.gain.setValueAtTime(0.0001, now + n.d);
+              g.gain.linearRampToValueAtTime(n.v, now + n.d + 0.02);
+              g.gain.exponentialRampToValueAtTime(0.0001, now + n.d + n.dur);
+              osc.connect(g);
+              g.connect(master);
+              osc.start(now + n.d);
+              osc.stop(now + n.d + n.dur + 0.05);
+            });
+
+            hasSynthesized = true;
+            window.__dikhan_chime_played = true;
+
+            var hint = document.getElementById('splash-sound-hint');
+            if (hint) {
+              hint.style.transition = 'opacity 0.25s ease';
+              hint.style.opacity = '0';
+            }
+          };
+
+          if (ctx.state === 'suspended') {
+            ctx.resume().then(playNotes).catch(function() {});
+          } else {
+            playNotes();
+          }
+        } catch(e) {}
+      }
+
+      window.__playDikhanChime = synthesizeStartupChime;
+
+      // 1. Instant play at 0ms (plays immediately if browser permits)
+      synthesizeStartupChime(0.45);
+
+      // 2. Instant gesture unlock on earliest touch or click
+      var onFirstGesture = function() {
+        synthesizeStartupChime(0.45);
+        window.removeEventListener('pointerdown', onFirstGesture);
+        window.removeEventListener('touchstart', onFirstGesture);
+        window.removeEventListener('click', onFirstGesture);
+      };
+      window.addEventListener('pointerdown', onFirstGesture, { once: true, passive: true });
+      window.addEventListener('touchstart', onFirstGesture, { once: true, passive: true });
+      window.addEventListener('click', onFirstGesture, { once: true, passive: true });
+
+      // 3. Coordinate splash start time & dismissal
+      window.__dikhan_splash_start = Date.now();
+      window.__dismissDikhanSplash = function() {
+        var splash = document.getElementById('dikhan-app-splash');
+        if (splash && !splash.classList.contains('splash-exit')) {
+          splash.classList.add('splash-exit');
+          setTimeout(function() {
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+          }, 450);
         }
-      } catch(e) {}
+      };
+
+      // 4. Auto-dismiss splash at 1.8s so screen unlocks smoothly
+      setTimeout(function() {
+        if (window.__dismissDikhanSplash) window.__dismissDikhanSplash();
+      }, 1800);
     })();
   </script>
 

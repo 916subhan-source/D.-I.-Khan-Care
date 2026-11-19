@@ -4,16 +4,18 @@
  * and seamless fallback to /startup_chime.wav.
  */
 
-let sharedAudioCtx: AudioContext | null = null;
-let hasPlayedThisSession = false;
+let sharedAudioCtx: AudioContext | null = (typeof window !== 'undefined' && (window as any).__dikhan_audio_ctx) || null;
+let hasPlayedThisSession = typeof window !== 'undefined' && !!(window as any).__dikhan_chime_played;
 
 export function isAudioPlayed(): boolean {
-  return hasPlayedThisSession;
+  return hasPlayedThisSession || (typeof window !== 'undefined' && !!(window as any).__dikhan_chime_played);
 }
 
 export function playStartupChime(volume = 0.45, force = false): Promise<boolean> {
-  // Play once per app lifecycle unless explicitly forced
-  if (hasPlayedThisSession && !force) return Promise.resolve(true);
+  // If already played at 0ms (e.g. by index.html), never play again late unless explicitly forced
+  if (!force && (hasPlayedThisSession || (typeof window !== 'undefined' && (window as any).__dikhan_chime_played))) {
+    return Promise.resolve(true);
+  }
 
   return new Promise((resolve) => {
     try {
@@ -30,6 +32,7 @@ export function playStartupChime(volume = 0.45, force = false): Promise<boolean>
       if (sharedAudioCtx.state === 'suspended') {
         sharedAudioCtx.resume().then(() => {
           hasPlayedThisSession = true;
+          if (typeof window !== 'undefined') (window as any).__dikhan_chime_played = true;
           synthesizeChime(sharedAudioCtx!, volume);
           resolve(true);
         }).catch(() => {
@@ -39,6 +42,7 @@ export function playStartupChime(volume = 0.45, force = false): Promise<boolean>
       }
 
       hasPlayedThisSession = true;
+      if (typeof window !== 'undefined') (window as any).__dikhan_chime_played = true;
       synthesizeChime(sharedAudioCtx, volume);
       resolve(true);
     } catch (_) {

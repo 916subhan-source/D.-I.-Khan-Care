@@ -482,15 +482,19 @@
       try {
         var chime = document.getElementById('dikhan-pre-chime');
         if (chime) {
-          chime.volume = 0.35;
+          chime.volume = 0.45;
           var p = chime.play();
           if (p && p.catch) {
             p.catch(function() {
               var onFirstGesture = function() {
                 chime.play().catch(function() {});
                 window.removeEventListener('pointerdown', onFirstGesture);
+                window.removeEventListener('touchstart', onFirstGesture);
+                window.removeEventListener('click', onFirstGesture);
               };
-              window.addEventListener('pointerdown', onFirstGesture, { once: true });
+              window.addEventListener('pointerdown', onFirstGesture, { once: true, passive: true });
+              window.addEventListener('touchstart', onFirstGesture, { once: true, passive: true });
+              window.addEventListener('click', onFirstGesture, { once: true, passive: true });
             });
           }
         }

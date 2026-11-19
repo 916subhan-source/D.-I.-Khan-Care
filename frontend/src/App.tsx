@@ -61,7 +61,8 @@ import {
   Maximize2,
   ArrowUp,
   PhoneCall,
-  Share2
+  Share2,
+  Volume2
 } from 'lucide-react';
 import { apiFetch, invalidateApiCache } from './lib/api';
 import { playStartupChime } from './utils/sound';
@@ -914,25 +915,33 @@ export default function App() {
       htmlSplash.remove();
     }
 
-    // Play startup chime
-    playStartupChime(0.35);
+    // Play startup chime immediately
+    playStartupChime(0.45);
 
-    // Audio unlock listener for browsers enforcing strict user gesture on first visit
-    const unlockAudio = () => playStartupChime(0.35, true);
+    // Audio unlock listener for mobile & desktop browsers enforcing strict user gesture on first visit
+    const unlockAudio = () => {
+      playStartupChime(0.45, true);
+    };
     window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true });
+    window.addEventListener('click', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
 
-    // Play startup splash for 1.25s, then trigger smooth uncurtain dissolve
+    // Play startup splash for 2.0s, then trigger smooth uncurtain dissolve
     const exitTimer = setTimeout(() => {
       setSplashExiting(true);
       const closeTimer = setTimeout(() => {
         setShowStartupSplash(false);
-      }, 400);
+      }, 450);
       return () => clearTimeout(closeTimer);
-    }, 1250);
+    }, 2000);
 
     return () => {
       clearTimeout(exitTimer);
       window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
     };
   }, []);
 
@@ -1106,14 +1115,15 @@ export default function App() {
       {/* ── Native Startup Splash Animation (React Guaranteed) ── */}
       {showStartupSplash && (
         <div
-          onClick={() => playStartupChime(0.35, true)}
-          className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#080d14] text-white overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] select-none ${
-            splashExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100 cursor-pointer'
+          onClick={() => playStartupChime(0.45, true)}
+          onTouchStart={() => playStartupChime(0.45, true)}
+          className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#080d14] text-white overflow-hidden transition-all duration-450 ease-[cubic-bezier(0.16,1,0.3,1)] select-none cursor-pointer ${
+            splashExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
           }`}
           aria-hidden="true"
         >
           {/* Ambient Breathing Aura */}
-          <div className="absolute w-[240px] h-[240px] rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.45)_0%,rgba(13,148,136,0)_70%)] blur-[35px] animate-pulse" />
+          <div className="absolute w-[260px] h-[260px] rounded-full bg-[radial-gradient(circle,rgba(13,148,136,0.45)_0%,rgba(13,148,136,0)_70%)] blur-[35px] animate-pulse" />
 
           {/* Emblem with Breathing Pulse Ring */}
           <div className="relative w-28 h-28 mb-5 animate-scale-in">
@@ -1131,13 +1141,19 @@ export default function App() {
           </div>
 
           {/* Tagline Capsule Badge */}
-          <div className="text-[11px] font-bold text-teal-300 bg-teal-950/70 border border-teal-500/40 px-3.5 py-1 rounded-full tracking-wide mb-8 shadow-xs">
+          <div className="text-[11px] font-bold text-teal-300 bg-teal-950/70 border border-teal-500/40 px-3.5 py-1 rounded-full tracking-wide mb-6 shadow-xs">
             Care closer to home &bull; PMDC Verified
           </div>
 
           {/* Micro Shimmer Loader */}
-          <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden relative">
+          <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden relative mb-4">
             <div className="absolute top-0 bottom-0 w-10 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-shimmer" />
+          </div>
+
+          {/* Sound Pill Hint */}
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-teal-300/80 bg-teal-950/50 border border-teal-500/25 px-3 py-1 rounded-full animate-pulse shadow-xs">
+            <Volume2 className="w-3.5 h-3.5 text-teal-400" />
+            <span>Tap anywhere to play chime</span>
           </div>
         </div>
       )}

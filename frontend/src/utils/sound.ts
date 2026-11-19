@@ -7,35 +7,44 @@
 let sharedAudioCtx: AudioContext | null = null;
 let hasPlayedThisSession = false;
 
-export function playStartupChime(volume = 0.35, force = false): void {
+export function isAudioPlayed(): boolean {
+  return hasPlayedThisSession;
+}
+
+export function playStartupChime(volume = 0.45, force = false): Promise<boolean> {
   // Play once per app lifecycle unless explicitly forced
-  if (hasPlayedThisSession && !force) return;
-  hasPlayedThisSession = true;
+  if (hasPlayedThisSession && !force) return Promise.resolve(true);
 
-  try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) {
-      playAudioFallback(volume);
-      return;
+  return new Promise((resolve) => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) {
+        playAudioFallback(volume).then(resolve);
+        return;
+      }
+
+      if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+        sharedAudioCtx = new AudioContextClass();
+      }
+
+      if (sharedAudioCtx.state === 'suspended') {
+        sharedAudioCtx.resume().then(() => {
+          hasPlayedThisSession = true;
+          synthesizeChime(sharedAudioCtx!, volume);
+          resolve(true);
+        }).catch(() => {
+          playAudioFallback(volume).then(resolve);
+        });
+        return;
+      }
+
+      hasPlayedThisSession = true;
+      synthesizeChime(sharedAudioCtx, volume);
+      resolve(true);
+    } catch (_) {
+      playAudioFallback(volume).then(resolve);
     }
-
-    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
-      sharedAudioCtx = new AudioContextClass();
-    }
-
-    if (sharedAudioCtx.state === 'suspended') {
-      sharedAudioCtx.resume().then(() => {
-        synthesizeChime(sharedAudioCtx!, volume);
-      }).catch(() => {
-        playAudioFallback(volume);
-      });
-      return;
-    }
-
-    synthesizeChime(sharedAudioCtx, volume);
-  } catch (err) {
-    playAudioFallback(volume);
-  }
+  });
 }
 
 function synthesizeChime(ctx: AudioContext, volume: number): void {
@@ -55,7 +64,7 @@ function synthesizeChime(ctx: AudioContext, volume: number): void {
     subOsc.frequency.exponentialRampToValueAtTime(48, now + 0.32);
 
     subGain.gain.setValueAtTime(0.0001, now);
-    subGain.gain.linearRampToValueAtTime(0.25, now + 0.04);
+    subGain.gain.linearRampToValueAtTime(0.28, now + 0.04);
     subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
 
     subOsc.connect(subGain);
@@ -65,11 +74,11 @@ function synthesizeChime(ctx: AudioContext, volume: number): void {
 
     // 2. Harmonic Medical Chimes: G4 (392Hz), C5 (523Hz), E5 (659Hz), Octave High C6 (1046Hz), G5 (784Hz)
     const chimeNotes = [
-      { delay: 0.04, freq: 392.00, dur: 1.15, vol: 0.28 },
-      { delay: 0.16, freq: 523.25, dur: 1.15, vol: 0.32 },
-      { delay: 0.28, freq: 659.25, dur: 1.2, vol: 0.36 },
-      { delay: 0.30, freq: 1046.50, dur: 0.9, vol: 0.12 }, // Crystal shimmer
-      { delay: 0.42, freq: 783.99, dur: 1.1, vol: 0.26 }  // Warm resolution
+      { delay: 0.04, freq: 392.00, dur: 1.15, vol: 0.32 },
+      { delay: 0.16, freq: 523.25, dur: 1.15, vol: 0.36 },
+      { delay: 0.28, freq: 659.25, dur: 1.2, vol: 0.40 },
+      { delay: 0.30, freq: 1046.50, dur: 0.9, vol: 0.15 }, // Crystal shimmer
+      { delay: 0.42, freq: 783.99, dur: 1.1, vol: 0.30 }  // Warm resolution
     ];
 
     chimeNotes.forEach(({ delay, freq, dur, vol }) => {
@@ -93,12 +102,26 @@ function synthesizeChime(ctx: AudioContext, volume: number): void {
   }
 }
 
-function playAudioFallback(volume: number): void {
-  try {
-    const audio = new Audio('/startup_chime.wav');
-    audio.volume = volume;
-    audio.play().catch(() => {
-      // Browser autoplay policy graceful catch
-    });
-  } catch (_) {}
+function playAudioFallback(volume: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    try {
+      const audio = new Audio('/startup_chime.wav');
+      audio.volume = volume;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          hasPlayedThisSession = true;
+          resolve(true);
+        }).catch(() => {
+          // Autoplay blocked by browser policy until first gesture
+          resolve(false);
+        });
+      } else {
+        hasPlayedThisSession = true;
+        resolve(true);
+      }
+    } catch (_) {
+      resolve(false);
+    }
+  });
 }

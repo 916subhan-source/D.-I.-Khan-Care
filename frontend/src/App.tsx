@@ -5841,15 +5841,20 @@ function DoctorProfileAndBookingView({
               <button
                 type="button"
                 onClick={() => {
+                  const docSlug = getDoctorSlug(doctor);
+                  const docProfileUrl = `https://dikhancare.io/doctor/${docSlug}`;
+                  const mapsUrl = getSafeGoogleMapsUrl(doctor);
                   const msg = `*D.I. Khan Care — Consultation Token Confirmed*\n\n` +
                     `*Slip #:* ${confirmedSlip.slipNumber}\n` +
                     `*Doctor:* ${confirmedSlip.doctorName}\n` +
+                    `*Doctor Profile:* ${docProfileUrl}\n` +
                     `*Patient:* ${confirmedSlip.patientName}\n` +
                     `*Date:* ${confirmedSlip.date}\n` +
                     `*Time:* ${confirmedSlip.time}\n` +
                     `*Fee:* ${formatCurrency(confirmedSlip.fee)} (Pay cash at clinic desk)\n` +
-                    `*Clinic:* ${confirmedSlip.clinic}\n\n` +
-                    `Track online: https://dikhancare.io/track`;
+                    `*Clinic:* ${confirmedSlip.clinic}\n` +
+                    `*Clinic Location (Map):* ${mapsUrl}\n\n` +
+                    `Track online: https://dikhancare.io/track?slip=${encodeURIComponent(confirmedSlip.slipNumber)}`;
                   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
                 }}
                 className="w-full py-3 bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.98] text-white font-extrabold rounded-xl text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"

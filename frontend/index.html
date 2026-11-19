@@ -465,6 +465,7 @@
     <div class="splash-badge">Care closer to home &bull; PMDC Verified</div>
     <div class="splash-loader"></div>
   </div>
+  <audio id="dikhan-pre-chime" src="/startup_chime.wav" preload="auto"></audio>
   <script>
     (function() {
       try {
@@ -474,6 +475,24 @@
           document.documentElement.classList.add('light');
         } else if (theme === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches) {
           document.documentElement.classList.add('dark');
+        }
+      } catch(e) {}
+
+      // Play soft startup audio chime
+      try {
+        var chime = document.getElementById('dikhan-pre-chime');
+        if (chime) {
+          chime.volume = 0.35;
+          var p = chime.play();
+          if (p && p.catch) {
+            p.catch(function() {
+              var onFirstGesture = function() {
+                chime.play().catch(function() {});
+                window.removeEventListener('pointerdown', onFirstGesture);
+              };
+              window.addEventListener('pointerdown', onFirstGesture, { once: true });
+            });
+          }
         }
       } catch(e) {}
     })();

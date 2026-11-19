@@ -64,6 +64,7 @@ import {
   Share2
 } from 'lucide-react';
 import { apiFetch } from './lib/api';
+import { playStartupChime } from './utils/sound';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
@@ -860,7 +861,7 @@ export default function App() {
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Native Startup Splash Animation Controller
+  // Native Startup Splash Animation Controller & Sound
   const [showStartupSplash, setShowStartupSplash] = useState(true);
   const [splashExiting, setSplashExiting] = useState(false);
 
@@ -871,6 +872,13 @@ export default function App() {
       htmlSplash.remove();
     }
 
+    // Play startup chime
+    playStartupChime(0.35);
+
+    // Audio unlock listener for browsers enforcing strict user gesture on first visit
+    const unlockAudio = () => playStartupChime(0.35, true);
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+
     // Play startup splash for 1.25s, then trigger smooth uncurtain dissolve
     const exitTimer = setTimeout(() => {
       setSplashExiting(true);
@@ -880,7 +888,10 @@ export default function App() {
       return () => clearTimeout(closeTimer);
     }, 1250);
 
-    return () => clearTimeout(exitTimer);
+    return () => {
+      clearTimeout(exitTimer);
+      window.removeEventListener('pointerdown', unlockAudio);
+    };
   }, []);
 
   // Real-time Scroll Parallax & Cinematic Scroll Reveal Observer
@@ -1053,8 +1064,9 @@ export default function App() {
       {/* ── Native Startup Splash Animation (React Guaranteed) ── */}
       {showStartupSplash && (
         <div
-          className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#080d14] text-white overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            splashExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+          onClick={() => playStartupChime(0.35, true)}
+          className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#080d14] text-white overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] select-none ${
+            splashExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100 cursor-pointer'
           }`}
           aria-hidden="true"
         >

@@ -61,8 +61,8 @@ async def list_doctors(
     Returns public doctor directory sorted by Spotlight (pinned first) then name.
     Accelerated with Redis in-memory cache and Cloudflare Edge HTTP headers.
     """
-    # Edge caching: Serve cached directory from Cloudflare edge nodes in <15ms
-    response.headers["Cache-Control"] = "public, max-age=120, s-maxage=600, stale-while-revalidate=1800"
+    # Edge caching: Fast directory response with immediate propagation on updates
+    response.headers["Cache-Control"] = "public, max-age=5, s-maxage=15, must-revalidate"
     cache_key = f"doctors:{sub_region or 'all'}:{specialty or 'all'}:{shift or 'all'}"
     cached_data = await redis_manager.get_cache(cache_key)
     if cached_data:

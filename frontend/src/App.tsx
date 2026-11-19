@@ -2885,16 +2885,18 @@ function TrackAppointmentSection({ onBackToDirectory }: { onBackToDirectory: () 
                         <MapPin className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
                         <strong>Pickup:</strong> {appointment.clinic_address || 'Clinic Reception, D.I. Khan'}
                       </span>
-                      {appointment.google_maps_url && (
-                        <a
-                          href={appointment.google_maps_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-bold text-amber-900 hover:text-amber-950 underline"
-                        >
-                          Open in Google Maps <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                      <a
+                        href={getSafeGoogleMapsUrl({ google_maps_url: appointment.google_maps_url, clinic_address: appointment.clinic_address } as any)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(getSafeGoogleMapsUrl({ google_maps_url: appointment.google_maps_url, clinic_address: appointment.clinic_address } as any), '_blank', 'noopener,noreferrer');
+                        }}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-amber-900 hover:text-amber-950 underline cursor-pointer"
+                      >
+                        Open in Google Maps <ExternalLink className="w-3 h-3" />
+                      </a>
                     </div>
                   </div>
                 )}
@@ -3253,7 +3255,11 @@ function DoctorProfileModal({
                     href={googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-teal-200 hover:text-white font-semibold bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/40 px-3 py-1.5 rounded-xl transition-all w-fit"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs text-teal-200 hover:text-white font-semibold bg-teal-500/20 hover:bg-teal-500/30 border border-teal-400/40 px-3 py-1.5 rounded-xl transition-all w-fit cursor-pointer"
                   >
                     <MapPin className="w-3.5 h-3.5 text-teal-300" />
                     Open Location on Google Maps
@@ -5812,16 +5818,18 @@ function DoctorProfileAndBookingView({
                     </p>
                     <div className="pt-1 border-t border-amber-300/60 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[11px]">
                       <span className="text-amber-950"><strong>Clinic Address:</strong> {confirmedSlip.clinic}</span>
-                      {doctor.google_maps_url && (
-                        <a
-                          href={doctor.google_maps_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-bold underline text-amber-900 hover:text-amber-950 flex items-center gap-1"
-                        >
-                          Google Maps Link <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                      <a
+                        href={getSafeGoogleMapsUrl(doctor)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(getSafeGoogleMapsUrl(doctor), '_blank', 'noopener,noreferrer');
+                        }}
+                        className="font-bold underline text-amber-900 hover:text-amber-950 flex items-center gap-1 cursor-pointer"
+                      >
+                        Google Maps Link <ExternalLink className="w-3 h-3" />
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -15017,6 +15025,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
         off_days: editOffDays.trim()
       } : prev);
       setIsEditingProfile(false);
+      invalidateApiCache();
+      try {
+        localStorage.removeItem('cached_public_doctors');
+      } catch (_) {}
       loadDoctorData();
       setTimeout(() => setProfileMsg(''), 4000);
     } catch (err: any) {

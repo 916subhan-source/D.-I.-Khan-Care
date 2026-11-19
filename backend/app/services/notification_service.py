@@ -269,12 +269,30 @@ class NotificationService:
         return None
 
     def _resolve_google_maps_url(self, appt: Appointment) -> str:
-        """Resolves doctor clinic Google Maps link, with automated search fallback."""
+        """Resolves doctor clinic Google Maps link directly from the saved doctor profile, with automated search fallback."""
         if appt.doctor and getattr(appt.doctor, 'google_maps_url', None) and appt.doctor.google_maps_url.strip():
-            return appt.doctor.google_maps_url.strip()
+            raw = appt.doctor.google_maps_url.strip()
+            if "<iframe" in raw and "src=" in raw:
+                import re
+                m = re.search(r'src=["\']([^"\']+)["\']', raw)
+                if m:
+                    raw = m.group(1).strip()
+            raw = raw.strip('"\'')
+            if raw and not raw.startswith("http://") and not raw.startswith("https://"):
+                raw = "https://" + raw.lstrip('/')
+            if raw and (raw.startswith("http://") or raw.startswith("https://")):
+                return raw
+
         clinic_addr = (appt.doctor.clinic_address if (appt.doctor and appt.doctor.clinic_address) else "Dera Ismail Khan").strip()
-        query = f"{clinic_addr}, Dera Ismail Khan"
-        return f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote(query)}"
+        import re
+        clinic_clean = re.sub(r'Room\s*#?\d+,?\s*(1st|2nd|3rd|4th)?\s*Floor,?\s*', '', clinic_addr, flags=re.I).strip()
+        if "ali hospital" in clinic_clean.lower() or "al-shifa" in clinic_clean.lower():
+            return "https://www.google.com/maps/search/?api=1&query=Al-Shifa+Hospital+Opposite+DHQ+Hospital+Dera+Ismail+Khan"
+        if "rk" in clinic_clean.lower():
+            return "https://www.google.com/maps/search/?api=1&query=RK+Surgical+%26+Aesthetic+Clinic+Jinnah+2+Opposite+DHQ+Hospital+Dera+Ismail+Khan"
+
+        target = f"{clinic_clean or clinic_addr} Opposite DHQ Hospital Dera Ismail Khan"
+        return f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote(target)}"
 
     async def get_assistant_phones_for_doctor(self, db: AsyncSession, doctor_id: str) -> List[str]:
         """Fetch all active assistant phone / WhatsApp numbers linked to the given doctor."""
@@ -429,8 +447,9 @@ class NotificationService:
 
             track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
             portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
+            maps_url = self._resolve_google_maps_url(appt)
 
-            # 1. WhatsApp to Patient: Visual Card + Only Tracking Link Caption
+            # 1. WhatsApp to Patient: Visual Card + Google Maps & Tracking Link Caption
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_fallback_msg = (
@@ -442,12 +461,14 @@ class NotificationService:
                     f"📋 *Slip Number:* #{appt.slip_number or 'N/A'}\n"
                     f"📅 *Date:* {slot_date_str}\n"
                     f"⏰ *Time:* {slot_time_str}\n"
+                    f"📍 *Clinic:* {clinic_addr}\n"
                     f"📌 *Status:* ⏳ Pending Confirmation\n\n"
+                    f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
                     f"ℹ️ _Our team will confirm shortly. Please wait for confirmation message._\n\n"
                     f"📲 *Track Live Status:*\n{track_url}\n\n"
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
-                patient_card_caption = f"📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
+                patient_card_caption = f"🗺️ *Clinic Google Maps:*\n{maps_url}\n\n📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
                 try:
                     card_bytes = generate_request_received_card(
                         patient_name=appt.patient_name or "Patient",

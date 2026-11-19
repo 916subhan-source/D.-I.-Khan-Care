@@ -1758,8 +1758,9 @@ async def update_doctor_profile(
             m = re.search(r'src=["\']([^"\']+)["\']', raw_map)
             if m:
                 raw_map = m.group(1).strip()
+        raw_map = raw_map.strip('"\'')
         if raw_map and not raw_map.startswith("http://") and not raw_map.startswith("https://"):
-            raw_map = "https://" + raw_map
+            raw_map = "https://" + raw_map.lstrip('/')
         doc.google_maps_url = raw_map if raw_map else None
     if payload.morning_start is not None:
         doc.morning_start = payload.morning_start
@@ -1795,7 +1796,11 @@ async def update_doctor_profile(
         doc.custom_day_schedule = payload.custom_day_schedule.strip() if payload.custom_day_schedule else None
 
     await db.commit()
-    await redis_manager.clear_cache_pattern("doctors:*")
+    await db.refresh(doc)
+    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{doc.id}")
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doc.id}")
     return {
         "status": "SUCCESS",
         "message": "Doctor profile updated successfully.",

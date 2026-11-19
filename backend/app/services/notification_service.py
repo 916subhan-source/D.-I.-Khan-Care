@@ -294,26 +294,6 @@ class NotificationService:
         target = f"{clinic_clean or clinic_addr} Opposite DHQ Hospital Dera Ismail Khan"
         return f"https://www.google.com/maps/search/?api=1&query={urllib.parse.quote(target)}"
 
-    def _resolve_doctor_profile_url(self, appt: Appointment) -> str:
-        """Constructs permanent SEO profile URL for the booked doctor."""
-        if not appt.doctor:
-            return f"{settings.FRONTEND_URL.rstrip('/')}/"
-        
-        name = (appt.doctor.user.full_name if (appt.doctor and appt.doctor.user) else "").strip().lower()
-        if "waqar" in name or "gandapur" in name:
-            slug = "dr-waqar-khan-gandapur"
-        elif "naveed" in name:
-            slug = "dr-naveed-khan"
-        elif "ali" in name or "raza" in name:
-            slug = "dr-ali-raza"
-        else:
-            import re
-            clean = re.sub(r'^(dr\.?|surgeon)\s+', '', name, flags=re.I).strip()
-            clean = re.sub(r'[^a-z0-9]+', '-', clean).strip('-')
-            slug = f"dr-{clean}" if clean else str(appt.doctor_id)
-        
-        return f"{settings.FRONTEND_URL.rstrip('/')}/doctor/{slug}"
-
     async def get_assistant_phones_for_doctor(self, db: AsyncSession, doctor_id: str) -> List[str]:
         """Fetch all active assistant phone / WhatsApp numbers linked to the given doctor."""
         stmt = (
@@ -468,9 +448,8 @@ class NotificationService:
             track_url = f"{settings.FRONTEND_URL.rstrip('/')}/track?slip={appt.slip_number or ''}"
             portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
             maps_url = self._resolve_google_maps_url(appt)
-            doc_profile_url = self._resolve_doctor_profile_url(appt)
 
-            # 1. WhatsApp to Patient: Visual Card + Doctor Profile & Google Maps Links
+            # 1. WhatsApp to Patient: Visual Card + Google Maps & Tracking Links
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_fallback_msg = (
@@ -479,7 +458,6 @@ class NotificationService:
                     f"Assalam-o-Alaikum *{appt.patient_name}*,\n"
                     f"Aapki doctor booking request mosool ho chuki hai.\n\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
-                    f"🔗 *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"📋 *Slip Number:* #{appt.slip_number or 'N/A'}\n"
                     f"📅 *Date:* {slot_date_str}\n"
                     f"⏰ *Time:* {slot_time_str}\n"
@@ -491,7 +469,6 @@ class NotificationService:
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
                 patient_card_caption = (
-                    f"👨‍⚕️ *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"🗺️ *Clinic Google Maps:*\n{maps_url}\n\n"
                     f"📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
                 )
@@ -580,7 +557,6 @@ class NotificationService:
                     )
 
                 maps_url = self._resolve_google_maps_url(appt)
-                doc_profile_url = self._resolve_doctor_profile_url(appt)
 
                 patient_msg = (
                     f"✅ *APPOINTMENT CONFIRMED — D.I. KHAN CARE*\n\n"
@@ -589,7 +565,6 @@ class NotificationService:
                     f"🎫 *Token / Queue Number:* {token_display}\n"
                     f"📋 *Digital Slip:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
-                    f"🔗 *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"📅 *Date:* {slot_date_str}\n"
                     f"⏰ *Appointment Time:* {slot_time_str} (PKT)\n"
                     f"{arrival_line}"
@@ -606,7 +581,6 @@ class NotificationService:
                     f"*D.I. Khan Care*"
                 )
                 patient_card_caption = (
-                    f"👨‍⚕️ *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
                     f"📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
                 )
@@ -760,7 +734,6 @@ class NotificationService:
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 maps_url = self._resolve_google_maps_url(appt)
-                doc_profile_url = self._resolve_doctor_profile_url(appt)
 
                 patient_msg = (
                     f"🔄 *APPOINTMENT RESCHEDULED — DI KHAN CARE*\n\n"
@@ -769,7 +742,6 @@ class NotificationService:
                     f"🎫 *New Token / Queue Number:* {token_display}\n"
                     f"📋 *Updated Slip Number:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
-                    f"🔗 *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"📅 *New Date:* {slot_date_str}\n"
                     f"⏰ *New Appointment Time:* {slot_time_str} (PKT)\n"
                     f"{arrival_line}"
@@ -781,7 +753,6 @@ class NotificationService:
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
                 patient_card_caption = (
-                    f"👨‍⚕️ *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
                     f"📲 *Open Updated Digital Slip & Live Queue:*\n{track_url}"
                 )
@@ -846,7 +817,6 @@ class NotificationService:
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 maps_url = self._resolve_google_maps_url(appt)
-                doc_profile_url = self._resolve_doctor_profile_url(appt)
 
                 rem_msg = (
                     f"⏱️ *APPOINTMENT REMINDER — DI KHAN CARE*\n\n"
@@ -855,7 +825,6 @@ class NotificationService:
                     f"🎫 *Token Number:* {token_display}\n"
                     f"📋 *Slip Number:* #{appt.slip_number}\n"
                     f"👨‍⚕️ *Doctor:* {doc_name}\n"
-                    f"🔗 *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"📅 *Date:* {slot_date_str}\n"
                     f"⏰ *Appointment Time:* {slot_time_str} (PKT)\n"
                     f"🚪 *Clinic Arrival Time:* {arrival_info}\n"
@@ -867,7 +836,6 @@ class NotificationService:
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
                 rem_card_caption = (
-                    f"👨‍⚕️ *Doctor Profile:*\n{doc_profile_url}\n\n"
                     f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
                     f"📲 *Live Queue Tracker:*\n{track_url}"
                 )

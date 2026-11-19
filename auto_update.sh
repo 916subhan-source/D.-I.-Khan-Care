@@ -6,6 +6,9 @@
 
 set -u
 
+# Ensure complete PATH is available under cron environment
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
 # Locate application directory
 APP_DIR=""
 for candidate in "$HOME/app" "/root/app" "/var/www/dikhan-care" "/var/www/html" "$(pwd)"; do
@@ -55,4 +58,6 @@ if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
     docker image prune -f > /dev/null 2>&1 || true
 
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ✅ Successfully updated to commit $REMOTE_HASH!"
+else
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🟢 Heartbeat: System up to date ($LOCAL_HASH)."
 fi

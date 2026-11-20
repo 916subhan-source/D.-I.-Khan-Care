@@ -14111,7 +14111,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     }
   });
   const [slots, setSlots] = useState<SlotData[]>([]);
-  const [activePortalTab, setActivePortalTab] = useState<'overview' | 'cash' | 'records' | 'assistants' | 'profile'>('overview');
+  const [activePortalTab, setActivePortalTab] = useState<'overview' | 'cash' | 'records' | 'assistants' | 'profile' | 'media'>('overview');
   const [expandedDocApptId, setExpandedDocApptId] = useState<string | number | null>(null);
 
   // Cash Ledger tab state
@@ -14881,6 +14881,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     { id: 'records', label: 'All Visit Records' },
     { id: 'assistants', label: 'Assistants' },
     { id: 'profile', label: 'Clinic Profile' },
+    { id: 'media', label: 'Clinic Photos & Videos' },
   ];
 
   const agendaTitle = timeframe === 'today'
@@ -15706,7 +15707,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     ? 'All Visit Records'
                     : activePortalTab === 'assistants'
                       ? 'Assistants'
-                      : 'Clinic Profile'}
+                      : activePortalTab === 'media'
+                        ? 'Clinic Media (Photos & Videos)'
+                        : 'Clinic Profile'}
             </span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
@@ -15752,7 +15755,8 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 ['cash', 'Cash Ledger'],
                 ['records', 'All Visit Records'],
                 ['assistants', 'Assistants Desk'],
-                ['profile', 'Clinic Profile']
+                ['profile', 'Clinic Profile'],
+                ['media', `Clinic Media (${parseDoctorMedia(doctorProfile?.gallery_media).length})`]
               ] as const).map(([tab, label]) => (
                 <button
                   key={tab}
@@ -17207,6 +17211,39 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <p className="text-xs text-slate-500 mt-0.5">Your public practitioner and clinic details shown to patients.</p>
               </div>
 
+              {/* Quick Jump: Clinic Photos & Video Tour (Cloudinary Powered) */}
+              <div className="bg-gradient-to-r from-purple-50 via-indigo-50/50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border border-purple-200 dark:border-purple-800/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Film className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">
+                        Clinic Photos &amp; Video Tour
+                      </h4>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                        {parseDoctorMedia(doctorProfile?.gallery_media).length} Media Published
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                        Cloudinary CDN Active
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                      Upload photos and videos of your clinic waiting area, operation theater, and clinical procedures.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActivePortalTab('media')}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Upload &amp; Manage Media &rarr;</span>
+                </button>
+              </div>
+
               {/* VIP Loyalty Card Management Section */}
               <div className="bg-gradient-to-br from-amber-500/10 via-amber-400/15 to-amber-600/10 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 border-2 border-amber-300 dark:border-amber-500/50 rounded-2xl p-5 space-y-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -17955,8 +17992,297 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       </a>
                     </div>
                   )}
+
+                  {/* Clinic Media & Video Showcase Row inside Profile View */}
+                  <div className="col-span-2 p-4 bg-gradient-to-r from-purple-50/70 to-indigo-50/50 dark:from-slate-800 dark:to-slate-850 rounded-xl border border-purple-200 dark:border-purple-800/60 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-purple-200/60 dark:border-slate-700">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Film className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <span className="font-extrabold text-slate-900 dark:text-white text-xs">Clinic Photos &amp; Video Tour</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                            {parseDoctorMedia(doctorProfile?.gallery_media).length} Published
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 border border-sky-300 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                            Cloudinary CDN Active
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Patients can watch your clinic video tour and view clinical photos on your public profile.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActivePortalTab('media')}
+                        className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-auto flex-shrink-0"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Clinic Media &rarr;</span>
+                      </button>
+                    </div>
+
+                    {parseDoctorMedia(doctorProfile?.gallery_media).length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5 pt-1">
+                        {parseDoctorMedia(doctorProfile?.gallery_media).map(m => (
+                          <div key={m.id} className="aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 relative group bg-slate-950 shadow-2xs">
+                            {m.type === 'video' ? (
+                              <div className="w-full h-full relative flex items-center justify-center bg-slate-900">
+                                {m.thumbnail ? (
+                                  <img src={m.thumbnail} alt={m.title} className="w-full h-full object-cover" />
+                                ) : (
+                                  <Video className="w-6 h-6 text-purple-400" />
+                                )}
+                                <span className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                  <Play className="w-5 h-5 text-white drop-shadow" />
+                                </span>
+                              </div>
+                            ) : (
+                              <img src={m.url} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                            )}
+                            <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1.5 py-0.5 bg-black/75 text-white rounded truncate max-w-[85%]">
+                              {m.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-white/70 dark:bg-slate-900/60 rounded-xl border border-dashed border-purple-200 dark:border-slate-700 text-center">
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          No clinic photos or videos uploaded yet.
+                        </p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          Showcase your clinic rooms, modern equipment, and waiting area to build trust with patients across D.I. Khan.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setActivePortalTab('media')}
+                          className="mt-2.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                        >
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Upload Photos &amp; Videos to Cloudinary &rarr;</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ── Clinic Media & Videos Dedicated Tab (Cloudinary Hosted) ── */}
+          {activePortalTab === 'media' && (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6 text-xs animate-fade-in">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+                    <Film className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-extrabold text-slate-900 dark:text-white text-lg" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        Clinic Photos &amp; Video Tour Gallery
+                      </h3>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                        {parseDoctorMedia(doctorProfile?.gallery_media).length} Published
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                        Cloudinary CDN Active
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Upload clinic rooms, waiting hall photos, doctor introduction, and short video tours. Securely stored on Cloudinary and instantly shown on your public booking profile.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {doctorProfile?.id && (
+                    <a
+                      href={`/doctor/${getDoctorSlug(doctorProfile)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>Preview Public Profile</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowAddMediaLinkModal(true)}
+                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Add YouTube Video Link</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Cloudinary Storage Information Banner */}
+              <div className="p-4 bg-gradient-to-r from-sky-50 via-indigo-50/40 to-purple-50 dark:from-sky-950/40 dark:via-slate-800 dark:to-purple-950/40 rounded-xl border border-sky-200 dark:border-sky-800/80 flex items-start gap-3">
+                <span className="text-xl">☁️</span>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-xs">
+                    Cloudinary Ultra-Fast CDN Active
+                  </h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                    All images (.jpg, .png, .webp) and short video clips (.mp4, .mov, .webm) are uploaded directly to our dedicated Cloudinary infrastructure. Media is automatically compressed, responsive-sized, and served via global CDN edge caches for zero-buffering playback across D.I. Khan.
+                  </p>
+                </div>
+              </div>
+
+              {/* Upload Card */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                    <Upload className="w-4 h-4 text-clinic-700 dark:text-clinic-400" />
+                    <span>Upload New Clinic Photo or Video Clip</span>
+                  </h4>
+                  <span className="text-[11px] text-slate-400 font-medium">Max 60MB per file</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                  <div className="sm:col-span-4">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-1">
+                      Media Category:
+                    </label>
+                    <select
+                      value={mediaCategory}
+                      onChange={(e: any) => setMediaCategory(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200"
+                    >
+                      <option value="clinic_image">Clinic Facility Photo (Exterior / Rooms)</option>
+                      <option value="clinic_video">Clinic Video Tour (Reception / OT)</option>
+                      <option value="doctor_image">Doctor Activity / Treatment Photo</option>
+                    </select>
+                  </div>
+
+                  <div className="sm:col-span-5">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-1">
+                      Title or Description:
+                    </label>
+                    <input
+                      type="text"
+                      value={mediaTitle}
+                      onChange={(e) => setMediaTitle(e.target.value)}
+                      placeholder="e.g. Modern Consultation Room &amp; Patient Examination"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-clinic-600"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-3">
+                    <label className={`w-full py-2.5 px-4 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer ${uploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
+                      {uploadingMedia ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Uploading to Cloudinary...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4" />
+                          <span>Choose File to Upload</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*,video/mp4,video/webm,video/quicktime"
+                        onChange={handleUploadMediaFile}
+                        disabled={uploadingMedia}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {mediaUploadMsg && (
+                  <div className={`p-3 rounded-xl text-xs font-semibold border ${mediaUploadMsg.startsWith('Error') ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300'}`}>
+                    {mediaUploadMsg}
+                  </div>
+                )}
+              </div>
+
+              {/* Published Gallery */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">
+                    Published Clinic Photos &amp; Video Tours ({parseDoctorMedia(doctorProfile?.gallery_media).length})
+                  </h4>
+                  <span className="text-[11px] text-slate-500">Live on public doctor profile</span>
+                </div>
+
+                {parseDoctorMedia(doctorProfile?.gallery_media).length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {parseDoctorMedia(doctorProfile?.gallery_media).map((item) => (
+                      <div
+                        key={item.id}
+                        className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col"
+                      >
+                        <div className="aspect-video bg-slate-950 relative flex items-center justify-center overflow-hidden">
+                          {item.type === 'video' ? (
+                            <div className="w-full h-full relative flex items-center justify-center">
+                              {item.thumbnail ? (
+                                <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full bg-slate-900 flex items-center justify-center">
+                                  <Video className="w-10 h-10 text-purple-400" />
+                                </div>
+                              )}
+                              <span className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <Play className="w-8 h-8 text-white drop-shadow-lg" />
+                              </span>
+                            </div>
+                          ) : (
+                            <img
+                              src={item.url}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          )}
+
+                          <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/75 text-white backdrop-blur-xs">
+                            {item.category === 'clinic_video' ? 'Video Tour' : item.category === 'doctor_image' ? 'Doctor Portrait' : 'Clinic Photo'}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteMedia(item.id, item.title)}
+                            disabled={deletingMediaId === item.id}
+                            className="absolute top-2 right-2 p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm opacity-90 hover:opacity-100 transition-all cursor-pointer"
+                            title="Delete this media"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="p-3 flex-1 flex flex-col justify-between">
+                          <div>
+                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate" title={item.title}>
+                              {item.title}
+                            </p>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">
+                              {item.type === 'video' ? 'Video Player' : 'High Resolution Photo'}
+                            </span>
+                          </div>
+                          <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px]">
+                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">✓ Cloudinary Synced</span>
+                            <span className="text-slate-400">{item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Active'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-850">
+                    <Film className="w-12 h-12 text-purple-300 dark:text-purple-600 mx-auto mb-3" />
+                    <h5 className="font-extrabold text-slate-800 dark:text-white text-base">
+                      No clinic photos or videos uploaded yet
+                    </h5>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+                      Add clinic interior, waiting area, and procedural video tours. Media is securely hosted on Cloudinary and displayed to patients on dikhancare.io.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

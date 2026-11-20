@@ -26,12 +26,26 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
   onBackToDirectory,
   onFindDoctor
 }) => {
-  const adminPhone = '03325255879';
-  const adminPhoneIntl = '+923325255879';
-  const whatsappUrl = `https://wa.me/923325255879?text=${encodeURIComponent(
-    'Assalam-o-Alaikum Admin, I am a doctor/clinic owner in Dera Ismail Khan and I want to join the D.I. Khan Care healthcare network.'
-  )}`;
+  const admins = [
+    {
+      id: 'admin1',
+      label: 'Admin Desk 1',
+      displayPhone: '0332 5255879',
+      rawPhone: '03325255879',
+      intlPhone: '+923325255879',
+      badge: 'Primary Line'
+    },
+    {
+      id: 'admin2',
+      label: 'Admin Desk 2',
+      displayPhone: '0336 9875724',
+      rawPhone: '03369875724',
+      intlPhone: '+923369875724',
+      badge: 'Support Desk'
+    }
+  ];
 
+  const [selectedAdminIndex, setSelectedAdminIndex] = useState(0);
   const [doctorName, setDoctorName] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [clinicName, setClinicName] = useState('');
@@ -41,6 +55,7 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
 
   const handleSubmitInquiry = (e: React.FormEvent) => {
     e.preventDefault();
+    const targetAdmin = admins[selectedAdminIndex];
     const message = `*Doctor Onboarding Inquiry - D.I. Khan Care*\n\n` +
       `*Doctor Name:* Dr. ${doctorName.trim()}\n` +
       `*Specialty:* ${specialty.trim()}\n` +
@@ -49,7 +64,7 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
       `*WhatsApp Contact:* ${whatsappContact.trim()}\n\n` +
       `Please guide me through the doctor registration and clinic portal onboarding process.`;
 
-    const customWaUrl = `https://wa.me/923325255879?text=${encodeURIComponent(message)}`;
+    const customWaUrl = `https://wa.me/${targetAdmin.intlPhone.replace('+', '')}?text=${encodeURIComponent(message)}`;
     window.open(customWaUrl, '_blank');
     setFormSubmitted(true);
   };
@@ -97,47 +112,69 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
         <div className="rounded-3xl bg-white dark:bg-slate-900 border-2 border-emerald-500/40 dark:border-emerald-500/30 p-6 sm:p-8 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full pointer-events-none" />
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          <div className="space-y-6 relative z-10">
             <div className="space-y-2 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Direct Administration Desk
+                Direct Administration Desks
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                 If you want to join as a doctor, contact the admins
               </h3>
               <p dir="rtl" className="font-urdu-hero text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-400">
-                ڈاکٹر رجسٹریشن کے لیے اس نمبر پر رابطہ کریں:
+                ڈاکٹر رجسٹریشن کے لیے ایڈمن سے براہ راست رابطہ کریں:
               </p>
-              <div className="pt-2 flex items-center justify-center md:justify-start gap-3">
-                <span className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-wider text-emerald-700 dark:text-emerald-400 font-mono select-all">
-                  {adminPhone}
-                </span>
-                <span className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold">
-                  Official Admin Line
-                </span>
-              </div>
             </div>
 
-            {/* Quick Action Buttons */}
-            <div className="flex flex-col sm:flex-row md:flex-col gap-3 w-full md:w-auto shrink-0">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full md:w-64 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold text-sm sm:text-base shadow-lg hover:shadow-emerald-500/25 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span>Chat on WhatsApp</span>
-              </a>
+            {/* Admin Contacts Dual Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {admins.map((adm) => (
+                <div
+                  key={adm.id}
+                  className="rounded-2xl border border-emerald-500/30 bg-slate-50/80 dark:bg-slate-800/70 p-5 flex flex-col justify-between gap-4 hover:border-emerald-500/60 transition-all shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/90 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold">
+                        <PhoneCall className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
+                          {adm.label}
+                        </h4>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                          {adm.badge}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-lg sm:text-xl font-black text-emerald-700 dark:text-emerald-400 font-mono tracking-wide select-all">
+                      {adm.displayPhone}
+                    </span>
+                  </div>
 
-              <a
-                href={`tel:${adminPhoneIntl}`}
-                className="w-full md:w-64 px-6 py-3.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-extrabold text-sm sm:text-base shadow-md flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
-              >
-                <PhoneCall className="w-5 h-5 text-emerald-400 dark:text-emerald-600" />
-                <span>Call Admin Now</span>
-              </a>
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
+                    <a
+                      href={`https://wa.me/${adm.intlPhone.replace('+', '')}?text=${encodeURIComponent(
+                        'Assalam-o-Alaikum Admin, I am a doctor/clinic owner in Dera Ismail Khan and I want to join the D.I. Khan Care healthcare network.'
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold text-xs sm:text-sm shadow-md hover:shadow-emerald-500/25 flex items-center justify-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>WhatsApp</span>
+                    </a>
+
+                    <a
+                      href={`tel:${adm.intlPhone}`}
+                      className="px-3.5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-extrabold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-1.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
+                    >
+                      <PhoneCall className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+                      <span>Call Admin</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -234,7 +271,7 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
               {
                 step: '01',
                 title: 'Contact Administration',
-                desc: `Call or message our admin team at ${adminPhone} to request your onboarding.`
+                desc: 'Call or WhatsApp our admin team at 0332 5255879 or 0336 9875724 to start your quick onboarding.'
               },
               {
                 step: '02',
@@ -360,12 +397,41 @@ export const JoinAsDoctorSection: React.FC<JoinAsDoctorSectionProps> = ({
               />
             </div>
 
+            {/* Choose which Admin to contact */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Select Admin Desk to Send Request *
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {admins.map((adm, idx) => (
+                  <button
+                    key={adm.id}
+                    type="button"
+                    onClick={() => setSelectedAdminIndex(idx)}
+                    className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                      selectedAdminIndex === idx
+                        ? 'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/60 ring-2 ring-emerald-500/30'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white">{adm.label}</div>
+                      <div className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">{adm.displayPhone}</div>
+                    </div>
+                    {selectedAdminIndex === idx && (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button
               type="submit"
               className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black text-sm sm:text-base shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-95"
             >
               <Send className="w-4 h-4" />
-              <span>Submit via WhatsApp to Admin (03325255879)</span>
+              <span>Submit via WhatsApp to {admins[selectedAdminIndex].label} ({admins[selectedAdminIndex].displayPhone})</span>
             </button>
 
             {formSubmitted && (

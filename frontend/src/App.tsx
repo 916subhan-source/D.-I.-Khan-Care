@@ -1355,7 +1355,7 @@ export default function App() {
                 >
                   <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Join as a Doctor</span>
-                  <span className="ml-auto text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">03325255879</span>
+                  <span className="ml-auto text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">0332 / 0336</span>
                 </button>
               </div>
 
@@ -1485,7 +1485,7 @@ export default function App() {
               <button onClick={() => handleSwitchRole('patient')} className="hover:text-emerald-600 transition cursor-pointer">Find a Doctor</button>
               <button onClick={() => handleSwitchRole('track')} className="hover:text-emerald-600 transition cursor-pointer">Track Appointment</button>
               <button onClick={() => handleSwitchRole('loyalty')} className="hover:text-amber-600 transition cursor-pointer">VIP Loyalty Card</button>
-              <button onClick={() => handleSwitchRole('join-doctor')} className="hover:text-emerald-600 text-emerald-700 dark:text-emerald-400 font-bold transition cursor-pointer">Join as a Doctor (03325255879)</button>
+              <button onClick={() => handleSwitchRole('join-doctor')} className="hover:text-emerald-600 text-emerald-700 dark:text-emerald-400 font-bold transition cursor-pointer">Join as a Doctor (0332 5255879 / 0336 9875724)</button>
             </div>
           </div>
 
@@ -1504,7 +1504,7 @@ export default function App() {
               <span>·</span>
               <button onClick={() => setLegalModal('terms')} className="hover:text-slate-800 dark:hover:text-slate-200 transition cursor-pointer">Terms of service</button>
               <span>·</span>
-              <a href="tel:+923325255879" className="hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-emerald-700 dark:text-emerald-400 transition">Contact us</a>
+              <button onClick={() => handleSwitchRole('join-doctor')} className="hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-emerald-700 dark:text-emerald-400 transition cursor-pointer">Contact admins</button>
             </div>
           </div>
         </div>

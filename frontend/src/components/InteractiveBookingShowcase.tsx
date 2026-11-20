@@ -20,9 +20,6 @@ import {
   Building2,
   Ticket,
   Smartphone,
-  KeyRound,
-  Send,
-  Zap,
   Check
 } from 'lucide-react';
 import { playButtonClickSound } from '../utils/sound';
@@ -43,7 +40,7 @@ export function InteractiveBookingShowcase({
   const [progress, setProgress] = useState<number>(0);
 
   // Micro-interaction simulation states
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number; visible: boolean }>({ x: 50, y: 50, visible: true });
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 24, y: 30 });
   const [isClicking, setIsClicking] = useState<boolean>(false);
   const [simFilter, setSimFilter] = useState<'Cardiologist' | 'Child Specialist' | 'Gynecologist'>('Cardiologist');
   const [simShift, setSimShift] = useState<'morning' | 'evening'>('morning');
@@ -52,6 +49,10 @@ export function InteractiveBookingShowcase({
   const [simPhone, setSimPhone] = useState<string>('');
   const [simOtpEntered, setSimOtpEntered] = useState<boolean>(false);
   const [showWhatsAppNotice, setShowWhatsAppNotice] = useState<boolean>(false);
+
+  // Use refs so timers never get cancelled by state changes
+  const stepRef = useRef<number>(0);
+  const elapsedRef = useRef<number>(0);
 
   const steps = [
     {
@@ -145,7 +146,7 @@ export function InteractiveBookingShowcase({
           setIsAutoPlaying(true);
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.15 }
     );
 
     if (containerRef.current) {
@@ -154,143 +155,122 @@ export function InteractiveBookingShowcase({
     return () => observer.disconnect();
   }, []);
 
-  // ── Continuous Seamless Video-Like Simulation Timeline ──
+  // ── Bulletproof Continuous Video-Like Simulation Master Loop ──
   useEffect(() => {
     if (!isAutoPlaying || !isInView) return;
 
-    // Total duration per step is 4.5 seconds
     const stepDuration = 4500;
-    const intervalMs = 40;
-    let elapsedInStep = 0;
+    const intervalMs = 50;
 
     const timer = setInterval(() => {
-      elapsedInStep += intervalMs;
-      const pct = Math.min(100, (elapsedInStep / stepDuration) * 100);
+      elapsedRef.current += intervalMs;
+      const currentStepIdx = stepRef.current;
+      const pct = Math.min(100, (elapsedRef.current / stepDuration) * 100);
       setProgress(pct);
 
-      // Scene 1: Search & Pick Doctor (activeStep === 0)
-      if (activeStep === 0) {
-        if (pct < 25) {
-          // Cursor glides to symptom filter "Cardiologist"
-          setCursorPos({ x: 22, y: 32, visible: true });
-        } else if (pct >= 25 && pct < 45) {
-          // Click filter
-          if (!isClicking && pct >= 25 && pct <= 28) {
-            setIsClicking(true);
-            playButtonClickSound(0.2);
-            setSimFilter('Cardiologist');
-            setTimeout(() => setIsClicking(false), 300);
-          }
-          // Move cursor down to doctor card "Pick Slot" button
-          setCursorPos({ x: 84, y: 76, visible: true });
-        } else if (pct >= 45 && pct < 85) {
-          // Hover and click "Pick Slot"
-          setCursorPos({ x: 84, y: 76, visible: true });
-          if (!isClicking && pct >= 58 && pct <= 61) {
-            setIsClicking(true);
-            playButtonClickSound(0.25);
-            setTimeout(() => setIsClicking(false), 350);
-          }
-        }
-      }
-
-      // Scene 2: Date & Slot Matrix (activeStep === 1)
-      else if (activeStep === 1) {
-        if (pct < 30) {
-          // Cursor moves to evening shift button
-          setCursorPos({ x: 74, y: 44, visible: true });
-        } else if (pct >= 30 && pct < 50) {
-          // Click evening shift
-          if (!isClicking && pct >= 30 && pct <= 33) {
-            setIsClicking(true);
-            playButtonClickSound(0.2);
-            setSimShift('evening');
-            setTimeout(() => setIsClicking(false), 300);
-          }
-          // Move cursor down to available slot #03 (06:20 PM)
-          setCursorPos({ x: 62, y: 64, visible: true });
-        } else if (pct >= 50 && pct < 75) {
-          // Click slot #03
-          if (!isClicking && pct >= 50 && pct <= 53) {
-            setIsClicking(true);
-            playButtonClickSound(0.24);
-            setSimSlotSelected(true);
-            setTimeout(() => setIsClicking(false), 300);
-          }
-          // Move cursor to "Proceed to Details" button
-          setCursorPos({ x: 86, y: 88, visible: true });
-        } else if (pct >= 75) {
-          // Click proceed
-          if (!isClicking && pct >= 78 && pct <= 81) {
-            setIsClicking(true);
-            playButtonClickSound(0.25);
-            setTimeout(() => setIsClicking(false), 350);
-          }
-        }
-      }
-
-      // Scene 3: Patient Phone & OTP (activeStep === 2)
-      else if (activeStep === 2) {
-        if (pct < 30) {
-          setCursorPos({ x: 45, y: 32, visible: true });
-          setSimPatientName('Muhammad Usman');
-        } else if (pct >= 30 && pct < 60) {
-          setCursorPos({ x: 45, y: 52, visible: true });
-          setSimPhone('0332 5255879');
-          setSimOtpEntered(true);
-        } else if (pct >= 60 && pct < 85) {
-          // Move to Confirm Appointment button
-          setCursorPos({ x: 50, y: 84, visible: true });
-        } else if (pct >= 85) {
-          // Click confirm button
-          if (!isClicking && pct >= 86 && pct <= 89) {
-            setIsClicking(true);
-            playButtonClickSound(0.3);
-            setTimeout(() => setIsClicking(false), 350);
-          }
-        }
-      }
-
-      // Scene 4: WhatsApp Digital Slip Confirmed (activeStep === 3)
-      else if (activeStep === 3) {
+      // ── Choreographed Screen 1 Events ──
+      if (currentStepIdx === 0) {
         if (pct < 20) {
-          setShowWhatsAppNotice(true);
-          setCursorPos({ x: 50, y: 18, visible: true });
-        } else if (pct >= 20 && pct < 65) {
-          // Cursor inspects Live Queue status
-          setCursorPos({ x: 65, y: 68, visible: true });
-        } else if (pct >= 65) {
-          // Cursor moves to Google Maps navigation
-          setCursorPos({ x: 75, y: 88, visible: true });
+          setCursorPos({ x: 22, y: 32 });
+        } else if (pct >= 20 && pct < 30) {
+          setSimFilter('Cardiologist');
+          setIsClicking(true);
+        } else if (pct >= 30 && pct < 60) {
+          setIsClicking(false);
+          // Glide down smoothly to the "Pick Slot" button
+          setCursorPos({ x: 88, y: 78 });
+        } else if (pct >= 60 && pct < 75) {
+          setIsClicking(true);
+        } else if (pct >= 75) {
+          setIsClicking(false);
         }
       }
 
-      // Transition to next scene smoothly
-      if (elapsedInStep >= stepDuration) {
-        elapsedInStep = 0;
+      // ── Choreographed Screen 2 Events ──
+      else if (currentStepIdx === 1) {
+        if (pct < 25) {
+          // Move cursor to Evening shift
+          setCursorPos({ x: 74, y: 44 });
+        } else if (pct >= 25 && pct < 35) {
+          setSimShift('evening');
+          setIsClicking(true);
+        } else if (pct >= 35 && pct < 60) {
+          setIsClicking(false);
+          // Move to slot #03 (06:20 PM)
+          setCursorPos({ x: 62, y: 64 });
+        } else if (pct >= 60 && pct < 72) {
+          setSimSlotSelected(true);
+          setIsClicking(true);
+        } else if (pct >= 72 && pct < 85) {
+          setIsClicking(false);
+          // Move to "Proceed to Book" button
+          setCursorPos({ x: 86, y: 88 });
+        } else if (pct >= 85) {
+          setIsClicking(true);
+        }
+      }
+
+      // ── Choreographed Screen 3 Events ──
+      else if (currentStepIdx === 2) {
+        if (pct < 25) {
+          setCursorPos({ x: 50, y: 32 });
+          setSimPatientName('Muhammad Usman');
+          setIsClicking(false);
+        } else if (pct >= 25 && pct < 50) {
+          setCursorPos({ x: 50, y: 52 });
+          setSimPhone('0332 5255879');
+        } else if (pct >= 50 && pct < 75) {
+          setSimOtpEntered(true);
+          setCursorPos({ x: 50, y: 86 });
+        } else if (pct >= 75 && pct < 88) {
+          setIsClicking(true);
+        } else if (pct >= 88) {
+          setIsClicking(false);
+        }
+      }
+
+      // ── Choreographed Screen 4 Events ──
+      else if (currentStepIdx === 3) {
+        setIsClicking(false);
+        if (pct < 30) {
+          setShowWhatsAppNotice(true);
+          setCursorPos({ x: 50, y: 16 });
+        } else if (pct >= 30 && pct < 70) {
+          setCursorPos({ x: 50, y: 68 });
+        } else {
+          setCursorPos({ x: 75, y: 88 });
+        }
+      }
+
+      // ── Step Transition: Advance to next screen seamlessly ──
+      if (elapsedRef.current >= stepDuration) {
+        elapsedRef.current = 0;
         setProgress(0);
         setIsClicking(false);
-        setActiveStep((prev) => {
-          const next = (prev + 1) % steps.length;
-          playButtonClickSound(0.18);
-          // Reset interaction states on loop
-          if (next === 0) {
-            setSimSlotSelected(false);
-            setSimPatientName('');
-            setSimPhone('');
-            setSimOtpEntered(false);
-            setShowWhatsAppNotice(false);
-          }
-          return next;
-        });
+        const nextStep = (stepRef.current + 1) % 4;
+        stepRef.current = nextStep;
+        setActiveStep(nextStep);
+        playButtonClickSound(0.2);
+
+        // Reset scene data on complete loop
+        if (nextStep === 0) {
+          setSimSlotSelected(false);
+          setSimPatientName('');
+          setSimPhone('');
+          setSimOtpEntered(false);
+          setShowWhatsAppNotice(false);
+          setSimShift('morning');
+        }
       }
     }, intervalMs);
 
     return () => clearInterval(timer);
-  }, [isAutoPlaying, isInView, activeStep, isClicking]);
+  }, [isAutoPlaying, isInView]);
 
   const handleStepJump = (idx: number) => {
     playButtonClickSound(0.24);
+    elapsedRef.current = 0;
+    stepRef.current = idx;
     setActiveStep(idx);
     setProgress(0);
     setIsClicking(false);
@@ -458,38 +438,36 @@ export function InteractiveBookingShowcase({
             {/* Canvas Container with Continuous Horizontal Sliding Track and Large Dynamic Cursor */}
             <div className="overflow-hidden relative w-full bg-slate-50/50 dark:bg-slate-950/40 min-h-[410px] sm:min-h-[450px]">
               
-              {/* ── Large High-Visibility Animated Virtual Cursor ── */}
-              {cursorPos.visible && (
-                <div
-                  className="absolute pointer-events-none z-40 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                  style={{
-                    left: `${cursorPos.x}%`,
-                    top: `${cursorPos.y}%`,
-                    transform: 'translate(-4px, -4px)'
-                  }}
+              {/* ── Large High-Visibility Animated Virtual Cursor (36px) ── */}
+              <div
+                className="absolute pointer-events-none z-50 transition-all duration-500 ease-[cubic-bezier(0.2,0.9,0.3,1)]"
+                style={{
+                  left: `${cursorPos.x}%`,
+                  top: `${cursorPos.y}%`,
+                  transform: 'translate(-4px, -4px)'
+                }}
+              >
+                {/* Large High-Contrast Pointer with Emerald Accent */}
+                <svg
+                  className={`w-9 h-9 transition-transform duration-150 drop-shadow-2xl ${isClicking ? 'scale-90' : 'scale-100'}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
                 >
-                  {/* Large High-Contrast macOS Style SVG Pointer (32px) */}
-                  <svg
-                    className={`w-8 h-8 transition-transform duration-150 drop-shadow-2xl ${isClicking ? 'scale-90' : 'scale-100'}`}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.85a.5.5 0 0 0-.85.36z"
-                      fill="#047857"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                    />
-                    {/* Glowing Fingertip Dot */}
-                    <circle cx="6" cy="4" r="2" fill="#34d399" />
-                  </svg>
+                  <path
+                    d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.85a.5.5 0 0 0-.85.36z"
+                    fill="#047857"
+                    stroke="#ffffff"
+                    strokeWidth="2.5"
+                  />
+                  {/* Glowing Fingertip Dot */}
+                  <circle cx="6" cy="4" r="2.5" fill="#34d399" />
+                </svg>
 
-                  {/* Active Click Ripple Wave */}
-                  {isClicking && (
-                    <span className="absolute -top-3 -left-3 w-12 h-12 rounded-full border-2 border-emerald-400 bg-emerald-400/40 animate-ping pointer-events-none" />
-                  )}
-                </div>
-              )}
+                {/* Active Click Ripple Wave */}
+                {isClicking && (
+                  <span className="absolute -top-3 -left-3 w-14 h-14 rounded-full border-2 border-emerald-400 bg-emerald-400/40 animate-ping pointer-events-none" />
+                )}
+              </div>
 
               {/* ── Horizontal Sliding Track ── */}
               <div

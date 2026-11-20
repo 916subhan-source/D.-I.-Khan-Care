@@ -150,18 +150,29 @@ def upload_doctor_media_file(file_bytes: bytes, doctor_id: str, is_video: bool =
     Falls back gracefully to local uploads directory or inline base64 if Cloudinary is unreachable.
     """
     import uuid
+    import io
     media_id = uuid.uuid4().hex[:10]
     resource_type = "video" if is_video else "image"
 
     if configure_cloudinary():
         try:
-            res = cloudinary.uploader.upload(
-                file_bytes,
-                folder="dikhan_doctor_media",
-                public_id=f"doc_{doctor_id}_{media_id}",
-                overwrite=True,
-                resource_type=resource_type
-            )
+            if is_video or len(file_bytes) > 10 * 1024 * 1024:
+                res = cloudinary.uploader.upload_large(
+                    io.BytesIO(file_bytes),
+                    folder="dikhan_doctor_media",
+                    public_id=f"doc_{doctor_id}_{media_id}",
+                    overwrite=True,
+                    resource_type=resource_type,
+                    chunk_size=6000000
+                )
+            else:
+                res = cloudinary.uploader.upload(
+                    file_bytes,
+                    folder="dikhan_doctor_media",
+                    public_id=f"doc_{doctor_id}_{media_id}",
+                    overwrite=True,
+                    resource_type=resource_type
+                )
             raw_url = res.get("secure_url")
             if raw_url:
                 if not is_video:

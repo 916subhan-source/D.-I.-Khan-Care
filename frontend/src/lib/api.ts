@@ -293,13 +293,22 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 // Low-level network fetch execution with retries and error parsing
 async function executeNetworkFetch<T>(endpoint: string, options: RequestInit, headers: Record<string, string>): Promise<T> {
   const isGet = !options.method || options.method.toUpperCase() === 'GET';
+  const isUpload = options.body instanceof FormData || endpoint.includes('/upload') || endpoint.includes('/media');
   const apiBase = getApiBase();
-  const maxRetries = isGet ? 2 : 1;
+  const maxRetries = isUpload ? 0 : (isGet ? 2 : 1);
   let lastError: any = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 18000); // 18-sec timeout guard
+    // 300 seconds (5 minutes) timeout guard for media/video uploads, 30 seconds for standard API requests
+    const timeoutMs = isUpload ? 300000 : 30000;
+    const timeoutId = setTimeout(() => {
+      try {
+        controller.abort(new Error(isUpload ? 'Upload timed out. For large video clips, please ensure a stable internet connection or reduce video length.' : 'Request timed out. Please try again.'));
+      } catch {
+        controller.abort();
+      }
+    }, timeoutMs);
 
     try {
       const response = await fetch(`${apiBase}${endpoint}`, {
@@ -386,6 +395,17 @@ async function executeNetworkFetch<T>(endpoint: string, options: RequestInit, he
     } catch (err: any) {
       clearTimeout(timeoutId);
       lastError = err;
+
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
+        const reason = (controller.signal as any)?.reason;
+        if (reason && reason.message) {
+          throw reason;
+        } else if (typeof reason === 'string') {
+          throw new Error(reason);
+        } else if (isUpload) {
+          throw new Error('Upload timed out. For large video clips, please ensure a stable internet connection or reduce video length.');
+        }
+      }
 
       if (err.message && !err.message.includes('Failed to fetch') && !err.message.includes('NetworkError') && !err.message.includes('aborted')) {
         throw err;

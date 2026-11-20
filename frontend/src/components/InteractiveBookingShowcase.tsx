@@ -34,13 +34,13 @@ export function InteractiveBookingShowcase({
   onTrackAppointment
 }: InteractiveBookingShowcaseProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isInView, setIsInView] = useState<boolean>(true);
+  const [isInView, setIsInView] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState<number>(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(true);
   const [progress, setProgress] = useState<number>(0);
 
   // Micro-interaction simulation states
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 24, y: 30 });
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 38, y: 14 });
   const [isClicking, setIsClicking] = useState<boolean>(false);
   const [simFilter, setSimFilter] = useState<'Cardiologist' | 'Child Specialist' | 'Gynecologist'>('Cardiologist');
   const [simShift, setSimShift] = useState<'morning' | 'evening'>('morning');
@@ -53,6 +53,7 @@ export function InteractiveBookingShowcase({
   // Use refs so timers never get cancelled by state changes
   const stepRef = useRef<number>(0);
   const elapsedRef = useRef<number>(0);
+  const hasTriggeredInitialView = useRef<boolean>(false);
 
   const steps = [
     {
@@ -142,11 +143,27 @@ export function InteractiveBookingShowcase({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          // When the showcase first scrolls into view, start freshly from Step 0 (Search & Filter)
+          if (!hasTriggeredInitialView.current) {
+            hasTriggeredInitialView.current = true;
+            elapsedRef.current = 0;
+            stepRef.current = 0;
+            setActiveStep(0);
+            setProgress(0);
+            setCursorPos({ x: 36, y: 14 });
+            setIsClicking(false);
+          }
           setIsInView(true);
           setIsAutoPlaying(true);
+        } else {
+          // When user scrolls away, pause so animation does not run unnoticed in background
+          setIsInView(false);
         }
       },
-      { threshold: 0.15 }
+      {
+        threshold: 0.15,
+        rootMargin: '0px 0px -40px 0px'
+      }
     );
 
     if (containerRef.current) {
@@ -159,7 +176,7 @@ export function InteractiveBookingShowcase({
   useEffect(() => {
     if (!isAutoPlaying || !isInView) return;
 
-    const stepDuration = 4500;
+    const stepDuration = 4800;
     const intervalMs = 50;
 
     const timer = setInterval(() => {
@@ -170,59 +187,87 @@ export function InteractiveBookingShowcase({
 
       // ── Choreographed Screen 1 Events ──
       if (currentStepIdx === 0) {
-        if (pct < 20) {
-          setCursorPos({ x: 22, y: 32 });
-        } else if (pct >= 20 && pct < 30) {
-          setSimFilter('Cardiologist');
-          setIsClicking(true);
-        } else if (pct >= 30 && pct < 60) {
+        if (pct < 18) {
+          // 1. Start at Search Bar
+          setCursorPos({ x: 36, y: 14 });
           setIsClicking(false);
-          // Glide down smoothly to the "Pick Slot" button
-          setCursorPos({ x: 88, y: 78 });
-        } else if (pct >= 60 && pct < 75) {
-          setIsClicking(true);
-        } else if (pct >= 75) {
+        } else if (pct >= 18 && pct < 34) {
+          // 2. Glide down to Symptom / Specialty Filter Pill
+          setCursorPos({ x: 18, y: 26 });
+          if (pct >= 24) {
+            setSimFilter('Cardiologist');
+            setIsClicking(true);
+          }
+        } else if (pct >= 34 && pct < 58) {
+          // 3. Hover & Select Doctor Card (Dr. Waqar Khan Gandapur)
+          setIsClicking(false);
+          setCursorPos({ x: 48, y: 52 });
+        } else if (pct >= 58 && pct < 86) {
+          // 4. Glide down to "Pick Slot" action button
+          setCursorPos({ x: 86, y: 76 });
+          if (pct >= 72) {
+            setIsClicking(true);
+          } else {
+            setIsClicking(false);
+          }
+        } else if (pct >= 86) {
           setIsClicking(false);
         }
       }
 
       // ── Choreographed Screen 2 Events ──
       else if (currentStepIdx === 1) {
-        if (pct < 25) {
-          // Move cursor to Evening shift
-          setCursorPos({ x: 74, y: 44 });
-        } else if (pct >= 25 && pct < 35) {
-          setSimShift('evening');
-          setIsClicking(true);
-        } else if (pct >= 35 && pct < 60) {
-          setIsClicking(false);
-          // Move to slot #03 (06:20 PM)
+        if (pct < 24) {
+          // 1. Move cursor to Evening shift selector
+          setCursorPos({ x: 74, y: 26 });
+          if (pct >= 16) {
+            setSimShift('evening');
+            setIsClicking(true);
+          } else {
+            setIsClicking(false);
+          }
+        } else if (pct >= 24 && pct < 56) {
+          // 2. Move down to slot #03 (06:20 PM)
           setCursorPos({ x: 62, y: 64 });
-        } else if (pct >= 60 && pct < 72) {
-          setSimSlotSelected(true);
-          setIsClicking(true);
-        } else if (pct >= 72 && pct < 85) {
-          setIsClicking(false);
-          // Move to "Proceed to Book" button
+          if (pct >= 42) {
+            setSimSlotSelected(true);
+            setIsClicking(true);
+          } else {
+            setIsClicking(false);
+          }
+        } else if (pct >= 56 && pct < 86) {
+          // 3. Move to "Proceed to Book" button
           setCursorPos({ x: 86, y: 88 });
-        } else if (pct >= 85) {
-          setIsClicking(true);
+          if (pct >= 72) {
+            setIsClicking(true);
+          } else {
+            setIsClicking(false);
+          }
+        } else if (pct >= 86) {
+          setIsClicking(false);
         }
       }
 
       // ── Choreographed Screen 3 Events ──
       else if (currentStepIdx === 2) {
-        if (pct < 25) {
+        if (pct < 24) {
+          // 1. Type patient name
           setCursorPos({ x: 50, y: 32 });
           setSimPatientName('Muhammad Usman');
           setIsClicking(false);
-        } else if (pct >= 25 && pct < 50) {
-          setCursorPos({ x: 50, y: 52 });
+        } else if (pct >= 24 && pct < 48) {
+          // 2. Type WhatsApp phone number
+          setCursorPos({ x: 50, y: 50 });
           setSimPhone('0332 5255879');
-        } else if (pct >= 50 && pct < 75) {
+          setIsClicking(false);
+        } else if (pct >= 48 && pct < 72) {
+          // 3. Enter 4-digit verification OTP
           setSimOtpEntered(true);
-          setCursorPos({ x: 50, y: 86 });
-        } else if (pct >= 75 && pct < 88) {
+          setCursorPos({ x: 50, y: 68 });
+          setIsClicking(false);
+        } else if (pct >= 72 && pct < 88) {
+          // 4. Click Confirm Appointment button
+          setCursorPos({ x: 50, y: 88 });
           setIsClicking(true);
         } else if (pct >= 88) {
           setIsClicking(false);
@@ -232,13 +277,19 @@ export function InteractiveBookingShowcase({
       // ── Choreographed Screen 4 Events ──
       else if (currentStepIdx === 3) {
         setIsClicking(false);
-        if (pct < 30) {
+        if (pct < 32) {
+          // 1. WhatsApp dropdown push notification
           setShowWhatsAppNotice(true);
           setCursorPos({ x: 50, y: 16 });
-        } else if (pct >= 30 && pct < 70) {
-          setCursorPos({ x: 50, y: 68 });
-        } else {
+        } else if (pct >= 32 && pct < 70) {
+          // 2. Inspect confirmed token pass
+          setCursorPos({ x: 50, y: 56 });
+        } else if (pct >= 70 && pct < 88) {
+          // 3. Click Track Live Queue
           setCursorPos({ x: 75, y: 88 });
+          setIsClicking(true);
+        } else {
+          setIsClicking(false);
         }
       }
 

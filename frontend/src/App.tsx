@@ -6870,6 +6870,11 @@ function DoctorProfileAndBookingView({
 const parseSpecialtyFromUrl = (): string => {
   try {
     const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+    if (pathname === '/doctors/pediatrician' || pathname === '/specialty/pediatrician') {
+      try {
+        window.history.replaceState(null, '', '/doctors/child-specialist');
+      } catch (_) {}
+    }
     const searchParams = new URLSearchParams(window.location.search);
     const querySpec = searchParams.get('specialty') || searchParams.get('spec');
 

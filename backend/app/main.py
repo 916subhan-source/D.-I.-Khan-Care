@@ -486,7 +486,6 @@ async def dynamic_sitemap():
             "general-surgeon",
             "cardiologist",
             "child-specialist",
-            "pediatrician",
             "gynecologist",
             "orthopedic-surgeon",
             "general-physician",
@@ -611,7 +610,7 @@ async def dynamic_sitemap():
 # Check for production frontend bundle in frontend/dist
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
 if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "assets")):
-    from fastapi.responses import HTMLResponse
+    from fastapi.responses import HTMLResponse, RedirectResponse
     import re as _re_module
     import gzip as _gzip_module
 
@@ -681,6 +680,25 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 html = f.read()
 
             normalized_path = full_path.strip("/").lower()
+
+            # Permanent 301 Canonical Redirect for duplicate pediatric specialty URL
+            if normalized_path in ("doctors/pediatrician", "specialty/pediatrician", "doctors/pediatrics", "specialty/pediatrics"):
+                return RedirectResponse(url="https://dikhancare.io/doctors/child-specialist", status_code=301)
+
+            # Dedicated Canonical SEO injection for Child Specialist in D.I. Khan
+            if normalized_path in ("doctors/child-specialist", "specialty/child-specialist"):
+                spec_title = "Best Child Specialist &amp; Pediatrician in Dera Ismail Khan — Book Online | D.I. Khan Care"
+                spec_desc = "Book online appointment with top PMDC-verified Child Specialists and Pediatricians in D.I. Khan. Newborn intensive care, infant immunization, vaccination, and pediatric clinics opposite DHQ Hospital."
+                spec_keywords = "child specialist in di khan, pediatrician in dera ismail khan, bacho ka doctor di khan, child clinic di khan, infant care specialist dera ismail khan, pmdc verified child doctor opposite dhq hospital di khan"
+                spec_url = "https://dikhancare.io/doctors/child-specialist"
+                html = _re_module.sub(r'<title>.*?</title>', f'<title>{spec_title}</title>', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{spec_keywords}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{spec_url}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:title" content=".*?"', f'<meta property="og:title" content="{spec_title}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta property="og:url" content=".*?"', f'<meta property="og:url" content="{spec_url}"', html, flags=_re_module.IGNORECASE)
+                return HTMLResponse(content=html, headers={"Cache-Control": "no-cache, must-revalidate"})
 
             # Dynamic SEO Title and Metadata injection for Doctor Profiles & Specialties & Core Pages
             if normalized_path == "track" or normalized_path.startswith("track"):

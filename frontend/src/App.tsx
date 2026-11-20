@@ -75,6 +75,7 @@ import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
 import JoinAsDoctorSection from './components/JoinAsDoctorSection';
+import { InteractiveBookingShowcase } from './components/InteractiveBookingShowcase';
 
 
 // ── Shared Domain Types, Formatters, Calling Order & Constants ──
@@ -7846,77 +7847,15 @@ function PatientSection({
       {/* ── In Home View: Visual Filter Carousels / In Directory View: Horizontal Specialty Pills ── */}
       {isHomeView ? (
         <div id="home-filters-container" className="max-w-7xl mx-auto px-4 sm:px-6">
-          {/* ── Monetag-Style 3-Step Interactive Process Flow (Placed before Symptoms Checker & Specialty Directory) ── */}
-          <section className="mt-6 sm:mt-10 mb-8 sm:mb-12">
-            <div className="scroll-reveal text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-700/60 text-[10px] sm:text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-2.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Zero Advance Fees &bull; Guaranteed Digital Pass</span>
-              </div>
-              <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                Book Your Specialist in <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">3 Easy Steps</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
-                Fast, verified healthcare booking across Dera Ismail Khan clinics with zero upfront payment.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 relative stagger-group">
-              {/* Step 1 Box - Independent Scroll Up Motion */}
-              <div className="scroll-reveal relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 pulse-glow">
-                    1
-                  </div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
-                    Step 1
-                  </span>
-                </div>
-                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  Choose Verified Specialist
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Browse by symptom, specialty, or clinic locality in Dera Ismail Khan with real-time fee and schedule details.
-                </p>
-              </div>
-
-              {/* Step 2 Box - Independent Scroll Up Motion */}
-              <div className="scroll-reveal relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-teal-500/25 pulse-glow">
-                    2
-                  </div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-full border border-teal-200/60 dark:border-teal-800/60">
-                    Step 2
-                  </span>
-                </div>
-                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  Pick Morning or Evening Slot
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Select your preferred consultation timing and secure a guaranteed digital queue token in under 30 seconds.
-                </p>
-              </div>
-
-              {/* Step 3 Box - Independent Scroll Up Motion */}
-              <div className="scroll-reveal relative group bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-cyan-600/25 pulse-glow">
-                    3
-                  </div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-200/60 dark:border-cyan-800/60">
-                    Step 3
-                  </span>
-                </div>
-                <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  Digital Slip &amp; Pay at Clinic
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Get your instant digital token on WhatsApp &amp; SMS. 100% free booking with cash payment directly at clinic arrival.
-                </p>
-              </div>
-            </div>
-          </section>
+          {/* ── Live Interactive Booking Showcase (Xpereozz Animated Style) ── */}
+          <InteractiveBookingShowcase
+            onStartBooking={() => {
+              scrollToResults();
+            }}
+            onTrackAppointment={() => {
+              setShowTrack(true);
+            }}
+          />
 
           <HomeVisualFilters
             selectedSpecialty={selectedSpecialty}

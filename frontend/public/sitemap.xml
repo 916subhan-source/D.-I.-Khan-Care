@@ -199,24 +199,4 @@
       <image:caption>Registrar Surgery DHQ Hospital, Al-Shifa (Ali) Hospital Opposite DHQ Hospital</image:caption>
     </image:image>
   </url>
-
-  <!-- Query Parameter Doctor Links (Legacy & Backwards Compatibility) -->
-  <url>
-    <loc>https://dikhancare.io/doctors?doctor=e3858a27-da7d-4d13-a4d4-9c6f1ffe7c71</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dikhancare.io/doctors?doctor=a22da1cd-e4c8-48bf-93d6-8c05789fdd4d</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dikhancare.io/doctors?doctor=52f87cb0-8e54-4d87-8acd-a9ab4d5e1282</loc>
-    <lastmod>2026-11-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
 </urlset>

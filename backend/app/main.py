@@ -587,16 +587,6 @@ async def dynamic_sitemap():
                 '  </url>'
             ])
 
-            # Query parameter profile URL (Secondary)
-            xml_lines.extend([
-                '  <url>',
-                f'    <loc>https://dikhancare.io/doctors?doctor={doc_id}</loc>',
-                f'    <lastmod>{lastmod}</lastmod>',
-                '    <changefreq>weekly</changefreq>',
-                '    <priority>0.8</priority>',
-                '  </url>'
-            ])
-
         xml_lines.append('</urlset>')
         xml_content = "\n".join(xml_lines)
         return Response(content=xml_content, media_type="application/xml; charset=utf-8")
@@ -658,7 +648,7 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
         )
 
     @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
-    async def serve_spa(full_path: str):
+    async def serve_spa(request: Request, full_path: str):
         if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path.startswith("openapi.json"):
             return JSONResponse(status_code=404, content={"detail": "Not found"})
         candidate_file = os.path.join(frontend_dist, full_path)
@@ -680,6 +670,17 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 html = f.read()
 
             normalized_path = full_path.strip("/").lower()
+
+            # Permanent 301 Canonical Redirect for legacy query parameter doctor URLs (/doctors?doctor=52f87cb0... -> /doctor/dr-ali-raza)
+            doc_param = request.query_params.get("doctor") or request.query_params.get("doc_id")
+            if (normalized_path == "doctors" or normalized_path == "") and doc_param:
+                doc_param_lower = doc_param.lower()
+                if "52f87cb0" in doc_param_lower or "raza" in doc_param_lower:
+                    return RedirectResponse(url="https://dikhancare.io/doctor/dr-ali-raza", status_code=301)
+                elif "e3858a27" in doc_param_lower or "waqar" in doc_param_lower:
+                    return RedirectResponse(url="https://dikhancare.io/doctor/dr-waqar-khan-gandapur", status_code=301)
+                elif "a22da1cd" in doc_param_lower or "naveed" in doc_param_lower:
+                    return RedirectResponse(url="https://dikhancare.io/doctor/dr-naveed-khan", status_code=301)
 
             # Permanent 301 Canonical Redirect for duplicate pediatric specialty URL
             if normalized_path in ("doctors/pediatrician", "specialty/pediatrician", "doctors/pediatrics", "specialty/pediatrics"):
@@ -777,15 +778,38 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{doc_keywords}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
             elif normalized_path.startswith("doctors/") or normalized_path.startswith("specialty/"):
-                spec_slug = normalized_path.split("/")[-1].replace("-", " ").title()
+                spec_raw = normalized_path.split("/")[-1].lower()
+                spec_slug = spec_raw.replace("-", " ").title()
+
+                spec_descriptions = {
+                    "dermatologist": "Book online appointment with top PMDC-verified Skin Specialists & Dermatologists in D.I. Khan. Acne treatments, skin allergy, laser therapy, eczema, and skin clinics opposite DHQ Hospital.",
+                    "general-physician": "Consult top PMDC-verified General Physicians and Internal Medicine Specialists in Dera Ismail Khan. Comprehensive care for diabetes, blood pressure, fever, and chronic adult illnesses.",
+                    "orthopedic-surgeon": "Find verified Orthopedic Surgeons in D.I. Khan. Expert care for bone fractures, joint pain, arthritis, knee replacement, spine disorders, and orthopedic trauma.",
+                    "rheumatologist": "Top PMDC-verified Rheumatologists in D.I. Khan. Specialized diagnosis and relief for rheumatoid arthritis, joint inflammation, gout, lupus, and chronic autoimmune musculoskeletal pain.",
+                    "cardiologist": "Book appointments with leading Cardiologists & Heart Specialists in D.I. Khan. ECG, echocardiography, blood pressure control, and heart disease management.",
+                    "gynecologist": "Consult PMDC-verified Gynecologists in D.I. Khan. Expert maternal checkups, pregnancy care, normal delivery, infertility treatment, and female health clinics.",
+                    "urologist": "Consult verified Urologists in D.I. Khan. Laser kidney stone removal, prostate treatment, urinary tract surgery, and male health specialists.",
+                    "neurologist": "Book consultation with top Neurologists in D.I. Khan. Brain and nerve care, migraine relief, stroke management, epilepsy, and neuropathy specialists.",
+                    "gastroenterologist": "Consult PMDC-verified Gastroenterologists in D.I. Khan. Stomach, liver, hepatitis, endoscopy, GERD, and digestive health clinics.",
+                    "pulmonologist": "Find Chest Specialists & Pulmonologists in D.I. Khan. Asthma, chronic cough, COPD, chest infection, and respiratory disease clinics.",
+                    "ent-specialist": "Book appointment with verified ENT Specialists in D.I. Khan. Ear infection, throat pain, sinusitis, tonsils, and hearing evaluations.",
+                    "eye-specialist": "Consult Eye Specialists & Ophthalmologists in D.I. Khan. Cataract surgery, vision testing, glaucoma, and ocular disease clinics."
+                }
+
                 spec_title = f"Best {spec_slug} in Dera Ismail Khan — Book PMDC Verified Doctor | D.I. Khan Care"
-                spec_desc = f"Find and book online appointments with verified {spec_slug} doctors in Dera Ismail Khan. Daily clinic timings, instant queue tokens, pay cash on arrival."
+                spec_desc = spec_descriptions.get(spec_raw, f"Find and book online appointments with verified {spec_slug} doctors in Dera Ismail Khan. Daily clinic timings, instant queue tokens, pay cash on arrival.")
                 spec_keywords = f"{spec_slug.lower()} in dera ismail khan, best {spec_slug.lower()} in di khan, top {spec_slug.lower()} doctors opposite dhq hospital, {spec_slug.lower()} clinic timings, pmdc verified {spec_slug.lower()}"
                 spec_url = f"https://dikhancare.io/{normalized_path}"
+
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{spec_title}</title>', html, flags=_re_module.IGNORECASE)
-                html = _re_module.sub(r'<meta name="description" content=".*?"', f'<meta name="description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE)
-                html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{spec_keywords}"', html, flags=_re_module.IGNORECASE)
-                html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{spec_url}"', html, flags=_re_module.IGNORECASE)
+                html = _re_module.sub(r'<meta\s+name=["\']?description["\']?\s+content=["\'].*?["\']', f'<meta name="description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<meta\s+property=["\']?og:description["\']?\s+content=["\'].*?["\']', f'<meta property="og:description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<meta\s+name=["\']?twitter:description["\']?\s+content=["\'].*?["\']', f'<meta name="twitter:description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<meta\s+name=["\']?keywords["\']?\s+content=["\'].*?["\']', f'<meta name="keywords" content="{spec_keywords}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<meta\s+property=["\']?og:title["\']?\s+content=["\'].*?["\']', f'<meta property="og:title" content="{spec_title}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<meta\s+name=["\']?twitter:title["\']?\s+content=["\'].*?["\']', f'<meta name="twitter:title" content="{spec_title}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<link\s+rel=["\']?canonical["\']?\s+href=["\'].*?["\']', f'<link rel="canonical" href="{spec_url}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
+                html = _re_module.sub(r'<meta\s+property=["\']?og:url["\']?\s+content=["\'].*?["\']', f'<meta property="og:url" content="{spec_url}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)
 
             return HTMLResponse(content=html, headers={"Cache-Control": "no-cache, must-revalidate"})
         except Exception:

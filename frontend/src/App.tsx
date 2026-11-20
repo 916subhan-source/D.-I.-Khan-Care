@@ -9185,6 +9185,15 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     return myDoctors.find(d => d.doctor_id === selectedDoctorId) || myDoctors[0];
   }, [myDoctors, selectedDoctorId]);
 
+  // Ensure selectedDoctorId is never out of sync if myDoctors has at least one doctor
+  useEffect(() => {
+    if (!selectedDoctorId && myDoctors.length > 0 && myDoctors[0]?.doctor_id) {
+      const firstId = myDoctors[0].doctor_id;
+      setSelectedDoctorId(firstId);
+      localStorage.setItem('assistant_selected_doctor_id', firstId);
+    }
+  }, [selectedDoctorId, myDoctors]);
+
   // Synchronize assistant off days with current doctor profile
   useEffect(() => {
     if (currentDoctor?.off_days) {
@@ -9429,22 +9438,69 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
     }
   };
 
-  const fetchQueue = async (docId?: string, archived = includeArchived) => {
+  const fetchQueue = async (docId?: string, archived = includeArchived, isManualRefresh = false) => {
     try {
       setLoading(true);
-      const targetDoc = docId || selectedDoctorId;
-      if (!targetDoc) return;
+      const targetDoc =
+        docId ||
+        selectedDoctorId ||
+        currentDoctor?.doctor_id ||
+        (myDoctors && myDoctors[0]?.doctor_id) ||
+        localStorage.getItem('assistant_selected_doctor_id') ||
+        '';
+
+      if (!targetDoc) {
+        if (myDoctors && myDoctors.length > 0) {
+          const firstDocId = myDoctors[0].doctor_id;
+          setSelectedDoctorId(firstDocId);
+          localStorage.setItem('assistant_selected_doctor_id', firstDocId);
+          return fetchQueue(firstDocId, archived, isManualRefresh);
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (!selectedDoctorId && targetDoc) {
+        setSelectedDoctorId(targetDoc);
+        localStorage.setItem('assistant_selected_doctor_id', targetDoc);
+      }
+
+      // Invalidate SWR cache for assistant queue on every fetch
+      invalidateApiCache('/assistant/queue');
+
       const params = new URLSearchParams();
       params.set('doctor_id', targetDoc);
       if (archived) params.set('include_archived', 'true');
+      params.set('_t', Date.now().toString());
+
       const url = `/assistant/queue?${params.toString()}`;
       const activeTok = token || localStorage.getItem('assistant_token') || '';
+
+      const startTime = Date.now();
       const data = await apiFetch<AppointmentItem[]>(url, {
-        headers: activeTok ? { Authorization: `Bearer ${activeTok}` } : {}
+        headers: {
+          ...(activeTok ? { Authorization: `Bearer ${activeTok}` } : {}),
+          'x-cache-bypass': 'true',
+        },
+        cache: 'no-store',
       });
+
+      // Guarantee minimum 400ms duration so tactile spinning feedback is noticeable
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 400) {
+        await new Promise((resolve) => setTimeout(resolve, 400 - elapsed));
+      }
+
       setQueue(Array.isArray(data) ? data : []);
+
+      if (isManualRefresh) {
+        setActionMessage('✓ Patient queue refreshed successfully!');
+        setTimeout(() => setActionMessage(''), 3000);
+      }
     } catch (err: any) {
       console.error('Failed to load queue for assistant:', err);
+      setActionMessage(`⚠️ Could not refresh queue: ${err.message || 'Network error'}`);
+      setTimeout(() => setActionMessage(''), 4000);
       if (err.message?.includes('401') || err.message?.toLowerCase().includes('credentials were changed') || err.message?.toLowerCase().includes('invalid token') || err.message?.toLowerCase().includes('unauthorized')) {
         localStorage.removeItem('assistant_token');
         setToken('');
@@ -10156,9 +10212,10 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
               </h2>
             </div>
             <button
-              onClick={() => fetchQueue(selectedDoctorId)}
+              onClick={() => fetchQueue(selectedDoctorId || currentDoctor?.doctor_id, includeArchived, true)}
               disabled={loading}
               className="w-full sm:w-auto px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-75 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer shrink-0"
+              title="Click to refresh live queue from server"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Refreshing Queue...' : 'Refresh Queue'}</span>
@@ -10266,13 +10323,13 @@ function AssistantSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'as
 
                   <button
                     type="button"
-                    onClick={() => fetchQueue(selectedDoctorId)}
+                    onClick={() => fetchQueue(selectedDoctorId || currentDoctor?.doctor_id, includeArchived, true)}
                     disabled={loading}
                     className="px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-60 shadow-2xs whitespace-nowrap flex-shrink-0 cursor-pointer"
                     title="Refresh live patient queue"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 text-clinic-600 dark:text-emerald-400 ${loading ? 'animate-spin' : ''}`} />
-                    <span>Refresh</span>
+                    <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
                   </button>
                 </div>
               </div>

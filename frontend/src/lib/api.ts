@@ -165,8 +165,14 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     }
   }
 
+  const bypassCache =
+    options.cache === 'no-store' ||
+    options.cache === 'reload' ||
+    headers['x-cache-bypass'] === 'true' ||
+    headers['Cache-Control'] === 'no-cache';
+
   const isGet = !options.method || options.method.toUpperCase() === 'GET';
-  const isCacheable = isGet && (
+  const isCacheable = !bypassCache && isGet && (
     endpoint.startsWith('/doctors') ||
     endpoint.startsWith('/health') ||
     endpoint.startsWith('/reviews') ||
@@ -179,6 +185,14 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     endpoint.startsWith('/doctor/slots/my-slots')
   );
   const cacheKey = `${endpoint}::${headers['Authorization'] || 'anon'}`;
+
+  // If explicitly requested to bypass cache, purge old cached entry immediately
+  if (bypassCache) {
+    apiCache.delete(cacheKey);
+    if (typeof window !== 'undefined') {
+      try { localStorage.removeItem(`swr_v1_${cacheKey}`); } catch {}
+    }
+  }
 
   // 1. Check in-memory & persistent SWR cache (0ms instant return)
   if (isCacheable) {

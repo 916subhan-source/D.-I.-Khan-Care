@@ -77,6 +77,16 @@ async def verify_assistant_doctor_access(current_user: User, doctor_id: str, db:
     return True
 
 
+def clean_doctor_display_name(name: Optional[str]) -> str:
+    if not name:
+        return "Doctor"
+    n = name.strip()
+    n = re.sub(r"^(?:(?:dr\.?)\s*)+", "", n, flags=re.IGNORECASE).strip()
+    if n.lower() == "tariqkhan":
+        n = "Tariq Khan"
+    return f"Dr. {n.title()}" if n else "Doctor"
+
+
 @router.get("/my-doctors")
 async def get_linked_doctors(
     current_user: User = Depends(require_roles(["ASSISTANT", "ADMIN"])),
@@ -108,7 +118,7 @@ async def get_linked_doctors(
     return [
         {
             "doctor_id": doc.id,
-            "doctor_name": doc.user.full_name if doc.user else "Specialist Doctor",
+            "doctor_name": clean_doctor_display_name(doc.user.full_name) if doc.user else "Specialist Doctor",
             "specialty": doc.specialty,
             "clinic_address": doc.clinic_address,
             "fee_clinic": float(doc.fee_clinic),
@@ -177,12 +187,18 @@ async def get_queue(
         query = query.where(Appointment.status == status_filter)
 
     if not include_archived:
-        # Hide all past consultations before today by default in Pakistan Standard Time (UTC+5)
+        # Hide past completed/cancelled/rejected visits before today in Pakistan Standard Time (UTC+5).
+        # Active appointments (pending approval, confirmed, held) remain visible so receptionists never miss patients.
         now_pkt = datetime.now(timezone(timedelta(hours=5)))
         today_start_pkt = datetime(now_pkt.year, now_pkt.month, now_pkt.day, 0, 0, 0, tzinfo=timezone(timedelta(hours=5)))
         today_start_utc = today_start_pkt.astimezone(timezone.utc)
         appt_time = func.coalesce(DoctorSlot.start_time, Appointment.created_at)
-        query = query.where(appt_time >= today_start_utc)
+        query = query.where(
+            or_(
+                Appointment.status.in_(["PENDING_ASSISTANT_APPROVAL", "CONFIRMED", "pending", "confirmed"]),
+                appt_time >= today_start_utc
+            )
+        )
 
 
     query = query.order_by(Appointment.created_at.desc())
@@ -204,11 +220,7 @@ async def get_queue(
             "created_at": appt.created_at,
             "patient_name": appt.patient_name or (appt.patient.full_name if appt.patient else "Patient"),
             "patient_phone": appt.patient_phone or (appt.patient.phone if appt.patient else "N/A"),
-            "doctor_name": (
-                ("Dr. " + appt.doctor.user.full_name.strip().title()) 
-                if appt.doctor and appt.doctor.user and not appt.doctor.user.full_name.strip().lower().startswith("dr")
-                else (appt.doctor.user.full_name.strip().title() if appt.doctor and appt.doctor.user else "Doctor")
-            ),
+            "doctor_name": clean_doctor_display_name(appt.doctor.user.full_name if appt.doctor and appt.doctor.user else "Doctor"),
             "slot_start": appt.slot.start_time if appt.slot else None,
             "start_time": appt.slot.start_time.isoformat() if appt.slot and appt.slot.start_time else None,
             "slot_date": (

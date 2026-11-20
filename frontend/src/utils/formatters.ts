@@ -147,16 +147,37 @@ export function formatMinutesTo12h(mins: number): string {
 }
 
 /**
- * Formats doctor name with proper casing and "Dr." prefix
+ * Formats doctor name with proper casing and clean "Dr." prefix.
+ * Gracefully cleans duplicate or malformed prefixes like "Dr. Dr.", "Dr.tariqkhan", "dr. ", etc.
  */
 export function formatDoctorName(name?: string): string {
   if (!name) return 'Doctor';
-  const clean = name.trim();
-  const titled = clean.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-  if (/^(surgeon\s+dr\.?|prof\.?\s+dr\.?|dr\.?)\s+/i.test(titled)) {
-    return titled;
+  let clean = name.trim();
+
+  // If there's "Dr." or "Dr" stuck directly to the name without space (e.g. "Dr.tariqkhan"), insert space
+  clean = clean.replace(/^(surgeon|prof(?:essor)?|dr)\.?([a-zA-Z])/i, '$1. $2');
+
+  let prefix = 'Dr.';
+  if (/^prof(?:\.|\s)+dr\.?/i.test(clean)) {
+    prefix = 'Prof. Dr.';
+    clean = clean.replace(/^prof(?:\.|\s)+dr\.?\s*/i, '');
+  } else if (/^surgeon(?:\.|\s)+dr\.?/i.test(clean)) {
+    prefix = 'Surgeon Dr.';
+    clean = clean.replace(/^surgeon(?:\.|\s)+dr\.?\s*/i, '');
+  } else {
+    // Strip repeated/malformed Dr prefixes like "Dr. Dr.", "Dr.", "Dr "
+    clean = clean.replace(/^(?:dr\.?\s*)+/i, '');
   }
-  return `Dr. ${titled}`;
+
+  // Capitalize words properly
+  let titled = clean.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()).trim();
+
+  // Handle specific concatenated names if any
+  if (titled.toLowerCase() === 'tariqkhan') {
+    titled = 'Tariq Khan';
+  }
+
+  return titled ? `${prefix} ${titled}` : prefix;
 }
 
 /**

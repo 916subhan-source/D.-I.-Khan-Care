@@ -14250,6 +14250,17 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageUploadMsg, setImageUploadMsg] = useState('');
 
+  // Doctor Media Gallery management state (Photos & Videos)
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [mediaUploadMsg, setMediaUploadMsg] = useState('');
+  const [mediaCategory, setMediaCategory] = useState<'clinic_image' | 'clinic_video' | 'doctor_image'>('clinic_image');
+  const [mediaTitle, setMediaTitle] = useState('');
+  const [showAddMediaLinkModal, setShowAddMediaLinkModal] = useState(false);
+  const [mediaLinkUrl, setMediaLinkUrl] = useState('');
+  const [mediaLinkTitle, setMediaLinkTitle] = useState('');
+  const [mediaLinkCategory, setMediaLinkCategory] = useState<'clinic_image' | 'clinic_video' | 'doctor_image'>('clinic_video');
+  const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
+
   const handleLoginSubmit = async (emailInput?: string, passInput?: string) => {
     try {
       setLoginLoading(true);
@@ -15537,6 +15548,104 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       setImageUploadMsg(`Error: ${err.message || 'Failed to remove photo'}`);
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  // ── Doctor Media Gallery Management (Photos & Videos) ──
+  const handleUploadMediaFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
+
+    try {
+      setUploadingMedia(true);
+      setMediaUploadMsg('Uploading media to Cloudinary / storage...');
+
+      const formData = new FormData();
+      formData.append('file', rawFile);
+      formData.append('category', mediaCategory);
+      formData.append('title', mediaTitle.trim() || rawFile.name);
+
+      const res: any = await apiFetch('/doctor/media/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      setMediaUploadMsg('✓ Media uploaded and published to your patient profile!');
+      setDoctorProfile((prev: any) => ({
+        ...prev,
+        gallery_media: JSON.stringify(res.gallery_media || [])
+      }));
+      setMediaTitle('');
+      loadDoctorData();
+      invalidateApiCache('/doctors');
+      setTimeout(() => setMediaUploadMsg(''), 4000);
+    } catch (err: any) {
+      setMediaUploadMsg(`Error: ${err.message || 'Media upload failed'}`);
+    } finally {
+      setUploadingMedia(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleAddMediaLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mediaLinkUrl.trim()) return;
+
+    try {
+      setUploadingMedia(true);
+      setMediaUploadMsg('Adding video link to your profile...');
+
+      const res: any = await apiFetch('/doctor/media/link', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          url: mediaLinkUrl.trim(),
+          title: mediaLinkTitle.trim(),
+          category: mediaLinkCategory,
+        }),
+      });
+
+      setMediaUploadMsg('✓ Video link added and published to your profile!');
+      setDoctorProfile((prev: any) => ({
+        ...prev,
+        gallery_media: JSON.stringify(res.gallery_media || [])
+      }));
+      setMediaLinkUrl('');
+      setMediaLinkTitle('');
+      setShowAddMediaLinkModal(false);
+      loadDoctorData();
+      invalidateApiCache('/doctors');
+      setTimeout(() => setMediaUploadMsg(''), 4000);
+    } catch (err: any) {
+      setMediaUploadMsg(`Error: ${err.message || 'Failed to add media link'}`);
+    } finally {
+      setUploadingMedia(false);
+    }
+  };
+
+  const handleDeleteMedia = async (mediaId: string, itemTitle?: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${itemTitle || 'this media item'}" from your public profile?`)) return;
+
+    try {
+      setDeletingMediaId(mediaId);
+      const res: any = await apiFetch(`/doctor/media/${mediaId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMediaUploadMsg('✓ Media item removed from your public profile.');
+      setDoctorProfile((prev: any) => ({
+        ...prev,
+        gallery_media: JSON.stringify(res.gallery_media || [])
+      }));
+      loadDoctorData();
+      invalidateApiCache('/doctors');
+      setTimeout(() => setMediaUploadMsg(''), 4000);
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete media');
+    } finally {
+      setDeletingMediaId(null);
     }
   };
 
@@ -17352,6 +17461,166 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
               </div>
 
+              {/* ── Clinic Photos, Clinic Videos & Doctor Media Gallery Card ── */}
+              <div className="bg-gradient-to-r from-slate-50 to-purple-50/30 dark:from-slate-800 dark:to-slate-850 rounded-2xl border border-slate-200/90 dark:border-slate-700 p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Film className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <h4 className="font-extrabold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        Clinic Photos &amp; Video Tour Gallery
+                      </h4>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                        {parseDoctorMedia(doctorProfile?.gallery_media).length} Published
+                      </span>
+                    </div>
+                    <p className="text-slate-500 dark:text-slate-300 text-xs mt-1">
+                      Add photos and videos of your clinic reception, waiting area, operation theater, and clinical procedures. These appear on your public doctor profile with video playback and photo lightbox for patients.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddMediaLinkModal(true)}
+                      className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-xs transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Add Video Link (YouTube)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Upload Section Controls */}
+                <div className="p-3.5 bg-white dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-3">
+                  <span className="text-xs font-bold text-slate-800 dark:text-white block">
+                    Upload Clinic Photo or Short Video:
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                        Category:
+                      </label>
+                      <select
+                        value={mediaCategory}
+                        onChange={(e: any) => setMediaCategory(e.target.value)}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200"
+                      >
+                        <option value="clinic_image">Clinic Facility Photo</option>
+                        <option value="clinic_video">Clinic Video Tour</option>
+                        <option value="doctor_image">Doctor Activity / Portrait</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                        Title / Caption (Optional):
+                      </label>
+                      <input
+                        type="text"
+                        value={mediaTitle}
+                        onChange={(e) => setMediaTitle(e.target.value)}
+                        placeholder="e.g. Modern Waiting Area"
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200"
+                      />
+                    </div>
+
+                    <div className="flex items-end">
+                      <label className={`w-full py-2 px-3 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${uploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{uploadingMedia ? 'Uploading...' : 'Choose File to Upload'}</span>
+                        <input
+                          type="file"
+                          accept="image/*,video/mp4,video/webm,video/quicktime"
+                          onChange={handleUploadMediaFile}
+                          disabled={uploadingMedia}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {mediaUploadMsg && (
+                  <div className={`p-2.5 rounded-xl text-xs font-semibold border ${mediaUploadMsg.startsWith('Error') ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
+                    {mediaUploadMsg}
+                  </div>
+                )}
+
+                {/* Published Media Grid */}
+                {parseDoctorMedia(doctorProfile?.gallery_media).length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-1">
+                    {parseDoctorMedia(doctorProfile?.gallery_media).map((item) => (
+                      <div
+                        key={item.id}
+                        className="group relative rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs hover:shadow-md transition-all"
+                      >
+                        {/* Thumbnail */}
+                        <div className="aspect-video bg-slate-950 relative flex items-center justify-center overflow-hidden">
+                          {item.type === 'video' ? (
+                            <div className="w-full h-full relative flex items-center justify-center">
+                              {item.thumbnail ? (
+                                <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full bg-slate-900 flex items-center justify-center">
+                                  <Video className="w-8 h-8 text-purple-400" />
+                                </div>
+                              )}
+                              <span className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <Play className="w-6 h-6 text-white drop-shadow-md" />
+                              </span>
+                            </div>
+                          ) : (
+                            <img
+                              src={item.url}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          )}
+
+                          {/* Category Badge */}
+                          <span className="absolute top-1.5 left-1.5 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-xs">
+                            {item.category === 'clinic_video' ? 'Video' : item.category === 'doctor_image' ? 'Doctor' : 'Clinic'}
+                          </span>
+
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteMedia(item.id, item.title)}
+                            disabled={deletingMediaId === item.id}
+                            className="absolute top-1.5 right-1.5 p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm opacity-90 hover:opacity-100 transition-all cursor-pointer"
+                            title="Delete this media from your profile"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Title Caption */}
+                        <div className="p-2">
+                          <p className="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate" title={item.title}>
+                            {item.title}
+                          </p>
+                          <span className="text-[10px] text-slate-400 block truncate">
+                            {item.type === 'video' ? 'Playable Video' : 'HD Photo'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-white/50 dark:bg-slate-900/50">
+                    <Film className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                      No clinic photos or videos added yet.
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Doctors with clinic photos and videos receive up to 3x more patient bookings.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {profileMsg && (
                 <div className={`p-3 rounded-xl text-xs font-semibold border ${profileMsg.startsWith('Error') ? 'bg-rose-50 border-rose-200 text-rose-800' : 'bg-clinic-50 border-clinic-200 text-clinic-900'}`}>
                   {profileMsg}
@@ -18159,6 +18428,94 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal: Add Video Link (YouTube / Vimeo / MP4) ── */}
+      {showAddMediaLinkModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Video className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <h3 className="font-bold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  Add Clinic Video Link
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddMediaLinkModal(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Paste a public YouTube video, YouTube Short, Vimeo link, or MP4 video URL. It will be embedded directly on your profile for patients.
+            </p>
+
+            <form onSubmit={handleAddMediaLink} className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                  Video URL:
+                </label>
+                <input
+                  type="url"
+                  value={mediaLinkUrl}
+                  onChange={(e) => setMediaLinkUrl(e.target.value)}
+                  required
+                  placeholder="https://www.youtube.com/watch?v=... or youtu.be/..."
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                  Video Title:
+                </label>
+                <input
+                  type="text"
+                  value={mediaLinkTitle}
+                  onChange={(e) => setMediaLinkTitle(e.target.value)}
+                  placeholder="e.g. Clinic Walkthrough &amp; Patient Waiting Area"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                  Category:
+                </label>
+                <select
+                  value={mediaLinkCategory}
+                  onChange={(e: any) => setMediaLinkCategory(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                >
+                  <option value="clinic_video">Clinic Video Tour</option>
+                  <option value="clinic_image">Clinic Image</option>
+                  <option value="doctor_image">Doctor Activity</option>
+                </select>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMediaLinkModal(false)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploadingMedia || !mediaLinkUrl.trim()}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  {uploadingMedia ? 'Adding...' : 'Publish Video Link'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

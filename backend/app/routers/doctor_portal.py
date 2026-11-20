@@ -1833,6 +1833,13 @@ async def update_doctor_profile(
 
 # ── Dedicated Doctor Media Gallery Endpoints (Clinic Videos, Clinic Images, Doctor Images) ──
 
+# Doctor Media Gallery Limits per Doctor
+MAX_DOCTOR_PHOTOS = 10
+MAX_DOCTOR_VIDEOS = 3
+MAX_DOCTOR_TOTAL_MEDIA = 12
+MAX_PHOTO_SIZE_BYTES = 10 * 1024 * 1024  # 10MB
+MAX_VIDEO_SIZE_BYTES = 60 * 1024 * 1024  # 60MB
+
 @router.post("/media/upload")
 async def upload_doctor_media_endpoint(
     file: UploadFile = File(...),
@@ -1842,8 +1849,10 @@ async def upload_doctor_media_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Uploads a photo or video to doctor's clinic/doctor media gallery.
-    Stores via Cloudinary (or local fallback) and updates gallery_media JSON on doctor record.
+    Uploads a photo or video to doctor's clinic/doctor media gallery with enforced quotas:
+    - Maximum 10 photos per doctor (max 10MB each)
+    - Maximum 3 video tours per doctor (max 60MB each)
+    - Maximum 12 total media items
     """
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
@@ -1854,8 +1863,47 @@ async def upload_doctor_media_endpoint(
     is_video = "video" in content_type or any(filename.lower().endswith(ext) for ext in [".mp4", ".mov", ".webm", ".mkv", ".m4v"])
     
     file_bytes = await file.read()
-    if len(file_bytes) > 60 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large. Maximum allowed file size is 60MB.")
+
+    try:
+        current_gallery = json.loads(doc.gallery_media or "[]")
+    except Exception:
+        current_gallery = []
+
+    current_images = [m for m in current_gallery if m.get("type") == "image"]
+    current_videos = [m for m in current_gallery if m.get("type") == "video"]
+
+    # 1. Total Media Cap
+    if len(current_gallery) >= MAX_DOCTOR_TOTAL_MEDIA:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Clinic media limit reached ({MAX_DOCTOR_TOTAL_MEDIA} total items). Please delete an existing photo or video to upload a new one."
+        )
+
+    # 2. Category Quotas & File Size Validation
+    if is_video:
+        if len(current_videos) >= MAX_DOCTOR_VIDEOS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Clinic video tour limit reached ({len(current_videos)}/{MAX_DOCTOR_VIDEOS} videos). Each doctor can upload a maximum of {MAX_DOCTOR_VIDEOS} clinic video tours. Please delete an older video to upload a new one."
+            )
+        if len(file_bytes) > MAX_VIDEO_SIZE_BYTES:
+            size_mb = round(len(file_bytes) / (1024 * 1024), 1)
+            raise HTTPException(
+                status_code=400,
+                detail=f"Video file too large ({size_mb}MB). Maximum allowed video clip size is 60MB."
+            )
+    else:
+        if len(current_images) >= MAX_DOCTOR_PHOTOS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Clinic photo limit reached ({len(current_images)}/{MAX_DOCTOR_PHOTOS} photos). Each doctor can upload a maximum of {MAX_DOCTOR_PHOTOS} clinic photos. Please delete an older photo to upload a new one."
+            )
+        if len(file_bytes) > MAX_PHOTO_SIZE_BYTES:
+            size_mb = round(len(file_bytes) / (1024 * 1024), 1)
+            raise HTTPException(
+                status_code=400,
+                detail=f"Photo file too large ({size_mb}MB). Maximum allowed photo size is 10MB."
+            )
 
     url = upload_doctor_media_file(file_bytes, doc.id, is_video=is_video, filename=filename)
     if not url:
@@ -1870,11 +1918,6 @@ async def upload_doctor_media_endpoint(
         "title": title.strip() or ("Clinic Video Tour" if is_video else ("Doctor Photo" if cat == "doctor_image" else "Clinic Facility")),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-
-    try:
-        current_gallery = json.loads(doc.gallery_media or "[]")
-    except Exception:
-        current_gallery = []
 
     current_gallery.append(media_item)
     doc.gallery_media = json.dumps(current_gallery)
@@ -1930,6 +1973,26 @@ async def add_doctor_media_link(
         current_gallery = json.loads(doc.gallery_media or "[]")
     except Exception:
         current_gallery = []
+
+    current_images = [m for m in current_gallery if m.get("type") == "image"]
+    current_videos = [m for m in current_gallery if m.get("type") == "video"]
+
+    if len(current_gallery) >= MAX_DOCTOR_TOTAL_MEDIA:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Clinic media limit reached ({MAX_DOCTOR_TOTAL_MEDIA} items). Please delete an existing item before adding a new link."
+        )
+
+    if is_video and len(current_videos) >= MAX_DOCTOR_VIDEOS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Clinic video tour limit reached ({len(current_videos)}/{MAX_DOCTOR_VIDEOS}). Maximum {MAX_DOCTOR_VIDEOS} video tours allowed per doctor."
+        )
+    elif not is_video and len(current_images) >= MAX_DOCTOR_PHOTOS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Clinic photo limit reached ({len(current_images)}/{MAX_DOCTOR_PHOTOS}). Maximum {MAX_DOCTOR_PHOTOS} clinic photos allowed per doctor."
+        )
 
     current_gallery.append(media_item)
     doc.gallery_media = json.dumps(current_gallery)

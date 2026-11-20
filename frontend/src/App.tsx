@@ -15554,14 +15554,56 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
     }
   };
 
-  // ── Doctor Media Gallery Management (Photos & Videos) ──
+  // ── Doctor Media Gallery Management (Photos & Videos) with Quotas ──
+  const MAX_DOCTOR_PHOTOS = 10;
+  const MAX_DOCTOR_VIDEOS = 3;
+  const MAX_DOCTOR_TOTAL = 12;
+  const MAX_PHOTO_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_VIDEO_SIZE = 60 * 1024 * 1024; // 60MB
+
   const handleUploadMediaFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawFile = e.target.files?.[0];
     if (!rawFile) return;
 
+    const currentList = parseDoctorMedia(doctorProfile?.gallery_media);
+    const currentPhotos = currentList.filter(m => m.type !== 'video').length;
+    const currentVideos = currentList.filter(m => m.type === 'video').length;
+    const isVideo = rawFile.type.startsWith('video/') || mediaCategory === 'clinic_video' || ['.mp4', '.mov', '.webm', '.mkv'].some(ext => rawFile.name.toLowerCase().endsWith(ext));
+
+    // 1. Quota Validation
+    if (currentList.length >= MAX_DOCTOR_TOTAL) {
+      setMediaUploadMsg(`Error: Media gallery limit reached (${MAX_DOCTOR_TOTAL} items maximum). Please delete an existing photo or video to upload a new one.`);
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    if (isVideo) {
+      if (currentVideos >= MAX_DOCTOR_VIDEOS) {
+        setMediaUploadMsg(`Error: Video tour limit reached (${currentVideos}/${MAX_DOCTOR_VIDEOS}). Each doctor can upload up to ${MAX_DOCTOR_VIDEOS} clinic video tours. Please delete an existing video first.`);
+        if (e.target) e.target.value = '';
+        return;
+      }
+      if (rawFile.size > MAX_VIDEO_SIZE) {
+        setMediaUploadMsg(`Error: Video file is too large (${(rawFile.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed video size is 60MB.`);
+        if (e.target) e.target.value = '';
+        return;
+      }
+    } else {
+      if (currentPhotos >= MAX_DOCTOR_PHOTOS) {
+        setMediaUploadMsg(`Error: Photo limit reached (${currentPhotos}/${MAX_DOCTOR_PHOTOS}). Each doctor can upload up to ${MAX_DOCTOR_PHOTOS} clinic photos. Please delete an existing photo first.`);
+        if (e.target) e.target.value = '';
+        return;
+      }
+      if (rawFile.size > MAX_PHOTO_SIZE) {
+        setMediaUploadMsg(`Error: Photo file is too large (${(rawFile.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed photo size is 10MB.`);
+        if (e.target) e.target.value = '';
+        return;
+      }
+    }
+
     try {
       setUploadingMedia(true);
-      setMediaUploadMsg('Uploading media to Cloudinary / storage...');
+      setMediaUploadMsg('Uploading media to Cloudinary CDN...');
 
       const formData = new FormData();
       formData.append('file', rawFile);
@@ -15582,7 +15624,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       setMediaTitle('');
       loadDoctorData();
       invalidateApiCache('/doctors');
-      setTimeout(() => setMediaUploadMsg(''), 4000);
+      setTimeout(() => setMediaUploadMsg(''), 4500);
     } catch (err: any) {
       setMediaUploadMsg(`Error: ${err.message || 'Media upload failed'}`);
     } finally {
@@ -15594,6 +15636,24 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
   const handleAddMediaLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mediaLinkUrl.trim()) return;
+
+    const currentList = parseDoctorMedia(doctorProfile?.gallery_media);
+    const currentPhotos = currentList.filter(m => m.type !== 'video').length;
+    const currentVideos = currentList.filter(m => m.type === 'video').length;
+    const isVideo = mediaLinkCategory === 'clinic_video' || mediaLinkUrl.includes('youtube.com') || mediaLinkUrl.includes('youtu.be') || mediaLinkUrl.includes('vimeo.com');
+
+    if (currentList.length >= MAX_DOCTOR_TOTAL) {
+      setMediaUploadMsg(`Error: Media gallery limit reached (${MAX_DOCTOR_TOTAL} items maximum). Please delete an existing item first.`);
+      return;
+    }
+    if (isVideo && currentVideos >= MAX_DOCTOR_VIDEOS) {
+      setMediaUploadMsg(`Error: Video tour limit reached (${currentVideos}/${MAX_DOCTOR_VIDEOS}). Each doctor can add up to ${MAX_DOCTOR_VIDEOS} video tours.`);
+      return;
+    }
+    if (!isVideo && currentPhotos >= MAX_DOCTOR_PHOTOS) {
+      setMediaUploadMsg(`Error: Photo limit reached (${currentPhotos}/${MAX_DOCTOR_PHOTOS}). Each doctor can add up to ${MAX_DOCTOR_PHOTOS} photos.`);
+      return;
+    }
 
     try {
       setUploadingMedia(true);
@@ -15619,9 +15679,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
       setShowAddMediaLinkModal(false);
       loadDoctorData();
       invalidateApiCache('/doctors');
-      setTimeout(() => setMediaUploadMsg(''), 4000);
+      setTimeout(() => setMediaUploadMsg(''), 4500);
     } catch (err: any) {
-      setMediaUploadMsg(`Error: ${err.message || 'Failed to add media link'}`);
+      setMediaUploadMsg(`Error: ${err.message || 'Adding media link failed'}`);
     } finally {
       setUploadingMedia(false);
     }
@@ -18128,75 +18188,122 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </div>
               </div>
 
-              {/* Upload Card */}
-              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                    <Upload className="w-4 h-4 text-clinic-700 dark:text-clinic-400" />
-                    <span>Upload New Clinic Photo or Video Clip</span>
-                  </h4>
-                  <span className="text-[11px] text-slate-400 font-medium">Max 60MB per file</span>
-                </div>
+              {/* Upload Card with Quotas */}
+              {(() => {
+                const docMedia = parseDoctorMedia(doctorProfile?.gallery_media);
+                const docPhotos = docMedia.filter(m => m.type !== 'video').length;
+                const docVideos = docMedia.filter(m => m.type === 'video').length;
+                const photosFull = docPhotos >= 10;
+                const videosFull = docVideos >= 3;
+                const totalFull = docMedia.length >= 12;
+                const categoryFull = mediaCategory === 'clinic_video' ? videosFull : photosFull;
 
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                  <div className="sm:col-span-4">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-1">
-                      Media Category:
-                    </label>
-                    <select
-                      value={mediaCategory}
-                      onChange={(e: any) => setMediaCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200"
-                    >
-                      <option value="clinic_image">Clinic Facility Photo (Exterior / Rooms)</option>
-                      <option value="clinic_video">Clinic Video Tour (Reception / OT)</option>
-                      <option value="doctor_image">Doctor Activity / Treatment Photo</option>
-                    </select>
-                  </div>
+                return (
+                  <div className="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <h4 className="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                        <Upload className="w-4 h-4 text-clinic-700 dark:text-clinic-400" />
+                        <span>Upload New Clinic Photo or Video Clip</span>
+                      </h4>
 
-                  <div className="sm:col-span-5">
-                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-1">
-                      Title or Description:
-                    </label>
-                    <input
-                      type="text"
-                      value={mediaTitle}
-                      onChange={(e) => setMediaTitle(e.target.value)}
-                      placeholder="e.g. Modern Consultation Room &amp; Patient Examination"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-clinic-600"
-                    />
-                  </div>
+                      {/* Doctor Media Quota Badges */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${photosFull ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'}`}>
+                          📷 Photos: {docPhotos}/10
+                        </span>
+                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${videosFull ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-700' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'}`}>
+                          🎥 Videos: {docVideos}/3
+                        </span>
+                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors ${totalFull ? 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950/80 dark:text-rose-200 dark:border-rose-700' : 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'}`}>
+                          Total: {docMedia.length}/12
+                        </span>
+                      </div>
+                    </div>
 
-                  <div className="sm:col-span-3">
-                    <label className={`w-full py-2.5 px-4 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer ${uploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
-                      {uploadingMedia ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Uploading to Cloudinary...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4" />
-                          <span>Choose File to Upload</span>
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*,video/mp4,video/webm,video/quicktime"
-                        onChange={handleUploadMediaFile}
-                        disabled={uploadingMedia}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
+                    {/* Quota warning notices if filled */}
+                    {totalFull ? (
+                      <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-semibold flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                        <span>Maximum clinic gallery limit reached (12/12 items). Please delete an existing photo or video to upload new media.</span>
+                      </div>
+                    ) : categoryFull ? (
+                      <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-semibold flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                        <span>
+                          {mediaCategory === 'clinic_video'
+                            ? 'Video tour limit reached (3/3 videos). Please delete an existing video tour to upload a new one.'
+                            : 'Clinic photo limit reached (10/10 photos). Please delete an existing photo to upload a new one.'}
+                        </span>
+                      </div>
+                    ) : null}
 
-                {mediaUploadMsg && (
-                  <div className={`p-3 rounded-xl text-xs font-semibold border ${mediaUploadMsg.startsWith('Error') ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300'}`}>
-                    {mediaUploadMsg}
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                      <div className="sm:col-span-4">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-1">
+                          Media Category:
+                        </label>
+                        <select
+                          value={mediaCategory}
+                          onChange={(e: any) => setMediaCategory(e.target.value)}
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200"
+                        >
+                          <option value="clinic_image">Clinic Facility Photo (Exterior / Rooms) — Max 10MB</option>
+                          <option value="clinic_video">Clinic Video Tour (Reception / OT) — Max 60MB</option>
+                          <option value="doctor_image">Doctor Activity / Treatment Photo — Max 10MB</option>
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-5">
+                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 block mb-1">
+                          Title or Description:
+                        </label>
+                        <input
+                          type="text"
+                          value={mediaTitle}
+                          onChange={(e) => setMediaTitle(e.target.value)}
+                          placeholder="e.g. Modern Consultation Room &amp; Patient Examination"
+                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-clinic-600"
+                        >
+                        </input>
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className={`w-full py-2.5 px-4 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-2 ${uploadingMedia || totalFull || categoryFull ? 'opacity-50 pointer-events-none cursor-not-allowed' : 'cursor-pointer'}`}>
+                          {uploadingMedia ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                              <span>Uploading to Cloudinary...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4" />
+                              <span>{categoryFull ? 'Quota Full' : 'Choose File to Upload'}</span>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept={mediaCategory === 'clinic_video' ? 'video/mp4,video/webm,video/quicktime' : 'image/*'}
+                            onChange={handleUploadMediaFile}
+                            disabled={uploadingMedia || totalFull || categoryFull}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                      <span>Limits: <strong>10 photos</strong> (JPG/PNG/WEBP up to 10MB) • <strong>3 video tours</strong> (MP4/MOV up to 60MB)</span>
+                      <span>Total Cap: <strong>12 media items</strong></span>
+                    </div>
+
+                    {mediaUploadMsg && (
+                      <div className={`p-3 rounded-xl text-xs font-semibold border ${mediaUploadMsg.startsWith('Error') ? 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-300' : 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300'}`}>
+                        {mediaUploadMsg}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* Published Gallery */}
               <div className="space-y-3 pt-2">

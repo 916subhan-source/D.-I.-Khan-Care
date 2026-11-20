@@ -62,7 +62,12 @@ import {
   ArrowUp,
   PhoneCall,
   Share2,
-  Volume2
+  Volume2,
+  Film,
+  Play,
+  Image as ImageIcon,
+  Video,
+  Layers
 } from 'lucide-react';
 import { apiFetch, invalidateApiCache } from './lib/api';
 import { playStartupChime } from './utils/sound';
@@ -75,6 +80,7 @@ import JoinAsDoctorSection from './components/JoinAsDoctorSection';
 // ── Shared Domain Types, Formatters, Calling Order & Constants ──
 import {
   DoctorData,
+  DoctorMediaItem,
   SlotData,
   AppointmentItem,
   DoctorCallingShiftInfo,
@@ -158,6 +164,46 @@ export function getSafeGoogleMapsUrl(doc?: DoctorData | null): string {
 
   const searchTarget = `${clinicClean || doc.full_name} Opposite DHQ Hospital Dera Ismail Khan`;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTarget)}`;
+}
+
+export function parseDoctorMedia(raw: any): DoctorMediaItem[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      return [];
+    }
+  }
+  return [];
+}
+
+export function parseVideoEmbedUrl(url: string): { type: 'youtube' | 'vimeo' | 'html5'; embedUrl: string } {
+  if (!url) return { type: 'html5', embedUrl: '' };
+  const clean = url.trim();
+
+  const ytMatch = clean.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    return {
+      type: 'youtube',
+      embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=0&rel=0`
+    };
+  }
+
+  const vimeoMatch = clean.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return {
+      type: 'vimeo',
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`
+    };
+  }
+
+  return {
+    type: 'html5',
+    embedUrl: clean
+  };
 }
 
 function InitialsAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
@@ -3800,7 +3846,23 @@ function DoctorProfileAndBookingView({
 
   // Mobile tab navigation state ('booking' | 'profile') - Default to 'profile' so About Doctor shows first
   const [mobileActiveTab, setMobileActiveTab] = useState<'booking' | 'profile'>(initialMobileTab);
-  const [profileActiveTab, setProfileActiveTab] = useState<'about' | 'services' | 'conditions' | 'schedule' | 'reviews' | 'faqs'>('about');
+  const [profileActiveTab, setProfileActiveTab] = useState<'about' | 'gallery' | 'services' | 'conditions' | 'schedule' | 'reviews' | 'faqs'>('about');
+  const [lightboxItem, setLightboxItem] = useState<DoctorMediaItem | null>(null);
+  const [galleryCategoryFilter, setGalleryCategoryFilter] = useState<'all' | 'clinic_image' | 'clinic_video' | 'doctor_image'>('all');
+
+  const mediaList = useMemo(() => parseDoctorMedia(doctor.gallery_media), [doctor.gallery_media]);
+  const clinicImagesCount = mediaList.filter(m => m.category === 'clinic_image').length;
+  const clinicVideosCount = mediaList.filter(m => m.category === 'clinic_video' || m.type === 'video').length;
+  const doctorImagesCount = mediaList.filter(m => m.category === 'doctor_image').length;
+
+  const filteredMedia = useMemo(() => {
+    if (galleryCategoryFilter === 'all') return mediaList;
+    if (galleryCategoryFilter === 'clinic_video') {
+      return mediaList.filter(m => m.category === 'clinic_video' || m.type === 'video');
+    }
+    return mediaList.filter(m => m.category === galleryCategoryFilter);
+  }, [mediaList, galleryCategoryFilter]);
+
   const displayName = formatDoctorName(doctor.full_name);
 
   // Synchronize when doctor changes or initialMobileTab changes
@@ -4688,7 +4750,23 @@ function DoctorProfileAndBookingView({
             <span>Book Slots</span>
           </button>
 
-          {/* TAB 3: REVIEWS */}
+          {/* TAB 3: PHOTOS & VIDEOS */}
+          <button
+            type="button"
+            onClick={() => {
+              setProfileActiveTab('gallery');
+              setMobileActiveTab('profile');
+            }}
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${mobileActiveTab === 'profile' && profileActiveTab === 'gallery'
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white font-bold shadow-xs'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+          >
+            <Film className="w-3.5 h-3.5" />
+            <span>Photos &amp; Videos {mediaList.length > 0 ? `(${mediaList.length})` : ''}</span>
+          </button>
+
+          {/* TAB 4: REVIEWS */}
           <button
             type="button"
             onClick={() => {
@@ -4802,6 +4880,67 @@ function DoctorProfileAndBookingView({
                   </div>
                 </div>
 
+                {/* Clinic & Facility Highlights Preview Strip */}
+                {mediaList.length > 0 && (
+                  <div className="scroll-reveal bg-gradient-to-r from-emerald-50/70 to-teal-50/40 dark:from-slate-800 dark:to-slate-850 rounded-2xl border border-emerald-200/60 dark:border-slate-700 p-5 shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Film className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                          Clinic Facility &amp; Practice Tour ({mediaList.length})
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProfileActiveTab('gallery');
+                          setMobileActiveTab('profile');
+                        }}
+                        className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>View all {mediaList.length} items</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {mediaList.slice(0, 4).map((m, i) => {
+                        const isVid = m.type === 'video' || m.category === 'clinic_video';
+                        return (
+                          <div
+                            key={m.id || i}
+                            onClick={() => {
+                              if (isVid) {
+                                setProfileActiveTab('gallery');
+                                setMobileActiveTab('profile');
+                              } else {
+                                setLightboxItem(m);
+                              }
+                            }}
+                            className="group relative aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs hover:shadow-md transition-all"
+                          >
+                            {isVid ? (
+                              <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-purple-300">
+                                <Play className="w-6 h-6 fill-purple-400 text-purple-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-[9px] font-bold mt-1 text-slate-300">Video Tour</span>
+                              </div>
+                            ) : (
+                              <img
+                                src={m.url}
+                                alt={m.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                loading="lazy"
+                              />
+                            )}
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 to-transparent p-1.5">
+                              <p className="text-[10px] text-white font-medium truncate">{m.title}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Education & Qualifications Breakdown */}
                 <div className="scroll-reveal bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -4900,6 +5039,187 @@ function DoctorProfileAndBookingView({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB: CLINIC & DOCTOR MEDIA GALLERY */}
+            {profileActiveTab === 'gallery' && (
+              <div className="space-y-6">
+                {/* Header / Intro Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 shadow-2xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                          Clinic Facilities &amp; Doctor Media Gallery
+                        </h3>
+                        <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          PMDC Verified Clinic
+                        </span>
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                        Explore authentic photos &amp; video walkthroughs of {displayName}&apos;s consultation rooms, waiting area, diagnostic equipment, and surgical facilities.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Filter Pills */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setGalleryCategoryFilter('all')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        galleryCategoryFilter === 'all'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      All Media ({mediaList.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGalleryCategoryFilter('clinic_image')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        galleryCategoryFilter === 'clinic_image'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <Building2 className="w-3.5 h-3.5" />
+                      <span>Clinic Photos ({clinicImagesCount})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGalleryCategoryFilter('clinic_video')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        galleryCategoryFilter === 'clinic_video'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      <span>Clinic Videos ({clinicVideosCount})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGalleryCategoryFilter('doctor_image')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        galleryCategoryFilter === 'doctor_image'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      <span>Doctor Photos ({doctorImagesCount})</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Media Grid */}
+                {filteredMedia.length === 0 ? (
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-10 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+                      <Film className="w-6 h-6" />
+                    </div>
+                    <h4 className="font-bold text-slate-800 dark:text-white text-sm">
+                      No media uploaded in this category yet
+                    </h4>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs max-w-sm mx-auto">
+                      {displayName} has not added items to this category yet. Check back soon for updated clinic room photos and video tours.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {filteredMedia.map((item, idx) => {
+                      const isVideo = item.type === 'video' || item.category === 'clinic_video';
+                      const embedInfo = isVideo ? parseVideoEmbedUrl(item.url) : null;
+
+                      return (
+                        <div
+                          key={item.id || idx}
+                          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-2xs hover:shadow-md transition-all group flex flex-col"
+                        >
+                          {/* Media Display */}
+                          <div className="relative aspect-video w-full bg-slate-950 overflow-hidden flex items-center justify-center">
+                            {isVideo ? (
+                              embedInfo?.type === 'youtube' || embedInfo?.type === 'vimeo' ? (
+                                <iframe
+                                  src={embedInfo.embedUrl}
+                                  title={item.title || 'Clinic Video'}
+                                  className="w-full h-full border-0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              ) : (
+                                <video
+                                  src={item.url}
+                                  controls
+                                  preload="metadata"
+                                  playsInline
+                                  className="w-full h-full object-cover"
+                                />
+                              )
+                            ) : (
+                              <div
+                                onClick={() => setLightboxItem(item)}
+                                className="w-full h-full cursor-pointer relative"
+                              >
+                                <img
+                                  src={item.url}
+                                  alt={item.title || 'Clinic Photo'}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                  <span className="px-3 py-1.5 rounded-xl bg-white/90 text-slate-900 font-bold text-xs flex items-center gap-1.5 shadow-lg backdrop-blur-xs">
+                                    <Maximize2 className="w-3.5 h-3.5" />
+                                    Click to enlarge
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Category Badge */}
+                            <div className="absolute top-2.5 left-2.5 pointer-events-none">
+                              {item.category === 'clinic_video' || isVideo ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-900/90 text-purple-200 border border-purple-500/40 backdrop-blur-xs shadow-xs flex items-center gap-1">
+                                  <Play className="w-2.5 h-2.5 fill-current" />
+                                  Clinic Video
+                                </span>
+                              ) : item.category === 'doctor_image' ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-900/90 text-emerald-200 border border-emerald-500/40 backdrop-blur-xs shadow-xs flex items-center gap-1">
+                                  <User className="w-2.5 h-2.5" />
+                                  Doctor Photo
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-900/90 text-teal-200 border border-teal-500/40 backdrop-blur-xs shadow-xs flex items-center gap-1">
+                                  <Building2 className="w-2.5 h-2.5" />
+                                  Clinic Facility
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Title & Metadata */}
+                          <div className="p-3.5 flex items-center justify-between gap-2 flex-1">
+                            <span className="font-semibold text-slate-800 dark:text-slate-100 text-xs line-clamp-1">
+                              {item.title || (isVideo ? 'Clinic Video Tour' : 'Clinic Photo')}
+                            </span>
+                            {!isVideo && (
+                              <button
+                                type="button"
+                                onClick={() => setLightboxItem(item)}
+                                className="text-xs text-clinic-700 dark:text-clinic-400 hover:underline font-bold flex-shrink-0 cursor-pointer"
+                              >
+                                View HD
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -6464,6 +6784,80 @@ function DoctorProfileAndBookingView({
                 </form>
               )}
 
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── High-Resolution Media Lightbox Modal ── */}
+      {lightboxItem && (
+        <div
+          className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 select-none"
+          onClick={() => setLightboxItem(null)}
+        >
+          <div
+            className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxItem(null)}
+              className="absolute -top-12 right-0 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+              title="Close Preview (Esc)"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black max-h-[80vh] flex items-center justify-center">
+              {lightboxItem.type === 'video' || lightboxItem.category === 'clinic_video' ? (
+                (() => {
+                  const embed = parseVideoEmbedUrl(lightboxItem.url);
+                  if (embed.type === 'youtube' || embed.type === 'vimeo') {
+                    return (
+                      <div className="w-[85vw] max-w-3xl aspect-video">
+                        <iframe
+                          src={embed.embedUrl}
+                          title={lightboxItem.title}
+                          className="w-full h-full border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    );
+                  }
+                  return (
+                    <video
+                      src={lightboxItem.url}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="max-h-[80vh] max-w-full rounded-2xl"
+                    />
+                  );
+                })()
+              ) : (
+                <img
+                  src={lightboxItem.url}
+                  alt={lightboxItem.title}
+                  className="max-h-[80vh] max-w-full object-contain rounded-2xl"
+                />
+              )}
+            </div>
+
+            <div className="mt-4 flex items-center justify-between w-full text-white text-xs px-2">
+              <div>
+                <span className="font-bold text-sm block">{lightboxItem.title}</span>
+                <span className="text-slate-400 text-xs capitalize">
+                  {lightboxItem.category === 'clinic_video' ? '🎥 Clinic Video Tour' : lightboxItem.category === 'doctor_image' ? '👨‍⚕️ Specialist Doctor Photo' : '🏥 Clinic Facility'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLightboxItem(null)}
+                className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -8106,6 +8500,12 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
               {doctor.is_spotlight && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-300/80 dark:border-amber-500/30 px-2 py-0.5 rounded-full shadow-2xs">
                   ★ Featured
+                </span>
+              )}
+              {doctor.gallery_media && parseDoctorMedia(doctor.gallery_media).length > 0 && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-full shadow-2xs">
+                  <Film className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                  {parseDoctorMedia(doctor.gallery_media).length} Media
                 </span>
               )}
             </div>

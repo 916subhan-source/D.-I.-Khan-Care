@@ -142,3 +142,48 @@ def upload_loyalty_card_photo(file_bytes: bytes, doctor_id: str) -> Optional[str
     # Fallback to base64 Data URI so the photo is never lost
     b64_img = base64.b64encode(file_bytes).decode("utf-8")
     return f"data:image/jpeg;base64,{b64_img}"
+
+def upload_doctor_media_file(file_bytes: bytes, doctor_id: str, is_video: bool = False, filename: Optional[str] = None) -> Optional[str]:
+    """
+    Uploads a doctor's clinic photo/video or personal doctor photo to Cloudinary.
+    Uses 'video' resource_type for MP4/WEBM/MOV videos, and 'image' for JPG/PNG/WEBP.
+    Falls back gracefully to local uploads directory or inline base64 if Cloudinary is unreachable.
+    """
+    import uuid
+    media_id = uuid.uuid4().hex[:10]
+    resource_type = "video" if is_video else "image"
+
+    if configure_cloudinary():
+        try:
+            res = cloudinary.uploader.upload(
+                file_bytes,
+                folder="dikhan_doctor_media",
+                public_id=f"doc_{doctor_id}_{media_id}",
+                overwrite=True,
+                resource_type=resource_type
+            )
+            raw_url = res.get("secure_url")
+            if raw_url:
+                if not is_video:
+                    return optimize_cloudinary_url(raw_url, 1200)
+                return raw_url
+        except Exception as e:
+            print(f"[Cloudinary] Doctor media upload failed: {e}")
+
+    # Fallback: Save to local uploads/media directory
+    try:
+        os.makedirs("uploads/media", exist_ok=True)
+        ext = ".mp4" if is_video else ".jpg"
+        if filename and "." in filename:
+            ext = "." + filename.rsplit(".", 1)[-1].lower()
+        local_filename = f"doc_{doctor_id}_{media_id}{ext}"
+        local_path = os.path.join("uploads", "media", local_filename)
+        with open(local_path, "wb") as f:
+            f.write(file_bytes)
+        return f"/uploads/media/{local_filename}"
+    except Exception as e:
+        print(f"[Fallback] Local media save failed: {e}")
+        if not is_video:
+            b64_img = base64.b64encode(file_bytes).decode("utf-8")
+            return f"data:image/jpeg;base64,{b64_img}"
+        return None

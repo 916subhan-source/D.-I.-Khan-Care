@@ -57,13 +57,14 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass  # Column already exists — safe to ignore
 
-        # Loyalty VIP Card and Special Day schema migrations
+        # Loyalty VIP Card, Special Day, and Media Gallery schema migrations
         loyalty_cols_doc = [
             ("loyalty_card_enabled", "BOOLEAN DEFAULT FALSE"),
             ("loyalty_card_title", "VARCHAR(120) DEFAULT 'VIP Loyalty Card'"),
             ("loyalty_card_image_url", "VARCHAR(500)"),
             ("loyalty_discount_percent", "NUMERIC(5,2) DEFAULT 10.00"),
-            ("custom_special_day", "VARCHAR(20) DEFAULT 'sunday'")
+            ("custom_special_day", "VARCHAR(20) DEFAULT 'sunday'"),
+            ("gallery_media", "TEXT DEFAULT '[]'")
         ]
         for col_name, col_def in loyalty_cols_doc:
             try:
@@ -282,6 +283,10 @@ app.include_router(booking.router, prefix=settings.API_V1_STR)
 app.include_router(assistants.router, prefix=settings.API_V1_STR)
 app.include_router(doctor_portal.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
+
+# Mount local uploads directory for clinic/doctor photos & video fallbacks
+os.makedirs("uploads/media", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.get("/health")
 async def health_check():

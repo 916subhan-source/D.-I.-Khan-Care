@@ -10,11 +10,12 @@ Doctor Portal Management Router:
 
 import re
 import json
+import uuid
 import asyncio
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Query, Body, status, UploadFile, File, Form, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, case
 from sqlalchemy.orm import selectinload, joinedload, contains_eager
@@ -22,7 +23,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user, require_roles
 from app.core.security import get_password_hash
 from app.core.redis import redis_manager
-from app.core.cloudinary_service import upload_doctor_photo, delete_doctor_photo, upload_loyalty_card_photo
+from app.core.cloudinary_service import upload_doctor_photo, delete_doctor_photo, upload_loyalty_card_photo, upload_doctor_media_file
 from app.models import User, Doctor, DoctorAssistant, DoctorSlot, Appointment, Payment
 from app.schemas import (
     AssistantCreateRequest, AssistantResponse, 
@@ -79,7 +80,8 @@ async def get_doctor_profile(
         "loyalty_card_enabled": doctor.loyalty_card_enabled if doctor.loyalty_card_enabled is not None else False,
         "loyalty_card_title": doctor.loyalty_card_title or "RK Loyalty Card",
         "loyalty_card_image_url": doctor.loyalty_card_image_url,
-        "loyalty_discount_percent": float(doctor.loyalty_discount_percent if doctor.loyalty_discount_percent is not None else 10.00)
+        "loyalty_discount_percent": float(doctor.loyalty_discount_percent if doctor.loyalty_discount_percent is not None else 10.00),
+        "gallery_media": doctor.gallery_media or "[]"
     }
 
 @router.post("/profile/picture")
@@ -1729,6 +1731,7 @@ class DoctorProfileUpdateRequest(PydanticBase):
     sunday_start: Optional[str] = None
     sunday_end: Optional[str] = None
     custom_day_schedule: Optional[str] = None
+    gallery_media: Optional[str] = None
 
 @router.put("/profile")
 async def update_doctor_profile(
@@ -1740,8 +1743,6 @@ async def update_doctor_profile(
     doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(status_code=404, detail="Doctor profile not found.")
-
-
 
     if payload.fee_clinic is not None:
         doc.fee_clinic = Decimal(str(payload.fee_clinic))
@@ -1794,6 +1795,8 @@ async def update_doctor_profile(
         doc.sunday_end = payload.sunday_end
     if payload.custom_day_schedule is not None:
         doc.custom_day_schedule = payload.custom_day_schedule.strip() if payload.custom_day_schedule else None
+    if payload.gallery_media is not None:
+        doc.gallery_media = payload.gallery_media
 
     await db.commit()
     await db.refresh(doc)
@@ -1824,5 +1827,153 @@ async def update_doctor_profile(
         "sunday_start": doc.sunday_start or "08:00",
         "sunday_end": doc.sunday_end or "20:00",
         "custom_special_day": getattr(doc, "custom_special_day", "sunday") or "sunday",
-        "custom_day_schedule": doc.custom_day_schedule
+        "custom_day_schedule": doc.custom_day_schedule,
+        "gallery_media": doc.gallery_media or "[]"
+    }
+
+# ── Dedicated Doctor Media Gallery Endpoints (Clinic Videos, Clinic Images, Doctor Images) ──
+
+@router.post("/media/upload")
+async def upload_doctor_media_endpoint(
+    file: UploadFile = File(...),
+    category: str = Form("clinic_image"),
+    title: str = Form(""),
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Uploads a photo or video to doctor's clinic/doctor media gallery.
+    Stores via Cloudinary (or local fallback) and updates gallery_media JSON on doctor record.
+    """
+    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    filename = file.filename or "media_upload"
+    content_type = file.content_type or ""
+    is_video = "video" in content_type or any(filename.lower().endswith(ext) for ext in [".mp4", ".mov", ".webm", ".mkv", ".m4v"])
+    
+    file_bytes = await file.read()
+    if len(file_bytes) > 60 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum allowed file size is 60MB.")
+
+    url = upload_doctor_media_file(file_bytes, doc.id, is_video=is_video, filename=filename)
+    if not url:
+        raise HTTPException(status_code=500, detail="Failed to upload media. Please try again.")
+
+    cat = category if category in ["clinic_image", "clinic_video", "doctor_image"] else ("clinic_video" if is_video else "clinic_image")
+    media_item = {
+        "id": f"med_{uuid.uuid4().hex[:10]}",
+        "type": "video" if is_video else "image",
+        "category": cat,
+        "url": url,
+        "title": title.strip() or ("Clinic Video Tour" if is_video else ("Doctor Photo" if cat == "doctor_image" else "Clinic Facility")),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    try:
+        current_gallery = json.loads(doc.gallery_media or "[]")
+    except Exception:
+        current_gallery = []
+
+    current_gallery.append(media_item)
+    doc.gallery_media = json.dumps(current_gallery)
+
+    await db.commit()
+    await db.refresh(doc)
+    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors")
+
+    return {
+        "status": "SUCCESS",
+        "message": "Media uploaded and added to profile successfully.",
+        "item": media_item,
+        "gallery_media": current_gallery
+    }
+
+class DoctorMediaLinkRequest(BaseModel):
+    url: str
+    title: str = ""
+    category: str = "clinic_video"
+
+@router.post("/media/link")
+async def add_doctor_media_link(
+    payload: DoctorMediaLinkRequest,
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Adds an external video or image link (e.g. YouTube, Vimeo, direct MP4/image) to doctor's gallery.
+    """
+    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    clean_url = payload.url.strip()
+    if not clean_url:
+        raise HTTPException(status_code=400, detail="Media URL cannot be empty.")
+
+    is_video = ("youtube.com" in clean_url or "youtu.be" in clean_url or "vimeo.com" in clean_url or 
+                clean_url.endswith(".mp4") or clean_url.endswith(".webm") or payload.category == "clinic_video")
+
+    cat = payload.category if payload.category in ["clinic_image", "clinic_video", "doctor_image"] else ("clinic_video" if is_video else "clinic_image")
+    media_item = {
+        "id": f"med_{uuid.uuid4().hex[:10]}",
+        "type": "video" if is_video else "image",
+        "category": cat,
+        "url": clean_url,
+        "title": payload.title.strip() or ("Clinic Video Tour" if is_video else ("Doctor Photo" if cat == "doctor_image" else "Clinic Photo")),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    try:
+        current_gallery = json.loads(doc.gallery_media or "[]")
+    except Exception:
+        current_gallery = []
+
+    current_gallery.append(media_item)
+    doc.gallery_media = json.dumps(current_gallery)
+
+    await db.commit()
+    await db.refresh(doc)
+    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors")
+
+    return {
+        "status": "SUCCESS",
+        "message": "Media link added to profile successfully.",
+        "item": media_item,
+        "gallery_media": current_gallery
+    }
+
+@router.delete("/media/{media_id}")
+async def delete_doctor_media(
+    media_id: str,
+    current_user: User = Depends(require_roles(["DOCTOR"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Removes a media item from doctor's gallery.
+    """
+    doc = (await db.execute(select(Doctor).where(Doctor.user_id == current_user.id))).scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found.")
+
+    try:
+        current_gallery = json.loads(doc.gallery_media or "[]")
+    except Exception:
+        current_gallery = []
+
+    updated_gallery = [item for item in current_gallery if item.get("id") != media_id]
+    doc.gallery_media = json.dumps(updated_gallery)
+
+    await db.commit()
+    await db.refresh(doc)
+    await redis_manager.clear_cache_pattern("doctors:")
+    await redis_manager.clear_cache_pattern("doctors")
+
+    return {
+        "status": "SUCCESS",
+        "message": "Media item removed successfully.",
+        "gallery_media": updated_gallery
     }

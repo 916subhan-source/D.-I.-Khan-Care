@@ -61,6 +61,7 @@ class DoctorBase(BaseModel):
     sunday_end: Optional[str] = "20:00"
     custom_special_day: Optional[str] = "sunday"
     custom_day_schedule: Optional[str] = None
+    gallery_media: Optional[str] = "[]"
 
 class DoctorCreate(DoctorBase):
     user: UserCreate

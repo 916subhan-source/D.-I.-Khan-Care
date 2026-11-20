@@ -43,6 +43,17 @@ export interface DoctorData {
   loyalty_card_title?: string;
   loyalty_card_image_url?: string;
   loyalty_discount_percent?: number;
+  gallery_media?: string;
+}
+
+export interface DoctorMediaItem {
+  id: string;
+  type: 'image' | 'video';
+  category: 'clinic_image' | 'clinic_video' | 'doctor_image';
+  url: string;
+  title: string;
+  thumbnail?: string;
+  created_at?: string;
 }
 
 export interface SlotData {

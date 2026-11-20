@@ -325,6 +325,7 @@ export function InteractiveBookingShowcase({
     setActiveStep(idx);
     setProgress(0);
     setIsClicking(false);
+    setIsAutoPlaying(true);
   };
 
   const currentStep = steps[activeStep];
@@ -375,8 +376,6 @@ export function InteractiveBookingShowcase({
       {/* ── Split-Screen Showcase Widget with Synchronized Fluid Continuity ── */}
       <div
         className="relative z-10 p-4 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center"
-        onMouseEnter={() => setIsAutoPlaying(false)}
-        onMouseLeave={() => setIsAutoPlaying(true)}
       >
         {/* ── Left Column: Synchronized Fluid Sliding Step Overviews ── */}
         <div className="lg:col-span-5 overflow-hidden relative">

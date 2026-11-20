@@ -1494,14 +1494,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Emergency Alert Banner */}
-          <div className="rounded-xl p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 flex items-start sm:items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400">
-            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5 sm:mt-0" />
-            <span className="leading-relaxed">
-              <strong className="text-slate-700 dark:text-slate-300 font-semibold">Medical emergency:</strong> For a medical emergency, please call <a href="tel:1122" className="text-rose-600 dark:text-rose-400 font-bold hover:underline">1122</a> or visit your nearest emergency department. This service is for scheduled appointments only.
-            </span>
-          </div>
-
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 text-center">
             <span>&copy; {new Date().getFullYear()} D.I. Khan Care · Care closer to home. All rights reserved.</span>
             <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">

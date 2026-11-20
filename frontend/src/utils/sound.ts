@@ -129,3 +129,163 @@ function playAudioFallback(volume: number): Promise<boolean> {
     }
   });
 }
+
+/**
+ * ── WhatsApp Outgoing Message Pop / Button Press Sound ──
+ * Synthesizes the signature buoyant, two-tone "blip-pop" sound effect
+ * in real-time with 0ms latency using the Web Audio API.
+ */
+let lastSoundTime = 0;
+
+export function playButtonClickSound(volume = 0.25): void {
+  const nowMs = Date.now();
+  if (nowMs - lastSoundTime < 65) return; // Debounce rapid multi-events
+  lastSoundTime = nowMs;
+
+  try {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('dikhan_sound_muted') === 'true') return;
+
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new AudioContextClass();
+    }
+
+    if (sharedAudioCtx.state === 'suspended') {
+      sharedAudioCtx.resume().catch(() => {});
+    }
+
+    synthesizeWhatsAppPop(sharedAudioCtx, volume);
+  } catch (_) {
+    // Ignore audio errors silently
+  }
+}
+
+export const playWhatsAppPop = playButtonClickSound;
+
+function synthesizeWhatsAppPop(ctx: AudioContext, volume: number): void {
+  try {
+    const now = ctx.currentTime;
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(volume, now);
+    masterGain.connect(ctx.destination);
+
+    // Tone 1: Initial ascending blip (920Hz -> 1080Hz, 0.00s to 0.035s)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(920, now);
+    osc1.frequency.exponentialRampToValueAtTime(1080, now + 0.034);
+
+    gain1.gain.setValueAtTime(0.0001, now);
+    gain1.gain.linearRampToValueAtTime(0.35, now + 0.003);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+
+    osc1.connect(gain1);
+    gain1.connect(masterGain);
+    osc1.start(now);
+    osc1.stop(now + 0.038);
+
+    // Tone 2: Signature buoyant high pop (1380Hz -> 1580Hz, 0.032s to 0.11s)
+    const t2 = now + 0.032;
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1380, t2);
+    osc2.frequency.exponentialRampToValueAtTime(1580, t2 + 0.07);
+
+    gain2.gain.setValueAtTime(0.0001, t2);
+    gain2.gain.linearRampToValueAtTime(0.48, t2 + 0.003);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.078);
+
+    osc2.connect(gain2);
+    gain2.connect(masterGain);
+    osc2.start(t2);
+    osc2.stop(t2 + 0.082);
+
+    // Tone 3: Subtle glassy overtone for crisp acoustic presence on phone speakers
+    const osc3 = ctx.createOscillator();
+    const gain3 = ctx.createGain();
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(2760, t2);
+    osc3.frequency.exponentialRampToValueAtTime(3160, t2 + 0.05);
+
+    gain3.gain.setValueAtTime(0.0001, t2);
+    gain3.gain.linearRampToValueAtTime(0.09, t2 + 0.003);
+    gain3.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.055);
+
+    osc3.connect(gain3);
+    gain3.connect(masterGain);
+    osc3.start(t2);
+    osc3.stop(t2 + 0.06);
+  } catch (_) {
+    // Ignore audio errors silently
+  }
+}
+
+/**
+ * Global Button Sound Initializer:
+ * Captures pointer clicks across all interactive buttons, links, tabs,
+ * and submit controls with 0ms touch latency.
+ */
+export function initGlobalButtonSounds(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+    try {
+      let target = e.target as HTMLElement | null;
+      let depth = 0;
+
+      while (target && depth < 5) {
+        const tagName = target.tagName ? target.tagName.toLowerCase() : '';
+        const role = target.getAttribute ? target.getAttribute('role') : '';
+
+        // Exclude typing text fields, contenteditable, and selects
+        if (
+          tagName === 'textarea' ||
+          (tagName === 'input' && !['button', 'submit', 'reset', 'checkbox', 'radio'].includes((target as HTMLInputElement).type || '')) ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+
+        const isInteractive =
+          tagName === 'button' ||
+          role === 'button' ||
+          role === 'tab' ||
+          (tagName === 'input' && ['button', 'submit', 'reset'].includes((target as HTMLInputElement).type)) ||
+          target.classList?.contains('cursor-pointer') ||
+          (tagName === 'a' && (target.getAttribute('href') || role === 'button' || target.classList?.contains('cursor-pointer')));
+
+        if (isInteractive) {
+          // If disabled, don't play sound
+          if (
+            (target as HTMLButtonElement).disabled ||
+            target.getAttribute('aria-disabled') === 'true' ||
+            target.classList?.contains('pointer-events-none') ||
+            target.classList?.contains('opacity-50')
+          ) {
+            return;
+          }
+
+          playButtonClickSound();
+          return;
+        }
+
+        target = target.parentElement;
+        depth++;
+      }
+    } catch (_) {
+      // Ignore
+    }
+  };
+
+  // 'pointerdown' provides instant, zero-latency physical tactile feedback
+  window.addEventListener('pointerdown', handlePointerDown, { passive: true, capture: true });
+
+  return () => {
+    window.removeEventListener('pointerdown', handlePointerDown, { capture: true } as any);
+  };
+}

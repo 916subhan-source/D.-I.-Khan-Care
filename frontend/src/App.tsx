@@ -70,7 +70,7 @@ import {
   Layers
 } from 'lucide-react';
 import { apiFetch, invalidateApiCache } from './lib/api';
-import { playStartupChime } from './utils/sound';
+import { playStartupChime, initGlobalButtonSounds, playButtonClickSound } from './utils/sound';
 import Hero3DPass from './components/Hero3DPass';
 import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
@@ -975,6 +975,11 @@ export default function App() {
         window.removeEventListener('keydown', unlockAudio);
       };
     }
+  }, []);
+
+  // Global tactile button press feedback sound (WhatsApp message send pop style)
+  useEffect(() => {
+    return initGlobalButtonSounds();
   }, []);
 
   // Real-time Scroll Parallax & Cinematic Scroll Reveal Observer

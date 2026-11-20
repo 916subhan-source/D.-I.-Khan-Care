@@ -4920,8 +4920,8 @@ function DoctorProfileAndBookingView({
                             className="group relative aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-200/80 dark:border-slate-700 cursor-pointer shadow-2xs hover:shadow-md transition-all"
                           >
                             {isVid ? (
-                              <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-purple-300">
-                                <Play className="w-6 h-6 fill-purple-400 text-purple-400 group-hover:scale-110 transition-transform" />
+                              <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-teal-300">
+                                <Play className="w-6 h-6 fill-teal-400 text-teal-400 group-hover:scale-110 transition-transform" />
                                 <span className="text-[9px] font-bold mt-1 text-slate-300">Video Tour</span>
                               </div>
                             ) : (
@@ -5185,7 +5185,7 @@ function DoctorProfileAndBookingView({
                             {/* Category Badge */}
                             <div className="absolute top-2.5 left-2.5 pointer-events-none">
                               {item.category === 'clinic_video' || isVideo ? (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-900/90 text-purple-200 border border-purple-500/40 backdrop-blur-xs shadow-xs flex items-center gap-1">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-900/90 text-teal-200 border border-teal-500/40 backdrop-blur-xs shadow-xs flex items-center gap-1">
                                   <Play className="w-2.5 h-2.5 fill-current" />
                                   Clinic Video
                                 </span>
@@ -8447,8 +8447,8 @@ function DoctorCard({ doctor, onBook, onProfile, index = 0 }: { doctor: DoctorDa
                 </span>
               )}
               {doctor.gallery_media && parseDoctorMedia(doctor.gallery_media).length > 0 && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded-full shadow-2xs">
-                  <Film className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 px-2 py-0.5 rounded-full shadow-2xs">
+                  <Film className="w-3 h-3 text-teal-600 dark:text-teal-400" />
                   {parseDoctorMedia(doctor.gallery_media).length} Media
                 </span>
               )}
@@ -17212,9 +17212,9 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* Quick Jump: Clinic Photos & Video Tour (Cloudinary Powered) */}
-              <div className="bg-gradient-to-r from-purple-50 via-indigo-50/50 to-purple-50 dark:from-purple-950/40 dark:via-slate-800 dark:to-purple-950/40 border border-purple-200 dark:border-purple-800/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="bg-gradient-to-r from-emerald-50/80 via-teal-50/50 to-emerald-50/80 dark:from-emerald-950/30 dark:via-slate-800 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-700 to-emerald-800 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
                     <Film className="w-5 h-5" />
                   </div>
                   <div>
@@ -17222,10 +17222,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">
                         Clinic Photos &amp; Video Tour
                       </h4>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                         {parseDoctorMedia(doctorProfile?.gallery_media).length} Media Published
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/80 border border-teal-300 dark:border-teal-800 px-2 py-0.5 rounded-full">
                         Cloudinary CDN Active
                       </span>
                     </div>
@@ -17237,7 +17237,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="button"
                   onClick={() => setActivePortalTab('media')}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0"
+                  className="px-4 py-2 bg-gradient-to-r from-teal-800 to-emerald-900 hover:from-teal-700 hover:to-emerald-800 text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>Upload &amp; Manage Media &rarr;</span>
@@ -17504,15 +17504,15 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* ── Clinic Photos, Clinic Videos & Doctor Media Gallery Card ── */}
-              <div className="bg-gradient-to-r from-slate-50 to-purple-50/30 dark:from-slate-800 dark:to-slate-850 rounded-2xl border border-slate-200/90 dark:border-slate-700 p-5 space-y-4">
+              <div className="bg-gradient-to-r from-slate-50 to-emerald-50/40 dark:from-slate-800 dark:to-slate-850 rounded-2xl border border-slate-200/90 dark:border-slate-700 p-5 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Film className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <Film className="w-5 h-5 text-teal-700 dark:text-emerald-400" />
                       <h4 className="font-extrabold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                         Clinic Photos &amp; Video Tour Gallery
                       </h4>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                         {parseDoctorMedia(doctorProfile?.gallery_media).length} Published
                       </span>
                     </div>
@@ -17525,7 +17525,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                     <button
                       type="button"
                       onClick={() => setShowAddMediaLinkModal(true)}
-                      className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl text-xs transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 bg-clinic-700 hover:bg-clinic-800 text-white font-semibold rounded-xl text-xs transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
                     >
                       <Video className="w-3.5 h-3.5" />
                       <span>Add Video Link (YouTube)</span>
@@ -17994,16 +17994,16 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   )}
 
                   {/* Clinic Media & Video Showcase Row inside Profile View */}
-                  <div className="col-span-2 p-4 bg-gradient-to-r from-purple-50/70 to-indigo-50/50 dark:from-slate-800 dark:to-slate-850 rounded-xl border border-purple-200 dark:border-purple-800/60 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-purple-200/60 dark:border-slate-700">
+                  <div className="col-span-2 p-4 bg-gradient-to-r from-emerald-50/70 to-teal-50/50 dark:from-slate-800 dark:to-slate-850 rounded-xl border border-emerald-200 dark:border-emerald-800/60 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-emerald-200/60 dark:border-slate-700">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Film className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <Film className="w-4 h-4 text-teal-700 dark:text-emerald-400" />
                           <span className="font-extrabold text-slate-900 dark:text-white text-xs">Clinic Photos &amp; Video Tour</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             {parseDoctorMedia(doctorProfile?.gallery_media).length} Published
                           </span>
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950 border border-sky-300 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-950 border border-teal-300 dark:border-teal-800 px-2 py-0.5 rounded-full">
                             Cloudinary CDN Active
                           </span>
                         </div>
@@ -18014,7 +18014,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       <button
                         type="button"
                         onClick={() => setActivePortalTab('media')}
-                        className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-auto flex-shrink-0"
+                        className="px-3 py-1.5 bg-gradient-to-r from-teal-800 to-emerald-900 hover:from-teal-700 hover:to-emerald-800 text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-auto flex-shrink-0"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         <span>Upload Clinic Media &rarr;</span>
@@ -18030,7 +18030,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 {m.thumbnail ? (
                                   <img src={m.thumbnail} alt={m.title} className="w-full h-full object-cover" />
                                 ) : (
-                                  <Video className="w-6 h-6 text-purple-400" />
+                                  <Video className="w-6 h-6 text-teal-400" />
                                 )}
                                 <span className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                   <Play className="w-5 h-5 text-white drop-shadow" />
@@ -18046,7 +18046,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         ))}
                       </div>
                     ) : (
-                      <div className="p-4 bg-white/70 dark:bg-slate-900/60 rounded-xl border border-dashed border-purple-200 dark:border-slate-700 text-center">
+                      <div className="p-4 bg-white/70 dark:bg-slate-900/60 rounded-xl border border-dashed border-emerald-200 dark:border-slate-700 text-center">
                         <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                           No clinic photos or videos uploaded yet.
                         </p>
@@ -18056,7 +18056,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                         <button
                           type="button"
                           onClick={() => setActivePortalTab('media')}
-                          className="mt-2.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                          className="mt-2.5 px-3 py-1.5 bg-gradient-to-r from-teal-800 to-emerald-900 hover:from-teal-700 hover:to-emerald-800 text-white font-bold rounded-lg text-xs inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
                         >
                           <Upload className="w-3.5 h-3.5" />
                           <span>Upload Photos &amp; Videos to Cloudinary &rarr;</span>
@@ -18074,7 +18074,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6 text-xs animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-700 to-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
                     <Film className="w-6 h-6" />
                   </div>
                   <div>
@@ -18082,10 +18082,10 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                       <h3 className="font-extrabold text-slate-900 dark:text-white text-lg" style={{ fontFamily: 'Outfit, sans-serif' }}>
                         Clinic Photos &amp; Video Tour Gallery
                       </h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                         {parseDoctorMedia(doctorProfile?.gallery_media).length} Published
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/80 border border-sky-300 dark:border-sky-800 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/80 border border-teal-300 dark:border-teal-800 px-2 py-0.5 rounded-full">
                         Cloudinary CDN Active
                       </span>
                     </div>
@@ -18110,7 +18110,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   <button
                     type="button"
                     onClick={() => setShowAddMediaLinkModal(true)}
-                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 bg-clinic-700 hover:bg-clinic-800 text-white font-bold rounded-xl text-xs transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Video className="w-3.5 h-3.5" />
                     <span>Add YouTube Video Link</span>
@@ -18119,7 +18119,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
               </div>
 
               {/* Cloudinary Storage Information Banner */}
-              <div className="p-4 bg-gradient-to-r from-sky-50 via-indigo-50/40 to-purple-50 dark:from-sky-950/40 dark:via-slate-800 dark:to-purple-950/40 rounded-xl border border-sky-200 dark:border-sky-800/80 flex items-start gap-3">
+              <div className="p-4 bg-gradient-to-r from-teal-50/70 via-emerald-50/40 to-teal-50/70 dark:from-teal-950/40 dark:via-slate-800 dark:to-emerald-950/40 rounded-xl border border-teal-200 dark:border-teal-800/80 flex items-start gap-3">
                 <span className="text-xl">☁️</span>
                 <div className="space-y-1">
                   <h4 className="font-bold text-slate-900 dark:text-white text-xs">
@@ -18224,7 +18224,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                 <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full bg-slate-900 flex items-center justify-center">
-                                  <Video className="w-10 h-10 text-purple-400" />
+                                  <Video className="w-10 h-10 text-teal-400" />
                                 </div>
                               )}
                               <span className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -18273,7 +18273,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                   </div>
                 ) : (
                   <div className="p-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-850">
-                    <Film className="w-12 h-12 text-purple-300 dark:text-purple-600 mx-auto mb-3" />
+                    <Film className="w-12 h-12 text-teal-400 dark:text-teal-600 mx-auto mb-3" />
                     <h5 className="font-extrabold text-slate-800 dark:text-white text-base">
                       No clinic photos or videos uploaded yet
                     </h5>
@@ -18769,7 +18769,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <Video className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <Video className="w-5 h-5 text-teal-700 dark:text-emerald-400" />
                 <h3 className="font-bold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
                   Add Clinic Video Link
                 </h3>
@@ -18841,7 +18841,7 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 <button
                   type="submit"
                   disabled={uploadingMedia || !mediaLinkUrl.trim()}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  className="px-4 py-2 bg-clinic-700 hover:bg-clinic-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
                 >
                   {uploadingMedia ? 'Adding...' : 'Publish Video Link'}
                 </button>

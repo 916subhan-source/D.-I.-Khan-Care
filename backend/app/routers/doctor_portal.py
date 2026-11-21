@@ -1849,6 +1849,8 @@ async def upload_doctor_media_endpoint(
     db: AsyncSession = Depends(get_db)
 ):
     """
+    Uploads a photo or video to doctor's clinic/doctor media gallery.
+    Stores via Cloudinary (or local fallback) and updates gallery_media JSON on doctor record.
     Uploads a photo or video to doctor's clinic/doctor media gallery with enforced quotas:
     - Maximum 10 photos per doctor (max 10MB each)
     - Maximum 3 video tours per doctor (max 60MB each)
@@ -1863,6 +1865,8 @@ async def upload_doctor_media_endpoint(
     is_video = "video" in content_type or any(filename.lower().endswith(ext) for ext in [".mp4", ".mov", ".webm", ".mkv", ".m4v"])
     
     file_bytes = await file.read()
+    if len(file_bytes) > 60 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum allowed file size is 60MB.")
 
     try:
         current_gallery = json.loads(doc.gallery_media or "[]")
@@ -1918,6 +1922,11 @@ async def upload_doctor_media_endpoint(
         "title": title.strip() or ("Clinic Video Tour" if is_video else ("Doctor Photo" if cat == "doctor_image" else "Clinic Facility")),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
+
+    try:
+        current_gallery = json.loads(doc.gallery_media or "[]")
+    except Exception:
+        current_gallery = []
 
     current_gallery.append(media_item)
     doc.gallery_media = json.dumps(current_gallery)

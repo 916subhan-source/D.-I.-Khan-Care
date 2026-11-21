@@ -926,6 +926,15 @@ function StaffLoginSplitView({
   );
 }
 
+const KNOWN_SPECIALTY_SLUGS = [
+  'cardiologist', 'dermatologist', 'child-specialist', 'pediatrician', 'general-physician',
+  'orthopedic-surgeon', 'rheumatologist', 'gynecologist', 'gynaecologist', 'urologist',
+  'neurologist', 'gastroenterologist', 'pulmonologist', 'ent-specialist',
+  'eye-specialist', 'general-surgeon', 'laparoscopic-surgeon', 'plastic-surgeon',
+  'psychiatrist', 'dentist', 'nephrologist', 'endocrinologist', 'neurosurgeon',
+  'oncologist'
+];
+
 export default function App() {
   const getTabFromUrl = (): 'home' | 'patient' | 'track' | 'loyalty' | 'join-doctor' | 'assistant' | 'doctor' | 'admin' => {
     try {
@@ -934,13 +943,15 @@ export default function App() {
       if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
 
       // PUBLIC PATIENT DOCTOR PROFILE & SPECIALTY DIRECTORIES
-      // Any /doctor/dr-* or /doctor/{slug} or /doctors/* MUST open the public patient booking profile!
+      // Any /doctor/dr-* or /doctor/{slug} or /doctors/* or bare specialty slugs MUST open the public patient booking profile!
+      const bareSlug = pathname.replace(/^\/+/, '');
       if (
         pathname.startsWith('/doctor/') ||
         pathname.startsWith('/doctors/') ||
         pathname === '/doctors' ||
         pathname.startsWith('/specialty/') ||
-        pathname.startsWith('/speciality/')
+        pathname.startsWith('/speciality/') ||
+        KNOWN_SPECIALTY_SLUGS.includes(bareSlug)
       ) {
         return 'patient';
       }
@@ -6909,6 +6920,14 @@ const parseSpecialtyFromUrl = (): string => {
       target = pathname.replace('/specialty/', '');
     } else if (pathname.startsWith('/speciality/')) {
       target = pathname.replace('/speciality/', '');
+    } else {
+      const bare = pathname.replace(/^\/+/, '');
+      if (KNOWN_SPECIALTY_SLUGS.includes(bare)) {
+        target = bare;
+        try {
+          window.history.replaceState(null, '', `/doctors/${bare}`);
+        } catch (_) {}
+      }
     }
 
     if (target) {

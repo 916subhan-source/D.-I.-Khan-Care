@@ -777,7 +777,15 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 html = _re_module.sub(r'<meta property="og:description" content=".*?"', f'<meta property="og:description" content="{doc_desc}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta name="keywords" content=".*?"', f'<meta name="keywords" content="{doc_keywords}"', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<link rel="canonical" href=".*?"', f'<link rel="canonical" href="{doc_url}"', html, flags=_re_module.IGNORECASE)
-            elif normalized_path.startswith("doctors/") or normalized_path.startswith("specialty/"):
+            KNOWN_SPECIALTY_SLUGS = {
+                "cardiologist", "dermatologist", "child-specialist", "pediatrician", "general-physician",
+                "orthopedic-surgeon", "rheumatologist", "gynecologist", "gynaecologist", "urologist",
+                "neurologist", "gastroenterologist", "pulmonologist", "ent-specialist",
+                "eye-specialist", "general-surgeon", "laparoscopic-surgeon", "plastic-surgeon",
+                "psychiatrist", "dentist", "nephrologist", "endocrinologist", "neurosurgeon",
+                "oncologist", "pathologist", "radiologist"
+            }
+            if normalized_path.startswith("doctors/") or normalized_path.startswith("specialty/") or normalized_path.startswith("speciality/") or normalized_path in KNOWN_SPECIALTY_SLUGS:
                 spec_raw = normalized_path.split("/")[-1].lower()
                 spec_slug = spec_raw.replace("-", " ").title()
 
@@ -786,20 +794,42 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                     "general-physician": "Consult top PMDC-verified General Physicians and Internal Medicine Specialists in Dera Ismail Khan. Comprehensive care for diabetes, blood pressure, fever, and chronic adult illnesses.",
                     "orthopedic-surgeon": "Find verified Orthopedic Surgeons in D.I. Khan. Expert care for bone fractures, joint pain, arthritis, knee replacement, spine disorders, and orthopedic trauma.",
                     "rheumatologist": "Top PMDC-verified Rheumatologists in D.I. Khan. Specialized diagnosis and relief for rheumatoid arthritis, joint inflammation, gout, lupus, and chronic autoimmune musculoskeletal pain.",
-                    "cardiologist": "Book appointments with leading Cardiologists & Heart Specialists in D.I. Khan. ECG, echocardiography, blood pressure control, and heart disease management.",
+                    "cardiologist": "Find & book top PMDC-verified Cardiologists and Heart Specialists in Dera Ismail Khan. ECG, 2D Echocardiography (Echo), ETT, blood pressure control, angina, cardiac care opposite DHQ Hospital. Instant queue tokens & clinic timings.",
                     "gynecologist": "Consult PMDC-verified Gynecologists in D.I. Khan. Expert maternal checkups, pregnancy care, normal delivery, infertility treatment, and female health clinics.",
+                    "gynaecologist": "Consult PMDC-verified Gynecologists in D.I. Khan. Expert maternal checkups, pregnancy care, normal delivery, infertility treatment, and female health clinics.",
                     "urologist": "Consult verified Urologists in D.I. Khan. Laser kidney stone removal, prostate treatment, urinary tract surgery, and male health specialists.",
                     "neurologist": "Book consultation with top Neurologists in D.I. Khan. Brain and nerve care, migraine relief, stroke management, epilepsy, and neuropathy specialists.",
                     "gastroenterologist": "Consult PMDC-verified Gastroenterologists in D.I. Khan. Stomach, liver, hepatitis, endoscopy, GERD, and digestive health clinics.",
                     "pulmonologist": "Find Chest Specialists & Pulmonologists in D.I. Khan. Asthma, chronic cough, COPD, chest infection, and respiratory disease clinics.",
                     "ent-specialist": "Book appointment with verified ENT Specialists in D.I. Khan. Ear infection, throat pain, sinusitis, tonsils, and hearing evaluations.",
-                    "eye-specialist": "Consult Eye Specialists & Ophthalmologists in D.I. Khan. Cataract surgery, vision testing, glaucoma, and ocular disease clinics."
+                    "eye-specialist": "Consult Eye Specialists & Ophthalmologists in D.I. Khan. Cataract surgery, vision testing, glaucoma, and ocular disease clinics.",
+                    "child-specialist": "Consult verified Child Specialists & Pediatricians in D.I. Khan. Infant healthcare, vaccination, child OPD, nutrition, and pediatric clinics opposite DHQ Hospital.",
+                    "pediatrician": "Consult verified Child Specialists & Pediatricians in D.I. Khan. Infant healthcare, vaccination, child OPD, nutrition, and pediatric clinics opposite DHQ Hospital.",
+                    "general-surgeon": "Consult top PMDC-verified General Surgeons in D.I. Khan. Emergency, gallbladder, hernia, appendix, and elective surgical procedures.",
+                    "laparoscopic-surgeon": "Book appointments with top Laparoscopic Surgeons in D.I. Khan (Pitta operation / gallbladder stone removal, hernia, appendix, keyhole surgery).",
+                    "plastic-surgeon": "Consult Plastic, Aesthetic & Cosmetic Surgeons in D.I. Khan. Hair transplant (FUE), burn care, scar revision, and aesthetic surgery.",
+                    "dentist": "Consult top Dentists in Dera Ismail Khan. Teeth scaling, root canal, dental implants, braces, and oral healthcare clinics.",
+                    "psychiatrist": "Consult leading Psychiatrists and Mental Health Specialists in D.I. Khan. Anxiety, depression, sleep disorders, and counseling."
                 }
 
-                spec_title = f"Best {spec_slug} in Dera Ismail Khan — Book PMDC Verified Doctor | D.I. Khan Care"
+                if spec_raw == "cardiologist":
+                    spec_title = "Best Cardiologist & Heart Specialist in Dera Ismail Khan — Book Online | D.I. Khan Care"
+                    spec_keywords = "cardiologist in dera ismail khan, heart specialist di khan, best cardiologist in dikhan, dr waqar khan gandapur cardiologist, prof dr amjad abrar cardiologist, dr muhammad shehram cardiologist, ecg echo ett di khan, blood pressure heart doctor dera ismail khan, dikhancare cardiologist"
+                elif spec_raw in ("child-specialist", "pediatrician"):
+                    spec_title = "Best Child Specialist & Pediatrician in Dera Ismail Khan — Book Online | D.I. Khan Care"
+                    spec_keywords = "child specialist in dera ismail khan, pediatrician di khan, bachon ka doctor di khan, child clinic opposite dhq hospital, dr naveed anjum child specialist, vaccination infant care di khan"
+                elif spec_raw in ("gynecologist", "gynaecologist"):
+                    spec_title = "Best Gynecologist & Maternity Specialist in Dera Ismail Khan — Book Online | D.I. Khan Care"
+                    spec_keywords = "gynecologist in dera ismail khan, lady doctor di khan, best gynecologist di khan, pregnancy specialist, normal delivery clinic, maternal care opposite dhq hospital"
+                elif spec_raw in ("laparoscopic-surgeon", "general-surgeon"):
+                    spec_title = f"Best {spec_slug} (Pitta & General Surgery) in Dera Ismail Khan | D.I. Khan Care"
+                    spec_keywords = f"{spec_slug.lower()} in dera ismail khan, pitta operation di khan, gallbladder surgery dera ismail khan, surgeon dr ali raza, laparoscopic cholecystectomy, hernia surgery di khan"
+                else:
+                    spec_title = f"Best {spec_slug} in Dera Ismail Khan — Book PMDC Verified Doctor | D.I. Khan Care"
+                    spec_keywords = f"{spec_slug.lower()} in dera ismail khan, best {spec_slug.lower()} in di khan, top {spec_slug.lower()} doctors opposite dhq hospital, {spec_slug.lower()} clinic timings, pmdc verified {spec_slug.lower()}"
+
                 spec_desc = spec_descriptions.get(spec_raw, f"Find and book online appointments with verified {spec_slug} doctors in Dera Ismail Khan. Daily clinic timings, instant queue tokens, pay cash on arrival.")
-                spec_keywords = f"{spec_slug.lower()} in dera ismail khan, best {spec_slug.lower()} in di khan, top {spec_slug.lower()} doctors opposite dhq hospital, {spec_slug.lower()} clinic timings, pmdc verified {spec_slug.lower()}"
-                spec_url = f"https://dikhancare.io/{normalized_path}"
+                spec_url = f"https://dikhancare.io/doctors/{spec_raw}"
 
                 html = _re_module.sub(r'<title>.*?</title>', f'<title>{spec_title}</title>', html, flags=_re_module.IGNORECASE)
                 html = _re_module.sub(r'<meta\s+name=["\']?description["\']?\s+content=["\'].*?["\']', f'<meta name="description" content="{spec_desc}"', html, flags=_re_module.IGNORECASE | _re_module.DOTALL)

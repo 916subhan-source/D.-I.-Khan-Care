@@ -207,6 +207,31 @@ export function parseVideoEmbedUrl(url: string): { type: 'youtube' | 'vimeo' | '
   };
 }
 
+export function formatPhoneForWhatsApp(phone: string, text?: string): string {
+  if (!phone) return '';
+  let clean = phone.replace(/[^0-9]/g, '');
+  if (clean.startsWith('0')) {
+    clean = '92' + clean.slice(1);
+  } else if (!clean.startsWith('92') && clean.length === 10) {
+    clean = '92' + clean;
+  }
+  const url = `https://wa.me/${clean}`;
+  return text ? `${url}?text=${encodeURIComponent(text)}` : url;
+}
+
+export function formatPhoneForTel(phone: string): string {
+  if (!phone) return '';
+  let clean = phone.replace(/[^0-9]/g, '');
+  if (clean.startsWith('0')) {
+    clean = '+92' + clean.slice(1);
+  } else if (!clean.startsWith('92') && clean.length === 10) {
+    clean = '+92' + clean;
+  } else if (!clean.startsWith('+')) {
+    clean = '+' + clean;
+  }
+  return `tel:${clean}`;
+}
+
 function InitialsAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const classes = size === 'lg'
@@ -14225,11 +14250,33 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
 
   // Appointment details & Consultation action modal
   const [selectedAppt, setSelectedAppt] = useState<AppointmentItem | null>(null);
+  const [callingPatientAppt, setCallingPatientAppt] = useState<AppointmentItem | null>(null);
+  const [copiedPhoneToast, setCopiedPhoneToast] = useState(false);
   const [consultNote, setConsultNote] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [apptActionMsg, setApptActionMsg] = useState('');
   const [doctorMarkPaidLoading, setDoctorMarkPaidLoading] = useState<string | null>(null);
   const [doctorLateLoading, setDoctorLateLoading] = useState<string | null>(null);
+
+  const handleOpenCallModal = (appt: AppointmentItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCallingPatientAppt(appt);
+    setCopiedPhoneToast(false);
+    if (appt.patient_phone) {
+      const telUrl = formatPhoneForTel(appt.patient_phone);
+      try {
+        window.location.href = telUrl;
+      } catch {}
+    }
+  };
+
+  const handleCopyPatientPhone = (phone: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!phone) return;
+    navigator.clipboard?.writeText(phone);
+    setCopiedPhoneToast(true);
+    setTimeout(() => setCopiedPhoneToast(false), 3000);
+  };
 
   // Profile Edit state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -16586,17 +16633,29 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                                       {appt.notes.replace(/\[[^\]]+\]/g, '').trim() || 'No specific notes recorded.'}
                                     </div>
                                   )}
-                                  <div className="flex items-center gap-2">
-                                    {appt.patient_phone && (
-                                      <a
-                                        href={`tel:${appt.patient_phone}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="flex-1 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                                      >
-                                        <Phone className="w-3.5 h-3.5 text-slate-500" />
-                                        <span>Call Patient</span>
-                                      </a>
-                                    )}
+                                   <div className="flex items-center gap-2">
+                                     {appt.patient_phone && (
+                                       <>
+                                         <button
+                                           type="button"
+                                           onClick={(e) => handleOpenCallModal(appt, e)}
+                                           className="flex-1 py-2 px-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                                         >
+                                           <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                           <span>Call</span>
+                                         </button>
+                                         <a
+                                           href={formatPhoneForWhatsApp(appt.patient_phone, `Assalam-o-Alaikum ${appt.patient_name || ''}, calling regarding your consultation at D.I. Khan Care (Slip #${appt.slip_number || ''}).`)}
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           onClick={(e) => e.stopPropagation()}
+                                           className="flex-1 py-2 px-2 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                                         >
+                                           <Share2 className="w-3.5 h-3.5 text-white" />
+                                           <span>WhatsApp</span>
+                                         </a>
+                                       </>
+                                     )}
                                     <button
                                       type="button"
                                       onClick={(e) => {
@@ -18951,6 +19010,102 @@ function DoctorSection({ onSwitchRole }: { onSwitchRole?: (r: 'patient' | 'assis
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal: Quick Call & WhatsApp Patient Dialog ── */}
+      {callingPatientAppt && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    Call Patient
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Slip #{callingPatientAppt.slip_number || `SLIP-${callingPatientAppt.id.slice(0, 6).toUpperCase()}`}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCallingPatientAppt(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Patient Info Card */}
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Patient Name</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-white">
+                  {callingPatientAppt.patient_name || 'Walk-in Patient'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Mobile Number</span>
+                <span className="text-sm font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                  {callingPatientAppt.patient_phone || 'No phone recorded'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Consultation Slot</span>
+                <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                  {callingPatientAppt.slot_date || 'Today'} · {callingPatientAppt.slot_time || 'Scheduled'}
+                </span>
+              </div>
+            </div>
+
+            {/* Direct Calling Options */}
+            <div className="space-y-2.5 pt-1">
+              {/* Option 1: WhatsApp Voice Call / Chat */}
+              <a
+                href={formatPhoneForWhatsApp(callingPatientAppt.patient_phone || '', `Assalam-o-Alaikum ${callingPatientAppt.patient_name || ''}, calling regarding your consultation at D.I. Khan Care (Slip #${callingPatientAppt.slip_number || ''}).`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setCallingPatientAppt(null)}
+                className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                <Share2 className="w-4 h-4 text-white" />
+                <span>Call / Message on WhatsApp</span>
+              </a>
+
+              {/* Option 2: Cellular Dialer Call */}
+              <a
+                href={formatPhoneForTel(callingPatientAppt.patient_phone || '')}
+                onClick={() => setCallingPatientAppt(null)}
+                className="w-full py-3 px-4 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer"
+              >
+                <Phone className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+                <span>Direct Cellular Phone Call</span>
+              </a>
+
+              {/* Option 3: Copy Phone Number */}
+              <button
+                type="button"
+                onClick={(e) => handleCopyPatientPhone(callingPatientAppt.patient_phone || '', e)}
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                {copiedPhoneToast ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-600" />
+                    <span className="text-emerald-600 font-bold">✓ Phone Number Copied to Clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Copy Phone Number ({callingPatientAppt.patient_phone})</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

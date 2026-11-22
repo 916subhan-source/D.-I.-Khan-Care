@@ -67,7 +67,8 @@ import {
   Play,
   Image as ImageIcon,
   Video,
-  Layers
+  Layers,
+  Smartphone
 } from 'lucide-react';
 import { apiFetch, invalidateApiCache } from './lib/api';
 import { playStartupChime, initGlobalButtonSounds, playButtonClickSound } from './utils/sound';
@@ -76,6 +77,7 @@ import HealthChatbot from './components/HealthChatbot';
 import HomeVisualFilters, { HOME_CONDITIONS } from './components/HomeVisualFilters';
 import JoinAsDoctorSection from './components/JoinAsDoctorSection';
 import { InteractiveBookingShowcase } from './components/InteractiveBookingShowcase';
+import { DownloadAppModal } from './components/DownloadAppModal';
 
 
 // ── Shared Domain Types, Formatters, Calling Order & Constants ──
@@ -986,6 +988,24 @@ export default function App() {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showDownloadAppModal, setShowDownloadAppModal] = useState<boolean>(() => {
+    try {
+      const p = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+      return p === '/download' || p === '/download-app' || p === '/app';
+    } catch {
+      return false;
+    }
+  });
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
 
   // Native Startup Splash Animation Controller & Sound
   // Native HTML shell in index.html handles the initial entrance seamlessly at 0ms.
@@ -1294,6 +1314,15 @@ export default function App() {
               <span>Join as a Doctor</span>
             </button>
             <button
+              onClick={() => setShowDownloadAppModal(true)}
+              className="px-3.5 py-2 text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+              title="Download Android Mobile App"
+            >
+              <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Download App</span>
+              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100">APK</span>
+            </button>
+            <button
               onClick={() => setShowStaffModal(true)}
               className="ml-2 text-sm font-bold px-5 py-2 rounded-xl text-white transition-all shadow-btn hover:shadow-btn-hover hover:-translate-y-0.5 active:scale-95 cursor-pointer"
               style={{ background: 'linear-gradient(135deg, #0d9488, #0f766e)' }}
@@ -1322,6 +1351,14 @@ export default function App() {
               aria-label="Toggle theme mode"
             >
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+            </button>
+            <button
+              onClick={() => setShowDownloadAppModal(true)}
+              className="px-2 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700/80 rounded-lg transition-all shadow-2xs flex items-center gap-1"
+              aria-label="Download App"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>App</span>
             </button>
             <button
               onClick={() => handleSwitchRole('track')}
@@ -1397,6 +1434,18 @@ export default function App() {
                   <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Join as a Doctor</span>
                   <span className="ml-auto text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300">0332 / 0336</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    setShowDownloadAppModal(true);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-left transition-all cursor-pointer bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 shadow-2xs"
+                >
+                  <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Download Mobile App</span>
+                  <span className="ml-auto text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100">APK</span>
                 </button>
               </div>
 
@@ -1477,6 +1526,13 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Download Mobile App Modal */}
+      <DownloadAppModal
+        isOpen={showDownloadAppModal}
+        onClose={() => setShowDownloadAppModal(false)}
+        deferredPrompt={deferredPrompt}
+      />
 
       {/* ── Content ── */}
       <main className="flex-1 pb-20 md:pb-0 dark:bg-[#080d14] overflow-x-hidden w-full max-w-full">

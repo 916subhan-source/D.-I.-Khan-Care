@@ -510,13 +510,15 @@ async def delete_appointment_admin(
     db: AsyncSession = Depends(get_db)
 ):
     """Admin cleanly deletes an appointment, freeing its slot and cascading payments and reviews."""
-    appt = (await db.execute(select(Appointment).where(Appointment.id == appointment_id))).scalar_one_or_none()
-    if not appt:
+    appt_info = (await db.execute(
+        select(Appointment.id, Appointment.doctor_id, Appointment.slot_id, Appointment.slip_number)
+        .where(Appointment.id == appointment_id)
+    )).first()
+    if not appt_info:
         raise HTTPException(status_code=404, detail="Appointment not found.")
 
-    doc_id = appt.doctor_id
-    slot_id = appt.slot_id
-    slip_num = appt.slip_number or appointment_id
+    _, doc_id, slot_id, slip_num = appt_info
+    slip_num = slip_num or appointment_id
 
     # 1. Cascade payments & reviews
     await db.execute(delete(Payment).where(Payment.appointment_id == appointment_id))
@@ -524,12 +526,14 @@ async def delete_appointment_admin(
 
     # 2. Release slot if booked
     if slot_id:
-        slot = (await db.execute(select(DoctorSlot).where(DoctorSlot.id == slot_id))).scalar_one_or_none()
-        if slot and slot.status == "booked" and not slot.is_blocked:
-            slot.status = "available"
+        await db.execute(
+            update(DoctorSlot)
+            .where(DoctorSlot.id == slot_id, DoctorSlot.status == "booked", DoctorSlot.is_blocked == False)
+            .values(status="available")
+        )
 
-    # 3. Delete appointment
-    await db.delete(appt)
+    # 3. Direct SQL delete on appointment
+    await db.execute(delete(Appointment).where(Appointment.id == appointment_id))
     await db.commit()
 
     # 4. Clear cache
@@ -549,12 +553,14 @@ async def delete_all_doctor_appointments_admin(
     db: AsyncSession = Depends(get_db)
 ):
     """Admin cleans up and deletes all appointment records for a specific doctor."""
-    appts = (await db.execute(select(Appointment).where(Appointment.doctor_id == doctor_id))).scalars().all()
-    if not appts:
+    rows = (await db.execute(
+        select(Appointment.id, Appointment.slot_id).where(Appointment.doctor_id == doctor_id)
+    )).all()
+    if not rows:
         return {"status": "SUCCESS", "deleted_count": 0, "message": "No appointments found for this doctor."}
 
-    appt_ids = [a.id for a in appts]
-    slot_ids = [a.slot_id for a in appts if a.slot_id]
+    appt_ids = [r[0] for r in rows]
+    slot_ids = [r[1] for r in rows if r[1]]
 
     # 1. Cascade payments & reviews
     if appt_ids:
@@ -563,12 +569,13 @@ async def delete_all_doctor_appointments_admin(
 
     # 2. Release slots back to available if booked
     if slot_ids:
-        slots = (await db.execute(select(DoctorSlot).where(DoctorSlot.id.in_(slot_ids)))).scalars().all()
-        for slot in slots:
-            if slot.status == "booked" and not slot.is_blocked:
-                slot.status = "available"
+        await db.execute(
+            update(DoctorSlot)
+            .where(DoctorSlot.id.in_(slot_ids), DoctorSlot.status == "booked", DoctorSlot.is_blocked == False)
+            .values(status="available")
+        )
 
-    # 3. Delete all appointments
+    # 3. Direct SQL delete on all doctor appointments
     await db.execute(delete(Appointment).where(Appointment.doctor_id == doctor_id))
     await db.commit()
 
@@ -580,7 +587,7 @@ async def delete_all_doctor_appointments_admin(
 
     return {
         "status": "SUCCESS",
-        "deleted_count": len(appts),
-        "message": f"Successfully deleted {len(appts)} appointment(s) for doctor {doctor_id}."
+        "deleted_count": len(appt_ids),
+        "message": f"Successfully deleted {len(appt_ids)} appointment(s) for doctor {doctor_id}."
     }
 

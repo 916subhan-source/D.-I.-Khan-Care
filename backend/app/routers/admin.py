@@ -501,3 +501,86 @@ async def get_redis_status(
         "active_otp_sessions": otp_entries,
         "otp_rate_limit_counters": otp_rate_limits,
     }
+
+
+@router.delete("/appointments/{appointment_id}")
+async def delete_appointment_admin(
+    appointment_id: str,
+    current_user: User = Depends(require_roles(["ADMIN"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Admin cleanly deletes an appointment, freeing its slot and cascading payments and reviews."""
+    appt = (await db.execute(select(Appointment).where(Appointment.id == appointment_id))).scalar_one_or_none()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Appointment not found.")
+
+    doc_id = appt.doctor_id
+    slot_id = appt.slot_id
+    slip_num = appt.slip_number or appointment_id
+
+    # 1. Cascade payments & reviews
+    await db.execute(delete(Payment).where(Payment.appointment_id == appointment_id))
+    await db.execute(delete(DoctorReview).where(DoctorReview.appointment_id == appointment_id))
+
+    # 2. Release slot if booked
+    if slot_id:
+        slot = (await db.execute(select(DoctorSlot).where(DoctorSlot.id == slot_id))).scalar_one_or_none()
+        if slot and slot.status == "booked" and not slot.is_blocked:
+            slot.status = "available"
+
+    # 3. Delete appointment
+    await db.delete(appt)
+    await db.commit()
+
+    # 4. Clear cache
+    if doc_id:
+        await redis_manager.clear_cache_pattern(f"doc_appts:{doc_id}*")
+        await redis_manager.clear_cache_pattern(f"doctor_slots:{doc_id}*")
+        await redis_manager.clear_cache_pattern(f"asst_queue:{doc_id}*")
+    await redis_manager.clear_cache_pattern("slot_matrix:*")
+
+    return {"status": "SUCCESS", "message": f"Appointment {slip_num} deleted cleanly."}
+
+
+@router.delete("/doctors/{doctor_id}/appointments")
+async def delete_all_doctor_appointments_admin(
+    doctor_id: str,
+    current_user: User = Depends(require_roles(["ADMIN"])),
+    db: AsyncSession = Depends(get_db)
+):
+    """Admin cleans up and deletes all appointment records for a specific doctor."""
+    appts = (await db.execute(select(Appointment).where(Appointment.doctor_id == doctor_id))).scalars().all()
+    if not appts:
+        return {"status": "SUCCESS", "deleted_count": 0, "message": "No appointments found for this doctor."}
+
+    appt_ids = [a.id for a in appts]
+    slot_ids = [a.slot_id for a in appts if a.slot_id]
+
+    # 1. Cascade payments & reviews
+    if appt_ids:
+        await db.execute(delete(Payment).where(Payment.appointment_id.in_(appt_ids)))
+        await db.execute(delete(DoctorReview).where(DoctorReview.appointment_id.in_(appt_ids)))
+
+    # 2. Release slots back to available if booked
+    if slot_ids:
+        slots = (await db.execute(select(DoctorSlot).where(DoctorSlot.id.in_(slot_ids)))).scalars().all()
+        for slot in slots:
+            if slot.status == "booked" and not slot.is_blocked:
+                slot.status = "available"
+
+    # 3. Delete all appointments
+    await db.execute(delete(Appointment).where(Appointment.doctor_id == doctor_id))
+    await db.commit()
+
+    # 4. Purge Redis cache
+    await redis_manager.clear_cache_pattern(f"doc_appts:{doctor_id}*")
+    await redis_manager.clear_cache_pattern(f"doctor_slots:{doctor_id}*")
+    await redis_manager.clear_cache_pattern(f"asst_queue:{doctor_id}*")
+    await redis_manager.clear_cache_pattern("slot_matrix:*")
+
+    return {
+        "status": "SUCCESS",
+        "deleted_count": len(appts),
+        "message": f"Successfully deleted {len(appts)} appointment(s) for doctor {doctor_id}."
+    }
+

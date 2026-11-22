@@ -43,12 +43,14 @@ from app.core.timezone import format_pkt_date, format_pkt_time, to_pkt, PKT
 from app.models import Appointment, Doctor, User, DoctorSlot, DoctorAssistant
 from app.services.wa_card_generator import (
     generate_otp_card,
+    generate_request_sent_card,
     generate_request_received_card,
     generate_confirmed_card,
     generate_reminder_card,
     generate_rescheduled_card,
     generate_cancelled_card,
-    generate_completed_card
+    generate_completed_card,
+    clean_doctor_display_name
 )
 
 logger = logging.getLogger("notification_service")
@@ -435,11 +437,11 @@ class NotificationService:
     # EVENT 1: Patient submits an appointment request
     # -------------------------------------------------------------
     async def notify_appointment_requested(self, db: AsyncSession, appt: Appointment):
-        """Notify patient and clinic assistant/doctor via WhatsApp when a new appointment request is submitted."""
+        """Notify patient (Request Sent card) and clinic assistant (Request Received card) via WhatsApp."""
         try:
             appt = await self._ensure_full_appointment(db, appt)
             raw_name = (appt.doctor.user.full_name if (appt.doctor and appt.doctor.user) else "Doctor").strip()
-            doc_name = raw_name if raw_name.lower().startswith("dr") else f"Dr. {raw_name}"
+            doc_name = clean_doctor_display_name(raw_name)
             slot_time_str = format_pkt_time(appt.slot.start_time) if appt.slot else "Scheduled"
             slot_date_str = format_pkt_date(appt.slot.start_time) if appt.slot else "Upcoming"
             specialty = appt.doctor.specialty if (appt.doctor and appt.doctor.specialty) else "Specialist"
@@ -449,14 +451,14 @@ class NotificationService:
             portal_url = f"{settings.FRONTEND_URL.rstrip('/')}/assistant"
             maps_url = self._resolve_google_maps_url(appt)
 
-            # 1. WhatsApp to Patient: Visual Card + Google Maps & Tracking Links
+            # 1. WhatsApp to Patient: Visual "Request Sent" Card + Google Maps & Tracking Links
             patient_phone = self._resolve_patient_phone(appt)
             if patient_phone:
                 patient_fallback_msg = (
                     f"🏥 *DI Khan Care — Clinic Appointment Notice*\n\n"
-                    f"🔔 *Appointment Request Received*\n\n"
+                    f"🔔 *Appointment Request Sent*\n\n"
                     f"Assalam-o-Alaikum *{appt.patient_name}*,\n"
-                    f"Aapki doctor booking request mosool ho chuki hai.\n\n"
+                    f"Aapki doctor booking request darj kar li gayi hai.\n\n"
                     f"👨‍⚕️ *Doctor:* {doc_name} ({specialty})\n"
                     f"📋 *Slip Number:* #{appt.slip_number or 'N/A'}\n"
                     f"📅 *Date:* {slot_date_str}\n"
@@ -464,7 +466,7 @@ class NotificationService:
                     f"📍 *Clinic:* {clinic_addr}\n"
                     f"📌 *Status:* ⏳ Pending Confirmation\n\n"
                     f"🗺️ *Clinic Google Maps Location:*\n{maps_url}\n\n"
-                    f"ℹ️ _Our team will confirm shortly. Please wait for confirmation message._\n\n"
+                    f"ℹ️ _Our team will confirm shortly. Please wait for your confirmation message._\n\n"
                     f"📲 *Track Live Status:*\n{track_url}\n\n"
                     f"📍 *DI Khan Care Clinic • Dera Ismail Khan*"
                 )
@@ -473,7 +475,7 @@ class NotificationService:
                     f"📲 *Live Queue Tracker & Digital Slip:*\n{track_url}"
                 )
                 try:
-                    card_bytes = generate_request_received_card(
+                    card_bytes = generate_request_sent_card(
                         patient_name=appt.patient_name or "Patient",
                         doctor_name=doc_name,
                         slip_number=appt.slip_number or "DIK-CARE",
@@ -485,28 +487,57 @@ class NotificationService:
                         card_bytes,
                         caption=patient_card_caption,
                         fallback_text=patient_fallback_msg,
-                        filename=f"request_{appt.slip_number}.png"
+                        filename=f"request_sent_{appt.slip_number}.png"
                     )
                 except Exception as card_err:
                     logger.warning(f"Card generation error: {card_err}, falling back to text.")
                     await self.send_whatsapp(patient_phone, patient_fallback_msg)
 
-            # 2. Short WhatsApp to Assistant(s): New request in portal inbox
+            # 2. Visual "Request Received" Alert Card to Assistant Desk / Staff
             assistant_phones = await self.get_assistant_phones_for_doctor(db, appt.doctor_id)
-            staff_msg = (
-                f"🔔 *NEW REQUEST IN PORTAL INBOX*\n"
-                f"_D.I. Khan Care Staff Alert_\n\n"
-                f"Nayi patient booking request inbox mein mosool hui hai:\n\n"
-                f"• *Patient:* {appt.patient_name}\n"
-                f"• *Doctor:* {doc_name}\n"
-                f"• *Slip:* #{appt.slip_number or ''}\n\n"
-                f"👩‍⚕️ *Doctor Assistant Desk:*\n{portal_url}"
-            )
-            for p in assistant_phones:
-                await self.send_whatsapp(p, staff_msg)
+            target_staff_phones = list(assistant_phones)
+            if not target_staff_phones and appt.doctor and appt.doctor.clinic_phone:
+                target_staff_phones.append(appt.doctor.clinic_phone)
 
-            if not assistant_phones and appt.doctor and appt.doctor.clinic_phone:
-                await self.send_whatsapp(appt.doctor.clinic_phone, staff_msg)
+            if target_staff_phones:
+                staff_fallback_msg = (
+                    f"🔔 *APPOINTMENT REQUEST RECEIVED*\n"
+                    f"_D.I. Khan Care • Staff Alert_\n\n"
+                    f"Nayi patient booking request review ke liye mosool hui hai:\n\n"
+                    f"• *Patient:* {appt.patient_name}\n"
+                    f"• *Doctor:* {doc_name}\n"
+                    f"• *Date & Time:* {slot_date_str} at {slot_time_str}\n"
+                    f"• *Slip:* #{appt.slip_number or ''}\n\n"
+                    f"👩‍⚕️ *Open Assistant Desk to Review:*\n{portal_url}"
+                )
+                staff_card_caption = (
+                    f"🔔 *New Request from {appt.patient_name}*\n"
+                    f"👨‍⚕️ {doc_name} • {slot_date_str} ({slot_time_str})\n\n"
+                    f"👩‍⚕️ *Open Assistant Desk to Confirm:*\n{portal_url}"
+                )
+                try:
+                    assistant_card_bytes = generate_request_received_card(
+                        patient_name=appt.patient_name or "Patient",
+                        doctor_name=doc_name,
+                        slip_number=appt.slip_number or "DIK-CARE",
+                        visit_date=slot_date_str,
+                        slot_time=slot_time_str
+                    )
+                except Exception as staff_card_err:
+                    logger.warning(f"Staff card generation error: {staff_card_err}")
+                    assistant_card_bytes = None
+
+                for p in target_staff_phones:
+                    if assistant_card_bytes:
+                        await self.send_whatsapp_media(
+                            p,
+                            assistant_card_bytes,
+                            caption=staff_card_caption,
+                            fallback_text=staff_fallback_msg,
+                            filename=f"request_received_{appt.slip_number}.png"
+                        )
+                    else:
+                        await self.send_whatsapp(p, staff_fallback_msg)
 
         except Exception as e:
             logger.error(f"Error in notify_appointment_requested: {e}")

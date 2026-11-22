@@ -950,9 +950,7 @@ async def get_available_slots_by_date(
         for idx, s in enumerate(day_all_slots):
             s_pkt = to_pkt(s.start_time)
             if s.status == "available":
-                # For today, skip slots that have already started or passed in time
-                if day_offset == 0 and s_pkt <= now_pkt:
-                    continue
+                is_past_slot = bool(day_offset == 0 and s_pkt <= now_pkt)
                 available_slots_data.append({
                     "id": s.id,
                     "doctor_id": s.doctor_id,
@@ -961,7 +959,8 @@ async def get_available_slots_by_date(
                     "start_time_fmt": format_pkt_time(s.start_time),
                     "end_time_fmt": format_pkt_time(s.end_time),
                     "daily_slot_number": idx + 1,
-                    "status": s.status
+                    "status": s.status,
+                    "is_past": is_past_slot
                 })
 
         is_today = (day_offset == 0)

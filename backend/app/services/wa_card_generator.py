@@ -13,6 +13,7 @@ Uses custom vector rendering for all icons (no missing glyph boxes or unsupporte
 
 import os
 import io
+import re
 import math
 from PIL import Image, ImageDraw, ImageFont
 from typing import Optional, Tuple, Any
@@ -36,6 +37,18 @@ def _get_font(bold: bool, size: int):
     except Exception:
         pass
     return ImageFont.load_default()
+
+def clean_doctor_display_name(raw: str) -> str:
+    """Format doctor display name cleanly, stripping double 'Dr.' or lowercase prefixes."""
+    if not raw:
+        return "Doctor"
+    s = str(raw).strip()
+    s = re.sub(r'^(dr\.?|surgeon\.?|prof\.?)\s*', '', s, flags=re.IGNORECASE).strip()
+    s = re.sub(r'^(dr\.?|surgeon\.?|prof\.?)\s*', '', s, flags=re.IGNORECASE).strip()
+    s = s.replace('.', ' ')
+    parts = s.split()
+    formatted = " ".join(p.capitalize() for p in parts)
+    return f"Dr. {formatted}" if formatted else "Doctor"
 
 # -------------------------------------------------------------
 # Vector Icon Drawing Helpers (Zero Missing Glyphs)
@@ -71,6 +84,12 @@ def _draw_bell_icon(draw: ImageDraw.ImageDraw, cx: int, cy: int, color: str = "#
     draw.polygon([(cx - 18, cy + 10), (cx + 18, cy + 10), (cx + 12, cy - 14), (cx - 12, cy - 14)], fill=color)
     draw.rounded_rectangle((cx - 22, cy + 10, cx + 22, cy + 16), radius=3, fill=color)
     draw.ellipse((cx - 6, cy + 16, cx + 6, cy + 22), fill=color)
+
+def _draw_send_icon(draw: ImageDraw.ImageDraw, cx: int, cy: int, color: str = "#0284c7"):
+    """Draws an outgoing paper airplane / send icon."""
+    pts = [(cx - 18, cy + 16), (cx + 20, cy - 2), (cx - 18, cy - 18), (cx - 8, cy - 2)]
+    draw.polygon(pts, fill=color)
+    draw.line([(cx - 8, cy - 2), (cx + 20, cy - 2)], fill="#ffffff", width=2)
 
 def _draw_clock_icon(draw: ImageDraw.ImageDraw, cx: int, cy: int, r: int = 18, color: str = "#0284c7"):
     """Draws a clock icon with hour and minute hands."""
@@ -206,7 +225,7 @@ def generate_otp_card(patient_name: str, otp_code: str, slip_number: str, doctor
     y += 52
     _draw_row_bullet(draw, 110, y + 16, "#0d9488")
     draw.text((130, y), "Doctor:", fill="#0f172a", font=f_lbl)
-    doc_display = f"Dr. {doctor_name.replace('Dr. ', '').strip()}"
+    doc_display = clean_doctor_display_name(doctor_name)
     draw.text((270, y), doc_display[:32], fill="#334155", font=f_val)
 
     y += 52
@@ -229,26 +248,26 @@ def generate_otp_card(patient_name: str, otp_code: str, slip_number: str, doctor
 
 
 # -------------------------------------------------------------
-# TEMPLATE 2: Appointment Request Received
+# TEMPLATE 2A: Appointment Request Sent (For Patient)
 # -------------------------------------------------------------
-def generate_request_received_card(patient_name: str, doctor_name: str, slip_number: str, visit_date: str, slot_time: str) -> bytes:
-    """Template 2: Appointment Request Received (Pending Confirmation)."""
+def generate_request_sent_card(patient_name: str, doctor_name: str, slip_number: str, visit_date: str, slot_time: str) -> bytes:
+    """Template 2A: Appointment Request Sent (Delivered to Patient who booked)."""
     W, H = 850, 1020
     img, draw = _create_base_canvas(W, H)
     _draw_header(draw, W, "CLINIC • APPOINTMENT NOTICE")
 
-    # Icon: Bell circle
-    draw.ellipse(((W // 2) - 45, 190, (W // 2) + 45, 280), fill="#fff7ed", outline="#f97316", width=3)
-    _draw_bell_icon(draw, W // 2, 235, "#ea580c")
+    # Icon: Blue / Cyan circle with paper-plane / send icon
+    draw.ellipse(((W // 2) - 45, 190, (W // 2) + 45, 280), fill="#f0f9ff", outline="#0284c7", width=3)
+    _draw_send_icon(draw, W // 2, 235, "#0284c7")
 
-    # Heading
+    # Heading: Appointment Request Sent
     f_h1 = _get_font(bold=True, size=38)
-    h_txt = "Appointment Request Received"
+    h_txt = "Appointment Request Sent"
     draw.text(((W - f_h1.getbbox(h_txt)[2]) // 2, 295), h_txt, fill="#0f172a", font=f_h1)
 
-    # Subheading
+    # Subheading: Submitted for {patient_name}
     f_sub = _get_font(bold=True, size=26)
-    sub_txt = f"New Request from {patient_name.title()}"
+    sub_txt = f"Submitted for {patient_name.title()}"
     draw.text(((W - f_sub.getbbox(sub_txt)[2]) // 2, 345), sub_txt, fill="#0369a1", font=f_sub)
 
     # Details Box
@@ -258,7 +277,7 @@ def generate_request_received_card(patient_name: str, doctor_name: str, slip_num
     f_lbl = _get_font(bold=True, size=26)
 
     rows = [
-        ("Doctor:", f"Dr. {doctor_name.replace('Dr. ', '').strip()}", "#1e293b", False),
+        ("Doctor:", clean_doctor_display_name(doctor_name), "#1e293b", False),
         ("Slip No:", slip_number, "#0c3a4f", True),
         ("Date:", visit_date, "#1e293b", False),
         ("Time:", slot_time, "#1e293b", True),
@@ -279,14 +298,79 @@ def generate_request_received_card(patient_name: str, doctor_name: str, slip_num
     draw.rounded_rectangle((bx + 210, py - 4, bx + 490, py + 40), radius=14, fill="#f97316")
     draw.text((bx + 240, py + 5), "Pending Confirmation", fill="#ffffff", font=_get_font(bold=True, size=20))
 
-    # Advisory Box
+    # Advisory Box: Our team will confirm shortly
     ny = 750
     draw.rounded_rectangle((60, ny, W - 60, ny + 95), radius=16, fill="#f0f9ff", outline="#bae6fd", width=2)
     _draw_info_badge(draw, 95, ny + 46, r=18, color="#0284c7")
     draw.text((130, ny + 20), "Our team will confirm shortly.", fill="#0369a1", font=_get_font(bold=True, size=22))
     draw.text((130, ny + 52), "Please wait for your confirmation message.", fill="#0369a1", font=_get_font(bold=False, size=20))
 
-    _draw_footer(draw, W, H)
+    _draw_footer(draw, W, H, "DI Khan Care Clinic • Dera Ismail Khan")
+
+    out = io.BytesIO()
+    img.save(out, format="PNG", optimize=True)
+    return out.getvalue()
+
+
+# -------------------------------------------------------------
+# TEMPLATE 2B: Appointment Request Received (For Assistant/Staff)
+# -------------------------------------------------------------
+def generate_request_received_card(patient_name: str, doctor_name: str, slip_number: str, visit_date: str, slot_time: str, patient_phone: str = "") -> bytes:
+    """Template 2B: Appointment Request Received (Delivered to Assistant & Clinic Staff)."""
+    W, H = 850, 1020
+    img, draw = _create_base_canvas(W, H)
+    _draw_header(draw, W, "CLINIC • STAFF ALERT")
+
+    # Icon: Orange Bell circle
+    draw.ellipse(((W // 2) - 45, 190, (W // 2) + 45, 280), fill="#fff7ed", outline="#f97316", width=3)
+    _draw_bell_icon(draw, W // 2, 235, "#ea580c")
+
+    # Heading: Appointment Request Received
+    f_h1 = _get_font(bold=True, size=38)
+    h_txt = "Appointment Request Received"
+    draw.text(((W - f_h1.getbbox(h_txt)[2]) // 2, 295), h_txt, fill="#0f172a", font=f_h1)
+
+    # Subheading: New Request from {patient_name}
+    f_sub = _get_font(bold=True, size=26)
+    sub_txt = f"New Request from {patient_name.title()}"
+    draw.text(((W - f_sub.getbbox(sub_txt)[2]) // 2, 345), sub_txt, fill="#c2410c", font=f_sub)
+
+    # Details Box
+    bx, by, bw, bh = 60, 400, W - 120, 320
+    draw.rounded_rectangle((bx, by, bx + bw, by + bh), radius=20, fill="#fffbeb", outline="#fde68a", width=2)
+
+    f_lbl = _get_font(bold=True, size=26)
+
+    rows = [
+        ("Patient:", patient_name.title(), "#0f172a", True),
+        ("Doctor:", clean_doctor_display_name(doctor_name), "#1e293b", False),
+        ("Slip No:", slip_number, "#0c3a4f", True),
+        ("Date & Time:", f"{visit_date} ({slot_time})", "#1e293b", True),
+    ]
+
+    ry = by + 28
+    for label, val, color, is_bold in rows:
+        _draw_row_bullet(draw, bx + 35, ry + 16, "#ea580c")
+        draw.text((bx + 55, ry), label, fill="#78350f", font=f_lbl)
+        vf = _get_font(bold=is_bold, size=24 if len(val) > 26 else 26)
+        draw.text((bx + 210, ry), val[:34], fill=color, font=vf)
+        ry += 52
+
+    # Status Pill: Needs Confirmation
+    py = ry + 8
+    _draw_row_bullet(draw, bx + 35, py + 16, "#ea580c")
+    draw.text((bx + 55, py), "Status:", fill="#78350f", font=f_lbl)
+    draw.rounded_rectangle((bx + 210, py - 4, bx + 480, py + 40), radius=14, fill="#ea580c")
+    draw.text((bx + 240, py + 5), "Needs Confirmation", fill="#ffffff", font=_get_font(bold=True, size=20))
+
+    # Advisory Box: Staff Action
+    ny = 750
+    draw.rounded_rectangle((60, ny, W - 60, ny + 95), radius=16, fill="#fef3c7", outline="#f59e0b", width=2)
+    _draw_info_badge(draw, 95, ny + 46, r=18, color="#d97706")
+    draw.text((130, ny + 20), "Action Required: Open Assistant Desk", fill="#92400e", font=_get_font(bold=True, size=22))
+    draw.text((130, ny + 52), "Review inbox to approve, call or reschedule.", fill="#b45309", font=_get_font(bold=False, size=20))
+
+    _draw_footer(draw, W, H, "DI Khan Care • Clinic Desk Notification")
 
     out = io.BytesIO()
     img.save(out, format="PNG", optimize=True)

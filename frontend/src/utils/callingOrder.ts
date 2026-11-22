@@ -144,10 +144,13 @@ export function parseTimeToMinutes(str?: string, defaultMins: number = 540): num
 export function isPosSlotPassed(s: any, isToday: boolean): boolean {
   if (!isToday || !s) return false;
   if (s.is_emergency) return false;
+  if (s.is_past !== undefined) return Boolean(s.is_past);
   try {
     const currentMins = getCurrentMinutesInPkt();
     let slotMins = 9999;
-    if (s.start_time) {
+    if (s.start_time_fmt) {
+      slotMins = parseTimeToMinutes(s.start_time_fmt);
+    } else if (s.start_time) {
       const dt = new Date(s.start_time);
       const parts = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Karachi',
@@ -158,8 +161,6 @@ export function isPosSlotPassed(s: any, isToday: boolean): boolean {
       const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
       const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
       slotMins = h * 60 + m;
-    } else if (s.start_time_fmt) {
-      slotMins = parseTimeToMinutes(s.start_time_fmt);
     }
     return currentMins >= slotMins;
   } catch {

@@ -200,6 +200,7 @@ async def lifespan(app: FastAPI):
 from datetime import datetime, timedelta
 import os
 from fastapi import FastAPI, Response, Request
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
@@ -211,30 +212,29 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.DEBUG else None,
 )
 
-# Add cache‑control for static assets (images, js, css)
+# Add cache-control for built frontend assets (hashed filenames → 1-year immutable)
 @app.middleware("http")
 async def add_static_cache_headers(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith("/static"):
-        # 1 year cache, immutable because filenames include hashes when built
+    path = request.url.path
+    if path.startswith("/assets/") or path.startswith("/static/"):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         expires = datetime.utcnow() + timedelta(seconds=31536000)
         response.headers["Expires"] = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
     return response
 
-# Mount static files (built React app) if folder exists
-if os.path.exists("frontend/public"):
+# Mount built React frontend — Docker copies dist to /app/frontend/dist
+# In dev the folder won't exist so we fall back gracefully
+_FRONTEND_DIST = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+)
+_FRONTEND_ASSETS = os.path.join(_FRONTEND_DIST, "assets")
+if os.path.isdir(_FRONTEND_ASSETS):
     app.mount(
-        "/static",
-        StaticFiles(directory="frontend/public", html=True),
-        name="static",
+        "/assets",
+        StaticFiles(directory=_FRONTEND_ASSETS),
+        name="assets",
     )
-
-
-import os
-from fastapi import Request
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
 
 # Hardened CORS policy: strictly allow official production domain, preview branches, and local dev ports
 cors_origins = [

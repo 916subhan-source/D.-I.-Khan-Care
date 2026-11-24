@@ -1284,15 +1284,6 @@ export default function App() {
               Find a doctor
             </button>
             <button
-              onClick={() => handleSwitchRole('track')}
-              className={`px-3 xl:px-4 py-2 text-xs xl:text-sm font-semibold rounded-xl transition-all whitespace-nowrap cursor-pointer ${activeTab === 'track'
-                ? 'text-clinic-800 dark:text-emerald-300 bg-clinic-50 dark:bg-emerald-950/60 border border-clinic-200/80 dark:border-emerald-700/60 shadow-xs'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/80'
-                }`}
-            >
-              Track appointment
-            </button>
-            <button
               onClick={() => handleSwitchRole('loyalty')}
               className={`px-3 xl:px-3.5 py-2 text-xs xl:text-sm font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${activeTab === 'loyalty'
                 ? 'text-amber-950 dark:text-amber-100 bg-amber-400 dark:bg-amber-500/30 border border-amber-500/50 shadow-xs ring-2 ring-amber-400/20'

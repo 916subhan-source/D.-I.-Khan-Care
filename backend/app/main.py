@@ -4,6 +4,7 @@ FastAPI Application Entry Point for D.I. Khan Doctor Appointment System.
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from app.core.config import settings
@@ -196,6 +197,11 @@ async def lifespan(app: FastAPI):
     await redis_manager.disconnect()
     await engine.dispose()
 
+from datetime import datetime, timedelta
+import os
+from fastapi import FastAPI, Response, Request
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -204,6 +210,26 @@ app = FastAPI(
     redoc_url="/redoc" if settings.DEBUG else None,
     openapi_url="/openapi.json" if settings.DEBUG else None,
 )
+
+# Add cache‑control for static assets (images, js, css)
+@app.middleware("http")
+async def add_static_cache_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static"):
+        # 1 year cache, immutable because filenames include hashes when built
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        expires = datetime.utcnow() + timedelta(seconds=31536000)
+        response.headers["Expires"] = expires.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    return response
+
+# Mount static files (built React app) if folder exists
+if os.path.exists("frontend/public"):
+    app.mount(
+        "/static",
+        StaticFiles(directory="frontend/public", html=True),
+        name="static",
+    )
+
 
 import os
 from fastapi import Request

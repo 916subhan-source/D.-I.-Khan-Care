@@ -7122,12 +7122,15 @@ function PatientSection({
 
   // Dynamic Typewriter Search Placeholder for Hero Search Bar
   const searchPlaceholders = useMemo(() => [
+    "Search 'Surgeon Dr Ali Raza' or 'DHQ OPD Schedule'...",
+    "Search 'Gaini specialist' or 'Lady Doctor'...",
+    "Search 'Doctor fees' or 'PMDC verified'...",
     "Search 'Dr Naveed Anjum' or 'Bachon ka doctor'...",
     "Search 'Dil ka doctor' or 'Cardiologist'...",
     "Search 'Opposite DHQ Hospital' or 'Al-Shifa'...",
     "Search 'Dr Qaiser' or 'Haddi ka doctor'...",
     "Search 'Pitta operation' or 'Dr Abdul Basit'...",
-    "Search 'Skin specialist' or 'Lady doctor'...",
+    "Search 'Skin specialist' or 'Hair Transplant'...",
     "Search 'General Physician' or 'Bukhar ka doctor'..."
   ], []);
   const [placeholderText, setPlaceholderText] = useState('');
@@ -7475,8 +7478,13 @@ function PatientSection({
     const cleanQuery = searchTerm.trim().toLowerCase();
     const isGenericDoctorQuery = cleanQuery === 'dr list' || cleanQuery === 'doctor list' || cleanQuery === 'doctors list' || cleanQuery === 'best medical specialist' || cleanQuery === 'specialist' || cleanQuery === 'specialists';
     const isAliHospitalQuery = cleanQuery.includes('ali hospital') || cleanQuery.includes('al-shifa') || cleanQuery.includes('al shifa');
-    const isDhqQuery = cleanQuery.includes('dhq');
+    const isDhqQuery = cleanQuery.includes('dhq') || cleanQuery.includes('opd schedule') || cleanQuery.includes('schedule');
     const isMuftiMehmoodQuery = cleanQuery.includes('mufti mehmood') || cleanQuery.includes('mti');
+    const isIndigoHospitalQuery = cleanQuery.includes('indigo') || cleanQuery.includes('indigo care');
+    const isFeesQuery = cleanQuery.includes('fees') || cleanQuery.includes('fee') || cleanQuery.includes('iski fees') || cleanQuery.includes('charges') || cleanQuery.includes('kitni fees');
+    const isGainiQuery = cleanQuery.includes('gaini') || cleanQuery.includes('gyni') || cleanQuery.includes('gyne') || cleanQuery.includes('gynecologist') || cleanQuery.includes('lady doctor');
+    const isPmdcQuery = cleanQuery.includes('pmdc') || cleanQuery.includes('pmdc.pk') || cleanQuery.includes('pmdc number') || cleanQuery.includes('verified');
+    const isDrAliRaza = cleanQuery.includes('ali raza') || cleanQuery.includes('dr ali raza') || cleanQuery.includes('surgeon ali raza');
 
     const searchTokens = cleanQuery
       .split(/\s+/)
@@ -7511,7 +7519,12 @@ function PatientSection({
       (doc.conditions_treated && doc.conditions_treated.toLowerCase().includes(cleanQuery)) ||
       (isAliHospitalQuery && (doc.clinic_address.toLowerCase().includes('ali') || doc.clinic_address.toLowerCase().includes('shifa'))) ||
       (isDhqQuery && (doc.clinic_address.toLowerCase().includes('dhq') || doc.bio?.toLowerCase().includes('dhq') || doc.hospital_affiliations?.toLowerCase().includes('dhq'))) ||
-      (isMuftiMehmoodQuery && (doc.hospital_affiliations?.toLowerCase().includes('mufti') || doc.bio?.toLowerCase().includes('mufti')));
+      (isMuftiMehmoodQuery && (doc.hospital_affiliations?.toLowerCase().includes('mufti') || doc.bio?.toLowerCase().includes('mufti'))) ||
+      (isDrAliRaza && doc.full_name.toLowerCase().includes('ali raza')) ||
+      (isGainiQuery && (doc.specialty.toLowerCase().includes('gyn') || doc.specialty.toLowerCase().includes('obstetric') || doc.specialty.toLowerCase().includes('women'))) ||
+      (isIndigoHospitalQuery && (doc.clinic_address.toLowerCase().includes('hospital') || doc.hospital_affiliations?.toLowerCase().includes('hospital'))) ||
+      (isPmdcQuery && (doc.verification_status === 'verified' || doc.qualification?.toLowerCase().includes('pmdc'))) ||
+      (isFeesQuery && doc.fee_clinic != null);
     const matchSpecialty = selectedSpecialty === 'All specialties' ||
       doc.specialty.toLowerCase().includes(selectedSpecialty.toLowerCase()) ||
       (selectedSpecialty.toLowerCase().includes('cardio') && (doc.specialty.toLowerCase().includes('cardio') || doc.specialty.toLowerCase().includes('heart'))) ||

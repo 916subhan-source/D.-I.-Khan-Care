@@ -54,12 +54,13 @@ jobs:
         run: |
           cd frontend/android
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDoctorRelease && ./gradlew assembleAssistantRelease --stacktrace
 
       - name: Prepare APK Download Artifacts
         run: |
           mkdir -p frontend/public/downloads
-          cp frontend/android/app/build/outputs/apk/debug/app-debug.apk frontend/public/downloads/dikhan-care.apk
+          cp frontend/android/app/build/outputs/apk/doctorRelease/app-doctor-release.apk frontend/public/downloads/dikhan-doctor.apk
+    cp frontend/android/app/build/outputs/apk/assistantRelease/app-assistant-release.apk frontend/public/downloads/dikhan-assistant.apk
           cp frontend/android/app/build/outputs/apk/debug/app-debug.apk DIK-Care-v1.0.apk
 
       - name: Upload APK Build Artifact

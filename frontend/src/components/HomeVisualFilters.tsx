@@ -145,14 +145,14 @@ export const HOME_CONDITIONS: ConditionItem[] = [
   {
     id: 'gallstones',
     label: 'Gallstones',
-    keywords: ['gallstones', 'gallbladder', 'cholecystectomy', 'laparoscopic', 'waqar', 'stones', 'biliary', 'bile'],
+    keywords: ['gallstones', 'gallbladder', 'cholecystectomy', 'laparoscopic', 'waqar', 'ali raza', 'dr ali raza', 'dhq', 'dhq hospital di khan opd schedule', 'stones', 'biliary', 'bile'],
     specialtyHint: 'General & Laparoscopic Surgeon',
     image: '/filters/cond_gallstones.png'
   },
   {
     id: 'appendicitis',
     label: 'Appendicitis',
-    keywords: ['appendicitis', 'appendix', 'laparoscopic', 'waqar', 'abdominal pain', 'belly pain'],
+    keywords: ['appendicitis', 'appendix', 'laparoscopic', 'waqar', 'ali raza', 'dr ali raza', 'dhq opd schedule', 'abdominal pain', 'belly pain'],
     specialtyHint: 'General & Laparoscopic Surgeon',
     image: '/filters/cond_appendicitis.png'
   },
@@ -173,14 +173,14 @@ export const HOME_CONDITIONS: ConditionItem[] = [
   {
     id: 'hernia',
     label: 'Hernia',
-    keywords: ['hernia', 'inguinal hernia', 'ali raza', 'laparoscopic hernia', 'abdominal bulge', 'mesh repair', 'swelling', 'umbilical hernia'],
+    keywords: ['hernia', 'inguinal hernia', 'ali raza', 'dr ali raza', 'surgeon dr ali raza', 'dhq hospital dera ismail khan opd schedule', 'laparoscopic hernia', 'abdominal bulge', 'mesh repair', 'swelling', 'umbilical hernia'],
     specialtyHint: 'General & Laparoscopic Surgeon',
     image: '/filters/cond_hernia.png'
   },
   {
     id: 'piles',
     label: 'Piles / Bawasir',
-    keywords: ['piles', 'bawasir', 'hemorrhoids', 'fistula', 'fissure', 'ali raza', 'waqar', 'rectal bleeding'],
+    keywords: ['piles', 'bawasir', 'hemorrhoids', 'fistula', 'fissure', 'ali raza', 'dr ali raza', 'waqar', 'rectal bleeding', 'iski fees'],
     specialtyHint: 'General & Laparoscopic Surgeon',
     image: '/filters/cond_piles.png'
   }

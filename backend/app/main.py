@@ -647,10 +647,43 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
             }
         )
 
-    @app.get("/dikhancare.apk")
-    @app.get("/dik-care.apk")
-    @app.get("/downloads/{apk_file:path}")
-    async def download_apk_file(apk_file: str = "DIK-Care-v1.0.apk"):
+    # Role‑based APK download endpoints – only the matching role can fetch its bundle
+    @app.get("/download/doctor")
+    async def download_doctor_apk(user = Depends(require_role("DOCTOR"))):
+        """Serve the Doctor‑flavored APK only to a logged‑in Doctor."""
+        candidate_paths = [
+            os.path.join(frontend_dist, "downloads", "app-doctor-release.apk"),
+            os.path.join(frontend_dist, "app-doctor-release.apk"),
+        ]
+        for p in candidate_paths:
+            if os.path.isfile(p):
+                return FileResponse(
+                    p,
+                    media_type="application/vnd.android.package-archive",
+                    filename="DIK-Care-Doctor.apk",
+                    headers={"Content-Disposition": 'attachment; filename="DIK-Care-Doctor.apk"'}
+                )
+        # Fallback to GitHub release (doctor flavor)
+        return RedirectResponse(url="https://github.com/916subhan-source/D.-I.-Khan-Care/releases/latest/download/app-doctor-release.apk", status_code=302)
+
+    @app.get("/download/assistant")
+    async def download_assistant_apk(user = Depends(require_role("ASSISTANT"))):
+        """Serve the Assistant‑flavored APK only to a logged‑in Assistant."""
+        candidate_paths = [
+            os.path.join(frontend_dist, "downloads", "app-assistant-release.apk"),
+            os.path.join(frontend_dist, "app-assistant-release.apk"),
+        ]
+        for p in candidate_paths:
+            if os.path.isfile(p):
+                return FileResponse(
+                    p,
+                    media_type="application/vnd.android.package-archive",
+                    filename="DIK-Care-Assistant.apk",
+                    headers={"Content-Disposition": 'attachment; filename="DIK-Care-Assistant.apk"'}
+                )
+        # Fallback to GitHub release (assistant flavor)
+        return RedirectResponse(url="https://github.com/916subhan-source/D.-I.-Khan-Care/releases/latest/download/app-assistant-release.apk", status_code=302)
+
         """
         Direct download endpoint for the official D.I. Khan Care Android App.
         Serves local file if present, otherwise redirects to the latest GitHub release.

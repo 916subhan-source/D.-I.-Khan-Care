@@ -199,9 +199,10 @@ async def lifespan(app: FastAPI):
 
 from datetime import datetime, timedelta
 import os
-from fastapi import FastAPI, Response, Request
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi import FastAPI, Response, Request, Depends
+from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from app.dependencies import require_role
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -709,29 +710,6 @@ if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "
                 )
         # Fallback to GitHub release (assistant flavor)
         return RedirectResponse(url="https://github.com/916subhan-source/D.-I.-Khan-Care/releases/latest/download/app-assistant-release.apk", status_code=302)
-
-        """
-        Direct download endpoint for the official D.I. Khan Care Android App.
-        Serves local file if present, otherwise redirects to the latest GitHub release.
-        """
-        candidate_paths = [
-            os.path.join(frontend_dist, "downloads", apk_file),
-            os.path.join(frontend_dist, apk_file),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "downloads", apk_file),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "uploads", apk_file),
-        ]
-        for p in candidate_paths:
-            if os.path.isfile(p):
-                return FileResponse(
-                    p,
-                    media_type="application/vnd.android.package-archive",
-                    filename="DIK-Care-v1.0.apk",
-                    headers={"Content-Disposition": 'attachment; filename="DIK-Care-v1.0.apk"'}
-                )
-
-        # Redirect to GitHub releases asset if not stored locally
-        github_apk_release_url = "https://github.com/916subhan-source/D.-I.-Khan-Care/releases/latest/download/DIK-Care-v1.0.apk"
-        return RedirectResponse(url=github_apk_release_url, status_code=302)
 
     @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(request: Request, full_path: str):

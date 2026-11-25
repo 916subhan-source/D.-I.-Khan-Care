@@ -24,3 +24,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </React.StrictMode>,
 );
+
+// Dismiss startup splash immediately once React mounts to eliminate mobile LCP delay
+if (typeof window !== 'undefined' && (window as any).__dismissDikhanSplash) {
+  (window as any).__dismissDikhanSplash();
+}

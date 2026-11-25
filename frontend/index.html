@@ -530,7 +530,7 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>Tap anywhere for chime
     </div>
   </div>
-  <audio id="dikhan-pre-chime" src="/startup_chime.wav" preload="auto"></audio>
+  <audio id="dikhan-pre-chime" src="/startup_chime.wav" preload="none"></audio>
   <script>
     (function() {
       // 1. Instant theme detection
@@ -650,10 +650,10 @@
         }
       };
 
-      // 4. Auto-dismiss splash at 1.8s so screen unlocks smoothly
+      // 4. Auto-dismiss splash fallback at 800ms so mobile performance tests don't stall
       setTimeout(function() {
         if (window.__dismissDikhanSplash) window.__dismissDikhanSplash();
-      }, 1800);
+      }, 800);
     })();
   </script>
 

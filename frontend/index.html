@@ -533,15 +533,11 @@
   <audio id="dikhan-pre-chime" src="/startup_chime.wav" preload="none"></audio>
   <script>
     (function() {
-      // 1. Instant theme detection
+      // Enforce permanent Light Mode
       try {
-        var theme = localStorage.getItem('dikhan_theme');
-        if (theme === 'light') {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
-        } else if (theme === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.classList.add('dark');
-        }
+        localStorage.removeItem('dikhan_theme');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
       } catch(e) {}
 
       // 2. Real-time zero-latency Web Audio Synthesizer (starts at 0ms, no network delay)
